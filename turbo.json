@@ -1,0 +1,42 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  },
+  "globalPassThroughEnv": [
+    "ALLOW_INSECURE_GAME_ORIGINS",
+    "CHROME_PATH",
+    "CONVEX_SELF_HOSTED_ADMIN_KEY",
+    "CONVEX_SELF_HOSTED_URL",
+    "CONVEX_SITE_URL",
+    "E2E_BASE_URL",
+    "GAME_CDN_PUBLIC_ORIGIN",
+    "GAME_CDN_ROOT",
+    "GAME_MODULE_FETCH_ORIGIN_MAP",
+    "GAME_MODULE_ORIGINS",
+    "GAME_PUBLISH_TOKEN",
+    "HOST",
+    "JOIN_TICKET_SECRET",
+    "MAX_PAYLOAD_BYTES",
+    "PORT",
+    "ROOM_IDLE_TIMEOUT_MS",
+    "TARGET_HOST",
+    "TARGET_PORT",
+    "UPSTREAM_ORIGIN"
+  ]
+}

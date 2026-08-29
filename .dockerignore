@@ -1,0 +1,16 @@
+.git
+.github
+node_modules
+**/node_modules
+**/dist
+.turbo
+.cache
+.local
+.env
+.env.*
+!.env.example
+var
+coverage
+playwright-report
+test-results
+*.log

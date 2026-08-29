@@ -1,0 +1,49 @@
+services:
+  convex-backend:
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${CONVEX_PORT:-43210}:3210"
+      - "${BIND_ADDRESS:-127.0.0.1}:${CONVEX_SITE_PORT:-43211}:3211"
+
+  # Self-hosted Convex discovers its configured public issuer from inside the
+  # backend namespace. `*.localhost` resolves to ::1 there, so this development-
+  # only bridge maps the public local port back to Convex site port 3211.
+  convex-site-loopback:
+    build:
+      context: .
+      dockerfile: infra/convex-site-loopback/Dockerfile
+    network_mode: service:convex-backend
+    environment:
+      HOST: "::"
+      PORT: 43211
+      UPSTREAM_ORIGIN: http://127.0.0.1:3211
+    read_only: true
+    tmpfs:
+      - /tmp:size=8m,noexec,nosuid
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    depends_on:
+      convex-backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://[::1]:43211/.well-known/openid-configuration').then(r=>{if(!r.ok)process.exit(1)})"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  convex-dashboard:
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${CONVEX_DASHBOARD_PORT:-46791}:6791"
+
+  game-cdn:
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${GAME_CDN_PORT:-8081}:8080"
+
+  realtime:
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${REALTIME_PORT:-8787}:8787"
+
+  web:
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-4173}:8080"

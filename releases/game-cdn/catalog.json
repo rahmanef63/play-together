@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "games": [
+    {
+      "gameId": "pong",
+      "version": "0.1.0",
+      "title": "Pong Together",
+      "manifestPath": "/games/pong/0.1.0/manifest.json",
+      "manifestSha256": "cf1c8053178297ceea3653989b8869e58c4a194d6ae38f7197c7dc0c36201e0d"
+    },
+    {
+      "gameId": "pong",
+      "version": "0.2.0",
+      "title": "Pong Together",
+      "manifestPath": "/games/pong/0.2.0/manifest.json",
+      "manifestSha256": "486b1c4a479cc8afc1531f5f62b0c539f46b1bfd29a0082b4cba9827c7e18939"
+    },
+    {
+      "gameId": "tap-race",
+      "version": "0.1.0",
+      "title": "Tap Race",
+      "manifestPath": "/games/tap-race/0.1.0/manifest.json",
+      "manifestSha256": "9db8e55d83e6f13fd8fa71bd8cf9f552067ca6a862b7b76824ce1396f533c7e6"
+    },
+    {
+      "gameId": "tap-race",
+      "version": "0.2.0",
+      "title": "Tap Race",
+      "manifestPath": "/games/tap-race/0.2.0/manifest.json",
+      "manifestSha256": "0b6d6ce61e8ed859f284c08a96173ae7ae046b3453c446cecc5ef2c3c845ba61"
+    }
+  ]
+}

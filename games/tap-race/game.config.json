@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "tap-race",
+    "version": "0.2.0",
+    "title": "Tap Race",
+    "description": "A four-player button race with a game-specific TAP console for remote and handheld play.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 30,
+    "snapshotRate": 15
+  },
+  "modes": ["shared-screen", "handheld"],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "adaptive"
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  }
+}

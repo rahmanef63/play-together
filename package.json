@@ -1,0 +1,64 @@
+{
+  "name": "play-together",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Version-isolated multiplayer game platform with mobile controllers and shared browser displays.",
+  "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "pnpm game:publish && turbo run build",
+    "typecheck": "turbo run typecheck && pnpm typecheck:convex",
+    "test": "pnpm game:publish && turbo run test && vitest run --config vitest.root.config.ts",
+    "lint": "biome check --diagnostic-level=error .",
+    "format": "biome format --write .",
+    "architecture:check": "node scripts/check-boundaries.mjs",
+    "game:build": "turbo run build --filter=./games/*",
+    "game:publish": "node scripts/publish-games.mjs",
+    "smoke:realtime": "node scripts/smoke-realtime.mjs",
+    "verify": "pnpm lint && pnpm architecture:check && pnpm typecheck && pnpm test && pnpm build && pnpm smoke:realtime && pnpm security:check",
+    "convex:codegen": "convex codegen",
+    "env:local": "node scripts/generate-local-env.mjs",
+    "stack:bootstrap": "node scripts/bootstrap-local.mjs",
+    "stack:up": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin up -d --build --wait",
+    "stack:stop": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin stop",
+    "stack:logs": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin logs -f --tail=100",
+    "game:publish:convex": "node scripts/publish-to-convex.mjs",
+    "typecheck:convex": "tsc -p convex/tsconfig.json --noEmit",
+    "security:source": "node scripts/security-check.mjs",
+    "security:audit": "pnpm audit --audit-level high",
+    "security:check": "pnpm security:source && pnpm security:audit",
+    "test:e2e": "playwright test",
+    "verify:stack": "pnpm smoke:realtime && pnpm test:e2e",
+    "convex:env:sync": "node scripts/sync-convex-env.mjs",
+    "game:publish:one": "node scripts/publish-game.mjs",
+    "game:publish:convex:one": "node scripts/publish-to-convex.mjs",
+    "stack:down": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin down --remove-orphans",
+    "stack:config": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin config --quiet"
+  },
+  "dependencies": {
+    "@auth/core": "0.41.3",
+    "@convex-dev/auth": "0.0.95",
+    "convex": "1.45.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.11",
+    "@play-together/contracts": "workspace:*",
+    "@play-together/security": "workspace:*",
+    "@playwright/test": "1.62.1",
+    "@types/node": "26.4.0",
+    "esbuild": "0.28.2",
+    "turbo": "2.10.12",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11",
+    "ws": "8.21.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "type": "module"
+}

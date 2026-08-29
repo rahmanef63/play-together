@@ -1,0 +1,127 @@
+name: ${COMPOSE_PROJECT_NAME:-play-together}
+
+services:
+  convex-backend:
+    image: ghcr.io/get-convex/convex-backend@sha256:1f2044e3eac463ac78973b136c0baf72d4ada602611d853d6f99f280e29e0a98
+    expose: ["3210", "3211"]
+    volumes:
+      - convex_data:/convex/data
+    environment:
+      INSTANCE_NAME: ${CONVEX_INSTANCE_NAME:-play-together}
+      INSTANCE_SECRET: ${CONVEX_INSTANCE_SECRET:?Generate a strong production secret}
+      CONVEX_CLOUD_ORIGIN: ${CONVEX_CLOUD_ORIGIN:?Set the public Convex API origin}
+      CONVEX_SITE_ORIGIN: ${CONVEX_SITE_ORIGIN:?Set the public Convex site origin}
+      REDACT_LOGS_TO_CLIENT: ${REDACT_LOGS_TO_CLIENT:-true}
+      DISABLE_METRICS_ENDPOINT: ${DISABLE_METRICS_ENDPOINT:-true}
+      DISABLE_BEACON: ${DISABLE_BEACON:-true}
+      DOCUMENT_RETENTION_DELAY: ${DOCUMENT_RETENTION_DELAY:-172800}
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3210/version"]
+      interval: 5s
+      timeout: 4s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+    networks: [platform]
+
+  convex-dashboard:
+    profiles: ["admin"]
+    image: ghcr.io/get-convex/convex-dashboard@sha256:284a2638e0c1a4ec0c2327d8219776f3a426ca5824b81686ae4d9454dc0ce8ed
+    expose: ["6791"]
+    environment:
+      NEXT_PUBLIC_DEPLOYMENT_URL: ${CONVEX_CLOUD_ORIGIN:?Set the public Convex API origin}
+    depends_on:
+      convex-backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [platform]
+
+  game-cdn:
+    build:
+      context: .
+      dockerfile: infra/game-cdn/Dockerfile
+    expose: ["8080"]
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8080/healthz').then(r=>{if(!r.ok)process.exit(1)})"]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+    restart: unless-stopped
+    networks: [platform]
+
+  realtime:
+    build:
+      context: .
+      dockerfile: apps/realtime/Dockerfile
+    expose: ["8787"]
+    environment:
+      PORT: 8787
+      HOST: 0.0.0.0
+      JOIN_TICKET_SECRET: ${JOIN_TICKET_SECRET:?Generate a shared join-ticket secret}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:?Set exact browser origins}
+      GAME_MODULE_ORIGINS: ${GAME_MODULE_ORIGINS:?Set exact immutable game origins}
+      GAME_MODULE_FETCH_ORIGIN_MAP: ${GAME_MODULE_FETCH_ORIGIN_MAP:-{}}
+      ALLOW_INSECURE_GAME_ORIGINS: ${ALLOW_INSECURE_GAME_ORIGINS:-false}
+      MODULE_CACHE_DIR: /app/.cache/game-modules
+      ROOM_IDLE_TIMEOUT_MS: ${ROOM_IDLE_TIMEOUT_MS:-30000}
+      MAX_PAYLOAD_BYTES: ${MAX_PAYLOAD_BYTES:-65536}
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,noexec,nosuid
+      - /app/.cache:size=128m,uid=1000,gid=1000,mode=0700,noexec,nosuid
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    depends_on:
+      game-cdn:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8787/healthz').then(r=>{if(!r.ok)process.exit(1)})"]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+    restart: unless-stopped
+    networks: [platform]
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_CONVEX_URL: ${VITE_CONVEX_URL:?Set the public Convex API URL}
+        VITE_REALTIME_URL: ${VITE_REALTIME_URL:?Set the public WSS gateway URL}
+    expose: ["8080"]
+    environment:
+      PORT: 8080
+      HOST: 0.0.0.0
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    depends_on:
+      convex-backend:
+        condition: service_healthy
+      realtime:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8080/healthz').then(r=>{if(!r.ok)process.exit(1)})"]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+    restart: unless-stopped
+    networks: [platform]
+
+volumes:
+  convex_data:
+
+networks:
+  platform:
+    driver: bridge
