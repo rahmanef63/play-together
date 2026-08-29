@@ -8,6 +8,24 @@ afterEach(async () => {
 });
 
 describe("Convex local issuer bridge", () => {
+  it("reports transport readiness before auth routes exist", async () => {
+    const upstream = createServer((_incoming, response) => {
+      response.writeHead(404, { "content-type": "text/plain" });
+      response.end("not deployed yet");
+    });
+    const upstreamAddress = await listen(upstream);
+    closeables.push(upstreamAddress.close);
+    const bridge = createLoopbackBridge({
+      upstreamOrigin: `http://127.0.0.1:${upstreamAddress.port}`,
+    });
+    const bridgeAddress = await listen(bridge);
+    closeables.push(bridgeAddress.close);
+
+    const response = await rawRequest(bridgeAddress.port, "/healthz", "localhost");
+    expect(response.status).toBe(200);
+    expect(JSON.parse(response.body)).toEqual({ ok: true, upstreamReachable: true });
+  });
+
   it("forwards discovery metadata and preserves the configured public Host", async () => {
     const upstream = createServer((incoming, response) => {
       response.writeHead(200, { "content-type": "application/json" });

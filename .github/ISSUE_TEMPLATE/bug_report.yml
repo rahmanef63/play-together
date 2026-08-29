@@ -1,0 +1,55 @@
+name: Bug report
+description: Report a reproducible Play Together problem
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve Play Together. Do not include secrets or private user data.
+  - type: input
+    id: version
+    attributes:
+      label: Commit / release
+      description: Git SHA, tag, or game version if known.
+      placeholder: main / pong@0.2.0 / abc1234
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - Web shell / lobby
+        - Realtime gateway
+        - Convex control plane
+        - Game SDK / runtime
+        - Pong
+        - Tap Race
+        - Deployment / infrastructure
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      placeholder: "1. Create a public room\n2. Join from mobile\n3. ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, OS/device, orientation, network, and relevant game mode.

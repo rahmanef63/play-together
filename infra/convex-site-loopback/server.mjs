@@ -17,6 +17,35 @@ export function createLoopbackBridge(options = {}) {
     options.upstreamOrigin || process.env.UPSTREAM_ORIGIN || "http://127.0.0.1:3211",
   );
   return createServer((incoming, outgoing) => {
+    if (incoming.url === "/healthz") {
+      const readiness = createUpstreamRequest(
+        {
+          protocol: upstream.protocol,
+          hostname: upstream.hostname,
+          port: upstream.port,
+          method: "HEAD",
+          path: "/",
+        },
+        (upstreamResponse) => {
+          upstreamResponse.resume();
+          outgoing.writeHead(200, {
+            "content-type": "application/json; charset=utf-8",
+            "cache-control": "no-store",
+          });
+          outgoing.end(JSON.stringify({ ok: true, upstreamReachable: true }));
+        },
+      );
+      readiness.setTimeout(3_000, () => readiness.destroy(new Error("upstream timeout")));
+      readiness.on("error", () => {
+        outgoing.writeHead(503, {
+          "content-type": "application/json; charset=utf-8",
+          "cache-control": "no-store",
+        });
+        outgoing.end(JSON.stringify({ ok: false, upstreamReachable: false }));
+      });
+      readiness.end();
+      return;
+    }
     const headers = {};
     for (const [name, value] of Object.entries(incoming.headers)) {
       if (!hopByHopHeaders.has(name.toLowerCase()) && value !== undefined) headers[name] = value;

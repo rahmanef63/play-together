@@ -1,44 +1,112 @@
+<div align="center">
+
 # Play Together
 
-A version-isolated multiplayer game platform where a phone can be the entire handheld console, a remote controller for a shared browser display, or both.
+### Your phone is the console.
 
-Play Together separates durable product data from latency-sensitive gameplay:
+A version-isolated multiplayer game platform for **mobile controllers**, **handheld play**, and **shared browser/TV screens** — built so each game can ship independently without coupling the whole platform.
 
-- **Convex** owns users, authentication, the published-game catalog, rooms, memberships, capacity, and signed connection tickets.
-- **Realtime Gateway** owns transient input, authoritative simulation, snapshots, presence, and one isolated worker per active room.
-- **Game CDN** serves immutable, SHA-256-pinned display, controller, and server bundles.
-- **Web Shell** owns registration, the public lobby, private room entry, device-mode selection, and the sandboxed game frame.
-- **Games** depend only on the stable SDK/contracts. The platform never imports a concrete game.
+[![CI](https://github.com/rahmanef63/play-together/actions/workflows/ci.yml/badge.svg)](https://github.com/rahmanef63/play-together/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/Node.js-22%2B-339933?logo=nodedotjs&logoColor=white)](package.json)
+[![pnpm](https://img.shields.io/badge/pnpm-10-F69220?logo=pnpm&logoColor=white)](package.json)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](tsconfig.base.json)
 
-## Product flow
+**[Live app](https://game.rahmanef.com)** · [Architecture](docs/architecture.md) · [Game SDK](docs/game-sdk.md) · [Deployment](docs/deployment.md) · [Security](docs/security.md)
 
-1. Register with name, email, and password.
-2. Create a room or join a public room with an available slot.
-3. Make a room public or private; either kind may have an optional password.
-4. Pick a device mode declared by the selected game:
-   - **Remote only** — phone controls a shared browser screen.
-   - **Handheld** — phone renders its own game screen and controls; portrait and landscape may use different layouts.
-   - **Shared display** — browser/TV renders the authoritative room state.
-5. Convex issues a short-lived signed ticket pinned to the room's exact game version and manifest digest.
-6. The gateway validates the ticket, downloads and verifies the server bundle, and runs it in a dedicated worker.
+</div>
+
+<p align="center">
+  <img src="docs/media/play-together-gameplay.gif" alt="Play Together shared-screen gameplay controlled from a mobile browser" width="100%" />
+</p>
+
+> The gameplay above is captured from the real end-to-end test stack: an authoritative shared display on desktop and a live controller on mobile.
+
+## What it does
+
+One multiplayer session can expose different surfaces to different devices:
+
+| Mode | What the player sees | Typical use |
+|---|---|---|
+| **Remote only** | Controls only | Phone as a controller for a browser/TV screen |
+| **Handheld** | Game screen + controls | Game Boy-style portrait play or PSP-style landscape play |
+| **Shared display** | Authoritative room screen | TV, laptop, projector, or shared browser |
+
+The game manifest decides which modes it supports and how portrait/landscape controllers render. The platform provides sessions, security, version pinning, discovery, networking, and lifecycle management.
+
+<table>
+<tr>
+<td width="34%"><img src="docs/media/pong-mobile-remote.png" alt="Pong remote controller on mobile" /></td>
+<td width="33%"><img src="docs/media/tap-race-handheld.png" alt="Tap Race handheld portrait mode" /></td>
+<td width="33%"><img src="docs/media/tap-race-handheld-landscape.png" alt="Tap Race handheld landscape mode" /></td>
+</tr>
+<tr>
+<td align="center"><b>Remote controller</b></td>
+<td align="center"><b>Handheld portrait</b></td>
+<td align="center"><b>Handheld landscape</b></td>
+</tr>
+</table>
+
+## Why the architecture is different
+
+A platform update should not force every game to move together, and a game release should not silently alter an active room.
+
+Play Together therefore separates the platform from game releases:
+
+- **Convex control plane** — users, authentication, published games, rooms, memberships, capacity, and signed connection tickets.
+- **Realtime gateway** — transient input, authoritative simulation, snapshots, presence, validation, and room lifecycle.
+- **Game CDN** — immutable, SHA-256-pinned browser/controller/server bundles.
+- **Web shell / PWA** — registration, lobby, private-room entry, device-mode selection, and sandbox hosting.
+- **Game workers** — one isolated worker per active room, pinned to one exact game release.
+- **Games** — depend only on stable contracts/SDKs; platform code never imports a concrete game.
+
+### Version isolation
+
+Every room stores:
+
+```text
+gameId
+gameVersion
+manifestUrl
+manifestSha256
+```
+
+Publishing `pong@0.3.0` does **not** overwrite `pong@0.2.0`. Existing rooms remain pinned to the previous manifest while new rooms can use the new release. Updating one game does not rebuild or mutate another game.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  U[Registered user] --> W[Web shell / PWA]
-  W -->|auth, lobby, room, ticket| C[(Convex control plane)]
+  U[Registered player] --> W[Web shell / PWA]
+  W -->|auth, lobby, rooms| C[(Convex control plane)]
   W -->|short-lived signed ticket| R[Realtime gateway]
-  W -->|verified display/controller ESM| F[Sandboxed game frame]
-  F -->|input / snapshots| R
-  R -->|verified server ESM| G[Immutable game CDN]
-  F -->|verified browser ESM| G
-  R -->|one worker per room + version| X[Authoritative game worker]
-  P[Game publisher] -->|new immutable version| G
-  P -->|register manifest URL + digest| C
+  W -->|verified browser module| F[Sandboxed game frame]
+  F -->|inputs / snapshots| R
+  F -->|manifest + display/controller| G[Immutable game CDN]
+  R -->|manifest + server module| G
+  R -->|one room + exact version| X[Authoritative worker]
+  P[Game publisher] -->|append release| G
+  P -->|register digest| C
 ```
 
-A room stores `gameId`, `gameVersion`, `manifestUrl`, and `manifestSha256`. Existing rooms remain pinned when a new game version is published. A new release therefore does not rebuild the web shell, change another game, or silently migrate an active room.
+The latency-sensitive input path never writes each frame to Convex. Convex is the durable control plane; the realtime gateway is the authoritative gameplay plane.
+
+See [docs/architecture.md](docs/architecture.md) for vertical slices, boundaries, and trust assumptions.
+
+## Product flow
+
+1. Register with name, email, and password.
+2. Create a public or private room.
+3. Add an optional password independently of room visibility.
+4. Share the room code or let players discover available public rooms.
+5. Each player chooses a game-supported device mode.
+6. Convex issues a short-lived signed ticket pinned to the room and exact game release.
+7. The realtime gateway validates the ticket and starts/reuses the room's authoritative worker.
+8. Browser game modules receive only the scoped runtime bridge they need.
+
+<p align="center">
+  <img src="docs/media/room-desktop.png" alt="Play Together room setup on desktop" width="88%" />
+</p>
 
 ## Repository layout
 
@@ -51,87 +119,149 @@ games/
   tap-race/            four-player reference game with a different console
 packages/
   contracts/           versioned wire and manifest schemas
-  game-sdk/            only runtime dependency allowed for game implementations
+  game-sdk/            stable API allowed inside game implementations
   browser-runtime/     digest verification, iframe protocol, reconnecting WS client
   security/            ticket signing and verification
   emulator-sdk/        lawful-image and emulator adapter contracts
-convex/                 auth, game catalog, rooms, memberships, tickets
-infra/                  game CDN container
-releases/game-cdn/      tracked immutable release archive
-scripts/                game discovery/build/publish, bootstrap, checks
+convex/                 auth, catalog, rooms, memberships, tickets
+infra/                  game CDN and local Convex issuer bridge
+releases/game-cdn/      tracked immutable game release archive
+scripts/                discovery, build, publish, bootstrap, security checks
+e2e/                    real browser multiplayer scenarios
+docs/                   architecture, SDK, deployment, security, emulator roadmap
 ```
 
-See [docs/architecture.md](docs/architecture.md) for vertical slices and trust boundaries.
+The repository follows a **vertical-slice architecture**. Cross-slice dependencies are checked by `pnpm architecture:check`.
 
-## Local start
+## Quick start
 
-Requirements: Node.js 22+, pnpm 10+, Docker with Compose v2, and Chromium/Chrome for E2E tests.
+### Requirements
+
+- Node.js 22+
+- pnpm 10+
+- Docker + Compose v2
+- Chromium/Chrome for browser E2E tests
 
 ```bash
+git clone https://github.com/rahmanef63/play-together.git
+cd play-together
 pnpm install
 pnpm stack:bootstrap
 ```
 
-Open `http://localhost:4173`. The bootstrap command:
+Open **http://localhost:4173**.
 
-- generates local secrets without printing them;
-- builds and publishes every discovered `games/*` release;
-- starts self-hosted Convex, its local issuer-discovery bridge, its dashboard, and the game CDN on loopback only;
-- syncs Convex function environment variables;
-- deploys the Convex schema/functions;
-- registers all game manifests;
-- starts the realtime gateway and web shell.
+`stack:bootstrap` creates local-only secrets, starts self-hosted Convex, publishes discovered games, deploys Convex functions, registers manifests, and launches the realtime/web stack. Secrets are written to ignored local files and are never printed.
 
-Stop containers without deleting the Convex volume:
+Stop the stack without deleting the durable Convex volume:
 
 ```bash
 pnpm stack:down
 ```
 
-## Verification
+> Do not use `docker compose down -v` unless you intentionally want to delete local Convex data.
 
-```bash
-pnpm verify          # lint, boundaries, types, tests, build, realtime smoke, security
-pnpm verify:stack    # live gateway smoke + Playwright browser scenarios
-pnpm stack:config    # validates merged local Compose configuration
+## Add a game
+
+A game is a self-contained vertical slice:
+
+```text
+games/<game-id>/
+  game.config.json
+  src/display.ts
+  src/controller.ts
+  src/server.ts
 ```
 
-The browser suite covers registration, public/private rooms, optional passwords, shared display, remote/handheld modes, portrait/landscape behavior, two independently loaded games, and concurrent joins for the final room slot.
-
-## Add and release a game
-
-Create `games/<game-id>/game.config.json` plus `src/display.ts`, `src/controller.ts`, and `src/server.ts`. A game may import only `@play-together/game-sdk` and `@play-together/contracts`.
+Game code may import only the stable game SDK/contracts boundary.
 
 ```bash
 pnpm game:publish:one <game-id>
 pnpm game:publish:convex:one <game-id>
 ```
 
-For a release:
+Release rules:
 
-1. Bump `game.version`; never overwrite an existing version.
-2. Build and test the game.
-3. Publish its immutable files to the tracked release archive and game CDN.
-4. Register the manifest URL and SHA-256 digest in Convex.
-5. New rooms use the new version; existing rooms continue with their pinned version.
+1. Bump the game version.
+2. Never mutate an already-published release.
+3. Build/test the game independently.
+4. Publish versioned bundles and their SHA-256 manifest.
+5. Register the immutable manifest in Convex.
+6. Existing rooms keep their pinned release.
 
-Read [docs/game-sdk.md](docs/game-sdk.md) before adding a game.
+Read [docs/game-sdk.md](docs/game-sdk.md) before implementing a new game.
 
-## Deployment units
+## Production topology
 
-Production is intentionally split into independent units from the same repository:
+The reference production deployment uses `game.rahmanef.com` as the player-facing entry point while keeping service boundaries independently routable:
 
-1. `apps/web/Dockerfile`
-2. `apps/realtime/Dockerfile`
-3. `infra/game-cdn/Dockerfile`
-4. self-hosted Convex backend + schema deployment
+| Surface | Production endpoint | Service |
+|---|---|---|
+| Player app | `https://game.rahmanef.com` | web shell / PWA |
+| Realtime | `wss://rt-game.rahmanef.com/v1/connect` | authoritative gateway |
+| Game releases | `https://games-game.rahmanef.com` | immutable game CDN |
+| Convex API | `https://api-game.rahmanef.com` | Convex API/WebSocket |
+| Convex auth/site | `https://site-game.rahmanef.com` | Convex HTTP actions/auth |
 
-The Convex dashboard must not be public. The base `docker-compose.yml` exposes only internal service ports; `docker-compose.local.yml` adds loopback bindings for development. See [docs/deployment.md](docs/deployment.md).
+The Convex dashboard is intentionally **not public**.
 
-## Emulator direction
+See [docs/deployment.md](docs/deployment.md) and [.env.production.example](.env.production.example).
 
-`packages/emulator-sdk` defines the boundary for future emulator-backed games without shipping firmware, BIOS, copyrighted game images, or emulator cores. Compatibility is a per-core, per-browser, per-device capability decision—not a platform promise. See [docs/emulator-roadmap.md](docs/emulator-roadmap.md).
+## Verification
 
-## Security
+```bash
+pnpm verify          # lint + architecture + typecheck + tests + build + smoke + audit
+pnpm verify:stack    # realtime smoke + full browser multiplayer E2E
+pnpm stack:config    # validate merged Docker Compose config
+```
 
-The main controls are exact origin allowlists, PBKDF2 password storage, transactional room capacity, HMAC-signed expiring tickets, replay protection, input schemas and rate limits, immutable digest-pinned modules, a sandboxed browser frame, and a worker per room. Game server bundles are trusted publisher code; third-party untrusted server code requires a stronger container or microVM boundary. See [docs/security.md](docs/security.md) and [SECURITY.md](SECURITY.md).
+The E2E suite covers:
+
+- registration and sessions;
+- public/private rooms;
+- optional room passwords;
+- public available-slot discovery;
+- shared display and mobile remote mode;
+- portrait and landscape handheld layouts;
+- independently loaded games/controllers;
+- authoritative WebSocket state;
+- transactional final-slot contention.
+
+The README media is captured from the same running integration stack.
+
+## Security model
+
+Important controls include:
+
+- exact browser origin allowlists;
+- PBKDF2 password hashing with per-secret salts;
+- transactional room capacity;
+- expiring HMAC-signed connection tickets;
+- ticket replay protection;
+- input schema validation and rate limiting;
+- immutable SHA-256-pinned game modules;
+- sandboxed browser game frames;
+- a dedicated worker for each active room/version;
+- no committed production credentials.
+
+Game server bundles are **trusted publisher code**. Worker threads provide runtime isolation and lifecycle containment, but they are not a hostile-code sandbox. Untrusted third-party server modules require a stronger container/microVM boundary.
+
+See [docs/security.md](docs/security.md) and [SECURITY.md](SECURITY.md).
+
+## Emulator foundation
+
+`packages/emulator-sdk` provides a future boundary for browser/server emulator adapters, controller mapping, capability detection, save states, and lawful game-image metadata.
+
+The repository intentionally ships **no ROMs, BIOS/firmware, copyrighted game images, or emulator cores**. PS1/PS2 compatibility must be evaluated per core, browser, device, and legally supplied game image.
+
+See [docs/emulator-roadmap.md](docs/emulator-roadmap.md).
+
+## Contributing
+
+Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md), follow the [Code of Conduct](CODE_OF_CONDUCT.md), and keep game/platform boundaries intact.
+
+For vulnerabilities, follow [SECURITY.md](SECURITY.md) rather than opening a public issue.
+
+## License
+
+[MIT](LICENSE) © 2026 rahmanef63

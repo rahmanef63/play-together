@@ -1,0 +1,38 @@
+name: Feature request
+description: Propose a platform, game, controller, or emulator capability
+title: "feat: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What player/developer problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Primary scope
+      options:
+        - Platform
+        - Game SDK
+        - Controller / mobile UX
+        - Realtime networking
+        - Game release system
+        - Emulator foundation
+        - Reference game
+        - Documentation / tooling
+    validations:
+      required: true
+  - type: textarea
+    id: isolation
+    attributes:
+      label: Version-isolation impact
+      description: Explain whether existing rooms, manifests, or other games would be affected.

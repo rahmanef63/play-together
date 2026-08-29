@@ -13,14 +13,16 @@ Deploy four units from the same Git commit, but do not couple their release trig
 
 A game-only release appends a versioned bundle to `releases/game-cdn`, rebuilds/uploads only the Game CDN unit, and registers its new manifest. It does not rebuild web or realtime unless the stable contract itself changes.
 
-## Recommended domain split
+## Reference production domain split
+
+The maintained reference deployment uses `game.rahmanef.com` as its player-facing URL:
 
 ```text
-play.example.com          web shell
-rt-play.example.com       WebSocket gateway
-games-play.example.com    immutable game CDN
-api-play.example.com      Convex API/WebSocket
-site-play.example.com     Convex HTTP/auth site
+game.rahmanef.com          web shell / PWA
+rt-game.rahmanef.com       WebSocket gateway
+games-game.rahmanef.com    immutable game CDN
+api-game.rahmanef.com      Convex API/WebSocket
+site-game.rahmanef.com     Convex HTTP/auth site
 ```
 
 Do not expose the Convex dashboard publicly. Access it through a local loopback binding or an authenticated operator tunnel.
@@ -30,8 +32,8 @@ Do not expose the Convex dashboard publicly. Access it through a local loopback 
 Browser-build values:
 
 ```text
-VITE_CONVEX_URL=https://api-play.example.com
-VITE_REALTIME_URL=wss://rt-play.example.com/v1/connect
+VITE_CONVEX_URL=https://api-game.rahmanef.com
+VITE_REALTIME_URL=wss://rt-game.rahmanef.com/v1/connect
 ```
 
 Shared backend values:
@@ -39,9 +41,9 @@ Shared backend values:
 ```text
 JOIN_TICKET_SECRET=<same strong value in Convex and realtime>
 GAME_PUBLISH_TOKEN=<Convex only + release job>
-GAME_MODULE_ORIGINS=https://games-play.example.com
-GAME_CDN_PUBLIC_ORIGIN=https://games-play.example.com
-ALLOWED_ORIGINS=https://play.example.com
+GAME_MODULE_ORIGINS=https://games-game.rahmanef.com
+GAME_CDN_PUBLIC_ORIGIN=https://games-game.rahmanef.com
+ALLOWED_ORIGINS=https://game.rahmanef.com
 ALLOW_INSECURE_GAME_ORIGINS=false
 GAME_MODULE_FETCH_ORIGIN_MAP={}
 ```
@@ -78,3 +80,18 @@ Never use `docker compose down -v` in normal operations; that deletes the durabl
 - Web/realtime: redeploy a known Git SHA.
 - Game: choose an already-published immutable game version for new rooms; do not overwrite files.
 - Convex: use widen–migrate–narrow schema changes. Never deploy a narrowing schema before data migration and backward-compatible app rollout.
+
+
+## Dokploy routing for the reference deployment
+
+Attach domains directly to the matching Compose services and ports:
+
+| Host | Service | Internal port |
+|---|---|---:|
+| `game.rahmanef.com` | `web` | 8080 |
+| `rt-game.rahmanef.com` | `realtime` | 8787 |
+| `games-game.rahmanef.com` | `game-cdn` | 8080 |
+| `api-game.rahmanef.com` | `convex-backend` | 3210 |
+| `site-game.rahmanef.com` | `convex-backend` | 3211 |
+
+Do not create a public route for `convex-dashboard`.

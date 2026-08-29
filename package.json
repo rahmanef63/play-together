@@ -60,5 +60,25 @@
       "esbuild"
     ]
   },
-  "type": "module"
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://game.rahmanef.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rahmanef63/play-together.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rahmanef63/play-together/issues"
+  },
+  "keywords": [
+    "multiplayer",
+    "mobile-controller",
+    "shared-screen",
+    "game-platform",
+    "convex",
+    "websocket",
+    "typescript",
+    "pwa",
+    "game-sdk"
+  ]
 }
