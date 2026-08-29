@@ -3,6 +3,7 @@ import { Worker } from "node:worker_threads";
 import type { TicketClaims } from "@play-together/contracts";
 import type { WebSocket } from "ws";
 import type { ResolvedGameModule } from "../modules/module-store";
+import { classifySocketPressure } from "./backpressure";
 
 interface ClientConnection {
   id: string;
@@ -14,6 +15,8 @@ interface ClientConnection {
   windowStartedAt: number;
   expiryTimer: ReturnType<typeof setTimeout>;
 }
+
+const WORKER_READY_TIMEOUT_MS = 8_000;
 
 interface WorkerMessage {
   type: "ready" | "snapshot" | "error" | "disposed";
@@ -33,6 +36,7 @@ export class RoomSession {
   #resolveReady!: () => void;
   #rejectReady!: (error: Error) => void;
   #closed = false;
+  #readyTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(claims: TicketClaims, module: ResolvedGameModule, onEmpty: () => void) {
     this.#onEmpty = onEmpty;
@@ -41,6 +45,22 @@ export class RoomSession {
       this.#resolveReady = resolve;
       this.#rejectReady = reject;
     });
+    this.#readyTimer = setTimeout(() => {
+      const error = new Error("Game worker did not become ready in time");
+      this.#rejectReady(error);
+      this.#broadcast(
+        {
+          type: "error",
+          code: "GAME_WORKER_TIMEOUT",
+          message: "This room's game process did not start in time",
+          fatal: true,
+        },
+        false,
+      );
+      this.close();
+    }, WORKER_READY_TIMEOUT_MS);
+    this.#readyTimer.unref();
+
     this.#worker = new Worker(new URL("./game-worker.js", import.meta.url), {
       workerData: {
         modulePath: module.modulePath,
@@ -61,6 +81,7 @@ export class RoomSession {
     });
     this.#worker.on("message", (message: WorkerMessage) => this.#onWorkerMessage(message));
     this.#worker.on("error", (error) => {
+      this.#clearReadyTimer();
       const normalized = error instanceof Error ? error : new Error(String(error));
       this.#rejectReady(normalized);
       this.#broadcast({
@@ -72,6 +93,7 @@ export class RoomSession {
       this.close();
     });
     this.#worker.on("exit", (code) => {
+      this.#clearReadyTimer();
       if (!this.#closed && code !== 0) {
         this.#broadcast({
           type: "error",
@@ -187,22 +209,27 @@ export class RoomSession {
       connection.socket.close(1012, "room restarted");
     }
     this.#clients.clear();
+    this.#clearReadyTimer();
     this.#worker.postMessage({ type: "dispose" });
     setTimeout(() => void this.#worker.terminate(), 2_000).unref();
   }
 
   #onWorkerMessage(message: WorkerMessage): void {
     if (message.type === "ready") {
+      this.#clearReadyTimer();
       this.#resolveReady();
       return;
     }
     if (message.type === "snapshot") {
-      this.#broadcast({
-        type: "snapshot",
-        tick: message.tick ?? 0,
-        serverTime: message.serverTime ?? Date.now(),
-        state: message.state,
-      });
+      this.#broadcast(
+        {
+          type: "snapshot",
+          tick: message.tick ?? 0,
+          serverTime: message.serverTime ?? Date.now(),
+          state: message.state,
+        },
+        true,
+      );
       return;
     }
     if (message.type === "error") {
@@ -246,12 +273,24 @@ export class RoomSession {
     });
   }
 
-  #broadcast(message: unknown): void {
+  #broadcast(message: unknown, droppableSnapshot = false): void {
     const serialized = JSON.stringify(message);
     for (const connection of this.#clients.values()) {
-      if (connection.socket.readyState === connection.socket.OPEN)
-        connection.socket.send(serialized);
+      if (connection.socket.readyState !== connection.socket.OPEN) continue;
+      const pressure = classifySocketPressure(connection.socket.bufferedAmount);
+      if (pressure === "close") {
+        connection.socket.close(1013, "client too slow");
+        continue;
+      }
+      if (droppableSnapshot && pressure === "drop-snapshot") continue;
+      connection.socket.send(serialized);
     }
+  }
+
+  #clearReadyTimer(): void {
+    if (!this.#readyTimer) return;
+    clearTimeout(this.#readyTimer);
+    this.#readyTimer = null;
   }
 
   #send(socket: WebSocket, message: unknown): void {

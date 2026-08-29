@@ -99,6 +99,10 @@ test("public and password-protected rooms work across shared display and mobile 
 
     await expectGameFrame(host);
     const remoteFrame = host.frameLocator("iframe.game-frame");
+    await expect(
+      remoteFrame.locator(".console-shell--remote.console-shell--classic"),
+    ).toBeVisible();
+    await expect(remoteFrame.locator(".console-shell__screen")).toHaveCount(0);
     const down = remoteFrame.getByRole("button", { name: "Move paddle down" });
     await expect(down).toBeVisible();
     await down.click({ delay: 250 });
@@ -144,6 +148,7 @@ test("public and password-protected rooms work across shared display and mobile 
     await guest.getByRole("button", { name: /Handheld/ }).click();
     await expectGameFrame(guest);
     const handheldFrame = guest.frameLocator("iframe.game-frame");
+    await expect(handheldFrame.locator(".console-shell--handheld")).toBeVisible();
     const controller = handheldFrame.locator(".pong-controller--handheld");
     await expect(controller).toBeVisible();
     await expect(handheldFrame.locator("canvas")).toBeVisible();
@@ -335,6 +340,75 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
       await page.waitForTimeout(450);
       await expect(page.locator(".connection")).toHaveText("connected");
       await expect(page.locator(".play-error")).toHaveCount(0);
+      await page.getByRole("button", { name: /Room/ }).click();
+      await expect(page).toHaveURL(new RegExp(`/room/${code}$`));
+      await page.getByRole("button", { name: "Close room" }).click();
+      await expect(page).toHaveURL("/");
+    }
+  } finally {
+    await closeContext(context);
+  }
+});
+
+test("screenless landscape remotes select classic, racing, and flight console shells", async ({
+  browser,
+}) => {
+  const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const cases = [
+    {
+      key: pong,
+      title: "Pong Together",
+      preset: "classic",
+      control: "Move paddle down",
+      maxPlayers: 2,
+    },
+    {
+      key: "turbo-circuit@0.1.1",
+      title: "Turbo Circuit",
+      preset: "racing",
+      control: "Accelerate",
+      maxPlayers: 1,
+    },
+    {
+      key: "sky-strike@0.1.1",
+      title: "Sky Strike",
+      preset: "flight",
+      control: "Fire cannon",
+      maxPlayers: 1,
+    },
+  ] as const;
+  const context = await browser.newContext({ viewport: { width: 844, height: 390 } });
+  const page = await context.newPage();
+  try {
+    await signUp(page, `Remote Shell ${runId}`, `remote-shell-${runId}@example.test`);
+    for (const game of cases) {
+      const code = await createRoom(page, {
+        name: `${game.title} Remote ${runId}`,
+        gameKey: game.key,
+        maxPlayers: game.maxPlayers,
+        visibility: "private",
+      });
+      const displayPromise = context.waitForEvent("page");
+      await page.getByRole("button", { name: /Shared screen \+ remote/ }).click();
+      const display = await displayPromise;
+      await display.waitForLoadState("domcontentloaded");
+      await expectGameFrame(display);
+      await expectGameFrame(page);
+
+      const frame = page.frameLocator("iframe.game-frame");
+      await expect(
+        frame.locator(`.console-shell--remote.console-shell--${game.preset}`),
+      ).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(frame.locator(".console-shell__screen")).toHaveCount(0);
+      const control = frame.getByRole("button", { name: game.control });
+      await expect(control).toBeVisible({ timeout: 20_000 });
+      await control.click({ delay: game.preset === "racing" ? 300 : 60 });
+      await expect(page.locator(".connection")).toHaveText("connected");
+      await expect(page.locator(".play-error")).toHaveCount(0);
+
+      await display.close();
       await page.getByRole("button", { name: /Room/ }).click();
       await expect(page).toHaveURL(new RegExp(`/room/${code}$`));
       await page.getByRole("button", { name: "Close room" }).click();

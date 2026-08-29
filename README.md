@@ -46,6 +46,10 @@ The launch UI treats the shared screen and phone remote as one experience. Handh
 </tr>
 </table>
 
+## Mobile console shell
+
+The phone console chassis is a platform concern; each cartridge still owns its actual buttons, sticks, gestures, and input semantics. Remote mode is **screenless** and landscape-first, while handheld mode mounts the pinned display and controller together. The verified manifest may set `controller.shellPreset` to `classic`, `racing`, or `flight`; older immutable releases remain compatible through a deterministic metadata fallback. The shell uses `100dvh`, safe-area insets, disabled accidental zoom/scroll, and touch-first sizing for iOS and Android.
+
 ## Why the architecture is different
 
 A platform update should not force every game to move together, and a game release should not silently alter an active room.

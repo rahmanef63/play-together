@@ -1,0 +1,324 @@
+:root {
+  color-scheme: dark;
+  --console-bg: #15131d;
+  --console-panel: #1d1a27;
+  --console-panel-deep: #09090e;
+  --console-edge: rgba(190, 174, 230, 0.2);
+  --console-highlight: rgba(255, 255, 255, 0.075);
+  --console-shadow: rgba(0, 0, 0, 0.62);
+  --console-accent: #b547df;
+  --console-action: #b92d78;
+  --console-text: #f3edf9;
+}
+
+html,
+body,
+#game-root {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+body {
+  background: transparent;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.console-shell {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(6px, 1.25vmin, 14px);
+  background:
+    radial-gradient(circle at 50% -10%, rgba(112, 78, 151, 0.24), transparent 45%),
+    linear-gradient(145deg, #252130, #15131c 68%);
+  color: var(--console-text);
+}
+
+.console-shell__chassis {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--console-edge);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.045), transparent 22%),
+    linear-gradient(160deg, #262231, #191721 64%, #121119);
+  box-shadow:
+    inset 0 1px 0 var(--console-highlight),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.45),
+    0 12px 36px var(--console-shadow);
+}
+
+.console-shell__chassis::before,
+.console-shell__chassis::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.console-shell__status {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.console-shell__status-light {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--console-accent);
+  box-shadow: 0 0 10px var(--console-accent);
+}
+
+.console-shell__vents {
+  display: block;
+  width: 58px;
+  height: 10px;
+  opacity: 0.35;
+  background: repeating-linear-gradient(90deg, #05050a 0 5px, transparent 5px 10px);
+}
+
+.console-shell__screen,
+.console-shell__controls {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.console-shell__screen {
+  background: #030307;
+  border: 3px solid #0b0a10;
+  box-shadow:
+    inset 0 0 0 2px rgba(148, 132, 181, 0.18),
+    inset 0 0 34px rgba(0, 0, 0, 0.78),
+    0 2px 0 rgba(255, 255, 255, 0.04);
+}
+
+.console-shell__controls {
+  position: relative;
+  overflow: hidden;
+}
+
+.console-shell__controls > :first-child {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: clamp(6px, 1.6vmin, 12px) !important;
+  background: transparent !important;
+  color: var(--console-text) !important;
+  box-shadow: none !important;
+}
+
+.console-shell__controls button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+.console-shell--handheld .console-shell__chassis {
+  display: grid;
+  grid-template-rows: minmax(0, 1.42fr) minmax(190px, 0.58fr);
+  gap: clamp(8px, 1.4vmin, 14px);
+  padding: clamp(10px, 2vmin, 18px);
+  border-radius: clamp(22px, 5vw, 42px);
+}
+
+.console-shell--handheld .console-shell__screen {
+  border-radius: clamp(15px, 3vw, 26px);
+}
+
+.console-shell--handheld .console-shell__controls {
+  border-radius: clamp(18px, 4vw, 30px);
+}
+
+.console-shell--handheld .console-shell__status {
+  right: max(14px, env(safe-area-inset-right));
+  top: max(14px, env(safe-area-inset-top));
+}
+
+.console-shell--remote {
+  padding: max(4px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+    max(4px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+}
+
+.console-shell--remote .console-shell__chassis {
+  border-radius: clamp(36px, 10vmin, 86px);
+  padding: clamp(10px, 2.2vmin, 22px) clamp(18px, 4vw, 52px);
+}
+
+.console-shell--remote .console-shell__controls {
+  width: 100%;
+  height: 100%;
+  border-radius: clamp(24px, 6vmin, 56px);
+}
+
+.console-shell--remote .console-shell__status {
+  left: 50%;
+  top: clamp(10px, 2.6vmin, 22px);
+  transform: translateX(-50%);
+}
+
+.console-shell--remote.console-shell--classic .console-shell__chassis::before {
+  inset: 6% 2%;
+  border-radius: 48% 48% 36% 36% / 42% 42% 58% 58%;
+  background: radial-gradient(circle at 50% 0%, rgba(181, 71, 223, 0.11), transparent 54%);
+}
+
+.console-shell--remote.console-shell--classic .console-shell__chassis {
+  clip-path: polygon(
+    4% 4%,
+    96% 4%,
+    100% 26%,
+    98% 78%,
+    90% 96%,
+    67% 90%,
+    33% 90%,
+    10% 96%,
+    2% 78%,
+    0 26%
+  );
+}
+
+.console-shell--racing {
+  --console-accent: #d53c85;
+}
+
+.console-shell--remote.console-shell--racing .console-shell__chassis {
+  clip-path: polygon(
+    7% 1%,
+    93% 1%,
+    100% 18%,
+    96% 86%,
+    84% 99%,
+    58% 92%,
+    42% 92%,
+    16% 99%,
+    4% 86%,
+    0 18%
+  );
+  background:
+    radial-gradient(circle at 18% 50%, rgba(213, 60, 133, 0.13), transparent 25%),
+    radial-gradient(circle at 82% 50%, rgba(213, 60, 133, 0.13), transparent 25%),
+    linear-gradient(160deg, #29232e, #17151d 65%);
+}
+
+.console-shell--remote.console-shell--racing .console-shell__chassis::before,
+.console-shell--remote.console-shell--remote.console-shell--racing .console-shell__chassis::after {
+  top: 18%;
+  bottom: 12%;
+  width: 9%;
+  border-radius: 50%;
+  border: 2px solid rgba(213, 60, 133, 0.18);
+}
+
+.console-shell--remote.console-shell--racing .console-shell__chassis::before {
+  left: 3%;
+}
+
+.console-shell--remote.console-shell--racing .console-shell__chassis::after {
+  right: 3%;
+}
+
+.console-shell--flight {
+  --console-accent: #8b5cf6;
+}
+
+.console-shell--remote.console-shell--flight .console-shell__chassis {
+  clip-path: polygon(3% 8%, 22% 0, 78% 0, 97% 8%, 100% 84%, 88% 100%, 12% 100%, 0 84%);
+  background:
+    linear-gradient(90deg, rgba(139, 92, 246, 0.08), transparent 15% 85%, rgba(139, 92, 246, 0.08)),
+    linear-gradient(160deg, #252331, #14131b 68%);
+}
+
+.console-shell--remote.console-shell--flight .console-shell__chassis::before {
+  left: 50%;
+  top: 0;
+  width: 30%;
+  height: 7px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, var(--console-accent), transparent);
+  opacity: 0.55;
+}
+
+@media (orientation: landscape) {
+  .console-shell--handheld .console-shell__chassis {
+    grid-template-columns: minmax(0, 1.65fr) minmax(250px, 0.72fr);
+    grid-template-rows: 1fr;
+    gap: clamp(8px, 1.5vw, 16px);
+    padding: clamp(8px, 1.5vmin, 14px);
+    border-radius: clamp(24px, 5vmin, 46px);
+  }
+
+  .console-shell--handheld .console-shell__screen {
+    border-radius: clamp(14px, 3vmin, 24px);
+  }
+
+  .console-shell--remote .console-shell__controls > :first-child {
+    padding: clamp(4px, 1.5vmin, 10px) !important;
+  }
+}
+
+@media (orientation: portrait) {
+  .console-shell--remote .console-shell__chassis::after {
+    content: "ROTATE FOR FULL CONTROLLER";
+    position: absolute;
+    z-index: 5;
+    right: 14px;
+    bottom: 12px;
+    width: auto;
+    height: auto;
+    color: rgba(243, 237, 249, 0.45);
+    font:
+      700 9px / 1 ui-monospace,
+      monospace;
+    letter-spacing: 0.12em;
+    background: none;
+    border: 0;
+  }
+}
+
+@media (max-height: 430px) and (orientation: landscape) {
+  .console-shell {
+    padding: 3px;
+  }
+
+  .console-shell--remote .console-shell__chassis {
+    padding: 5px 18px;
+  }
+
+  .console-shell__status {
+    opacity: 0.38;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .console-shell *,
+  .console-shell *::before,
+  .console-shell *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}

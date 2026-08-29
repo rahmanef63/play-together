@@ -141,8 +141,16 @@ export function PlayPage({ code, role }: { code: string; role: "controller" | "d
 
   const fullscreen = async () => {
     try {
-      await document.documentElement.requestFullscreen();
-    } catch {}
+      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+      if (role === "controller" && mode === "remote" && "orientation" in screen) {
+        const orientation = screen.orientation as ScreenOrientation & {
+          lock?: (orientation: "landscape") => Promise<void>;
+        };
+        await orientation.lock?.("landscape");
+      }
+    } catch {
+      // Fullscreen/orientation locking is capability- and gesture-dependent.
+    }
   };
 
   return (

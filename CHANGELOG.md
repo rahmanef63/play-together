@@ -4,6 +4,16 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-08-30
+
+### Changed
+
+- Replaced the generic controller frame with a dark mobile-first console shell inspired by dedicated handheld hardware, without product-specific branding.
+- Added dynamic `classic`, `racing`, and `flight` screenless landscape remote presets; cartridges may opt in explicitly and existing releases fall back to manifest-content inference.
+- Handheld mode now uses the same modular shell system with safe-area, portrait and landscape layouts.
+- Added slow-client snapshot backpressure, worker startup timeout protection, and repeated tick-failure containment in the realtime runtime.
+- Added a sustained latest-cartridge stability audit covering every active game server.
+
 ## [0.4.0] - 2026-08-29
 
 ### Added

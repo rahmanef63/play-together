@@ -2,47 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
     <title>Game surface</title>
-    <style>
-      html, body, #game-root { width: 100%; height: 100%; min-height: 100%; margin: 0; overflow: hidden; }
-      body { background: transparent; font-family: system-ui, sans-serif; }
-      * { box-sizing: border-box; }
-      #game-root[data-layout="handheld"] {
-        display: grid;
-        grid-template-rows: minmax(280px, 1.25fr) minmax(210px, .75fr);
-        gap: 12px;
-        padding: 10px;
-        background: #1a211d;
-      }
-      .handheld-screen,
-      .handheld-controls {
-        min-width: 0;
-        min-height: 0;
-        overflow: hidden;
-        border-radius: 22px;
-      }
-      .handheld-screen {
-        background: #050908;
-        box-shadow: inset 0 0 0 2px rgba(255,255,255,.08), 0 5px 18px rgba(0,0,0,.28);
-      }
-      .handheld-controls {
-        background: #cbd5cd;
-        color: #07110c;
-      }
-      @media (orientation: landscape) {
-        #game-root[data-layout="handheld"] {
-          grid-template-columns: minmax(0, 1.8fr) minmax(260px, .72fr);
-          grid-template-rows: 1fr;
-          gap: 14px;
-          padding: 10px 14px;
-          background: linear-gradient(90deg,#202923,#111713 44%,#111713 56%,#202923);
-        }
-        .handheld-screen { border-radius: 18px; }
-        .handheld-controls { border-radius: 28px; }
-      }
-    </style>
   </head>
   <body>
     <div id="game-root"></div>

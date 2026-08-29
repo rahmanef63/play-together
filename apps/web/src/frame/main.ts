@@ -9,6 +9,8 @@ import type {
   ControllerGameModule,
   DisplayGameModule,
 } from "@play-together/game-sdk";
+import "./consoleShell.css";
+import { mountConsoleShell, resolveConsoleShellPreset } from "./consoleShell";
 
 interface FrameInitMessage {
   type: "init";
@@ -85,6 +87,7 @@ async function mount(message: FrameInitMessage): Promise<void> {
       throw new Error("Pinned game version does not match its manifest");
     }
     const context = createContext(message);
+    const preset = resolveConsoleShellPreset(manifest);
 
     if (message.role === "controller" && message.mode === "handheld") {
       const [displayModule, controllerModule] = await Promise.all([
@@ -101,23 +104,19 @@ async function mount(message: FrameInitMessage): Promise<void> {
         throw new Error("Handheld mode requires both display and controller surfaces");
       }
 
-      gameRoot.dataset.layout = "handheld";
-      const screen = document.createElement("section");
-      screen.className = "handheld-screen";
-      screen.setAttribute("aria-label", `${manifest.game.title} game screen`);
-      const controls = document.createElement("section");
-      controls.className = "handheld-controls";
-      controls.setAttribute("aria-label", `${manifest.game.title} controls`);
-      gameRoot.replaceChildren(screen, controls);
-
-      const disposeDisplay = displayModule.mountDisplay(screen, context);
-      const disposeController = controllerModule.mountController(controls, context);
+      const surface = mountConsoleShell(gameRoot, {
+        mode: "handheld",
+        preset,
+        title: manifest.game.title,
+      });
+      if (!surface.screen) throw new Error("Handheld shell did not create a game screen");
+      const disposeDisplay = displayModule.mountDisplay(surface.screen, context);
+      const disposeController = controllerModule.mountController(surface.controls, context);
       cleanupModule = () => {
         disposeDisplay?.();
         disposeController?.();
         snapshotListeners.clear();
-        gameRoot.replaceChildren();
-        delete gameRoot.dataset.layout;
+        surface.dispose();
       };
     } else {
       const entry =
@@ -129,7 +128,17 @@ async function mount(message: FrameInitMessage): Promise<void> {
       if (message.role === "display" && "mountDisplay" in module) {
         cleanupModule = module.mountDisplay(gameRoot, context);
       } else if (message.role === "controller" && "mountController" in module) {
-        cleanupModule = module.mountController(gameRoot, context);
+        const surface = mountConsoleShell(gameRoot, {
+          mode: "remote",
+          preset,
+          title: manifest.game.title,
+        });
+        const disposeController = module.mountController(surface.controls, context);
+        cleanupModule = () => {
+          disposeController?.();
+          snapshotListeners.clear();
+          surface.dispose();
+        };
       } else {
         throw new Error(`Game bundle does not implement the ${message.role} surface`);
       }

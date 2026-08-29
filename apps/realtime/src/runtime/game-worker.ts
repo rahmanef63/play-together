@@ -29,6 +29,8 @@ let game: ServerGame | null = null;
 let tick = 0;
 let timer: ReturnType<typeof setTimeout> | null = null;
 let disposed = false;
+let consecutiveTickErrors = 0;
+const MAX_CONSECUTIVE_TICK_ERRORS = 8;
 
 async function main(): Promise<void> {
   const imported = (await import(pathToFileURL(configuration.modulePath).href)) as {
@@ -50,6 +52,7 @@ async function main(): Promise<void> {
     previous = startedAt;
     try {
       await game.tick(Date.now(), delta);
+      consecutiveTickErrors = 0;
       tick += 1;
       const completedAt = performance.now();
       if (completedAt - lastSnapshot >= snapshotInterval) {
@@ -62,11 +65,14 @@ async function main(): Promise<void> {
         });
       }
     } catch (error) {
+      consecutiveTickErrors += 1;
+      const fatal = consecutiveTickErrors >= MAX_CONSECUTIVE_TICK_ERRORS;
       workerPort.postMessage({
         type: "error",
         message: error instanceof Error ? error.message : "Game tick failed",
-        fatal: false,
+        fatal,
       });
+      if (fatal) await dispose();
     } finally {
       if (!disposed) {
         const elapsed = performance.now() - startedAt;

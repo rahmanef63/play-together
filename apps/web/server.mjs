@@ -7,7 +7,7 @@ import { pathToFileURL } from "node:url";
 const defaultShellCsp =
   "default-src 'self'; script-src 'self' blob:; style-src 'self' 'unsafe-inline'; connect-src 'self' https: wss: http: ws:; img-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'";
 const gameFrameCsp =
-  "default-src 'none'; script-src 'self' blob:; style-src 'unsafe-inline'; connect-src https: http:; img-src data: blob: https: http:; worker-src blob:; object-src 'none'; base-uri 'none'; frame-ancestors 'self'";
+  "default-src 'none'; script-src 'self' blob:; style-src 'self' 'unsafe-inline'; connect-src https: http:; img-src data: blob: https: http:; worker-src blob:; object-src 'none'; base-uri 'none'; frame-ancestors 'self'";
 const types = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",

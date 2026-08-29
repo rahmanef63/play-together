@@ -15,6 +15,9 @@ export type ControllerMode = z.infer<typeof controllerModeSchema>;
 export const gameModeSchema = z.enum(["shared-screen", "handheld"]);
 export type GameMode = z.infer<typeof gameModeSchema>;
 
+export const consoleShellPresetSchema = z.enum(["classic", "racing", "flight"]);
+export type ConsoleShellPreset = z.infer<typeof consoleShellPresetSchema>;
+
 export const moduleEntrySchema = z.object({
   url: z.string().min(1),
   sha256: z.string().regex(/^[a-f0-9]{64}$/i),
@@ -39,6 +42,7 @@ export const gameManifestSchema = z.object({
     supportsRemote: z.boolean(),
     supportsHandheld: z.boolean(),
     preferredOrientation: z.enum(["portrait", "landscape", "adaptive"]),
+    shellPreset: consoleShellPresetSchema.optional(),
   }),
   entries: z.object({
     display: moduleEntrySchema,

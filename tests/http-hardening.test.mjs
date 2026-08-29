@@ -16,6 +16,7 @@ describe("static HTTP boundaries", () => {
     const root = await mkdtemp(join(tmpdir(), "play-together-web-"));
     await mkdir(join(root, "assets"));
     await writeFile(join(root, "index.html"), "<!doctype html><title>shell</title>");
+    await writeFile(join(root, "game-frame.html"), "<!doctype html><title>game frame</title>");
     await writeFile(join(root, "assets/app.js"), "export {};");
     const { port, close } = await listen(createWebServer({ root }));
     cleanups.push(async () => {
@@ -35,6 +36,12 @@ describe("static HTTP boundaries", () => {
     expect(shell.status).toBe(200);
     expect(shell.headers["access-control-allow-origin"]).toBeUndefined();
     expect(shell.headers["cross-origin-resource-policy"]).toBe("same-origin");
+    const gameFrame = await rawRequest(port, "/game-frame.html");
+    expect(gameFrame.status).toBe(200);
+    expect(gameFrame.headers["content-security-policy"]).toContain(
+      "style-src 'self' 'unsafe-inline'",
+    );
+    expect(gameFrame.headers["x-frame-options"]).toBeUndefined();
     const health = await rawRequest(port, "/healthz");
     expect(health.status).toBe(200);
     expect(health.headers["access-control-allow-origin"]).toBeUndefined();
