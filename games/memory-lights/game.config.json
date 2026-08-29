@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "memory-lights",
+    "version": "0.1.0",
+    "title": "Memory Lights",
+    "description": "A multiplayer memory challenge with a four-pad sequence that grows every round.",
+    "minPlayers": 1,
+    "maxPlayers": 8,
+    "tickRate": 20,
+    "snapshotRate": 10
+  },
+  "modes": ["shared-screen", "handheld"],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "portrait"
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  }
+}

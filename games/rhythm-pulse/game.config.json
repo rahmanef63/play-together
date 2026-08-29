@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "rhythm-pulse",
+    "version": "0.1.0",
+    "title": "Rhythm Pulse",
+    "description": "A timing game that scores taps by how close they land to the shared pulse.",
+    "minPlayers": 1,
+    "maxPlayers": 8,
+    "tickRate": 60,
+    "snapshotRate": 30
+  },
+  "modes": ["shared-screen", "handheld"],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "portrait"
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  }
+}

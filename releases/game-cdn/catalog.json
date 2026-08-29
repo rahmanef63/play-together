@@ -2,6 +2,34 @@
   "schemaVersion": 1,
   "games": [
     {
+      "gameId": "dodge-dash",
+      "version": "0.1.0",
+      "title": "Dodge Dash",
+      "manifestPath": "/games/dodge-dash/0.1.0/manifest.json",
+      "manifestSha256": "ca2d88ae450feca7cf8125f8d7e338077666407928a1b86d28ecfc0812a113a5"
+    },
+    {
+      "gameId": "maze-run",
+      "version": "0.1.0",
+      "title": "Maze Run",
+      "manifestPath": "/games/maze-run/0.1.0/manifest.json",
+      "manifestSha256": "482879cf9e23aa1b7e5ae01ca3e501107f01cef8e221229a35f12cde5b88225b"
+    },
+    {
+      "gameId": "memory-lights",
+      "version": "0.1.0",
+      "title": "Memory Lights",
+      "manifestPath": "/games/memory-lights/0.1.0/manifest.json",
+      "manifestSha256": "aefcc1c5a4df9edebfe19c930f20c83e2cf0aabf94d6bcc1cc98f232fc970806"
+    },
+    {
+      "gameId": "orbit-dodge",
+      "version": "0.1.0",
+      "title": "Orbit Dodge",
+      "manifestPath": "/games/orbit-dodge/0.1.0/manifest.json",
+      "manifestSha256": "e77096b43bf1d39a30aa35f2a44e15828c8e2dc864f13d2f11acecbbe125faf0"
+    },
+    {
       "gameId": "pong",
       "version": "0.1.0",
       "title": "Pong Together",
@@ -16,6 +44,34 @@
       "manifestSha256": "486b1c4a479cc8afc1531f5f62b0c539f46b1bfd29a0082b4cba9827c7e18939"
     },
     {
+      "gameId": "reaction-rush",
+      "version": "0.1.0",
+      "title": "Reaction Rush",
+      "manifestPath": "/games/reaction-rush/0.1.0/manifest.json",
+      "manifestSha256": "beca2fc81c096810f0cdee0bc11ec6cc40bb8a3821f6bce2398ac4fe4f4c1f07"
+    },
+    {
+      "gameId": "rhythm-pulse",
+      "version": "0.1.0",
+      "title": "Rhythm Pulse",
+      "manifestPath": "/games/rhythm-pulse/0.1.0/manifest.json",
+      "manifestSha256": "7e4479e95f73f1b8eee28e66ca0387139b2a5b7fd48014843af090c9ec3bf577"
+    },
+    {
+      "gameId": "snake-arena",
+      "version": "0.1.0",
+      "title": "Snake Arena",
+      "manifestPath": "/games/snake-arena/0.1.0/manifest.json",
+      "manifestSha256": "c94da01b31ab0fde306fc39411cf5ef7ca5fbd76737233dfc20ae83469e85094"
+    },
+    {
+      "gameId": "stack-tower",
+      "version": "0.1.0",
+      "title": "Stack Tower",
+      "manifestPath": "/games/stack-tower/0.1.0/manifest.json",
+      "manifestSha256": "88ff91c2597f9d6171dfaebcfc905a31bb60dc9dd872ce11cda5367c95509170"
+    },
+    {
       "gameId": "tap-race",
       "version": "0.1.0",
       "title": "Tap Race",
@@ -28,6 +84,20 @@
       "title": "Tap Race",
       "manifestPath": "/games/tap-race/0.2.0/manifest.json",
       "manifestSha256": "0b6d6ce61e8ed859f284c08a96173ae7ae046b3453c446cecc5ef2c3c845ba61"
+    },
+    {
+      "gameId": "target-blast",
+      "version": "0.1.0",
+      "title": "Target Blast",
+      "manifestPath": "/games/target-blast/0.1.0/manifest.json",
+      "manifestSha256": "0bd1391c34da69ed32994833cea391dbd94e0ce39991a3cb3ec8b3f9ce150e93"
+    },
+    {
+      "gameId": "tug-war",
+      "version": "0.1.0",
+      "title": "Tug War",
+      "manifestPath": "/games/tug-war/0.1.0/manifest.json",
+      "manifestSha256": "ae588af19f705706b410d62a55b6febbb36277d8500b81b0b41511eefda491ac"
     }
   ]
 }

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "tug-war",
+    "version": "0.1.0",
+    "title": "Tug War",
+    "description": "Two teams hammer their PULL controls to drag the rope across the finish line.",
+    "minPlayers": 2,
+    "maxPlayers": 8,
+    "tickRate": 30,
+    "snapshotRate": 15
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "portrait"
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "2f9b734ca43c9c9eb5d542f372f549866070c05d2131666d6a09452f5bb65e2c"
+    },
+    "controller": {
+      "url": "./controller.js",
+      "sha256": "850c37297d778a51068a6b684e3506c0903d517387f87f59ae2943b5fa660217"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "5d52cf4c4319fe5d09566beba4e594ce5c9ceb4ea723321d10e343a68f8c91f0"
+    }
+  }
+}

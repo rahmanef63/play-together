@@ -115,8 +115,18 @@ apps/
   web/                 lobby, room launch, PWA, sandbox host
   realtime/            WebSocket gateway, module cache, room workers
 games/
-  pong/                two-player reference game
-  tap-race/            four-player reference game with a different console
+  pong/                classic two-player paddle game
+  tap-race/            four-player rapid-tap race
+  reaction-rush/       reflex / false-start duel
+  memory-lights/       growing four-pad memory sequence
+  snake-arena/         multiplayer grid snake
+  dodge-dash/          continuous obstacle dodging
+  target-blast/        coordinate-based touch aiming
+  tug-war/             two-team rapid-input tug of war
+  rhythm-pulse/        server-timed rhythm scoring
+  maze-run/            server-authoritative grid maze
+  stack-tower/         overlap-based timing tower race
+  orbit-dodge/         angular movement and meteor avoidance
 packages/
   contracts/           versioned wire and manifest schemas
   game-sdk/            stable API allowed inside game implementations
@@ -132,6 +142,25 @@ docs/                   architecture, SDK, deployment, security, emulator roadma
 ```
 
 The repository follows a **vertical-slice architecture**. Cross-slice dependencies are checked by `pnpm architecture:check`.
+
+### Included games
+
+| Game | Players | Primary control | Gameplay |
+|---|---:|---|---|
+| Pong Together | 1–2 | Up / Down | Realtime paddle physics |
+| Tap Race | 1–4 | Tap | Button-mashing race |
+| Reaction Rush | 1–8 | Hit | Reflex + false-start timing |
+| Memory Lights | 1–8 | Four color pads | Growing memory sequence |
+| Snake Arena | 1–4 | D-pad | Grid movement, growth, collisions |
+| Dodge Dash | 1–4 | Left / Right | Continuous obstacle survival |
+| Target Blast | 1–8 | Touch coordinates | Precision target shooting |
+| Tug War | 2–8 | Pull | Team input battle |
+| Rhythm Pulse | 1–8 | Tap | Server-timed rhythm accuracy |
+| Maze Run | 1–4 | D-pad | Authoritative maze race |
+| Stack Tower | 1–4 | Drop | Timing and overlap stacking |
+| Orbit Dodge | 1–4 | Rotate | Circular movement and meteor avoidance |
+
+Every game ships independent `display`, `controller`, and authoritative `server` bundles. Updating one cartridge does not require changing another game or migrating an active room.
 
 ## Quick start
 

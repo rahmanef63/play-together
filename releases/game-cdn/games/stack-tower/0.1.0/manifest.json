@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "stack-tower",
+    "version": "0.1.0",
+    "title": "Stack Tower",
+    "description": "A timing-based tower race where every drop must overlap the block below.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "portrait"
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "d368a7f26cad343275ad0bb907891a0617debe94766c3168daf9031a03cd5c0e"
+    },
+    "controller": {
+      "url": "./controller.js",
+      "sha256": "e6e333c25a321b6b0257589f7afe5397af34c90aefd6d7bf1f76f0119484b447"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "0a54cd447dd134b23de847b9bfd792f8f42f21ce25bd8a2426bfb12d1fe2fb8c"
+    }
+  }
+}

@@ -213,6 +213,85 @@ test("each game supplies its own independently loaded controller and shared disp
   }
 });
 
+test("all ten additional games load independent display and controller bundles", async ({
+  browser,
+}) => {
+  const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const games = [
+    {
+      key: "reaction-rush@0.1.0",
+      title: "Reaction Rush",
+      control: "Reaction button",
+      maxPlayers: 8,
+    },
+    {
+      key: "memory-lights@0.1.0",
+      title: "Memory Lights",
+      control: "Red memory pad",
+      maxPlayers: 8,
+    },
+    { key: "snake-arena@0.1.0", title: "Snake Arena", control: "Move snake up", maxPlayers: 4 },
+    { key: "dodge-dash@0.1.0", title: "Dodge Dash", control: "Dodge left", maxPlayers: 4 },
+    {
+      key: "target-blast@0.1.0",
+      title: "Target Blast",
+      control: "Target aiming pad",
+      maxPlayers: 8,
+    },
+    { key: "tug-war@0.1.0", title: "Tug War", control: "Pull rope", maxPlayers: 2 },
+    { key: "rhythm-pulse@0.1.0", title: "Rhythm Pulse", control: "Tap on beat", maxPlayers: 8 },
+    { key: "maze-run@0.1.0", title: "Maze Run", control: "Move up", maxPlayers: 4 },
+    { key: "stack-tower@0.1.0", title: "Stack Tower", control: "Drop block", maxPlayers: 4 },
+    { key: "orbit-dodge@0.1.0", title: "Orbit Dodge", control: "Rotate clockwise", maxPlayers: 4 },
+  ];
+
+  for (const [batchIndex, batch] of [games.slice(0, 5), games.slice(5)].entries()) {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await context.newPage();
+    try {
+      await signUp(
+        page,
+        `Game Matrix ${batchIndex + 1} ${runId}`,
+        `matrix-${batchIndex + 1}-${runId}@example.test`,
+      );
+      for (const game of batch) {
+        const code = await createRoom(page, {
+          name: `${game.title} ${runId}`,
+          gameKey: game.key,
+          maxPlayers: game.maxPlayers,
+          visibility: "private",
+        });
+
+        const displayPromise = context.waitForEvent("page");
+        await page.getByRole("button", { name: /Shared display/ }).click();
+        const display = await displayPromise;
+        await display.waitForLoadState("domcontentloaded");
+        await expectGameFrame(display);
+        await expect(display.locator(".play-toolbar strong")).toContainText(game.title, {
+          timeout: 20_000,
+        });
+        await display.close();
+
+        await page.getByRole("button", { name: /Handheld/ }).click();
+        await expectGameFrame(page);
+        await expect(page.locator(".play-toolbar strong")).toContainText(game.title, {
+          timeout: 20_000,
+        });
+        await expect(
+          page.frameLocator("iframe.game-frame").getByRole("button", { name: game.control }),
+        ).toBeVisible({ timeout: 20_000 });
+
+        await page.getByRole("button", { name: /Room/ }).click();
+        await expect(page).toHaveURL(new RegExp(`/room/${code}$`));
+        await page.getByRole("button", { name: "Close room" }).click();
+        await expect(page).toHaveURL("/");
+      }
+    } finally {
+      await closeContext(context);
+    }
+  }
+});
+
 test("concurrent joins cannot overbook the final public room slot", async ({ browser }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const hostContext = await browser.newContext({ viewport: { width: 1280, height: 900 } });

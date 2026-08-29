@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "maze-run",
+    "version": "0.1.0",
+    "title": "Maze Run",
+    "description": "A multiplayer maze sprint with server-authoritative walls, movement, and finish tracking.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 20,
+    "snapshotRate": 10
+  },
+  "modes": ["shared-screen", "handheld"],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "adaptive"
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "snake-arena",
+    "version": "0.1.0",
+    "title": "Snake Arena",
+    "description": "A competitive grid snake arena with food, growth, collisions, and mobile D-pad controls.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 30,
+    "snapshotRate": 20
+  },
+  "modes": ["shared-screen", "handheld"],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "adaptive"
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  }
+}

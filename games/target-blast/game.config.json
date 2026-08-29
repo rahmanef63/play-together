@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "target-blast",
+    "version": "0.1.0",
+    "title": "Target Blast",
+    "description": "A precision target game where each phone becomes a touch aiming surface.",
+    "minPlayers": 1,
+    "maxPlayers": 8,
+    "tickRate": 30,
+    "snapshotRate": 15
+  },
+  "modes": ["shared-screen", "handheld"],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "portrait"
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  }
+}
