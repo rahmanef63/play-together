@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "sky-strike",
+    "version": "0.1.0",
+    "title": "Sky Strike",
+    "description": "A 3D arcade fighter dogfight with flight controls, cannon fire, homing missiles, lock-on, health, respawns and AI bandits.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "landscape"
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "8abbde99f1f66373aaa918cdb43191abbd80eb97906f67e9922e9fdf3276585a"
+    },
+    "controller": {
+      "url": "./controller.js",
+      "sha256": "4530fab7f435138da5e5a5cc1017bd4379c68cbe08540db5547bd41d8b87944b"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "e3333d803fa33dc96bc8eec537d60e9933e31cb676e06d461b7ccfc778a3e01a"
+    }
+  }
+}

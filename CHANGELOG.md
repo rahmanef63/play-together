@@ -4,6 +4,21 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-29
+
+### Added
+
+- **Turbo Circuit**, a Three.js/WebGL 3D arcade racer with server-authoritative steering, throttle, braking, nitro, off-track friction, vehicle collision, sequential checkpoints, three-lap races, and AI rivals.
+- **Sky Strike**, a Three.js/WebGL fighter dogfight with bank/pitch/yaw flight, throttle, cannon projectiles, homing missiles, target lock, health, kills, respawns, round wins, and AI bandits.
+- **Flight Trainer**, a Three.js/WebGL training simulator with yoke, yaw, throttle, flaps, landing gear, airspeed/altitude/VSI/heading instruments, takeoff route rings, simplified lift/stall physics, crash detection, and safe-landing conditions.
+- Dedicated server tests and browser gameplay coverage for the three advanced 3D cartridges.
+- Immutable `0.1.1` release candidates for the three 3D games after final lint cleanup; the initially generated `0.1.0` bytes remain preserved as history.
+
+### Changed
+
+- Active game catalog grows from 12 to 15 independent vertical slices while preserving all prior immutable releases.
+- Platform package version advances to `0.4.0`; existing game versions remain untouched.
+
 ## [0.3.0] - 2026-08-29
 
 ### Added

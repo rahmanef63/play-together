@@ -126,6 +126,9 @@ games/
   maze-run/            server-authoritative grid maze
   stack-tower/         overlap-based timing tower race
   orbit-dodge/         angular movement and meteor avoidance
+  turbo-circuit/       3D arcade racing with AI rivals and lap physics
+  sky-strike/          3D fighter dogfight with cannon/missiles
+  flight-trainer/      3D pilot training, instruments, stall and landing
 packages/
   contracts/           versioned wire and manifest schemas
   game-sdk/            stable API allowed inside game implementations
@@ -158,6 +161,9 @@ The repository follows a **vertical-slice architecture**. Cross-slice dependenci
 | Maze Run | 1–4 | D-pad | Authoritative maze race |
 | Stack Tower | 1–4 | Drop | Timing and overlap stacking |
 | Orbit Dodge | 1–4 | Rotate | Circular movement and meteor avoidance |
+| Turbo Circuit | 1–4 | Steering + pedals + nitro | 3D circuit racing, checkpoints, laps, collisions and AI rivals |
+| Sky Strike | 1–4 | Flight stick + weapons | 3D dogfight, lock-on, cannon, homing missiles and AI bandits |
+| Flight Trainer | 1–4 | Yoke + throttle + systems | 3D takeoff, navigation, instruments, stall/crash and landing training |
 
 Every game ships independent `display`, `controller`, and authoritative `server` bundles. Updating one cartridge does not require changing another game or migrating an active room.
 
@@ -183,6 +189,12 @@ These thumbnails are captured from the running handheld runtime, not mockups.
 <td><img src="apps/web/public/game-previews/maze-run.png" alt="Maze Run gameplay preview" /><br/><b>Maze Run</b></td>
 <td><img src="apps/web/public/game-previews/stack-tower.png" alt="Stack Tower gameplay preview" /><br/><b>Stack Tower</b></td>
 <td><img src="apps/web/public/game-previews/orbit-dodge.png" alt="Orbit Dodge gameplay preview" /><br/><b>Orbit Dodge</b></td>
+</tr>
+<tr>
+<td><img src="apps/web/public/game-previews/turbo-circuit.png" alt="Turbo Circuit gameplay preview" /><br/><b>Turbo Circuit</b></td>
+<td><img src="apps/web/public/game-previews/sky-strike.png" alt="Sky Strike gameplay preview" /><br/><b>Sky Strike</b></td>
+<td><img src="apps/web/public/game-previews/flight-trainer.png" alt="Flight Trainer gameplay preview" /><br/><b>Flight Trainer</b></td>
+<td><b>15 independent cartridges</b><br/>3D games keep renderer code inside their own slices.</td>
 </tr>
 </table>
 
@@ -265,7 +277,7 @@ See [docs/deployment.md](docs/deployment.md) and [.env.production.example](.env.
 ```bash
 pnpm verify          # lint + architecture + typecheck + tests + build + smoke + audit
 pnpm verify:stack    # realtime smoke + full browser multiplayer E2E
-pnpm game:previews   # recapture all 12 preview thumbnails from the running stack
+pnpm game:previews   # recapture all gameplay preview thumbnails from the running stack
 pnpm stack:config    # validate merged Docker Compose config
 ```
 

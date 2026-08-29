@@ -45,7 +45,7 @@ The controller module always owns game-specific input controls. The display modu
 - `handheld`: display and controller modules from the same pinned release are mounted together inside one console shell and share one realtime context;
 - adaptive handheld orientation: portrait stacks screen over controls, while landscape places them side by side in a PSP-style shell.
 
-Neither browser module should simulate authoritative outcomes locally. The room worker remains the source of truth.
+Neither browser module should simulate authoritative outcomes locally. The room worker remains the source of truth. Browser-only rendering/animation dependencies are allowed inside a game package when they stay behind the display/controller boundary; do not move a concrete renderer into platform shared packages just to deduplicate it.
 
 The context exposes only:
 

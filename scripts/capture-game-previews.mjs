@@ -75,6 +75,29 @@ const games = [
     control: "Rotate clockwise",
     taps: 2,
   },
+  {
+    key: "turbo-circuit@0.1.1",
+    id: "turbo-circuit",
+    title: "Turbo Circuit",
+    control: "Accelerate",
+    taps: 1,
+    delay: 1400,
+  },
+  {
+    key: "sky-strike@0.1.1",
+    id: "sky-strike",
+    title: "Sky Strike",
+    control: "Fire cannon",
+    taps: 3,
+    delay: 180,
+  },
+  {
+    key: "flight-trainer@0.1.1",
+    id: "flight-trainer",
+    title: "Flight Trainer",
+    control: "Throttle up",
+    taps: 8,
+  },
 ];
 
 await mkdir(outputDir, { recursive: true });
@@ -110,7 +133,11 @@ try {
           }
           await guestPage.goto(`${baseUrl}/room/${code}`);
           const join = guestPage.getByRole("button", { name: "Join room" });
-          if (await join.isVisible()) await join.click();
+          await join.waitFor({ state: "visible", timeout: 20_000 });
+          await join.click();
+          await guestPage
+            .getByRole("heading", { name: "How are you playing?" })
+            .waitFor({ state: "visible", timeout: 20_000 });
           await guestPage.getByRole("button", { name: /Handheld console/ }).click();
           await expectConnected(guestPage);
         }
@@ -123,7 +150,7 @@ try {
         await screen.waitFor({ state: "visible", timeout: 20_000 });
         await control.waitFor({ state: "visible", timeout: 20_000 });
         for (let index = 0; index < game.taps; index += 1) {
-          await control.click({ timeout: 10_000 });
+          await control.click({ timeout: 10_000, delay: game.delay ?? 0 });
           await page.waitForTimeout(70);
         }
         await page.waitForTimeout(game.id === "reaction-rush" ? 1_500 : 850);

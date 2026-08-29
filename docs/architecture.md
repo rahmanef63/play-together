@@ -61,6 +61,8 @@ The shell verifies the manifest and browser bundle bytes before import. It mount
 
 The game does not receive Convex credentials, room password, publish token, or raw ticket secret.
 
+A browser game slice may bundle its own third-party renderer (for example Three.js) when the dependency is declared in that game package. The platform does not import that renderer, and server authority must never depend on it. This keeps richer 3D cartridges isolated: renderer upgrades change only that game's next immutable release.
+
 ## Server isolation
 
 Each room and pinned release runs in its own Node.js worker thread with bounded heap/stack settings. A worker crash closes only that room session. This protects availability between normal trusted game releases, but worker threads share the host process permissions. Third-party untrusted server modules require a separate process/container or microVM policy before publication.

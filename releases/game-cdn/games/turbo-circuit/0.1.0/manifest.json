@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "turbo-circuit",
+    "version": "0.1.0",
+    "title": "Turbo Circuit",
+    "description": "A 3D arcade circuit racer with steering, throttle, braking, nitro, checkpoints, laps, collision and AI rivals.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "landscape"
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "0096375b6ae047f08bcf0ad75636e53b888374573c20fe729f9eb40cd0a6b101"
+    },
+    "controller": {
+      "url": "./controller.js",
+      "sha256": "ed8356651654743ad14558c89233879b1add01df89931bc435684a4efbf320da"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "bd441e7ea9f0929a5b305f19f45a655c5c0c58f45f5953d5a627ae9e7efb75c1"
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "flight-trainer",
+    "version": "0.1.0",
+    "title": "Flight Trainer",
+    "description": "A 3D flight-training simulator with throttle, pitch, roll, yaw, flaps, landing gear, stall/crash physics, instruments and checkpoint navigation.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "landscape"
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "e7064f37630caba9f0080b6dc223ed2244b6ad327d10253e8a70c1c2beff5705"
+    },
+    "controller": {
+      "url": "./controller.js",
+      "sha256": "3b6d9f8b2cf554c53e90a9d2e3f62e130af836a40f61389c4dab34fa6a7570a5"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "5b8463a72b87564658f9d858abde3621accb064bb08301cf7b853a465dca6743"
+    }
+  }
+}

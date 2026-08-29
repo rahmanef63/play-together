@@ -1,0 +1,20 @@
+{
+  "name": "@play-together/game-sky-strike",
+  "version": "0.1.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node ../../scripts/build-game.mjs games/sky-strike",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@play-together/game-sdk": "workspace:*",
+    "three": "0.185.1"
+  },
+  "devDependencies": {
+    "@types/three": "0.185.4",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}
