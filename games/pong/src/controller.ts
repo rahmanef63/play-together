@@ -1,5 +1,12 @@
 import type { BrowserGameContext, ControllerGameModule } from "@play-together/game-sdk";
-import { drawPong, isPongSnapshot } from "./render";
+
+interface PongState {
+  kind: "pong";
+  phase: "waiting" | "playing";
+  paddles: [number, number];
+  score: [number, number];
+  players: Array<string | null>;
+}
 
 export const mountController: ControllerGameModule["mountController"] = (
   root: HTMLElement,
@@ -9,51 +16,24 @@ export const mountController: ControllerGameModule["mountController"] = (
   const shell = document.createElement("section");
   shell.className = `pong-controller pong-controller--${context.mode}`;
   shell.style.cssText =
-    "width:100%;height:100%;display:grid;gap:16px;align-items:stretch;touch-action:none;user-select:none;-webkit-user-select:none";
+    "width:100%;height:100%;display:grid;grid-template-rows:auto 1fr;gap:12px;padding:12px;touch-action:none;user-select:none;-webkit-user-select:none;background:#cbd5cd;color:#07110c";
 
-  const screen = document.createElement("canvas");
-  screen.className = "pong-controller__screen";
-  screen.style.cssText =
-    context.mode === "handheld"
-      ? "display:block;width:100%;min-height:180px;border-radius:18px;background:#07110c;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)"
-      : "display:none";
+  const info = document.createElement("strong");
+  info.style.cssText =
+    "font:850 14px/1.2 ui-monospace,monospace;letter-spacing:.04em;text-align:center";
+  info.textContent = "PONG · READY";
 
   const controls = document.createElement("div");
   controls.className = "pong-controller__controls";
-  controls.style.cssText = "display:grid;grid-template-rows:1fr 1fr;gap:12px;min-height:220px";
+  controls.style.cssText = "display:grid;grid-template-rows:1fr 1fr;gap:12px;min-height:0";
   const up = createButton("▲", "Move paddle up");
   const down = createButton("▼", "Move paddle down");
   controls.append(up, down);
-  shell.append(screen, controls);
+  shell.append(info, controls);
   root.append(shell);
 
-  const landscape = matchMedia("(orientation: landscape)");
-  const arrange = () => {
-    if (context.mode !== "handheld") {
-      shell.style.gridTemplateColumns = "1fr";
-      shell.style.gridTemplateRows = "1fr";
-      controls.style.minHeight = "220px";
-      return;
-    }
-    if (landscape.matches) {
-      shell.style.gridTemplateColumns = "minmax(0,2.2fr) minmax(180px,.8fr)";
-      shell.style.gridTemplateRows = "1fr";
-      screen.style.minHeight = "0";
-      screen.style.height = "100%";
-      controls.style.minHeight = "0";
-    } else {
-      shell.style.gridTemplateColumns = "1fr";
-      shell.style.gridTemplateRows = "minmax(180px,1fr) minmax(220px,.85fr)";
-      screen.style.minHeight = "180px";
-      screen.style.height = "auto";
-      controls.style.minHeight = "220px";
-    }
-  };
-  arrange();
-  landscape.addEventListener("change", arrange);
-
   let direction = 0;
-  const held = new Set<number>();
+  const held: number[] = [];
   const setDirection = (value: number) => {
     if (direction === value) return;
     direction = value;
@@ -64,13 +44,14 @@ export const mountController: ControllerGameModule["mountController"] = (
     const start = (event: PointerEvent) => {
       event.preventDefault();
       button.setPointerCapture(event.pointerId);
-      held.add(value);
+      held.push(value);
       setDirection(value);
     };
     const stop = (event: PointerEvent) => {
       event.preventDefault();
-      held.delete(value);
-      setDirection(held.size ? ([...held].at(-1) ?? 0) : 0);
+      const index = held.lastIndexOf(value);
+      if (index >= 0) held.splice(index, 1);
+      setDirection(held.at(-1) ?? 0);
     };
     button.addEventListener("pointerdown", start);
     button.addEventListener("pointerup", stop);
@@ -84,6 +65,7 @@ export const mountController: ControllerGameModule["mountController"] = (
   const unbindUp = bind(up, -1);
   const unbindDown = bind(down, 1);
   const keydown = (event: KeyboardEvent) => {
+    if (event.repeat) return;
     if (event.key === "ArrowUp" || event.key.toLowerCase() === "w") setDirection(-1);
     if (event.key === "ArrowDown" || event.key.toLowerCase() === "s") setDirection(1);
   };
@@ -93,18 +75,14 @@ export const mountController: ControllerGameModule["mountController"] = (
   window.addEventListener("keydown", keydown);
   window.addEventListener("keyup", keyup);
 
-  let latest: Parameters<typeof drawPong>[1] = null;
   const unsubscribe = context.subscribe((message) => {
-    if (isPongSnapshot(message.state)) latest = message.state;
+    if (!isPongState(message.state)) return;
+    const slot = message.state.players.findIndex((id) => id === context.playerId);
+    const side = slot === 0 ? "LEFT" : slot === 1 ? "RIGHT" : "SPECTATOR";
+    info.textContent = `PONG · ${side} · ${message.state.score[0]} — ${message.state.score[1]}`;
   });
-  let animationFrame = 0;
-  const render = () => {
-    if (context.mode === "handheld") drawPong(screen, latest);
-    animationFrame = requestAnimationFrame(render);
-  };
-  render();
   context.setStatus(
-    context.mode === "handheld" ? "Handheld screen ready" : "Remote controller ready",
+    context.mode === "handheld" ? "Pong handheld ready" : "Pong phone remote ready",
   );
 
   return () => {
@@ -112,10 +90,8 @@ export const mountController: ControllerGameModule["mountController"] = (
     unbindUp();
     unbindDown();
     unsubscribe();
-    landscape.removeEventListener("change", arrange);
     window.removeEventListener("keydown", keydown);
     window.removeEventListener("keyup", keyup);
-    cancelAnimationFrame(animationFrame);
     root.replaceChildren();
   };
 };
@@ -126,6 +102,12 @@ function createButton(label: string, accessibleName: string): HTMLButtonElement 
   button.textContent = label;
   button.setAttribute("aria-label", accessibleName);
   button.style.cssText =
-    "appearance:none;border:0;border-radius:24px;background:#d7ffe5;color:#07110c;font:800 clamp(36px,12vw,68px)/1 system-ui;box-shadow:0 8px 0 #78a88a;touch-action:none;min-height:92px";
+    "appearance:none;border:0;border-radius:24px;background:#d7ffe5;color:#07110c;font:900 clamp(34px,10vw,64px)/1 system-ui;box-shadow:0 7px 0 #78a88a;touch-action:none;min-height:72px";
   return button;
+}
+
+function isPongState(value: unknown): value is PongState {
+  return (
+    typeof value === "object" && value !== null && (value as { kind?: unknown }).kind === "pong"
+  );
 }

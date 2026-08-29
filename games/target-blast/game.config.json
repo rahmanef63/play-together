@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "target-blast",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "title": "Target Blast",
     "description": "A precision target game where each phone becomes a touch aiming surface.",
     "minPlayers": 1,

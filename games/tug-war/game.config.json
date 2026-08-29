@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "tug-war",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "title": "Tug War",
     "description": "Two teams hammer their PULL controls to drag the rope across the finish line.",
     "minPlayers": 2,

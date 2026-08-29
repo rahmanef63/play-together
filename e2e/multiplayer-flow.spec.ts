@@ -1,8 +1,8 @@
 import { type BrowserContext, expect, type Page, test } from "@playwright/test";
 
 const accountPassword = "SecurePass123!";
-const pong = "pong@0.2.0";
-const tapRace = "tap-race@0.2.0";
+const pong = "pong@0.3.0";
+const tapRace = "tap-race@0.3.0";
 const realtimeHealthUrl = process.env.E2E_REALTIME_HEALTH_URL ?? "http://127.0.0.1:8787/healthz";
 
 async function signUp(page: Page, name: string, email: string): Promise<void> {
@@ -91,15 +91,14 @@ test("public and password-protected rooms work across shared display and mobile 
     await joinFromPublicCard(guest, publicRoomName, publicCode);
 
     const displayPromise = hostContext.waitForEvent("page");
-    await host.getByRole("button", { name: /Shared display/ }).click();
+    await host.getByRole("button", { name: /Shared screen \+ remote/ }).click();
     const display = await displayPromise;
     await display.waitForLoadState("domcontentloaded");
     await expectGameFrame(display);
     await expect(display.frameLocator("iframe.game-frame").locator("canvas")).toBeVisible();
 
-    await guest.getByRole("button", { name: /Remote only/ }).click();
-    await expectGameFrame(guest);
-    const remoteFrame = guest.frameLocator("iframe.game-frame");
+    await expectGameFrame(host);
+    const remoteFrame = host.frameLocator("iframe.game-frame");
     const down = remoteFrame.getByRole("button", { name: "Move paddle down" });
     await expect(down).toBeVisible();
     await down.click({ delay: 250 });
@@ -113,6 +112,7 @@ test("public and password-protected rooms work across shared display and mobile 
 
     await host.screenshot({ path: testInfo.outputPath("public-room-desktop.png"), fullPage: true });
     await display.close();
+    await host.getByRole("button", { name: /Room/ }).click();
     await host.getByRole("button", { name: "Close room" }).click();
     await expect(host).toHaveURL("/");
 
@@ -188,7 +188,7 @@ test("each game supplies its own independently loaded controller and shared disp
     await joinFromPublicCard(guest, roomName, roomCode);
 
     const displayPromise = hostContext.waitForEvent("page");
-    await host.getByRole("button", { name: /Shared display/ }).click();
+    await host.getByRole("button", { name: /Shared screen \+ remote/ }).click();
     const display = await displayPromise;
     await display.waitForLoadState("domcontentloaded");
     await expectGameFrame(display);
@@ -196,16 +196,16 @@ test("each game supplies its own independently loaded controller and shared disp
       display.frameLocator("iframe.game-frame").getByText("TAP RACE", { exact: true }),
     ).toBeVisible();
 
-    await guest.getByRole("button", { name: /Remote only/ }).click();
-    await expectGameFrame(guest);
-    const game = guest.frameLocator("iframe.game-frame");
+    await expectGameFrame(host);
+    const game = host.frameLocator("iframe.game-frame");
     const tap = game.getByRole("button", { name: "Tap to race" });
     await expect(tap).toBeVisible();
     await expect(game.getByRole("button", { name: "Move paddle down" })).toHaveCount(0);
     for (let index = 0; index < 4; index += 1) await tap.click();
-    await guest.screenshot({ path: testInfo.outputPath("tap-race-remote.png"), fullPage: true });
+    await host.screenshot({ path: testInfo.outputPath("tap-race-remote.png"), fullPage: true });
     await display.screenshot({ path: testInfo.outputPath("tap-race-display.png"), fullPage: true });
     await display.close();
+    await host.getByRole("button", { name: /Room/ }).click();
     await host.getByRole("button", { name: "Close room" }).click();
   } finally {
     await closeContext(guestContext);
@@ -213,36 +213,36 @@ test("each game supplies its own independently loaded controller and shared disp
   }
 });
 
-test("all ten additional games load independent display and controller bundles", async ({
+test("all ten additional games are playable handheld cartridges with screen and controls", async ({
   browser,
 }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const games = [
     {
-      key: "reaction-rush@0.1.0",
+      key: "reaction-rush@0.2.0",
       title: "Reaction Rush",
       control: "Reaction button",
       maxPlayers: 8,
     },
     {
-      key: "memory-lights@0.1.0",
+      key: "memory-lights@0.2.0",
       title: "Memory Lights",
       control: "Red memory pad",
       maxPlayers: 8,
     },
-    { key: "snake-arena@0.1.0", title: "Snake Arena", control: "Move snake up", maxPlayers: 4 },
-    { key: "dodge-dash@0.1.0", title: "Dodge Dash", control: "Dodge left", maxPlayers: 4 },
+    { key: "snake-arena@0.2.0", title: "Snake Arena", control: "Move snake up", maxPlayers: 4 },
+    { key: "dodge-dash@0.2.0", title: "Dodge Dash", control: "Dodge left", maxPlayers: 4 },
     {
-      key: "target-blast@0.1.0",
+      key: "target-blast@0.2.0",
       title: "Target Blast",
       control: "Target aiming pad",
       maxPlayers: 8,
     },
-    { key: "tug-war@0.1.0", title: "Tug War", control: "Pull rope", maxPlayers: 2 },
-    { key: "rhythm-pulse@0.1.0", title: "Rhythm Pulse", control: "Tap on beat", maxPlayers: 8 },
-    { key: "maze-run@0.1.0", title: "Maze Run", control: "Move up", maxPlayers: 4 },
-    { key: "stack-tower@0.1.0", title: "Stack Tower", control: "Drop block", maxPlayers: 4 },
-    { key: "orbit-dodge@0.1.0", title: "Orbit Dodge", control: "Rotate clockwise", maxPlayers: 4 },
+    { key: "tug-war@0.2.0", title: "Tug War", control: "Pull rope", maxPlayers: 2 },
+    { key: "rhythm-pulse@0.2.0", title: "Rhythm Pulse", control: "Tap on beat", maxPlayers: 8 },
+    { key: "maze-run@0.2.0", title: "Maze Run", control: "Move up", maxPlayers: 4 },
+    { key: "stack-tower@0.2.0", title: "Stack Tower", control: "Drop block", maxPlayers: 4 },
+    { key: "orbit-dodge@0.2.0", title: "Orbit Dodge", control: "Rotate clockwise", maxPlayers: 4 },
   ];
 
   for (const [batchIndex, batch] of [games.slice(0, 5), games.slice(5)].entries()) {
@@ -254,6 +254,20 @@ test("all ten additional games load independent display and controller bundles",
         `Game Matrix ${batchIndex + 1} ${runId}`,
         `matrix-${batchIndex + 1}-${runId}@example.test`,
       );
+      if (batchIndex === 0) {
+        const previews = page.locator(".game-picker img");
+        await expect(previews).toHaveCount(12);
+        await expect
+          .poll(() =>
+            previews.evaluateAll((images) =>
+              images.every(
+                (image) =>
+                  image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0,
+              ),
+            ),
+          )
+          .toBe(true);
+      }
       for (const game of batch) {
         const code = await createRoom(page, {
           name: `${game.title} ${runId}`,
@@ -262,24 +276,19 @@ test("all ten additional games load independent display and controller bundles",
           visibility: "private",
         });
 
-        const displayPromise = context.waitForEvent("page");
-        await page.getByRole("button", { name: /Shared display/ }).click();
-        const display = await displayPromise;
-        await display.waitForLoadState("domcontentloaded");
-        await expectGameFrame(display);
-        await expect(display.locator(".play-toolbar strong")).toContainText(game.title, {
-          timeout: 20_000,
-        });
-        await display.close();
-
-        await page.getByRole("button", { name: /Handheld/ }).click();
+        await page.getByRole("button", { name: /Handheld console/ }).click();
         await expectGameFrame(page);
         await expect(page.locator(".play-toolbar strong")).toContainText(game.title, {
           timeout: 20_000,
         });
-        await expect(
-          page.frameLocator("iframe.game-frame").getByRole("button", { name: game.control }),
-        ).toBeVisible({ timeout: 20_000 });
+        const frame = page.frameLocator("iframe.game-frame");
+        await expect(frame.locator(".handheld-screen")).toBeVisible({ timeout: 20_000 });
+        await expect(frame.locator(".handheld-controls")).toBeVisible({ timeout: 20_000 });
+        const control = frame.getByRole("button", { name: game.control });
+        await expect(control).toBeVisible({ timeout: 20_000 });
+        await control.click();
+        await expect(page.locator(".connection")).toHaveText("connected");
+        await expect(page.locator(".play-error")).toHaveCount(0);
 
         await page.getByRole("button", { name: /Room/ }).click();
         await expect(page).toHaveURL(new RegExp(`/room/${code}$`));

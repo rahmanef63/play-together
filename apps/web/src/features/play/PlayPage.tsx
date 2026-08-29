@@ -35,7 +35,12 @@ export function PlayPage({ code, role }: { code: string; role: "controller" | "d
     const frame = document.createElement("iframe");
     const channel = crypto.randomUUID();
     frame.className = "game-frame";
-    frame.title = role === "display" ? "Shared game display" : "Mobile game controller";
+    frame.title =
+      role === "display"
+        ? "Shared game display"
+        : mode === "handheld"
+          ? "Handheld game console"
+          : "Phone game controller";
     frame.sandbox.add("allow-scripts", "allow-pointer-lock");
     frame.allow = "fullscreen; gamepad; accelerometer; gyroscope";
     frame.src = "/game-frame.html";
@@ -49,7 +54,11 @@ export function PlayPage({ code, role }: { code: string; role: "controller" | "d
       } else if (message.type === "ready") {
         setStatus(
           `${typeof message.title === "string" ? message.title : "Game"} · ${
-            mode === "handheld" ? "handheld" : role === "display" ? "shared display" : "remote"
+            mode === "handheld"
+              ? "handheld console"
+              : role === "display"
+                ? "shared screen"
+                : "phone remote"
           }`,
         );
         if (client?.latestSnapshot) {

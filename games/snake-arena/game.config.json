@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "snake-arena",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "title": "Snake Arena",
     "description": "A competitive grid snake arena with food, growth, collisions, and mobile D-pad controls.",
     "minPlayers": 1,

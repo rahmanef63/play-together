@@ -136,26 +136,25 @@ export function RoomPage({ code, user }: { code: string; user: CurrentUser }) {
           <p className="eyebrow">CHOOSE THIS DEVICE</p>
           <h2>How are you playing?</h2>
           <div className="launch-grid">
-            {room.gameModes.includes("shared-screen") && (
+            {room.gameModes.includes("shared-screen") && room.supportsRemote && (
               <button
                 className="launch-card display-card"
                 type="button"
-                onClick={() => window.open(`/play/${code}/display`, "_blank", "noopener")}
+                onClick={() => {
+                  const shared = window.open(`/play/${code}/display`, "_blank");
+                  if (!shared) {
+                    setError("Allow pop-ups so Play Together can open the shared game screen.");
+                    return;
+                  }
+                  try {
+                    shared.opener = null;
+                  } catch {}
+                  navigate(`/play/${code}/controller?mode=remote`);
+                }}
               >
-                <span className="launch-icon">▣</span>
-                <strong>Shared display</strong>
-                <p>Open on TV, laptop, projector, or a second browser.</p>
-              </button>
-            )}
-            {room.supportsRemote && (
-              <button
-                className="launch-card"
-                type="button"
-                onClick={() => navigate(`/play/${code}/controller?mode=remote`)}
-              >
-                <span className="launch-icon">⌁</span>
-                <strong>Remote only</strong>
-                <p>The phone shows controls while the browser is the shared screen.</p>
+                <span className="launch-icon">▣ + ◉</span>
+                <strong>Shared screen + remote</strong>
+                <p>Open the game on a browser/TV and use this device as its controller.</p>
               </button>
             )}
             {room.supportsHandheld && (
@@ -165,7 +164,7 @@ export function RoomPage({ code, user }: { code: string; user: CurrentUser }) {
                 onClick={() => navigate(`/play/${code}/controller?mode=handheld`)}
               >
                 <span className="launch-icon">▤</span>
-                <strong>Handheld</strong>
+                <strong>Handheld console</strong>
                 <p>
                   {room.preferredOrientation === "landscape"
                     ? "Designed for a PSP-style landscape layout."

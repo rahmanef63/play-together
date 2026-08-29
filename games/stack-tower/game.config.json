@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "stack-tower",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "title": "Stack Tower",
     "description": "A timing-based tower race where every drop must overlap the block below.",
     "minPlayers": 1,

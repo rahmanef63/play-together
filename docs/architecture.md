@@ -85,7 +85,7 @@ Launch UI → `convex/tickets` → HMAC ticket → gateway verification and repl
 
 ### Realtime play
 
-Controller module → validated input protocol → room worker → validated snapshot protocol → display/handheld module.
+Controller module → validated input protocol → room worker → validated snapshot protocol → display module. In handheld mode the browser runtime mounts the pinned display + controller modules together over the same realtime context; in shared-screen mode the display and phone controller are separate surfaces of the same room.
 
 ### Operations
 

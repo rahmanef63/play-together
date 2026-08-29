@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "tap-race",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "title": "Tap Race",
     "description": "A four-player button race with a game-specific TAP console for remote and handheld play.",
     "minPlayers": 1,

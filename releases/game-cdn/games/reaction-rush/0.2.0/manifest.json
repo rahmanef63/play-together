@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "reaction-rush",
+    "version": "0.2.0",
+    "title": "Reaction Rush",
+    "description": "A reflex duel where players must react to GO without false-starting.",
+    "minPlayers": 1,
+    "maxPlayers": 8,
+    "tickRate": 30,
+    "snapshotRate": 15
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "portrait"
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "9e5bb7be27009b96611fec864a41dcc0916716487c85f6b94ce5f4acea71fa15"
+    },
+    "controller": {
+      "url": "./controller.js",
+      "sha256": "cbb0ff0ec59f225ef23cb59e226b5d85b9cea1971f50936da3aa8864bbce2368"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "a4a1862a83c61188d6425d8de4b15fec769c177f83c5f1359c196b3bbf05c337"
+    }
+  }
+}

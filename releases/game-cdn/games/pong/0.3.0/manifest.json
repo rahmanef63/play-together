@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "pong",
+    "version": "0.3.0",
+    "title": "Pong Together",
+    "description": "A low-latency reference game proving shared-screen and handheld controller modes.",
+    "minPlayers": 1,
+    "maxPlayers": 2,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "adaptive"
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "15b84c6cd08d0fe628f2d75eab9305ce42bc85057198db158c7dd7381554ab7b"
+    },
+    "controller": {
+      "url": "./controller.js",
+      "sha256": "d01e5efc1eea70f07b0f6d6151a0241f3df44b8a7bb65335e54d1c2ebffda6e0"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "4792093d05cac5a1eadb81c24df52fe993eb92e1e807d436c587b6ac0c6110aa"
+    }
+  }
+}

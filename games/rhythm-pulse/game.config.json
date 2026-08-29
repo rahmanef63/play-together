@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "rhythm-pulse",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "title": "Rhythm Pulse",
     "description": "A timing game that scores taps by how close they land to the shared pulse.",
     "minPlayers": 1,

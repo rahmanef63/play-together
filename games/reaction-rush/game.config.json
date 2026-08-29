@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "reaction-rush",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "title": "Reaction Rush",
     "description": "A reflex duel where players must react to GO without false-starting.",
     "minPlayers": 1,

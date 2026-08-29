@@ -57,42 +57,82 @@ window.addEventListener("message", (event: MessageEvent<unknown>) => {
 
 window.addEventListener("pagehide", () => cleanupModule?.(), { once: true });
 
+function createContext(message: FrameInitMessage): BrowserGameContext {
+  return {
+    playerId: message.playerId,
+    mode: message.mode,
+    sendInput(payload) {
+      post({ type: "input", payload });
+    },
+    subscribe(listener) {
+      snapshotListeners.add(listener);
+      if (latestSnapshot) listener(latestSnapshot);
+      return () => snapshotListeners.delete(listener);
+    },
+    getLatestSnapshot() {
+      return latestSnapshot;
+    },
+    setStatus(status) {
+      post({ type: "status", status });
+    },
+  };
+}
+
 async function mount(message: FrameInitMessage): Promise<void> {
   try {
     const manifest = await fetchVerifiedManifest(message.manifestUrl, message.manifestSha256);
     if (manifest.game.id !== message.gameId || manifest.game.version !== message.gameVersion) {
       throw new Error("Pinned game version does not match its manifest");
     }
-    const entry =
-      message.role === "display" ? manifest.entries.display : manifest.entries.controller;
-    const module = await importVerifiedModule<DisplayGameModule | ControllerGameModule>(
-      resolveModuleUrl(message.manifestUrl, entry.url),
-      entry.sha256,
-    );
-    const context: BrowserGameContext = {
-      playerId: message.playerId,
-      mode: message.mode,
-      sendInput(payload) {
-        post({ type: "input", payload });
-      },
-      subscribe(listener) {
-        snapshotListeners.add(listener);
-        if (latestSnapshot) listener(latestSnapshot);
-        return () => snapshotListeners.delete(listener);
-      },
-      getLatestSnapshot() {
-        return latestSnapshot;
-      },
-      setStatus(status) {
-        post({ type: "status", status });
-      },
-    };
-    if (message.role === "display" && "mountDisplay" in module) {
-      cleanupModule = module.mountDisplay(gameRoot, context);
-    } else if (message.role === "controller" && "mountController" in module) {
-      cleanupModule = module.mountController(gameRoot, context);
+    const context = createContext(message);
+
+    if (message.role === "controller" && message.mode === "handheld") {
+      const [displayModule, controllerModule] = await Promise.all([
+        importVerifiedModule<DisplayGameModule>(
+          resolveModuleUrl(message.manifestUrl, manifest.entries.display.url),
+          manifest.entries.display.sha256,
+        ),
+        importVerifiedModule<ControllerGameModule>(
+          resolveModuleUrl(message.manifestUrl, manifest.entries.controller.url),
+          manifest.entries.controller.sha256,
+        ),
+      ]);
+      if (!("mountDisplay" in displayModule) || !("mountController" in controllerModule)) {
+        throw new Error("Handheld mode requires both display and controller surfaces");
+      }
+
+      gameRoot.dataset.layout = "handheld";
+      const screen = document.createElement("section");
+      screen.className = "handheld-screen";
+      screen.setAttribute("aria-label", `${manifest.game.title} game screen`);
+      const controls = document.createElement("section");
+      controls.className = "handheld-controls";
+      controls.setAttribute("aria-label", `${manifest.game.title} controls`);
+      gameRoot.replaceChildren(screen, controls);
+
+      const disposeDisplay = displayModule.mountDisplay(screen, context);
+      const disposeController = controllerModule.mountController(controls, context);
+      cleanupModule = () => {
+        disposeDisplay?.();
+        disposeController?.();
+        snapshotListeners.clear();
+        gameRoot.replaceChildren();
+        delete gameRoot.dataset.layout;
+      };
     } else {
-      throw new Error(`Game bundle does not implement the ${message.role} surface`);
+      const entry =
+        message.role === "display" ? manifest.entries.display : manifest.entries.controller;
+      const module = await importVerifiedModule<DisplayGameModule | ControllerGameModule>(
+        resolveModuleUrl(message.manifestUrl, entry.url),
+        entry.sha256,
+      );
+      if (message.role === "display" && "mountDisplay" in module) {
+        cleanupModule = module.mountDisplay(gameRoot, context);
+      } else if (message.role === "controller" && "mountController" in module) {
+        cleanupModule = module.mountController(gameRoot, context);
+      } else {
+        throw new Error(`Game bundle does not implement the ${message.role} surface`);
+      }
     }
     post({ type: "ready", title: manifest.game.title });
   } catch (reason) {

@@ -4,6 +4,21 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-29
+
+### Added
+
+- A true handheld runtime that mounts each pinned game release's live display and controller together over one authoritative realtime connection.
+- Game Boy-style portrait and PSP-style landscape console composition for every handheld-capable cartridge.
+- Real gameplay preview thumbnails for all 12 active games, captured from the running handheld integration stack and shown in the lobby game picker.
+- A reproducible `scripts/capture-game-previews.mjs` workflow for refreshing preview media from real gameplay.
+
+### Changed
+
+- Unified the old separate Shared Display and Remote Only launch choices into one **Shared screen + remote** flow.
+- Published new immutable cartridge versions for the playable-runtime rollout: Pong `0.3.0`, Tap Race `0.3.0`, and `0.2.0` for the other ten active games.
+- Pong and Tap Race controllers now render controls only; handheld display composition is owned centrally by the browser runtime instead of duplicated per game.
+
 ## [0.2.0] - 2026-08-29
 
 ### Added

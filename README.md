@@ -28,11 +28,10 @@ One multiplayer session can expose different surfaces to different devices:
 
 | Mode | What the player sees | Typical use |
 |---|---|---|
-| **Remote only** | Controls only | Phone as a controller for a browser/TV screen |
-| **Handheld** | Game screen + controls | Game Boy-style portrait play or PSP-style landscape play |
-| **Shared display** | Authoritative room screen | TV, laptop, projector, or shared browser |
+| **Shared screen + phone remote** | Authoritative game on browser/TV + controls on the current phone | Couch multiplayer, projector, desktop, TV |
+| **Handheld console** | Live game screen + controls in one device | Game Boy-style portrait or PSP-style landscape play |
 
-The game manifest decides which modes it supports and how portrait/landscape controllers render. The platform provides sessions, security, version pinning, discovery, networking, and lifecycle management.
+The launch UI treats the shared screen and phone remote as one experience. Handheld mode loads the exact pinned release's `display` and `controller` modules together over one realtime connection, so the phone is a complete playable console rather than a detached button panel. The game manifest still decides supported modes and orientation.
 
 <table>
 <tr>
@@ -99,7 +98,7 @@ See [docs/architecture.md](docs/architecture.md) for vertical slices, boundaries
 2. Create a public or private room.
 3. Add an optional password independently of room visibility.
 4. Share the room code or let players discover available public rooms.
-5. Each player chooses a game-supported device mode.
+5. Choose either **Shared screen + phone remote** or **Handheld console** for the pinned game release.
 6. Convex issues a short-lived signed ticket pinned to the room and exact game release.
 7. The realtime gateway validates the ticket and starts/reuses the room's authoritative worker.
 8. Browser game modules receive only the scoped runtime bridge they need.
@@ -161,6 +160,31 @@ The repository follows a **vertical-slice architecture**. Cross-slice dependenci
 | Orbit Dodge | 1–4 | Rotate | Circular movement and meteor avoidance |
 
 Every game ships independent `display`, `controller`, and authoritative `server` bundles. Updating one cartridge does not require changing another game or migrating an active room.
+
+#### Real gameplay previews
+
+These thumbnails are captured from the running handheld runtime, not mockups.
+
+<table>
+<tr>
+<td width="25%"><img src="apps/web/public/game-previews/pong.png" alt="Pong Together gameplay preview" /><br/><b>Pong Together</b></td>
+<td width="25%"><img src="apps/web/public/game-previews/tap-race.png" alt="Tap Race gameplay preview" /><br/><b>Tap Race</b></td>
+<td width="25%"><img src="apps/web/public/game-previews/reaction-rush.png" alt="Reaction Rush gameplay preview" /><br/><b>Reaction Rush</b></td>
+<td width="25%"><img src="apps/web/public/game-previews/memory-lights.png" alt="Memory Lights gameplay preview" /><br/><b>Memory Lights</b></td>
+</tr>
+<tr>
+<td><img src="apps/web/public/game-previews/snake-arena.png" alt="Snake Arena gameplay preview" /><br/><b>Snake Arena</b></td>
+<td><img src="apps/web/public/game-previews/dodge-dash.png" alt="Dodge Dash gameplay preview" /><br/><b>Dodge Dash</b></td>
+<td><img src="apps/web/public/game-previews/target-blast.png" alt="Target Blast gameplay preview" /><br/><b>Target Blast</b></td>
+<td><img src="apps/web/public/game-previews/tug-war.png" alt="Tug War gameplay preview" /><br/><b>Tug War</b></td>
+</tr>
+<tr>
+<td><img src="apps/web/public/game-previews/rhythm-pulse.png" alt="Rhythm Pulse gameplay preview" /><br/><b>Rhythm Pulse</b></td>
+<td><img src="apps/web/public/game-previews/maze-run.png" alt="Maze Run gameplay preview" /><br/><b>Maze Run</b></td>
+<td><img src="apps/web/public/game-previews/stack-tower.png" alt="Stack Tower gameplay preview" /><br/><b>Stack Tower</b></td>
+<td><img src="apps/web/public/game-previews/orbit-dodge.png" alt="Orbit Dodge gameplay preview" /><br/><b>Orbit Dodge</b></td>
+</tr>
+</table>
 
 ## Quick start
 
@@ -241,6 +265,7 @@ See [docs/deployment.md](docs/deployment.md) and [.env.production.example](.env.
 ```bash
 pnpm verify          # lint + architecture + typecheck + tests + build + smoke + audit
 pnpm verify:stack    # realtime smoke + full browser multiplayer E2E
+pnpm game:previews   # recapture all 12 preview thumbnails from the running stack
 pnpm stack:config    # validate merged Docker Compose config
 ```
 
@@ -250,8 +275,8 @@ The E2E suite covers:
 - public/private rooms;
 - optional room passwords;
 - public available-slot discovery;
-- shared display and mobile remote mode;
-- portrait and landscape handheld layouts;
+- combined shared-screen + phone-remote launch flow;
+- playable handheld screen + controls in portrait and landscape layouts;
 - independently loaded games/controllers;
 - authoritative WebSocket state;
 - transactional final-slot contention.

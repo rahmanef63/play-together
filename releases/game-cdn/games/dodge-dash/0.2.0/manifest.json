@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "dodge-dash",
+    "version": "0.2.0",
+    "title": "Dodge Dash",
+    "description": "An endless lane dodger where players weave around incoming hazards for survival score.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "adaptive"
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "325e700e9b04cbe991ca861551f3304f40df564937d679de5fbf170aa068d86e"
+    },
+    "controller": {
+      "url": "./controller.js",
+      "sha256": "6c72bfc5adc414aef50251050eb4b35214089748a65a1c13649259d3a7069275"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "f271f047bc1651358bb399a03fb7c0bc0e5e73c08b46e0ca593cab6875f352a0"
+    }
+  }
+}

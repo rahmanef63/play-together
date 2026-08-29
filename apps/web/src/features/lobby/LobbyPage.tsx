@@ -165,6 +165,32 @@ export function LobbyPage({ user }: { user: CurrentUser }) {
                   ))}
                 </select>
               </label>
+              <span className="game-picker-label">Gameplay previews</span>
+              <div className="game-picker">
+                {games.map((game) => {
+                  const key = `${game.gameId}@${game.version}`;
+                  const active = key === effectiveGameKey;
+                  return (
+                    <button
+                      className={`game-preview-card${active ? " game-preview-card--active" : ""}`}
+                      type="button"
+                      key={key}
+                      aria-pressed={active}
+                      onClick={() => setSelectedGameKey(key)}
+                    >
+                      <img
+                        src={`/game-previews/${game.gameId}.png`}
+                        alt={`${game.title} gameplay preview`}
+                        loading="lazy"
+                      />
+                      <span>
+                        <strong>{game.title}</strong>
+                        <small>v{game.version}</small>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
               <div className="form-row">
                 <label className="field">
                   <span>Visibility</span>

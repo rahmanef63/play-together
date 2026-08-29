@@ -39,13 +39,13 @@ Rules:
 
 Export `mountController(root, context)` and `mountDisplay(root, context)`.
 
-The controller may render:
+The controller module always owns game-specific input controls. The display module always owns the game view. The platform composes them differently by mode:
 
-- controls only for `remote` mode;
-- screen plus controls for `handheld` mode;
-- adaptive portrait/landscape layouts using media queries or the Screen Orientation signal.
+- `remote`: controller module on the phone while the paired shared browser/TV runs the display module;
+- `handheld`: display and controller modules from the same pinned release are mounted together inside one console shell and share one realtime context;
+- adaptive handheld orientation: portrait stacks screen over controls, while landscape places them side by side in a PSP-style shell.
 
-The display renders shared authoritative state. Neither module should simulate authoritative outcomes locally.
+Neither browser module should simulate authoritative outcomes locally. The room worker remains the source of truth.
 
 The context exposes only:
 
@@ -83,7 +83,7 @@ pnpm game:publish:convex:one tap-race
 ## Review checklist
 
 - Distinct controller/display is supplied; no placeholder platform console.
-- Remote and handheld behavior matches manifest declarations.
+- Shared-screen + remote and handheld behavior matches manifest declarations.
 - Portrait/landscape behavior is tested when adaptive orientation is declared.
 - Invalid payload, duplicate sequence, disconnect, and max-player behavior are tested.
 - Snapshot and module sizes are bounded.
