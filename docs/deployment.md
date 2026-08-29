@@ -62,6 +62,8 @@ Validate local composition:
 pnpm stack:config
 ```
 
+Use a distinct Compose project name in production (the reference deployment uses `play-together-prod`) so a developer stack named `play-together` cannot collide with production containers. On Dokploy, the reference deployment also reuses its existing attachable `dokploy-network` instead of allocating another Docker bridge subnet; local development keeps an isolated Compose network.
+
 Never use `docker compose down -v` in normal operations; that deletes the durable Convex volume.
 
 ## Convex release order

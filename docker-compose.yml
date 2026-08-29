@@ -124,4 +124,5 @@ volumes:
 
 networks:
   platform:
-    driver: bridge
+    name: ${PLATFORM_NETWORK_NAME:-play-together_platform}
+    external: ${PLATFORM_NETWORK_EXTERNAL:-false}

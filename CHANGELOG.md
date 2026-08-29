@@ -9,6 +9,8 @@ All notable changes to Play Together are documented here. The project follows se
 - Production reference topology at `game.rahmanef.com`.
 - Real gameplay screenshots and an animated desktop/mobile controller demo.
 - Open-source community files, issue forms, pull-request template, and MIT license.
+- Reproducible clean Convex bootstrap and configurable external production network support for Dokploy.
+- Production-configurable E2E realtime health endpoint.
 
 ## [0.1.0] - 2026-08-29
 

@@ -203,7 +203,7 @@ The reference production deployment uses `game.rahmanef.com` as the player-facin
 | Convex API | `https://api-game.rahmanef.com` | Convex API/WebSocket |
 | Convex auth/site | `https://site-game.rahmanef.com` | Convex HTTP actions/auth |
 
-The Convex dashboard is intentionally **not public**.
+The Convex dashboard is intentionally **not public**. Production uses a distinct Compose project name (`play-together-prod`) so it cannot collide with a local developer stack.
 
 See [docs/deployment.md](docs/deployment.md) and [.env.production.example](.env.production.example).
 
@@ -228,6 +228,8 @@ The E2E suite covers:
 - transactional final-slot contention.
 
 The README media is captured from the same running integration stack.
+
+For an already-deployed environment, set `E2E_BASE_URL` and `E2E_REALTIME_HEALTH_URL` to run the same browser scenarios against public HTTPS/WSS infrastructure.
 
 ## Security model
 

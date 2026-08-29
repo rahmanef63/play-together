@@ -3,6 +3,7 @@ import { type BrowserContext, expect, type Page, test } from "@playwright/test";
 const accountPassword = "SecurePass123!";
 const pong = "pong@0.2.0";
 const tapRace = "tap-race@0.2.0";
+const realtimeHealthUrl = process.env.E2E_REALTIME_HEALTH_URL ?? "http://127.0.0.1:8787/healthz";
 
 async function signUp(page: Page, name: string, email: string): Promise<void> {
   await page.goto("/");
@@ -105,7 +106,7 @@ test("public and password-protected rooms work across shared display and mobile 
 
     await expect
       .poll(async () => {
-        const response = await request.get("http://127.0.0.1:8787/healthz");
+        const response = await request.get(realtimeHealthUrl);
         return (await response.json()).rooms as number;
       })
       .toBeGreaterThanOrEqual(1);

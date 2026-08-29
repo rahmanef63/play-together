@@ -16,6 +16,7 @@ const compose = [
   "admin",
 ];
 
+await run("pnpm", ["--filter", "@play-together/contracts", "build"], runtime);
 await run("pnpm", ["game:publish"], runtime);
 await run(
   "docker",
