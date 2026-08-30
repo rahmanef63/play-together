@@ -20,6 +20,18 @@ const modesSchema = {
   description: "Supported runtime modes.",
   items: { type: "string", enum: ["shared-screen", "handheld"] },
 };
+const remoteDisplaySchema = {
+  type: "string",
+  enum: ["shared", "per-player"],
+  description:
+    "Host display policy. shared renders one communal view; per-player auto-splits the TV/laptop by connected remote player.",
+};
+const maxViewportsSchema = {
+  type: "integer",
+  minimum: 1,
+  maximum: 4,
+  description: "Maximum automatic TV/laptop viewports. shared always resolves to 1.",
+};
 
 export const GAME_TOOL_DEFINITIONS = [
   {
@@ -61,6 +73,8 @@ export const GAME_TOOL_DEFINITIONS = [
         layout: { type: "string", enum: ["gamepad", "arcade", "racing", "flight", "touch"] },
         controls: controlsSchema,
         modes: modesSchema,
+        remoteDisplay: remoteDisplaySchema,
+        maxViewports: maxViewportsSchema,
         serverSource: sourceSchema,
         displaySource: sourceSchema,
         testSource: sourceSchema,
@@ -74,7 +88,7 @@ export const GAME_TOOL_DEFINITIONS = [
     mcpName: "game_update",
     msoName: "game.update",
     description:
-      "Update one game slice with optimistic version protection. Published versions require a greater newVersion before any byte change.",
+      "Update one game slice with optimistic version protection. Published cartridge byte changes require a greater newVersion; host-only remote display policy can change without rewriting immutable releases.",
     inputSchema: {
       type: "object",
       properties: {
@@ -89,6 +103,8 @@ export const GAME_TOOL_DEFINITIONS = [
         layout: { type: "string", enum: ["gamepad", "arcade", "racing", "flight", "touch"] },
         controls: controlsSchema,
         modes: modesSchema,
+        remoteDisplay: remoteDisplaySchema,
+        maxViewports: maxViewportsSchema,
         serverSource: sourceSchema,
         displaySource: sourceSchema,
         testSource: sourceSchema,

@@ -94,13 +94,12 @@ test("public and password-protected rooms work across shared display and mobile 
     await expect(publicCard).toContainText("1/2 spots");
     await joinFromPublicCard(guest, publicRoomName, publicCode);
 
-    const displayPromise = hostContext.waitForEvent("page");
-    await host.getByRole("button", { name: /Shared screen \+ remote/ }).click();
-    const display = await displayPromise;
-    await display.waitForLoadState("domcontentloaded");
-    await expectGameFrame(display);
-    await expect(display.frameLocator("iframe.game-frame").locator("canvas")).toBeVisible();
-    const viewportFit = await display.evaluate(() => {
+    await host.getByRole("button", { name: /^Remote/ }).click();
+    await expectGameFrame(host);
+    const displayFrame = host.frameLocator("iframe.game-frame");
+    await expect(displayFrame.locator("canvas")).toBeVisible();
+    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-remote-count", "0");
+    const viewportFit = await host.evaluate(() => {
       const device = document.querySelector<HTMLElement>(".device-frame");
       const frame = document.querySelector<HTMLIFrameElement>("iframe.game-frame");
       if (!device || !frame) throw new Error("Game viewport elements missing");
@@ -125,14 +124,19 @@ test("public and password-protected rooms work across shared display and mobile 
     expect(viewportFit.frame.width).toBeCloseTo(viewportFit.innerWidth, 0);
     expect(viewportFit.frame.height).toBeCloseTo(viewportFit.innerHeight, 0);
 
-    await expectGameFrame(host);
-    const remoteFrame = host.frameLocator("iframe.game-frame");
+    await guest.getByRole("button", { name: /^Remote/ }).click();
+    await expectGameFrame(guest);
+    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-remote-count", "1", {
+      timeout: 20_000,
+    });
+    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-layout", "shared");
+    const remoteFrame = guest.frameLocator("iframe.game-frame");
     await expect(
       remoteFrame.locator(".console-shell--remote.console-shell--classic"),
     ).toBeVisible();
     await expect(remoteFrame.locator(".console-shell__screen")).toHaveCount(0);
     await expect(remoteFrame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible();
-    await useStick(host, remoteFrame, "move", 0, -0.85, 250);
+    await useStick(guest, remoteFrame, "move", 0, -0.85, 250);
 
     await expect
       .poll(async () => {
@@ -142,7 +146,6 @@ test("public and password-protected rooms work across shared display and mobile 
       .toBeGreaterThanOrEqual(1);
 
     await host.screenshot({ path: testInfo.outputPath("public-room-desktop.png"), fullPage: true });
-    await display.close();
     await host.getByRole("button", { name: /Room/ }).click();
     await host.getByRole("button", { name: "Close room" }).click();
     await expect(host).toHaveURL("/");
@@ -213,25 +216,26 @@ test("each game supplies its own independently loaded controller and shared disp
     await signUp(guest, `Tap Guest ${runId}`, `tap-guest-${runId}@example.test`);
     await joinFromPublicCard(guest, roomName, roomCode);
 
-    const displayPromise = hostContext.waitForEvent("page");
-    await host.getByRole("button", { name: /Shared screen \+ remote/ }).click();
-    const display = await displayPromise;
-    await display.waitForLoadState("domcontentloaded");
-    await expectGameFrame(display);
+    await host.getByRole("button", { name: /^Remote/ }).click();
+    await expectGameFrame(host);
     await expect(
-      display.frameLocator("iframe.game-frame").getByText("TAP RACE", { exact: true }),
+      host.frameLocator("iframe.game-frame").getByText("TAP RACE", { exact: true }),
     ).toBeVisible();
 
-    await expectGameFrame(host);
-    const game = host.frameLocator("iframe.game-frame");
+    await guest.getByRole("button", { name: /^Remote/ }).click();
+    await expectGameFrame(guest);
+    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-remote-count", "1", {
+      timeout: 20_000,
+    });
+    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-layout", "shared");
+    const game = guest.frameLocator("iframe.game-frame");
     await expect(game.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible();
     const tap = game.getByRole("button", { name: "Tap to race" });
     await expect(tap).toBeVisible();
     await expect(game.locator('[data-control-id="move"]')).toHaveCount(0);
     for (let index = 0; index < 4; index += 1) await tap.click();
-    await host.screenshot({ path: testInfo.outputPath("tap-race-remote.png"), fullPage: true });
-    await display.screenshot({ path: testInfo.outputPath("tap-race-display.png"), fullPage: true });
-    await display.close();
+    await guest.screenshot({ path: testInfo.outputPath("tap-race-remote.png"), fullPage: true });
+    await host.screenshot({ path: testInfo.outputPath("tap-race-display.png"), fullPage: true });
     await host.getByRole("button", { name: /Room/ }).click();
     await host.getByRole("button", { name: "Close room" }).click();
   } finally {
@@ -449,11 +453,7 @@ test("screenless landscape remotes select classic, racing, and flight console sh
         maxPlayers: game.maxPlayers,
         visibility: "private",
       });
-      const displayPromise = context.waitForEvent("page");
-      await page.getByRole("button", { name: /Shared screen \+ remote/ }).click();
-      const display = await displayPromise;
-      await display.waitForLoadState("domcontentloaded");
-      await expectGameFrame(display);
+      await page.goto(`/play/${code}/controller?mode=remote`);
       await expectGameFrame(page);
 
       const frame = page.frameLocator("iframe.game-frame");
@@ -476,7 +476,6 @@ test("screenless landscape remotes select classic, racing, and flight console sh
       await expect(page.locator(".connection")).toHaveText("connected");
       await expect(page.locator(".play-error")).toHaveCount(0);
 
-      await display.close();
       await page.getByRole("button", { name: /Room/ }).click();
       await expect(page).toHaveURL(new RegExp(`/room/${code}$`));
       await page.getByRole("button", { name: "Close room" }).click();
@@ -484,6 +483,84 @@ test("screenless landscape remotes select classic, racing, and flight console sh
     }
   } finally {
     await closeContext(context);
+  }
+});
+
+test("remote discovery automatically moves per-player games between shared and split screen", async ({
+  browser,
+}) => {
+  const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const hostContext = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const guestAContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const guestBContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const host = await hostContext.newPage();
+  const guestA = await guestAContext.newPage();
+  const guestB = await guestBContext.newPage();
+
+  try {
+    await signUp(host, `Split Host ${runId}`, `split-host-${runId}@example.test`);
+    const roomName = `Split Circuit ${runId}`;
+    const code = await createRoom(host, {
+      name: roomName,
+      gameKey: "turbo-circuit@0.2.1",
+      maxPlayers: 3,
+      visibility: "public",
+    });
+
+    await signUp(guestA, `Split A ${runId}`, `split-a-${runId}@example.test`);
+    await joinFromPublicCard(guestA, roomName, code);
+    await signUp(guestB, `Split B ${runId}`, `split-b-${runId}@example.test`);
+    await joinFromPublicCard(guestB, roomName, code);
+
+    await host.getByRole("button", { name: /^Remote/ }).click();
+    await expectGameFrame(host);
+    const hostFrame = host.frameLocator("iframe.game-frame");
+    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-remote-count", "0");
+    await expect(hostFrame.locator(".display-grid")).toHaveAttribute("data-layout", "shared");
+    await expect(hostFrame.locator(".display-viewport")).toHaveCount(1);
+
+    await guestA.getByRole("button", { name: /^Remote/ }).click();
+    await expectGameFrame(guestA);
+    await expect(
+      guestA.frameLocator("iframe.game-frame").locator(".console-shell--remote"),
+    ).toBeVisible();
+    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-remote-count", "1", {
+      timeout: 20_000,
+    });
+    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-layout", "shared");
+    await expect(hostFrame.locator(".display-grid")).toHaveAttribute("data-layout", "shared");
+    await expect(hostFrame.locator(".display-viewport")).toHaveCount(1);
+
+    await guestB.getByRole("button", { name: /^Remote/ }).click();
+    await expectGameFrame(guestB);
+    await expect(
+      guestB.frameLocator("iframe.game-frame").locator(".console-shell--remote"),
+    ).toBeVisible();
+    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-remote-count", "2", {
+      timeout: 20_000,
+    });
+    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-layout", "split");
+    await expect(host.locator(".remote-discovery")).toContainText("2-way split screen");
+    await expect(hostFrame.locator(".display-grid")).toHaveAttribute("data-layout", "split");
+    await expect(hostFrame.locator(".display-grid")).toHaveAttribute("data-count", "2");
+    await expect(hostFrame.locator(".display-viewport")).toHaveCount(2);
+    await expect(hostFrame.locator("canvas")).toHaveCount(2);
+
+    await guestB.getByRole("button", { name: /Room/ }).click();
+    await expect(guestB).toHaveURL(new RegExp(`/room/${code}$`));
+    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-remote-count", "1", {
+      timeout: 20_000,
+    });
+    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-layout", "shared");
+    await expect(hostFrame.locator(".display-grid")).toHaveAttribute("data-layout", "shared");
+    await expect(hostFrame.locator(".display-viewport")).toHaveCount(1);
+
+    await host.getByRole("button", { name: /Room/ }).click();
+    await host.getByRole("button", { name: "Close room" }).click();
+  } finally {
+    await closeContext(guestBContext);
+    await closeContext(guestAContext);
+    await closeContext(hostContext);
   }
 });
 

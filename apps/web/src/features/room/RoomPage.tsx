@@ -157,23 +157,16 @@ export function RoomPage({ code, user }: { code: string; user: CurrentUser }) {
                       <button
                         className="launch-card display-card"
                         type="button"
-                        onClick={() => {
-                          const shared = window.open(`/play/${code}/display`, "_blank");
-                          if (!shared) {
-                            setError(
-                              "Allow pop-ups so Play Together can open the shared game screen.",
-                            );
-                            return;
-                          }
-                          try {
-                            shared.opener = null;
-                          } catch {}
-                          navigate(`/play/${code}/controller?mode=remote`);
-                        }}
+                        aria-label="Remote"
+                        onClick={() => navigate(`/play/${code}/remote`)}
                       >
                         <span className="launch-icon">▣ + ◉</span>
-                        <strong>Shared screen + remote</strong>
-                        <p>Open the game on a browser/TV and use this device as its controller.</p>
+                        <strong>Remote</strong>
+                        <p>
+                          TV or laptop becomes the display; phones become controllers automatically.
+                          Connected remotes are discovered live and the game chooses shared or split
+                          screen.
+                        </p>
                       </button>
                     )}
                     {room.supportsHandheld && (

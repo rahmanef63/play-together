@@ -13,6 +13,7 @@ const registry = {
     description: config.game.description,
     modes: config.modes,
     capabilities: config.capabilities,
+    presentation: config.presentation,
     controller: config.controller,
     previewUrl: `/game-previews/${config.game.id}.png`,
   })),

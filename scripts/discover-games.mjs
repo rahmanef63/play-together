@@ -36,6 +36,19 @@ export async function discoverGames(root = repositoryRoot) {
     }
     await requireFile(resolve(gameRoot, "src/display.ts"), `${entry.name} display source`);
     await requireFile(resolve(gameRoot, "src/server.ts"), `${entry.name} server source`);
+    const presentation = config?.presentation?.remoteDisplay;
+    if (!presentation || !["shared", "per-player"].includes(presentation.mode)) {
+      throw new Error(`Game ${entry.name} has no valid remote display presentation mode`);
+    }
+    if (
+      !Number.isInteger(presentation.maxViewports) ||
+      presentation.maxViewports < 1 ||
+      presentation.maxViewports > 4 ||
+      (presentation.mode === "shared" && presentation.maxViewports !== 1) ||
+      (presentation.mode === "per-player" && presentation.maxViewports < 2)
+    ) {
+      throw new Error(`Game ${entry.name} has an invalid remote display viewport limit`);
+    }
     const consoleConfig = config?.controller?.console;
     if (consoleConfig?.renderer === "builtin") {
       if (!Array.isArray(consoleConfig.controls) || consoleConfig.controls.length === 0) {

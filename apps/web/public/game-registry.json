@@ -13,6 +13,12 @@
         "gamepad": true,
         "motion": false
       },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
       "controller": {
         "supportsRemote": true,
         "supportsHandheld": true,
@@ -62,6 +68,12 @@
         "keyboard": true,
         "gamepad": false,
         "motion": false
+      },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
       },
       "controller": {
         "supportsRemote": true,
@@ -239,6 +251,12 @@
         "gamepad": true,
         "motion": false
       },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
       "controller": {
         "supportsRemote": true,
         "supportsHandheld": true,
@@ -319,6 +337,12 @@
         "keyboard": true,
         "gamepad": false,
         "motion": false
+      },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
       },
       "controller": {
         "supportsRemote": true,
@@ -405,6 +429,12 @@
         "gamepad": true,
         "motion": false
       },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
       "controller": {
         "supportsRemote": true,
         "supportsHandheld": true,
@@ -454,6 +484,12 @@
         "keyboard": true,
         "gamepad": true,
         "motion": false
+      },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
       },
       "controller": {
         "supportsRemote": true,
@@ -505,6 +541,12 @@
         "gamepad": false,
         "motion": false
       },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
       "controller": {
         "supportsRemote": true,
         "supportsHandheld": true,
@@ -545,6 +587,12 @@
         "gamepad": false,
         "motion": false
       },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
       "controller": {
         "supportsRemote": true,
         "supportsHandheld": true,
@@ -584,6 +632,12 @@
         "keyboard": true,
         "gamepad": false,
         "motion": false
+      },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
       },
       "controller": {
         "supportsRemote": true,
@@ -718,6 +772,12 @@
         "gamepad": true,
         "motion": false
       },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
       "controller": {
         "supportsRemote": true,
         "supportsHandheld": true,
@@ -799,6 +859,12 @@
         "gamepad": false,
         "motion": false
       },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
       "controller": {
         "supportsRemote": true,
         "supportsHandheld": true,
@@ -838,6 +904,12 @@
         "keyboard": true,
         "gamepad": false,
         "motion": false
+      },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
       },
       "controller": {
         "supportsRemote": true,
@@ -879,6 +951,12 @@
         "gamepad": false,
         "motion": false
       },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
       "controller": {
         "supportsRemote": true,
         "supportsHandheld": true,
@@ -917,6 +995,12 @@
         "keyboard": true,
         "gamepad": false,
         "motion": false
+      },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
       },
       "controller": {
         "supportsRemote": true,
@@ -957,6 +1041,12 @@
         "keyboard": true,
         "gamepad": false,
         "motion": false
+      },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
       },
       "controller": {
         "supportsRemote": true,

@@ -243,6 +243,7 @@ export const serverPresenceMessageSchema = z.object({
     z.object({
       playerId: z.string(),
       role: connectionRoleSchema,
+      mode: controllerModeSchema,
       connectedAt: z.number().int().nonnegative(),
     }),
   ),

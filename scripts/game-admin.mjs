@@ -24,6 +24,7 @@ const CONTROL_TOKENS = new Set([
 const LAYOUTS = new Set(["gamepad", "arcade", "racing", "flight", "touch"]);
 const ORIENTATIONS = new Set(["portrait", "landscape", "adaptive"]);
 const MODES = new Set(["shared-screen", "handheld"]);
+const REMOTE_DISPLAY_MODES = new Set(["shared", "per-player"]);
 
 export async function runGameTool(action, input = {}) {
   if (!input || typeof input !== "object" || Array.isArray(input))
@@ -56,6 +57,8 @@ async function listGames() {
         minPlayers: config.game.minPlayers,
         maxPlayers: config.game.maxPlayers,
         layout: config.controller?.console?.layout ?? "custom",
+        remoteDisplay: config.presentation?.remoteDisplay?.mode ?? "shared",
+        maxViewports: config.presentation?.remoteDisplay?.maxViewports ?? 1,
         controls: (config.controller?.console?.controls ?? []).map((control) => control.id),
         published: releases.includes(config.game.version),
         releaseCount: releases.length,
@@ -94,6 +97,12 @@ async function createGame(input) {
   const layout = requireEnum(input.layout ?? "gamepad", LAYOUTS, "layout");
   const controls = normalizeControlTokens(input.controls ?? ["a"]);
   const modes = normalizeModes(input.modes ?? ["shared-screen", "handheld"]);
+  const presentation = normalizePresentation(
+    input.remoteDisplay ??
+      ((layout === "racing" || layout === "flight") && maxPlayers > 1 ? "per-player" : "shared"),
+    input.maxViewports,
+    maxPlayers,
+  );
   const version = "0.1.0";
   const config = buildConfig({
     id,
@@ -105,6 +114,7 @@ async function createGame(input) {
     layout,
     controls,
     modes,
+    presentation,
     version,
   });
   const packageJson = buildPackage(id, version);
@@ -153,9 +163,23 @@ async function updateGame(input) {
   );
   const requestedNewVersion =
     input.newVersion === undefined ? undefined : requireSemver(input.newVersion, "newVersion");
-  if (currentPublished && !requestedNewVersion) {
+  const releaseChangingFields = [
+    "title",
+    "description",
+    "minPlayers",
+    "maxPlayers",
+    "orientation",
+    "layout",
+    "controls",
+    "modes",
+    "serverSource",
+    "displaySource",
+    "testSource",
+  ];
+  const changesReleaseBytes = releaseChangingFields.some((field) => input[field] !== undefined);
+  if (currentPublished && changesReleaseBytes && !requestedNewVersion) {
     throw new Error(
-      "Current version is published and immutable. Provide a greater newVersion before changing bytes.",
+      "Current version is published and immutable. Provide a greater newVersion before changing cartridge bytes.",
     );
   }
   if (requestedNewVersion && compareSemver(requestedNewVersion, config.game.version) <= 0) {
@@ -186,6 +210,17 @@ async function updateGame(input) {
     next.controller.console = buildConsole(layout, normalizeControlTokens(input.controls));
   }
   if (input.modes !== undefined) next.modes = normalizeModes(input.modes);
+  const currentPresentation = next.presentation?.remoteDisplay ?? {
+    mode: "shared",
+    maxViewports: 1,
+  };
+  next.presentation = {
+    remoteDisplay: normalizePresentation(
+      input.remoteDisplay ?? currentPresentation.mode,
+      input.maxViewports ?? currentPresentation.maxViewports,
+      next.game.maxPlayers,
+    ),
+  };
   const nextVersion = requestedNewVersion ?? config.game.version;
   next.game.version = nextVersion;
   packageJson.version = nextVersion;
@@ -283,6 +318,7 @@ function buildConfig({
   layout,
   controls,
   modes,
+  presentation,
   version,
 }) {
   return {
@@ -299,6 +335,7 @@ function buildConfig({
       snapshotRate: 15,
     },
     modes,
+    presentation: { remoteDisplay: presentation },
     controller: {
       supportsRemote: modes.includes("shared-screen"),
       supportsHandheld: modes.includes("handheld"),
@@ -468,6 +505,20 @@ function normalizeControlTokens(value) {
     throw new Error("controls must not contain duplicates");
   return tokens;
 }
+function normalizePresentation(modeValue, maxViewportsValue, maxPlayers) {
+  const mode = requireEnum(modeValue, REMOTE_DISPLAY_MODES, "remoteDisplay");
+  if (mode === "shared") return { mode, maxViewports: 1 };
+  if (maxPlayers < 2) throw new Error("per-player remote display requires maxPlayers >= 2");
+  const fallback = Math.min(4, maxPlayers);
+  const maxViewports = requireInteger(
+    maxViewportsValue ?? fallback,
+    "maxViewports",
+    2,
+    Math.min(4, Math.max(2, maxPlayers)),
+  );
+  return { mode, maxViewports };
+}
+
 function normalizeModes(value) {
   if (!Array.isArray(value) || value.length === 0)
     throw new Error("modes must be a non-empty array");

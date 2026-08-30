@@ -19,6 +19,9 @@ describe("game slice registry", () => {
       expect(entry, `${game.id} registry entry`).toBeTruthy();
       expect(entry.version).toBe(game.config.game.version);
       expect(entry.controller).toEqual(game.config.controller);
+      expect(entry.presentation).toEqual(game.config.presentation);
+      expect(entry.presentation.remoteDisplay.mode).toMatch(/^(shared|per-player)$/);
+      expect(entry.presentation.remoteDisplay.maxViewports).toBeGreaterThanOrEqual(1);
       expect(entry.previewUrl).toBe(`/game-previews/${game.id}.png`);
       expect(game.config.controller.console?.renderer).toBe("builtin");
       expect(game.config.controller.console?.controls.length).toBeGreaterThan(0);

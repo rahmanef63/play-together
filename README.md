@@ -28,10 +28,10 @@ One multiplayer session can expose different surfaces to different devices:
 
 | Mode | What the player sees | Typical use |
 |---|---|---|
-| **Shared screen + phone remote** | Authoritative game on browser/TV + controls on the current phone | Couch multiplayer, projector, desktop, TV |
+| **Remote** | TV/laptop display hub + phone controls; display auto-selects one shared view or per-player split views | Couch multiplayer, projector, desktop, TV |
 | **Handheld console** | Live game screen + controls in one device | Game Boy-style portrait or PSP-style landscape play |
 
-The launch UI treats the shared screen and phone remote as one experience. Handheld mode loads the exact pinned release's `display` and `controller` modules together over one realtime connection, so the phone is a complete playable console rather than a detached button panel. The game manifest still decides supported modes and orientation.
+Remote is one device-adaptive experience: phone-sized devices become controllers, while TV/laptop-sized devices become the display hub. Realtime presence discovers connected remote players and the host registry decides whether that game stays on one communal screen or automatically splits into up to four player-focused views. The display uses one authoritative realtime connection and one verified display module, not one connection/worker per viewport. Handheld mode still loads the exact pinned release's `display` and controller topology together over one realtime connection.
 
 <table>
 <tr>
@@ -244,14 +244,14 @@ A game is a self-contained vertical slice:
 
 ```text
 games/<game-id>/
-  game.config.json   # identity + immutable version + console/control topology
+  game.config.json   # identity + immutable version + controls + host presentation policy
   package.json
   src/display.ts
   src/server.ts
   src/*.test.ts
 ```
 
-`game.config.json` is the slice SSOT. Standard phone controls are declarative (`stick`, `dpad`, `button`, `touchpad`) and support face buttons A/B/X/Y, shoulders/triggers, zones, keyboard bindings, and stateful actions. `pnpm game:registry` discovers every slice and generates the portal registry; the portal never hardcodes a game list. A custom `src/controller.ts` is reserved for a future non-builtin renderer and must not coexist with `controller.console.renderer = "builtin"`.
+`game.config.json` is the slice SSOT. Standard phone controls are declarative (`stick`, `dpad`, `button`, `touchpad`) and support face buttons A/B/X/Y, shoulders/triggers, zones, keyboard bindings, and stateful actions. Host presentation is also declarative: `presentation.remoteDisplay.mode` is `shared` for communal views or `per-player` when each remote needs its own camera/focus, with `maxViewports` capped at four. Per-player displays use `ctx.playerId` to focus each locally composed viewport. `pnpm game:registry` discovers every slice and generates the portal registry; the portal never hardcodes a game list. A custom `src/controller.ts` is reserved for a future non-builtin renderer and must not coexist with `controller.console.renderer = "builtin"`.
 
 Game code may import only the stable game SDK/contracts boundary.
 
@@ -279,7 +279,7 @@ The repository exposes game lifecycle operations through both `.mcp.json` (stdio
 pnpm mcp:game
 ```
 
-Available operations are `game_list`, `game_get`, `game_create`, `game_update`, `game_delete`, `game_validate`, `game_publish`, `game_registry`, and `game_prompt`. MSO exposes the same capabilities as `game.list`, `game.get`, etc. Create/update/delete are bounded to `games/<id>`; published versions cannot be mutated or deleted, and `game_publish` creates only the local immutable archive. **Production registration is still performed only by verified main-branch CI.**
+Available operations are `game_list`, `game_get`, `game_create`, `game_update`, `game_delete`, `game_validate`, `game_publish`, `game_registry`, and `game_prompt`. MSO exposes the same capabilities as `game.list`, `game.get`, etc. Create/update/delete are bounded to `games/<id>`; published cartridge bytes cannot be mutated or deleted, while host-only `remoteDisplay`/`maxViewports` metadata may be adjusted without rewriting an immutable release. `game_publish` creates only the local immutable archive. **Production registration is still performed only by verified main-branch CI.**
 
 The live PWA also exposes the canonical guide and one-click full prompt at **`/developers`**. The prompt is generated from `docs/submitting-games.md`, so frontend instructions and repository rules cannot drift independently.
 
@@ -322,7 +322,7 @@ The E2E suite covers:
 - public/private rooms;
 - optional room passwords;
 - public available-slot discovery;
-- combined shared-screen + phone-remote launch flow;
+- adaptive Remote launch, authoritative remote discovery, and automatic shared/split display transitions;
 - playable handheld screen + controls in portrait and landscape layouts;
 - independently loaded games/controllers;
 - authoritative WebSocket state;

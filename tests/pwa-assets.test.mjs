@@ -34,6 +34,8 @@ describe("PWA generated assets", () => {
     expect(publicGuide).toBe(repoGuide);
     expect(prompt).toContain("You are adding one new multiplayer game");
     expect(prompt).toContain("game_validate");
+    expect(prompt).toContain("presentation.remoteDisplay");
+    expect(prompt).toContain("ctx.playerId");
     expect(prompt).toContain("deploy-managed");
   });
 });

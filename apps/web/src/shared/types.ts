@@ -53,6 +53,12 @@ export interface GameRegistryEntry {
   title: string;
   description: string;
   previewUrl: string;
+  presentation: {
+    remoteDisplay: {
+      mode: "shared" | "per-player";
+      maxViewports: number;
+    };
+  };
   controller: {
     supportsRemote: boolean;
     supportsHandheld: boolean;

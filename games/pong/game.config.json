@@ -12,6 +12,12 @@
     "snapshotRate": 20
   },
   "modes": ["shared-screen", "handheld"],
+  "presentation": {
+    "remoteDisplay": {
+      "mode": "shared",
+      "maxViewports": 1
+    }
+  },
   "controller": {
     "supportsRemote": true,
     "supportsHandheld": true,

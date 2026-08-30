@@ -1318,6 +1318,102 @@ body::-webkit-scrollbar {
 .play-toolbar .ghost-button {
   min-height: 32px;
 }
+.play-toolbar__actions {
+  min-width: 0;
+  display: flex !important;
+  grid-auto-flow: initial;
+  justify-content: flex-end;
+  gap: 4px !important;
+  text-align: right !important;
+}
+.remote-discovery {
+  position: absolute;
+  z-index: 24;
+  top: max(52px, calc(env(safe-area-inset-top) + 48px));
+  right: max(8px, env(safe-area-inset-right));
+  max-width: min(360px, calc(100vw - 16px));
+  min-height: 46px;
+  padding: 8px 11px 8px 9px;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  border-radius: 15px;
+  color: #f6f2fb;
+  background: rgba(10, 9, 15, 0.68);
+  box-shadow:
+    inset 0 0 0 1px rgba(196, 182, 225, 0.14),
+    0 8px 28px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+.remote-discovery > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.remote-discovery strong,
+.remote-discovery span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.remote-discovery strong {
+  white-space: nowrap;
+  font:
+    800 0.72rem / 1.2 system-ui,
+    sans-serif;
+}
+.remote-discovery > div > span {
+  color: #aaa3b4;
+  font:
+    650 0.64rem / 1.25 system-ui,
+    sans-serif;
+}
+.remote-discovery__radar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(206, 185, 235, 0.3);
+  background: radial-gradient(
+    circle,
+    #c567e9 0 12%,
+    transparent 14% 36%,
+    rgba(197, 103, 233, 0.22) 38% 42%,
+    transparent 44%
+  );
+  position: relative;
+}
+.remote-discovery--scanning .remote-discovery__radar::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: inherit;
+  border-top: 2px solid #d58bf0;
+  animation: remote-radar-spin 1.15s linear infinite;
+}
+.remote-discovery--found {
+  opacity: 0.86;
+}
+@keyframes remote-radar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 680px) {
+  .play-toolbar__actions .ghost-button:first-child:not(:last-child) {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .remote-discovery,
+  .remote-discovery__radar::after {
+    transition: none;
+    animation: none;
+  }
+}
 .device-frame,
 .play-page--display .device-frame,
 .play-page--controller .device-frame {

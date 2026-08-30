@@ -4,6 +4,22 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-08-31
+
+### Added
+
+- One adaptive **Remote** launch flow: phone-sized devices become controllers, desktop/TV-sized devices become display hubs, with explicit role switching available only as a fallback.
+- Authoritative realtime presence now carries controller mode, allowing the display hub to discover unique connected remote players without browser LAN/device APIs or polling room membership.
+- Host-side `presentation.remoteDisplay` policy with `shared` and `per-player` strategies plus a four-viewport cap; Turbo Circuit, Sky Strike, and Flight Trainer opt into per-player camera views while communal games remain shared.
+- Multi-viewport display composition inside one sandboxed game frame: one verified display-module import and one realtime connection fan snapshots out to 1–4 player-focused views.
+- Unit and browser coverage for device-role inference, remote deduplication, shared-vs-split policy, and live 1 → 2 → 1 viewport transitions as remotes join and leave.
+
+### Changed
+
+- Removed popup-based shared-display launch. Both TV/laptop and phone select the same `Remote` action; the display automatically scans connected remotes and chooses shared or split presentation.
+- Game CRUD/MCP tools expose remote display policy as host metadata. Presentation-only changes do not require a cartridge version bump; any cartridge byte change remains immutable and requires a greater semantic version.
+- Game publication explicitly strips host-only presentation metadata before hashing the cartridge manifest, preserving every existing immutable release digest.
+
 ## [0.9.0] - 2026-08-31
 
 ### Added

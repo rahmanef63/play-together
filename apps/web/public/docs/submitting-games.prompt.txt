@@ -7,7 +7,8 @@ Game idea:
 - Win/round condition: <how a round ends or how a winner is determined>
 - Visual direction: <simple description of the look>
 - Preferred phone orientation: <portrait | landscape | adaptive>
-- Play modes: <shared screen, handheld, or both>
+- Play modes: <remote/shared screen, handheld, or both>
+- TV/laptop presentation: <shared for one communal view | per-player for automatic split camera/focus>
 - Controls needed: <for example analog + A/B, D-pad + A/B/X/Y, racing steering + gas/brake, flight stick + triggers, touch aiming, etc.>
 - Important mechanics: <movement, collision, scoring, enemies, timing, items, checkpoints, etc.>
 
@@ -18,19 +19,21 @@ Implementation requirements:
 4. Keep gameplay server-authoritative. The controller sends player intent; the server decides trusted state; the display renders snapshots.
 5. Make the display fill the provided surface at 100% width and height with no fixed/minimum viewport height. Resize Canvas/WebGL buffers only when dimensions change, never every animation frame.
 6. Choose the smallest controller topology that matches the game. It must support only the buttons/sticks/touch surfaces the game needs. If it needs A/B only, do not expose X/Y. If it needs A/B/X/Y or shoulders/triggers, declare them explicitly.
-7. Add meaningful server unit tests for core mechanics and at least one browser assertion for the unique gameplay/control surface.
-8. Do not modify or overwrite any historical release. Start at version 0.1.0 for a new game; after any published byte change, bump semantic version before publishing again.
-9. Run formatting, lint, typecheck, tests, game build, registry generation, immutable publish, repository verify, and relevant Playwright integration tests.
-10. Update docs only where the new game adds information that is not already generated from the registry. Do not duplicate SSOT data manually.
-11. If project MCP/tool calling is available, prefer `game_get`, `game_create`/`game_update`, `game_validate`, `game_publish`, and `game_registry` for their intended bounded operations. Never use a tool to bypass semantic versioning or immutable release guards.
-12. `game_publish` creates only the local immutable release. Never register or mutate production directly from the game tool. Production publication must happen from a verified `main` commit through the repository CI/deploy workflow.
-13. For UI changes, test realistic phone portrait and short landscape viewports. Confirm the game and its controls fill their assigned surface, no native scrollbar leaks into the PWA, and no control is clipped by safe areas or app chrome.
-14. Run the relevant Playwright scenario and then the full repository `pnpm verify` gate. If the task includes shipping, commit only the exact verified state, push `main`, wait for CI `verify`, `integration`, and `deploy-managed`, and independently verify production before declaring completion.
-15. Never expose deployment/auth/email secrets, never clear a user's authentication state as part of an app-cache update, and never weaken rate limits, signed tickets, manifest verification, or server authority to make a test pass.
+7. Declare `presentation.remoteDisplay` explicitly. Use `shared` + `maxViewports: 1` for a communal board/arena. Use `per-player` (maximum 4) only when each remote needs its own camera/focus. For per-player presentation, render the supplied surface from `ctx.playerId`; do not implement split-grid/device discovery in the game.
+8. Add meaningful server unit tests for core mechanics and at least one browser assertion for the unique gameplay/control surface.
+9. Do not modify or overwrite any historical release. Start at version 0.1.0 for a new game; after any published byte change, bump semantic version before publishing again.
+10. Run formatting, lint, typecheck, tests, game build, registry generation, immutable publish, repository verify, and relevant Playwright integration tests.
+11. Update docs only where the new game adds information that is not already generated from the registry. Do not duplicate SSOT data manually.
+12. If project MCP/tool calling is available, prefer `game_get`, `game_create`/`game_update`, `game_validate`, `game_publish`, and `game_registry` for their intended bounded operations. Never use a tool to bypass semantic versioning or immutable release guards.
+13. `game_publish` creates only the local immutable release. Never register or mutate production directly from the game tool. Production publication must happen from a verified `main` commit through the repository CI/deploy workflow.
+14. For UI changes, test realistic phone portrait and short landscape viewports. Confirm the game and its controls fill their assigned surface, no native scrollbar leaks into the PWA, and no control is clipped by safe areas or app chrome.
+15. Run the relevant Playwright scenario and then the full repository `pnpm verify` gate. If the task includes shipping, commit only the exact verified state, push `main`, wait for CI `verify`, `integration`, and `deploy-managed`, and independently verify production before declaring completion.
+16. Never expose deployment/auth/email secrets, never clear a user's authentication state as part of an app-cache update, and never weaken rate limits, signed tickets, manifest verification, or server authority to make a test pass.
 
 Before finishing, report:
 - game folder and version
 - declared controller layout and every control ID
+- declared remote display policy (`shared` or `per-player`) and viewport cap
 - server-authoritative mechanics implemented
 - tests added and their result
 - immutable manifest path/SHA

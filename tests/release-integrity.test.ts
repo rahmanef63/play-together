@@ -25,7 +25,9 @@ describe("published game releases", () => {
       const releaseRoot = resolve("releases/game-cdn", `.${release.manifestPath}`, "..");
       const manifestBytes = await readFile(resolve(releaseRoot, "manifest.json"));
       expect(createHash("sha256").update(manifestBytes).digest("hex")).toBe(release.manifestSha256);
-      const manifest = gameManifestSchema.parse(JSON.parse(manifestBytes.toString("utf8")));
+      const rawManifest = JSON.parse(manifestBytes.toString("utf8")) as Record<string, unknown>;
+      expect(rawManifest.presentation).toBeUndefined();
+      const manifest = gameManifestSchema.parse(rawManifest);
       expect(`${manifest.game.id}@${manifest.game.version}`).toBe(identity);
       for (const entry of Object.values(manifest.entries)) {
         if (!entry) continue;

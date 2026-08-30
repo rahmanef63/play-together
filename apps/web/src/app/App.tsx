@@ -52,10 +52,11 @@ export function App() {
     );
   }
 
-  const playMatch = path.match(/^\/play\/([A-Z0-9]+)\/(controller|display)$/i);
+  const playMatch = path.match(/^\/play\/([A-Z0-9]+)\/(controller|display|remote)$/i);
   const playCode = playMatch?.[1];
-  const playRole = playMatch?.[2];
-  if (playCode && (playRole === "controller" || playRole === "display")) {
+  const routeRole = playMatch?.[2];
+  const playRole = routeRole === "remote" ? "auto" : routeRole;
+  if (playCode && (playRole === "controller" || playRole === "display" || playRole === "auto")) {
     return (
       <Suspense fallback={<RouteSkeleton />}>
         <PlayPage code={playCode.toUpperCase()} role={playRole} />

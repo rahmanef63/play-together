@@ -25,7 +25,7 @@ const TOOL_ROWS = [
   ["game_create", "Create a validated games/<id>/ vertical slice from structured input."],
   [
     "game_update",
-    "Patch one draft/versioned game safely; published byte changes require a new version.",
+    "Patch one game safely; cartridge byte changes need a new version, host display policy does not.",
   ],
   [
     "game_delete",
@@ -134,6 +134,11 @@ export function DevelopersPage({ user }: { user: CurrentUser }) {
               index="04"
               title="Immutable publish"
               body="Any byte-changing update after publish needs a new semantic game version. Historical manifests and bundles are never overwritten."
+            />
+            <GuideCard
+              index="05"
+              title="Adaptive TV layout"
+              body="Declare shared or per-player presentation. The platform discovers remotes and composes up to four views; per-player displays focus with ctx.playerId."
             />
           </section>
 

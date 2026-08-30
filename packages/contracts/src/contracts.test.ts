@@ -3,6 +3,7 @@ import {
   clientMessageSchema,
   GAME_PROTOCOL_VERSION,
   gameManifestSchema,
+  serverMessageSchema,
   ticketClaimsSchema,
 } from "./index";
 
@@ -91,6 +92,18 @@ describe("public contracts", () => {
     });
     expect(parsed.controller.console?.controls).toHaveLength(2);
     expect(parsed.entries.controller).toBeUndefined();
+  });
+
+  it("tracks controller mode in authoritative realtime presence", () => {
+    const parsed = serverMessageSchema.parse({
+      type: "presence",
+      players: [
+        { playerId: "remote-1", role: "controller", mode: "remote", connectedAt: 123 },
+        { playerId: "display-1", role: "display", mode: "remote", connectedAt: 124 },
+      ],
+    });
+    expect(parsed.type).toBe("presence");
+    if (parsed.type === "presence") expect(parsed.players[0]?.mode).toBe("remote");
   });
 
   it("rejects unknown realtime message types", () => {

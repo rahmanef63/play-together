@@ -277,6 +277,7 @@ export class RoomSession {
       players: [...this.#clients.values()].map((connection) => ({
         playerId: connection.claims.sub,
         role: connection.claims.role,
+        mode: connection.claims.mode,
         connectedAt: connection.connectedAt,
       })),
     });

@@ -65,6 +65,7 @@ const entries = {
 if (!builtinController) {
   entries.controller = { url: "./controller.js", sha256: await digest("controller.js") };
 }
-const manifest = { ...config, entries };
+const { presentation: _hostPresentation, ...releaseConfig } = config;
+const manifest = { ...releaseConfig, entries };
 await writeFile(resolve(outdir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`${manifest.game.id}@${manifest.game.version}`);
