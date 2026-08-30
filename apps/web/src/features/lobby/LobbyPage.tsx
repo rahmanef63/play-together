@@ -79,6 +79,13 @@ export function LobbyPage({ user }: { user: CurrentUser }) {
           <span>PT</span> Play Together
         </button>
         <nav>
+          <button
+            className="ghost-button mobile-keep"
+            type="button"
+            onClick={() => navigate("/templates")}
+          >
+            Templates
+          </button>
           <button className="ghost-button" type="button" onClick={() => navigate("/ops")}>
             System
           </button>

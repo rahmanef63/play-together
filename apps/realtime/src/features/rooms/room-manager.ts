@@ -1,18 +1,20 @@
 import type { TicketClaims } from "@play-together/contracts";
 import type { WebSocket } from "ws";
-import type { GameModuleStore } from "../modules/module-store";
-import { RoomSession } from "./room-session";
+import type { GameModuleStore } from "../modules/module-store.js";
+import { RoomSession } from "./room-session.js";
 
 export class RoomManager {
   readonly #moduleStore: GameModuleStore;
   readonly #idleTimeoutMs: number;
+  readonly #workerScriptPath: string | undefined;
   readonly #sessions = new Map<string, RoomSession>();
   readonly #startingSessions = new Map<string, Promise<RoomSession>>();
   readonly #idleTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
-  constructor(moduleStore: GameModuleStore, idleTimeoutMs: number) {
+  constructor(moduleStore: GameModuleStore, idleTimeoutMs: number, workerScriptPath?: string) {
     this.#moduleStore = moduleStore;
     this.#idleTimeoutMs = idleTimeoutMs;
+    this.#workerScriptPath = workerScriptPath;
   }
 
   get size(): number {
@@ -61,7 +63,12 @@ export class RoomManager {
     const gameModule = await this.#moduleStore.resolve(claims);
     const existing = this.#sessions.get(key);
     if (existing) return existing;
-    const session = new RoomSession(claims, gameModule, () => this.#scheduleClose(key));
+    const session = new RoomSession(
+      claims,
+      gameModule,
+      () => this.#scheduleClose(key),
+      this.#workerScriptPath,
+    );
     this.#sessions.set(key, session);
     return session;
   }

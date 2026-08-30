@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["api/**/*.ts"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "apps/web/**",
+    "convex/**",
+    "e2e/**",
+    "games/**",
+    "releases/**",
+    "tests/**"
+  ]
+}

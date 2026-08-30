@@ -1,9 +1,10 @@
 import { randomUUID } from "node:crypto";
+import { pathToFileURL } from "node:url";
 import { Worker } from "node:worker_threads";
 import type { TicketClaims } from "@play-together/contracts";
 import type { WebSocket } from "ws";
-import type { ResolvedGameModule } from "../modules/module-store";
-import { classifySocketPressure } from "./backpressure";
+import type { ResolvedGameModule } from "../modules/module-store.js";
+import { classifySocketPressure } from "./backpressure.js";
 
 interface ClientConnection {
   id: string;
@@ -38,7 +39,12 @@ export class RoomSession {
   #closed = false;
   #readyTimer: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(claims: TicketClaims, module: ResolvedGameModule, onEmpty: () => void) {
+  constructor(
+    claims: TicketClaims,
+    module: ResolvedGameModule,
+    onEmpty: () => void,
+    workerScriptPath?: string,
+  ) {
     this.#onEmpty = onEmpty;
     this.key = `${claims.roomId}:${claims.gameId}@${claims.gameVersion}:${claims.manifestSha256}`;
     this.#ready = new Promise((resolve, reject) => {
@@ -61,7 +67,10 @@ export class RoomSession {
     }, WORKER_READY_TIMEOUT_MS);
     this.#readyTimer.unref();
 
-    this.#worker = new Worker(new URL("./game-worker.js", import.meta.url), {
+    const workerUrl = workerScriptPath
+      ? pathToFileURL(workerScriptPath)
+      : new URL("./game-worker.js", import.meta.url);
+    this.#worker = new Worker(workerUrl, {
       workerData: {
         modulePath: module.modulePath,
         context: {

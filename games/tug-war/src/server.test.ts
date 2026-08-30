@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createServerGame } from "./server";
+import { createServerGame } from "./server.js";
 
 describe("Tug War", () => {
   it("assigns opposite teams", async () => {

@@ -1,99 +1,160 @@
 # Deployment
 
-## Independent production units
+## Managed production target
 
-Deploy four units from the same Git commit, but do not couple their release triggers:
+The primary production target is **Vercel + Convex Cloud**. The VPS/Dokploy Compose stack remains useful for local development and rollback during migration, but it is not required by the managed runtime.
 
-| Unit | Dockerfile/image | Public route | Release trigger |
-|---|---|---|---|
-| Web shell | `apps/web/Dockerfile` | HTTPS | platform changes |
-| Realtime gateway | `apps/realtime/Dockerfile` | WSS/HTTPS health | gateway/protocol changes |
-| Game CDN | `infra/game-cdn/Dockerfile` | HTTPS | game release changes |
-| Convex | pinned backend image + `convex deploy` | HTTPS API/site | schema/function changes |
+| Surface | Managed service | Release boundary |
+|---|---|---|
+| Web shell / PWA | Vercel static output | platform UI changes |
+| Realtime gateway | Vercel WebSocket Function | gateway/protocol changes |
+| Immutable game releases | Vercel CDN static output | game release changes |
+| Auth / rooms / catalog / entitlements | Convex Cloud | schema/function changes |
+| Paid template source | Vercel Private Blob | template-source releases |
+| Cross-instance room coordination | optional Redis coordinator | horizontal realtime scale |
 
-A game-only release appends a versioned bundle to `releases/game-cdn`, rebuilds/uploads only the Game CDN unit, and registers its new manifest. It does not rebuild web or realtime unless the stable contract itself changes.
+A game release remains immutable and version-pinned. Updating `game-a@2.0.0` never replaces `game-a@1.0.0`, and active rooms retain their stored manifest digest.
 
-## Reference production domain split
+## Production URLs
 
-The maintained reference deployment uses `game.rahmanef.com` as its player-facing URL:
-
-```text
-game.rahmanef.com          web shell / PWA
-rt-game.rahmanef.com       WebSocket gateway
-games-game.rahmanef.com    immutable game CDN
-api-game.rahmanef.com      Convex API/WebSocket
-site-game.rahmanef.com     Convex HTTP/auth site
-```
-
-Do not expose the Convex dashboard publicly. Access it through a local loopback binding or an authenticated operator tunnel.
-
-## Production environment
-
-Browser-build values:
+The canonical player URL is:
 
 ```text
-VITE_CONVEX_URL=https://api-game.rahmanef.com
-VITE_REALTIME_URL=wss://rt-game.rahmanef.com/v1/connect
+https://game.rahmanef.com
 ```
 
-Shared backend values:
+The managed build defaults realtime to the same origin:
 
 ```text
-JOIN_TICKET_SECRET=<same strong value in Convex and realtime>
-GAME_PUBLISH_TOKEN=<Convex only + release job>
-GAME_MODULE_ORIGINS=https://games-game.rahmanef.com
-GAME_CDN_PUBLIC_ORIGIN=https://games-game.rahmanef.com
-ALLOWED_ORIGINS=https://game.rahmanef.com
-ALLOW_INSECURE_GAME_ORIGINS=false
-GAME_MODULE_FETCH_ORIGIN_MAP={}
+wss://game.rahmanef.com/api/realtime
 ```
 
-Convex Auth also requires its production JWT/JWKS values plus correct Convex cloud/site origins. Generate keys once, store them in the deployment secret store, and never commit or echo them.
+Convex uses its managed `*.convex.cloud` and `*.convex.site` endpoints. These values are supplied through deployment environment variables rather than custom VPS subdomains.
 
-## Compose model
+## Vercel build
 
-- `docker-compose.yml` is the production-safe base and publishes no host ports.
-- `docker-compose.local.yml` binds development ports to `127.0.0.1` and runs an IPv6 loopback bridge so Convex can discover `http://convex-site.localhost:43211` from its own namespace. The bridge is development-only and is not required when a production site domain is routable from the backend.
-- the `admin` profile starts the local Convex dashboard.
-
-Validate local composition:
+`vercel.json` owns the managed runtime contract. The build command is:
 
 ```bash
-pnpm stack:config
+pnpm vercel:build
 ```
 
-Use a distinct Compose project name in production (the reference deployment uses `play-together-prod`) so a developer stack named `play-together` cannot collide with production containers. On Dokploy, the reference deployment also reuses its existing attachable `dokploy-network` instead of allocating another Docker bridge subnet; local development keeps an isolated Compose network.
+It:
 
-Never use `docker compose down -v` in normal operations; that deletes the durable Convex volume.
+1. verifies/publishes the tracked immutable game releases;
+2. builds the realtime gateway and its room worker;
+3. builds the Vite web shell;
+4. copies immutable release artifacts under `apps/web/dist/games` for Vercel CDN delivery.
 
-## Convex release order
+The realtime Function uses the standard Node HTTP/WebSocket server boundary and a 300-second duration compatible with the current Hobby deployment. The browser runtime already refreshes its short-lived room ticket and reconnects transparently when a Function lifetime or deployment causes a reconnect.
 
-1. Deploy/start the backend with stable persistent storage.
-2. Generate or retrieve its admin key without printing it to logs.
-3. Sync JWT/JWKS, game-publish token, join-ticket secret, and game-origin allowlist.
-4. Run `convex deploy` against the intended backend.
-5. Publish the tracked immutable release archive to the game CDN/object store.
-6. Register every intended manifest in Convex.
-7. Deploy realtime, then web.
-8. Run public health, registration, room, WebSocket, and E2E checks.
+### Horizontal realtime scale
+
+The authoritative room process is currently in-memory inside one Function instance. This is appropriate for the managed preview/small-scale phase but is **not** sufficient to guarantee that multiple Function instances share one authoritative room. The intended next step is a transient Redis coordinator/room lease in Singapore; durable room/auth/catalog data stays in Convex.
+
+Do not treat Redis as a second database. It owns only transient routing/leases/pub-sub. Convex remains the durable control plane.
+
+## Convex Cloud
+
+Production and development use separate Convex deployments. Never make production the implicit CLI target. Production operations should use an explicit deploy key or `--prod` option.
+
+Required Convex environment categories:
+
+```text
+SITE_URL=https://game.rahmanef.com
+JWT_PRIVATE_KEY=<secret>
+JWKS=<secret/public-key-set JSON>
+JOIN_TICKET_SECRET=<same value as Vercel realtime>
+GAME_PUBLISH_TOKEN=<release-only secret>
+GAME_MODULE_ORIGINS=https://game.rahmanef.com
+ALLOW_INSECURE_GAME_ORIGINS=false
+
+RESEND_API_KEY=<server-only Resend key>
+EMAIL_FROM_ADDRESS=official@rahmanef.com
+EMAIL_PROJECT_NAME=Play Together
+EMAIL_PROJECT_TAG=play-together
+
+TEMPLATE_DOWNLOAD_SECRET=<same value as Vercel download function>
+TEMPLATE_PUBLISH_TOKEN=<release-only secret>
+TEMPLATE_SALES_WEBHOOK_SECRET=<checkout fulfillment HMAC secret>
+```
+
+`RESEND_API_KEY` is consumed only by Convex server actions. It must never be exposed as a Vite variable or shipped to Vercel browser output.
+
+## Vercel environment
+
+At minimum:
+
+```text
+VITE_CONVEX_URL=<production Convex Cloud URL>
+JOIN_TICKET_SECRET=<same value as Convex>
+ALLOWED_ORIGINS=https://game.rahmanef.com
+GAME_MODULE_ORIGINS=https://game.rahmanef.com
+ALLOW_INSECURE_GAME_ORIGINS=false
+TEMPLATE_DOWNLOAD_SECRET=<same value as Convex>
+```
+
+The connected private Blob store supplies `BLOB_READ_WRITE_TOKEN` to the server runtime. Never expose it through a `VITE_` variable.
+
+## Password-reset email
+
+Password reset uses one verified sender identity:
+
+```text
+Play Together <official@rahmanef.com>
+```
+
+The display name and Resend `project` tag are dynamic environment values. Reset requests are enumeration-safe, rate-limited, and send an 8-digit code that expires after 10 minutes. A reset invalidates the user's other sessions through Convex Auth.
+
+## Paid template source
+
+Public game cartridges in this repository are MIT-licensed and are not repackaged as private paid source. Commercial template source lives outside Git in:
+
+```text
+template-sources/<slug>/template.json
+template-sources/<slug>/source/
+```
+
+`template-sources/` and generated packages are gitignored. Build/upload with:
+
+```bash
+pnpm template:pack <slug> --upload
+pnpm template:publish .local/template-packages/<slug>-<version>.json
+```
+
+The packer rejects common secret/key files, symlinks, `.env`, `.git`, `node_modules`, private-key material, and obvious API-key patterns before creating a private archive.
+
+A published catalog record contains only commercial metadata plus the private Blob pathname/digest on the server. Users receive a two-minute entitlement ticket; the Vercel endpoint exchanges it for an exact-path, short-lived presigned Blob GET URL. Large archives therefore download directly from Blob instead of crossing the Vercel Function response-size limit.
+
+Checkout is provider-agnostic. A payment system can POST a signed fulfillment event to Convex HTTP `/api/templates/fulfill-purchase`; the HMAC header is `x-play-together-signature`. Duplicate `orderRef` values are idempotent. Purchases made before account creation remain pending and are claimed automatically when a matching authenticated email opens Templates.
+
+## Release order
+
+1. Run `pnpm verify` and `pnpm vercel:build` locally.
+2. Deploy backward-compatible Convex schema/functions to the target Cloud deployment.
+3. Deploy a Vercel preview with production-like non-secret routing values.
+4. Verify health, auth, room creation, WebSocket play, game manifest integrity, and template UI.
+5. Register immutable game manifests against the Vercel game origin.
+6. Run browser E2E against the preview.
+7. Move the canonical domain only after preview verification.
+8. Run production E2E and health checks again.
+9. Remove the legacy VPS routes only after a rollback window.
+
+## Local development / legacy rollback
+
+The Docker Compose stack is retained for deterministic local E2E and as a migration rollback reference:
+
+```bash
+pnpm stack:bootstrap
+pnpm stack:config
+pnpm stack:down
+```
+
+Do not use `docker compose down -v` unless you intentionally want to delete local durable Convex data.
 
 ## Rollback
 
-- Web/realtime: redeploy a known Git SHA.
-- Game: choose an already-published immutable game version for new rooms; do not overwrite files.
-- Convex: use widen–migrate–narrow schema changes. Never deploy a narrowing schema before data migration and backward-compatible app rollout.
-
-
-## Dokploy routing for the reference deployment
-
-Attach domains directly to the matching Compose services and ports:
-
-| Host | Service | Internal port |
-|---|---|---:|
-| `game.rahmanef.com` | `web` | 8080 |
-| `rt-game.rahmanef.com` | `realtime` | 8787 |
-| `games-game.rahmanef.com` | `game-cdn` | 8080 |
-| `api-game.rahmanef.com` | `convex-backend` | 3210 |
-| `site-game.rahmanef.com` | `convex-backend` | 3211 |
-
-Do not create a public route for `convex-dashboard`.
+- **Web/realtime:** redeploy a known Vercel Git SHA.
+- **Game:** select an already-published immutable game version; never overwrite release bytes.
+- **Convex:** use widen-migrate-narrow schema changes and deploy backward-compatible functions first.
+- **Domain migration:** keep the former deployment reachable until the managed production smoke/E2E window is complete.

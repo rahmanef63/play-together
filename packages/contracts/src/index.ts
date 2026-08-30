@@ -76,6 +76,20 @@ export const ticketClaimsSchema = z.object({
 });
 export type TicketClaims = z.infer<typeof ticketClaimsSchema>;
 
+export const templateDownloadClaimsSchema = z.object({
+  iss: z.literal("play-together"),
+  aud: z.literal("play-together-template-download"),
+  sub: z.string().min(1),
+  templateId: z.string().min(1),
+  slug: z.string().regex(/^[a-z0-9][a-z0-9-]{1,63}$/),
+  blobPath: z.string().min(1).max(512),
+  fileName: z.string().min(1).max(160),
+  iat: z.number().int().positive(),
+  exp: z.number().int().positive(),
+  jti: z.string().min(8),
+});
+export type TemplateDownloadClaims = z.infer<typeof templateDownloadClaimsSchema>;
+
 export const clientInputMessageSchema = z.object({
   type: z.literal("input"),
   seq: z.number().int().nonnegative(),

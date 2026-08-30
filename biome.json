@@ -12,7 +12,8 @@
       "!!releases",
       "!!test-results",
       "!!playwright-report",
-      "!!convex/_generated"
+      "!!convex/_generated",
+      "!!.vercel"
     ]
   },
   "formatter": {

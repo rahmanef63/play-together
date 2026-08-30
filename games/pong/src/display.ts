@@ -1,5 +1,5 @@
 import type { BrowserGameContext, DisplayGameModule } from "@play-together/game-sdk";
-import { drawPong, isPongSnapshot } from "./render";
+import { drawPong, isPongSnapshot } from "./render.js";
 
 export const mountDisplay: DisplayGameModule["mountDisplay"] = (
   root: HTMLElement,

@@ -56,10 +56,10 @@ A platform update should not force every game to move together, and a game relea
 
 Play Together therefore separates the platform from game releases:
 
-- **Convex control plane** — users, authentication, published games, rooms, memberships, capacity, and signed connection tickets.
-- **Realtime gateway** — transient input, authoritative simulation, snapshots, presence, validation, and room lifecycle.
-- **Game CDN** — immutable, SHA-256-pinned browser/controller/server bundles.
-- **Web shell / PWA** — registration, lobby, private-room entry, device-mode selection, and sandbox hosting.
+- **Convex Cloud control plane** — users, authentication, published games, rooms, memberships, capacity, template entitlements, and signed connection/download tickets.
+- **Vercel realtime gateway** — transient input, authoritative simulation, snapshots, presence, validation, and room lifecycle.
+- **Vercel game CDN** — immutable, SHA-256-pinned browser/controller/server bundles served from the static deployment.
+- **Vercel web shell / PWA** — registration, lobby, password reset, template marketplace, device-mode selection, and sandbox hosting.
 - **Game workers** — one isolated worker per active room, pinned to one exact game release.
 - **Games** — depend only on stable contracts/SDKs; platform code never imports a concrete game.
 
@@ -90,6 +90,8 @@ flowchart LR
   R -->|one room + exact version| X[Authoritative worker]
   P[Game publisher] -->|append release| G
   P -->|register digest| C
+  T[Private template source] -->|encrypted transport / private object| B[Vercel Private Blob]
+  W -->|entitlement ticket| B
 ```
 
 The latency-sensitive input path never writes each frame to Convex. Convex is the durable control plane; the realtime gateway is the authoritative gameplay plane.
@@ -260,19 +262,27 @@ Release rules:
 
 Read [docs/game-sdk.md](docs/game-sdk.md) before implementing a new game.
 
+## Sell a game template
+
+The public cartridges in this repository are MIT-licensed. Commercial/private source should therefore live outside Git under ignored `template-sources/<slug>/`, with its own license and checkout URL. Package and upload it to the connected Private Blob store with `pnpm template:pack <slug> --upload`, then publish the generated metadata with `pnpm template:publish <metadata.json>`.
+
+The marketplace is payment-provider agnostic: each template can expose an HTTPS checkout URL, while a signed fulfillment webhook grants the Convex entitlement. Users who buy before registering can claim the pending purchase later with the same email.
+
 ## Production topology
 
-The reference production deployment uses `game.rahmanef.com` as the player-facing entry point while keeping service boundaries independently routable:
+The managed target removes the VPS from the runtime path:
 
-| Surface | Production endpoint | Service |
+| Surface | Production target | Notes |
 |---|---|---|
-| Player app | `https://game.rahmanef.com` | web shell / PWA |
-| Realtime | `wss://rt-game.rahmanef.com/v1/connect` | authoritative gateway |
-| Game releases | `https://games-game.rahmanef.com` | immutable game CDN |
-| Convex API | `https://api-game.rahmanef.com` | Convex API/WebSocket |
-| Convex auth/site | `https://site-game.rahmanef.com` | Convex HTTP actions/auth |
+| Player app + game CDN | Vercel | `https://game.rahmanef.com` |
+| Realtime | Vercel WebSocket Function | same-origin `/api/realtime` |
+| Durable control plane/auth | Convex Cloud | managed cloud/site endpoints |
+| Paid template source | Vercel Private Blob | exact-path signed downloads |
+| Cross-instance coordinator | optional Redis | transient only; not Convex replacement |
 
-The Convex dashboard is intentionally **not public**. Production uses a distinct Compose project name (`play-together-prod`) so it cannot collide with a local developer stack.
+The small-scale managed release keeps one authoritative room in one Function instance. Browser reconnect is built in, but full horizontal room coordination is intentionally gated behind the optional transient coordinator.
+
+Password reset is handled by Convex Auth and Resend using the shared sender `official@rahmanef.com`, with a project-specific display name/tag. Paid template source is kept outside this public MIT repository and is delivered only after a Convex entitlement check.
 
 See [docs/deployment.md](docs/deployment.md) and [.env.production.example](.env.production.example).
 
@@ -306,7 +316,8 @@ For an already-deployed environment, set `E2E_BASE_URL` and `E2E_REALTIME_HEALTH
 Important controls include:
 
 - exact browser origin allowlists;
-- PBKDF2 password hashing with per-secret salts;
+- PBKDF2 password hashing with per-secret salts plus a 12-character strong-password policy for new/reset passwords;
+- enumeration-safe, rate-limited password reset through Resend;
 - transactional room capacity;
 - expiring HMAC-signed connection tickets;
 - ticket replay protection;
@@ -314,6 +325,7 @@ Important controls include:
 - immutable SHA-256-pinned game modules;
 - sandboxed browser game frames;
 - a dedicated worker for each active room/version;
+- private template entitlements with short-lived signed Blob downloads;
 - no committed production credentials.
 
 Game server bundles are **trusted publisher code**. Worker threads provide runtime isolation and lifecycle containment, but they are not a hostile-code sandbox. Untrusted third-party server modules require a stronger container/microVM boundary.

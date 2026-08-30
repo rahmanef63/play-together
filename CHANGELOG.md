@@ -4,6 +4,30 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+
+## [0.6.0] - 2026-08-30
+
+### Added
+
+- Managed-first Vercel + Convex Cloud production topology with same-origin WebSocket Functions and immutable game CDN output.
+- Convex Auth password-reset flow with enumeration-safe requests, rate limiting, 8-digit expiring codes, session invalidation, and dynamic Resend project metadata from `official@rahmanef.com`.
+- Provider-agnostic commercial template marketplace with private source packaging, purchase entitlements, signed fulfillment webhook, and short-lived Vercel Private Blob downloads.
+- Managed CI/CD job that deploys Convex Cloud and an exact Vercel production artifact only after repository verification and integration tests pass, then runs production browser E2E.
+- Regression coverage for managed runtime configuration, email payloads/password policy, signed template tickets, and private template package safety.
+
+### Changed
+
+- Migrated the production control-plane dataset to Convex Cloud while preserving existing password-account hashes and invalidating legacy session tokens at the managed boundary.
+- Realtime deployment now supports Vercel Function routing, 300-second lifecycle/reconnect behavior, `sin1` function placement, deployment-origin allowlisting, and managed health metadata.
+- Browser build endpoint variables now participate in Turborepo cache hashes to prevent stale self-hosted/Cloud bundles from sharing build cache entries.
+- Managed production is the primary documented deployment model; Docker/Dokploy remains a local development and temporary rollback path only.
+
+### Security
+
+- Paid template source is kept outside public Git, rejects secret/build/cache artifacts and symlinks during packaging, and can only be fetched through entitlement-scoped signed URLs.
+- Password reset UI disables delivery when the server has no actual Resend credential instead of reporting a false success.
+
+
 ## [0.5.0] - 2026-08-30
 
 ### Changed

@@ -5,6 +5,7 @@ import { LobbyPage } from "../features/lobby/LobbyPage";
 import { OpsPage } from "../features/ops/OpsPage";
 import { PlayPage } from "../features/play/PlayPage";
 import { RoomPage } from "../features/room/RoomPage";
+import { TemplatesPage } from "../features/templates/TemplatesPage";
 import { api } from "../shared/convexApi";
 import { currentPath, navigate } from "../shared/navigation";
 import type { CurrentUser } from "../shared/types";
@@ -35,6 +36,7 @@ export function App() {
   const roomCode = roomMatch?.[1];
   if (roomCode) return <RoomPage code={roomCode.toUpperCase()} user={user} />;
   if (path === "/ops") return <OpsPage user={user} />;
+  if (path === "/templates") return <TemplatesPage user={user} />;
   if (path !== "/") navigate("/");
   return <LobbyPage user={user} />;
 }

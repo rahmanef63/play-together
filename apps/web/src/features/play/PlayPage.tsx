@@ -6,7 +6,13 @@ import { api } from "../../shared/convexApi";
 import { navigate } from "../../shared/navigation";
 import type { TicketResponse } from "../../shared/types";
 
-const realtimeUrl = import.meta.env.VITE_REALTIME_URL || "ws://127.0.0.1:8787/v1/connect";
+const realtimeUrl = import.meta.env.VITE_REALTIME_URL || defaultRealtimeUrl();
+
+function defaultRealtimeUrl(): string {
+  const endpoint = new URL("/api/realtime", window.location.origin);
+  endpoint.protocol = endpoint.protocol === "https:" ? "wss:" : "ws:";
+  return endpoint.toString();
+}
 
 export function PlayPage({ code, role }: { code: string; role: "controller" | "display" }) {
   const issueTicket = useAction(api.tickets.issue);

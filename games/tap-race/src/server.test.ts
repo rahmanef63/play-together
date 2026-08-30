@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createServerGame } from "./server";
+import { createServerGame } from "./server.js";
 
 const context = { roomId: "room", gameId: "tap-race", gameVersion: "0.1.0", seed: 42 };
 

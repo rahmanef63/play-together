@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createServerGame } from "./server";
+import { createServerGame } from "./server.js";
 
 describe("Stack Tower", () => {
   it("stacks overlapping drops", async () => {

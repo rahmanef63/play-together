@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createServerGame } from "./server";
+import { createServerGame } from "./server.js";
 
 const ctx = { roomId: "r", gameId: "sky-strike", gameVersion: "0.1.0", seed: 2 };
 describe("Sky Strike", () => {

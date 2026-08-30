@@ -1,16 +1,26 @@
 import { useAuthActions } from "@convex-dev/auth/react";
+import { useAction, useQuery } from "convex/react";
 import { type FormEvent, useState } from "react";
+import { api } from "../../shared/convexApi";
+
+type AuthMode = "signIn" | "signUp" | "forgot" | "reset";
 
 export function AuthPage() {
   const { signIn } = useAuthActions();
-  const [mode, setMode] = useState<"signIn" | "signUp">("signUp");
+  const requestPasswordReset = useAction(api.passwordReset.request);
+  const resetCapability = useQuery(api.passwordReset.capability);
+  const [mode, setMode] = useState<AuthMode>("signUp");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
 
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
+  const submitAccount = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (mode !== "signIn" && mode !== "signUp") return;
     setBusy(true);
     setError("");
+    setNotice("");
     const data = new FormData(event.currentTarget);
     try {
       await signIn("password", {
@@ -21,6 +31,61 @@ export function AuthPage() {
       });
     } catch (reason) {
       setError(readError(reason));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const submitResetRequest = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (resetCapability?.enabled !== true) {
+      setError("Password reset email is temporarily unavailable.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    setNotice("");
+    const data = new FormData(event.currentTarget);
+    const email = String(data.get("email") ?? "")
+      .trim()
+      .toLowerCase();
+    try {
+      await requestPasswordReset({ email });
+      setResetEmail(email);
+      setMode("reset");
+      setNotice("If that account exists, an 8-digit reset code has been sent to its email.");
+    } catch {
+      // The request endpoint is intentionally enumeration-safe; this is only for network failures.
+      setError("Could not contact the account service. Try again shortly.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const submitResetVerification = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    const data = new FormData(event.currentTarget);
+    const email = String(data.get("email") ?? "")
+      .trim()
+      .toLowerCase();
+    const newPassword = String(data.get("newPassword") ?? "");
+    const confirmation = String(data.get("confirmPassword") ?? "");
+    if (newPassword !== confirmation) {
+      setBusy(false);
+      setError("The new passwords do not match.");
+      return;
+    }
+    try {
+      await signIn("password", {
+        flow: "reset-verification",
+        email,
+        code: String(data.get("code") ?? "").trim(),
+        newPassword,
+      });
+    } catch {
+      setError("The reset code is invalid or expired, or the new password does not meet policy.");
     } finally {
       setBusy(false);
     }
@@ -45,54 +110,159 @@ export function AuthPage() {
         </div>
       </section>
       <section className="auth-card panel">
-        <div className="segmented" role="tablist" aria-label="Account mode">
-          <button
-            type="button"
-            className={mode === "signUp" ? "active" : ""}
-            onClick={() => setMode("signUp")}
-          >
-            Create account
-          </button>
-          <button
-            type="button"
-            className={mode === "signIn" ? "active" : ""}
-            onClick={() => setMode("signIn")}
-          >
-            Sign in
-          </button>
-        </div>
-        <form onSubmit={submit}>
-          {mode === "signUp" && (
+        {(mode === "signIn" || mode === "signUp") && (
+          <div className="segmented" role="tablist" aria-label="Account mode">
+            <button
+              type="button"
+              className={mode === "signUp" ? "active" : ""}
+              onClick={() => switchMode("signUp")}
+            >
+              Create account
+            </button>
+            <button
+              type="button"
+              className={mode === "signIn" ? "active" : ""}
+              onClick={() => switchMode("signIn")}
+            >
+              Sign in
+            </button>
+          </div>
+        )}
+
+        {(mode === "signIn" || mode === "signUp") && (
+          <form onSubmit={submitAccount}>
+            {mode === "signUp" && (
+              <Field
+                label="Player name"
+                name="name"
+                autoComplete="name"
+                minLength={2}
+                maxLength={48}
+              />
+            )}
+            <Field label="Email" name="email" type="email" autoComplete="email" />
             <Field
-              label="Player name"
-              name="name"
-              autoComplete="name"
-              minLength={2}
-              maxLength={48}
+              label="Password"
+              name="password"
+              type="password"
+              autoComplete={mode === "signUp" ? "new-password" : "current-password"}
+              minLength={mode === "signUp" ? 12 : 8}
+              maxLength={128}
             />
-          )}
-          <Field label="Email" name="email" type="email" autoComplete="email" />
-          <Field
-            label="Password"
-            name="password"
-            type="password"
-            autoComplete={mode === "signUp" ? "new-password" : "current-password"}
-            minLength={8}
-          />
-          {error && (
-            <p className="form-error" role="alert">
-              {error}
+            {error && <FormError>{error}</FormError>}
+            <button className="primary-button full" type="submit" disabled={busy}>
+              {busy ? "Connecting…" : mode === "signUp" ? "Create account" : "Sign in"}
+            </button>
+            {mode === "signIn" && (
+              <button
+                className="auth-link-button"
+                type="button"
+                onClick={() => switchMode("forgot")}
+              >
+                Forgot password?
+              </button>
+            )}
+          </form>
+        )}
+
+        {mode === "forgot" && (
+          <form onSubmit={submitResetRequest}>
+            <p className="eyebrow">PASSWORD RESET</p>
+            <h2>Send a reset code.</h2>
+            <p className="microcopy auth-copy">
+              Enter your account email. For privacy, the response is the same whether an account
+              exists or not.
             </p>
-          )}
-          <button className="primary-button full" type="submit" disabled={busy}>
-            {busy ? "Connecting…" : mode === "signUp" ? "Create account" : "Sign in"}
-          </button>
-        </form>
+            <Field label="Email" name="email" type="email" autoComplete="email" />
+            {error && <FormError>{error}</FormError>}
+            <button
+              className="primary-button full"
+              type="submit"
+              disabled={busy || resetCapability?.enabled !== true}
+            >
+              {busy
+                ? "Sending…"
+                : resetCapability?.enabled === false
+                  ? "Email reset unavailable"
+                  : "Send reset code"}
+            </button>
+            <button className="auth-link-button" type="button" onClick={() => switchMode("signIn")}>
+              Back to sign in
+            </button>
+          </form>
+        )}
+
+        {mode === "reset" && (
+          <form onSubmit={submitResetVerification}>
+            <p className="eyebrow">PASSWORD RESET</p>
+            <h2>Set a new password.</h2>
+            {notice && (
+              <p className="form-notice" role="status">
+                {notice}
+              </p>
+            )}
+            <Field
+              label="Email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              defaultValue={resetEmail}
+            />
+            <Field
+              label="8-digit reset code"
+              name="code"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9]{8}"
+              minLength={8}
+              maxLength={8}
+            />
+            <Field
+              label="New password"
+              name="newPassword"
+              type="password"
+              autoComplete="new-password"
+              minLength={12}
+              maxLength={128}
+            />
+            <Field
+              label="Confirm new password"
+              name="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              minLength={12}
+              maxLength={128}
+            />
+            {error && <FormError>{error}</FormError>}
+            <button className="primary-button full" type="submit" disabled={busy}>
+              {busy ? "Updating…" : "Reset password"}
+            </button>
+            <button className="auth-link-button" type="button" onClick={() => switchMode("forgot")}>
+              Send another code
+            </button>
+          </form>
+        )}
+
         <p className="microcopy">
-          Passwords require at least 8 characters with a letter and number.
+          New passwords require 12–128 characters with uppercase, lowercase, a number, and a symbol.
+          Reset codes expire after 10 minutes.
         </p>
       </section>
     </main>
+  );
+
+  function switchMode(next: AuthMode) {
+    setMode(next);
+    setError("");
+    setNotice("");
+  }
+}
+
+function FormError({ children }: { children: string }) {
+  return (
+    <p className="form-error" role="alert">
+      {children}
+    </p>
   );
 }
 

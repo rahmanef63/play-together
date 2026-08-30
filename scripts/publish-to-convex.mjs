@@ -7,13 +7,18 @@ import { makeFunctionReference } from "convex/server";
 const requestedIds = new Set(process.argv.slice(2));
 const environment = await loadEnvironment(resolve(process.cwd(), ".env"));
 const deploymentUrl =
+  process.env.CONVEX_URL ||
+  process.env.VITE_CONVEX_URL ||
   process.env.CONVEX_SELF_HOSTED_URL ||
-  environment.CONVEX_SELF_HOSTED_URL ||
-  environment.VITE_CONVEX_URL;
+  environment.CONVEX_URL ||
+  environment.VITE_CONVEX_URL ||
+  environment.CONVEX_SELF_HOSTED_URL;
 const publishToken = process.env.GAME_PUBLISH_TOKEN || environment.GAME_PUBLISH_TOKEN;
 const cdnOrigin = process.env.GAME_CDN_PUBLIC_ORIGIN || environment.GAME_CDN_PUBLIC_ORIGIN;
 if (!deploymentUrl || !publishToken || !cdnOrigin) {
-  throw new Error("VITE_CONVEX_URL, GAME_PUBLISH_TOKEN, and GAME_CDN_PUBLIC_ORIGIN are required");
+  throw new Error(
+    "CONVEX_URL (or VITE_CONVEX_URL), GAME_PUBLISH_TOKEN, and GAME_CDN_PUBLIC_ORIGIN are required",
+  );
 }
 const catalog = JSON.parse(await readFile(resolve("releases/game-cdn/catalog.json"), "utf8"));
 const releases = catalog.games.filter(

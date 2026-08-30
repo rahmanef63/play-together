@@ -52,3 +52,75 @@ jobs:
       - name: Stop integration stack
         if: always()
         run: pnpm stack:down
+
+
+  deploy-managed:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [verify, integration]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    env:
+      CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+      GAME_PUBLISH_TOKEN: ${{ secrets.GAME_PUBLISH_TOKEN }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      MANAGED_PRODUCTION_URL: ${{ vars.MANAGED_PRODUCTION_URL }}
+      CONVEX_URL: https://upbeat-dog-398.convex.cloud
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ff378ebe6b225b0680b81c1ad4498ae0d1d3a5e3 # v6.0.10
+        with:
+          version: 10.32.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22.23.2
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Deploy Convex Cloud production
+        run: pnpm exec convex deploy --typecheck enable --message "$GITHUB_SHA"
+      - name: Configure Vercel project credentials
+        shell: bash
+        run: |
+          mkdir -p "$HOME/.local/share/com.vercel.cli" .vercel
+          node <<'NODE'
+          const fs = require('fs');
+          fs.writeFileSync(
+            `${process.env.HOME}/.local/share/com.vercel.cli/auth.json`,
+            `${JSON.stringify({ token: process.env.VERCEL_TOKEN })}\n`,
+            { mode: 0o600 },
+          );
+          fs.writeFileSync(
+            '.vercel/project.json',
+            `${JSON.stringify({ projectId: process.env.VERCEL_PROJECT_ID, orgId: process.env.VERCEL_ORG_ID })}\n`,
+          );
+          NODE
+      - name: Build exact Vercel production artifact
+        run: |
+          pnpm dlx vercel@50.22.1 pull --yes --environment=production
+          pnpm dlx vercel@50.22.1 build --prod
+      - name: Deploy exact Vercel artifact
+        run: pnpm dlx vercel@50.22.1 deploy --prebuilt --prod
+      - name: Wait for managed production health
+        shell: bash
+        run: |
+          for attempt in $(seq 1 60); do
+            if curl -fsS --max-time 10 "$MANAGED_PRODUCTION_URL/api/health" >/dev/null; then
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
+      - name: Register immutable games against managed CDN
+        env:
+          GAME_CDN_PUBLIC_ORIGIN: ${{ vars.MANAGED_PRODUCTION_URL }}
+        run: pnpm game:publish:convex
+      - name: Install browser for managed smoke
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Run managed production browser scenarios
+        env:
+          E2E_BASE_URL: ${{ vars.MANAGED_PRODUCTION_URL }}
+          E2E_REALTIME_HEALTH_URL: ${{ vars.MANAGED_PRODUCTION_URL }}/api/realtime
+        run: pnpm test:e2e

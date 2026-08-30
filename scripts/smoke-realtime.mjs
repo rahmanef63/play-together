@@ -25,6 +25,7 @@ const secret = "smoke-test-secret-with-more-than-thirty-two-bytes";
 const gateway = createGateway({
   host: "127.0.0.1",
   port: 0,
+  connectPath: "/v1/connect",
   ticketSecret: secret,
   allowedOrigins: new Set(["http://localhost:4173"]),
   moduleOrigins: new Set([`http://127.0.0.1:${cdnPort}`]),

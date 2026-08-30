@@ -1,11 +1,11 @@
 {
   "name": "play-together",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "description": "Version-isolated multiplayer game platform with mobile controllers and shared browser displays.",
   "packageManager": "pnpm@10.32.1",
   "engines": {
-    "node": ">=22.0.0"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "turbo run dev --parallel",
@@ -37,11 +37,15 @@
     "game:publish:convex:one": "node scripts/publish-to-convex.mjs",
     "stack:down": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin down --remove-orphans",
     "stack:config": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin config --quiet",
-    "game:previews": "node scripts/capture-game-previews.mjs"
+    "game:previews": "node scripts/capture-game-previews.mjs",
+    "vercel:build": "pnpm game:publish && turbo run build --filter=@play-together/realtime --filter=@play-together/web && node scripts/prepare-vercel-output.mjs",
+    "template:pack": "node scripts/package-game-template.mjs",
+    "template:publish": "node scripts/publish-template.mjs"
   },
   "dependencies": {
     "@auth/core": "0.41.3",
     "@convex-dev/auth": "0.0.95",
+    "@vercel/blob": "2.8.0",
     "convex": "1.45.0"
   },
   "devDependencies": {

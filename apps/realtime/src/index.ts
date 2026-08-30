@@ -3,10 +3,10 @@ import { pathToFileURL } from "node:url";
 import { clientMessageSchema, type TicketClaims } from "@play-together/contracts";
 import { verifyTicket } from "@play-together/security";
 import { type WebSocket, WebSocketServer } from "ws";
-import { type GatewayConfig, loadConfig } from "./config";
-import { GameModuleStore } from "./features/modules/module-store";
-import { RoomManager } from "./features/rooms/room-manager";
-import { TicketReplayGuard } from "./features/tickets/replay-guard";
+import { type GatewayConfig, loadConfig } from "./config.js";
+import { GameModuleStore } from "./features/modules/module-store.js";
+import { RoomManager } from "./features/rooms/room-manager.js";
+import { TicketReplayGuard } from "./features/tickets/replay-guard.js";
 
 export interface GatewayHandle {
   server: Server;
@@ -23,7 +23,7 @@ export function createGateway(config: GatewayConfig): GatewayHandle {
     config.allowInsecureModuleOrigins,
   );
   const replayGuard = new TicketReplayGuard();
-  const rooms = new RoomManager(moduleStore, config.roomIdleTimeoutMs);
+  const rooms = new RoomManager(moduleStore, config.roomIdleTimeoutMs, config.workerScriptPath);
   const websocketServer = new WebSocketServer({
     noServer: true,
     maxPayload: config.maxPayloadBytes,
@@ -42,13 +42,20 @@ export function createGateway(config: GatewayConfig): GatewayHandle {
       return;
     }
     response.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" });
-    response.end(JSON.stringify({ service: "play-together-realtime", protocolVersion: 1 }));
+    response.end(
+      JSON.stringify({
+        ok: true,
+        service: "play-together-realtime",
+        protocolVersion: 1,
+        rooms: rooms.size,
+      }),
+    );
   });
 
   server.on("upgrade", (request, socket, head) => {
     try {
       const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
-      if (url.pathname !== "/v1/connect") throw new Error("Unknown WebSocket endpoint");
+      if (url.pathname !== config.connectPath) throw new Error("Unknown WebSocket endpoint");
       const origin = request.headers.origin;
       if (!origin && !config.allowMissingOrigin) throw new Error("Origin header required");
       if (origin && !config.allowedOrigins.has(origin)) throw new Error("Origin not allowed");

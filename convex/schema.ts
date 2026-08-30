@@ -66,4 +66,48 @@ export default defineSchema({
     windowStartedAt: v.number(),
     count: v.number(),
   }).index("by_key", ["key"]),
+  gameTemplates: defineTable({
+    slug: v.string(),
+    version: v.string(),
+    title: v.string(),
+    summary: v.string(),
+    previewGameId: v.string(),
+    previewGameVersion: v.string(),
+    sourceBlobPath: v.string(),
+    sourceSha256: v.string(),
+    sourceBytes: v.number(),
+    priceMinor: v.optional(v.number()),
+    currency: v.optional(v.string()),
+    licenseId: v.optional(v.string()),
+    purchaseUrl: v.optional(v.string()),
+    status: v.union(v.literal("draft"), v.literal("published"), v.literal("retired")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_slug_version", ["slug", "version"])
+    .index("by_status", ["status"])
+    .index("by_preview_game", ["previewGameId", "previewGameVersion"]),
+  templatePurchases: defineTable({
+    orderRef: v.string(),
+    email: v.string(),
+    templateId: v.id("gameTemplates"),
+    status: v.union(v.literal("pending"), v.literal("granted")),
+    entitlementId: v.optional(v.id("templateEntitlements")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_order_ref", ["orderRef"])
+    .index("by_email_status", ["email", "status"]),
+  templateEntitlements: defineTable({
+    templateId: v.id("gameTemplates"),
+    userId: v.id("users"),
+    source: v.union(v.literal("admin"), v.literal("purchase")),
+    orderRef: v.optional(v.string()),
+    grantedAt: v.number(),
+    expiresAt: v.optional(v.number()),
+  })
+    .index("by_user_template", ["userId", "templateId"])
+    .index("by_template", ["templateId"])
+    .index("by_user", ["userId"]),
 });

@@ -14,3 +14,6 @@ var/
 playwright-report/
 test-results/
 convex/.convex/
+template-sources/
+.vercel/
+.vercel

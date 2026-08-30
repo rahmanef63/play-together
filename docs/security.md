@@ -11,7 +11,10 @@
 ## Authentication and admission
 
 - Convex Auth owns account sessions.
-- Password secrets use PBKDF2-SHA-256 with per-secret random salt.
+- Existing password secrets keep the repository's PBKDF2-SHA-256 crypto contract with per-secret random salt so migration does not invalidate accounts.
+- New/reset passwords require 12–128 characters with uppercase, lowercase, number, and symbol.
+- Password-reset requests return the same response whether an account exists or not, use hashed email rate-limit keys, and issue 8-digit codes that expire after 10 minutes.
+- Reset email is sent server-side through Resend from `official@rahmanef.com`; the API key never reaches browser code.
 - Room passwords are never returned to clients or stored in plaintext.
 - Public/private visibility and password protection are separate fields.
 - Capacity and membership admission run transactionally.
@@ -43,6 +46,20 @@ Gateway controls:
 ## Browser frame
 
 The game frame is same-origin but sandboxed without parent DOM permission. Communication uses a narrow postMessage protocol. CSP blocks arbitrary default network/script behavior and the frame receives no product secrets.
+
+## Commercial template source
+
+- Paid template source never lives in the public Git repository.
+- The packer rejects symlinks, credential-like files, common key formats, `.env`, `.git`, and `node_modules`.
+- Private source archives are stored in Vercel Private Blob.
+- Convex stores entitlement/purchase state and never returns a private Blob pathname in the public template catalog.
+- Downloads require an authenticated entitlement, are rate-limited, and use an HMAC ticket with a two-minute maximum lifetime.
+- The Vercel download function verifies the ticket and returns only an exact-path, short-lived presigned GET URL.
+- Checkout fulfillment uses an HMAC-signed raw request body and idempotent `orderRef`; no payment-provider secret is accepted from the browser.
+
+## Managed realtime boundary
+
+Vercel WebSocket Functions may be restarted or horizontally instantiated. The browser reconnect path is mandatory. Until the optional cross-instance transient coordinator is enabled, one authoritative room must remain on one Function instance; the managed phase should not be described as horizontally coordinated multiplayer. Durable state remains in Convex and must not be replaced by a transient coordinator.
 
 ## Containers
 
