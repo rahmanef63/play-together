@@ -322,3 +322,17 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+#game-root > * {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+}
+#game-root canvas {
+  max-width: 100%;
+  max-height: 100%;
+}

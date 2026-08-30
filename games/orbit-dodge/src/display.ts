@@ -21,11 +21,14 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   w.append(h, c);
   root.append(w);
   let s: S | null = null;
+  let raf = 0;
   const loop = () => {
     const d = devicePixelRatio || 1,
-      r = c.getBoundingClientRect();
-    c.width = Math.floor(r.width * d);
-    c.height = Math.floor(r.height * d);
+      r = c.getBoundingClientRect(),
+      pixelWidth = Math.max(1, Math.floor(r.width * d)),
+      pixelHeight = Math.max(1, Math.floor(r.height * d));
+    if (c.width !== pixelWidth) c.width = pixelWidth;
+    if (c.height !== pixelHeight) c.height = pixelHeight;
     const x = c.getContext("2d");
     if (!x) return;
     x.scale(d, d);
@@ -55,7 +58,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
         x.fill();
       }
     }
-    requestAnimationFrame(loop);
+    raf = requestAnimationFrame(loop);
   };
   const u = ctx.subscribe((m) => {
     if (ok(m.state)) {
@@ -65,6 +68,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   });
   loop();
   return () => {
+    cancelAnimationFrame(raf);
     u();
     root.replaceChildren();
   };

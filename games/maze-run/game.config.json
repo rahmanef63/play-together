@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "maze-run",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "title": "Maze Run",
     "description": "A multiplayer maze sprint with server-authoritative walls, movement, and finish tracking.",
     "minPlayers": 1,

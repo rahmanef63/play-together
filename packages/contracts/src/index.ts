@@ -298,3 +298,9 @@ export interface PublicRoomSummary {
   requiresPassword: boolean;
   createdAt: number;
 }
+
+export interface HostedRoomSummary extends PublicRoomSummary {
+  visibility: "public" | "private";
+  status: "open" | "closed";
+  updatedAt: number;
+}

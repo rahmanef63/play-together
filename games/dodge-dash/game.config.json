@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "dodge-dash",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "title": "Dodge Dash",
     "description": "An endless lane dodger where players weave around incoming hazards for survival score.",
     "minPlayers": 1,

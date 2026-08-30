@@ -4,6 +4,21 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-08-30
+
+### Added
+
+- Full room directory CRUD for hosts: list owned rooms, edit room name/visibility/capacity/password policy, and delete rooms without changing their pinned game version.
+- Application-owned scroll areas with hidden native scrollbars and custom scroll indicators for lobby and room containers.
+- `docs/submitting-games.md` with the complete game submission contract and a reusable base prompt for AI coding agents.
+
+### Fixed
+
+- Game surfaces now occupy the full viewport while the play toolbar overlays the game instead of consuming layout height.
+- Stabilized mobile viewport sizing to avoid dynamic browser-chrome height feedback during play.
+- Canvas and Three.js cartridges resize their drawing buffers only when dimensions change instead of every animation frame, eliminating a major source of visible shake/flicker and unnecessary GPU work.
+
+
 ## [0.7.0] - 2026-08-30
 
 ### Added

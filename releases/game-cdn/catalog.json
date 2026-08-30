@@ -23,6 +23,13 @@
       "manifestSha256": "555ed569662bb659e1afd72ebbf3b1d68ba2b05c5f23913ecfe8dd3a8d577234"
     },
     {
+      "gameId": "dodge-dash",
+      "version": "0.3.1",
+      "title": "Dodge Dash",
+      "manifestPath": "/games/dodge-dash/0.3.1/manifest.json",
+      "manifestSha256": "4f1fe49b61db40b42b7a7a2d6fc909181284518b549850d7623f92ec0063870b"
+    },
+    {
       "gameId": "flight-trainer",
       "version": "0.1.0",
       "title": "Flight Trainer",
@@ -44,6 +51,13 @@
       "manifestSha256": "6fa12a9fc587e9c36119019edbf27b2442178582e9e1385ac0e838b44326eb8e"
     },
     {
+      "gameId": "flight-trainer",
+      "version": "0.2.1",
+      "title": "Flight Trainer",
+      "manifestPath": "/games/flight-trainer/0.2.1/manifest.json",
+      "manifestSha256": "23cdddce017c1c221f1a024c1f928da3a5c7825d8935351b0ece006c4fb518ad"
+    },
+    {
       "gameId": "maze-run",
       "version": "0.1.0",
       "title": "Maze Run",
@@ -63,6 +77,13 @@
       "title": "Maze Run",
       "manifestPath": "/games/maze-run/0.3.0/manifest.json",
       "manifestSha256": "e5ae487ba56ab41fba31e2a006c20d7aa54d322e60d5528b771656b0d339580d"
+    },
+    {
+      "gameId": "maze-run",
+      "version": "0.3.1",
+      "title": "Maze Run",
+      "manifestPath": "/games/maze-run/0.3.1/manifest.json",
+      "manifestSha256": "bd4f4b353e39cd65e536af0a77cb9f966b07bb0b79bd9d0a29327c410a8b0f16"
     },
     {
       "gameId": "memory-lights",
@@ -105,6 +126,13 @@
       "title": "Orbit Dodge",
       "manifestPath": "/games/orbit-dodge/0.3.0/manifest.json",
       "manifestSha256": "03bb0a169880cc6ed1787210fef52794b8143fab2519df6579448d58fbb87d93"
+    },
+    {
+      "gameId": "orbit-dodge",
+      "version": "0.3.1",
+      "title": "Orbit Dodge",
+      "manifestPath": "/games/orbit-dodge/0.3.1/manifest.json",
+      "manifestSha256": "d73c3d8a75819c6ddb9181231c54f4a896dcac709d332477fd04296a780abe65"
     },
     {
       "gameId": "pong",
@@ -198,6 +226,13 @@
       "manifestSha256": "3cde9ed1af9ef3b36cb2df12bd839c6e209585475772ada1bf788e89916648cd"
     },
     {
+      "gameId": "sky-strike",
+      "version": "0.2.1",
+      "title": "Sky Strike",
+      "manifestPath": "/games/sky-strike/0.2.1/manifest.json",
+      "manifestSha256": "a0d9609325d1fe7c4f96dfd10049b66807c9d3bf5cd155f1516af689496df7c9"
+    },
+    {
       "gameId": "snake-arena",
       "version": "0.1.0",
       "title": "Snake Arena",
@@ -217,6 +252,13 @@
       "title": "Snake Arena",
       "manifestPath": "/games/snake-arena/0.3.0/manifest.json",
       "manifestSha256": "d661738234aee0baea6ecbf72b307538bcfe1f8de7020a3d5e44f988b76a2133"
+    },
+    {
+      "gameId": "snake-arena",
+      "version": "0.3.1",
+      "title": "Snake Arena",
+      "manifestPath": "/games/snake-arena/0.3.1/manifest.json",
+      "manifestSha256": "87093ea640a715614fd3fde18823b3242a458cb506791272272c0816634e12e5"
     },
     {
       "gameId": "stack-tower",
@@ -329,6 +371,13 @@
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.2.0/manifest.json",
       "manifestSha256": "6bfba853b5b320c620f1c2544704af8e2e8e53185b57cc46deafd954587f721d"
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.2.1",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.2.1/manifest.json",
+      "manifestSha256": "2596be57b7a358547a0e99482921bc80a57fc8bd0a18b52b9142ce8ac094cd4a"
     }
   ]
 }

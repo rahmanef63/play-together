@@ -12,7 +12,7 @@ A version-isolated multiplayer game platform for **mobile controllers**, **handh
 [![pnpm](https://img.shields.io/badge/pnpm-10-F69220?logo=pnpm&logoColor=white)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](tsconfig.base.json)
 
-**[Live app](https://game.rahmanef.com)** · [Architecture](docs/architecture.md) · [Game SDK](docs/game-sdk.md) · [Deployment](docs/deployment.md) · [Security](docs/security.md)
+**[Live app](https://game.rahmanef.com)** · [Architecture](docs/architecture.md) · [Game SDK](docs/game-sdk.md) · [Submit a game](docs/submitting-games.md) · [Deployment](docs/deployment.md) · [Security](docs/security.md)
 
 </div>
 
@@ -263,7 +263,7 @@ Release rules:
 5. Register the immutable manifest in Convex.
 6. Existing rooms keep their pinned release.
 
-Read [docs/game-sdk.md](docs/game-sdk.md) before implementing a new game.
+Read [docs/game-sdk.md](docs/game-sdk.md) and [docs/submitting-games.md](docs/submitting-games.md) before implementing a new game. The submission guide includes a copy-ready base prompt for AI coding agents and the required validation checklist.
 
 ## Sell a game template
 

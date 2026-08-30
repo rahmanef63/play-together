@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "orbit-dodge",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "title": "Orbit Dodge",
     "description": "Rotate around an orbital ring and evade incoming meteors as long as possible.",
     "minPlayers": 1,

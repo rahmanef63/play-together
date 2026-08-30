@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "dodge-dash",
+    "version": "0.3.1",
+    "title": "Dodge Dash",
+    "description": "An endless lane dodger where players weave around incoming hazards for survival score.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "adaptive",
+    "console": {
+      "renderer": "builtin",
+      "layout": "gamepad",
+      "controls": [
+        {
+          "id": "move",
+          "kind": "stick",
+          "ariaLabel": "Dodge left or right",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "move": "$x"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "move": 0
+            }
+          },
+          "keys": {
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ]
+          }
+        }
+      ],
+      "initialState": {
+        "move": 0
+      }
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "c5866bcd09c602eba981fdd0f10f86c608976c14ac230d581a36251a3b8e2a0c"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "f271f047bc1651358bb399a03fb7c0bc0e5e73c08b46e0ca593cab6875f352a0"
+    }
+  }
+}

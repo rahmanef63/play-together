@@ -185,6 +185,117 @@ export const createInternal = internalMutation({
   },
 });
 
+export const update = action({
+  args: {
+    code: v.string(),
+    name: v.string(),
+    visibility: v.union(v.literal("public"), v.literal("private")),
+    maxPlayers: v.number(),
+    passwordMode: v.union(v.literal("keep"), v.literal("set"), v.literal("remove")),
+    password: v.optional(v.string()),
+  },
+  handler: async (ctx, args): Promise<RoomActionResult> => {
+    const userId = await requireActionUser(ctx);
+    await ctx.runMutation(internal.security.consumeRateLimit, {
+      key: `room:update:${userId}`,
+      max: 20,
+      windowMs: 60_000,
+    });
+    const code = args.code.trim().toUpperCase();
+    const room: Doc<"rooms"> | null = await ctx.runQuery(internal.rooms.getInternal, { code });
+    if (!room || room.hostUserId !== userId) {
+      throw new ConvexError({ code: "FORBIDDEN", message: "Only the host can edit this room" });
+    }
+    const name = cleanName(args.name);
+    let passwordHash: string | undefined;
+    if (args.passwordMode === "set") {
+      const password = args.password?.trim() ?? "";
+      if (password.length < 4 || password.length > 64) {
+        throw new ConvexError({
+          code: "INVALID_ROOM_PASSWORD",
+          message: "Room password must be 4–64 characters",
+        });
+      }
+      passwordHash = await hashSecret(password);
+    }
+    await ctx.runMutation(internal.rooms.updateInternal, {
+      roomId: room._id,
+      hostUserId: userId,
+      name,
+      visibility: args.visibility,
+      maxPlayers: args.maxPlayers,
+      removePassword: args.passwordMode === "remove",
+      ...(passwordHash ? { passwordHash } : {}),
+    });
+    return { code: room.code, roomId: room._id };
+  },
+});
+
+export const updateInternal = internalMutation({
+  args: {
+    roomId: v.id("rooms"),
+    hostUserId: v.id("users"),
+    name: v.string(),
+    visibility: v.union(v.literal("public"), v.literal("private")),
+    maxPlayers: v.number(),
+    removePassword: v.boolean(),
+    passwordHash: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const room = await ctx.db.get("rooms", args.roomId);
+    if (!room || room.hostUserId !== args.hostUserId) {
+      throw new ConvexError({ code: "FORBIDDEN", message: "Only the host can edit this room" });
+    }
+    if (room.status !== "open") {
+      throw new ConvexError({ code: "ROOM_CLOSED", message: "Closed rooms cannot be edited" });
+    }
+    const game = await ctx.db
+      .query("games")
+      .withIndex("by_game_version", (q) =>
+        q.eq("gameId", room.gameId).eq("version", room.gameVersion),
+      )
+      .unique();
+    if (
+      !game ||
+      !Number.isInteger(args.maxPlayers) ||
+      args.maxPlayers < game.minPlayers ||
+      args.maxPlayers > game.maxPlayers
+    ) {
+      throw new ConvexError({
+        code: "INVALID_CAPACITY",
+        message: game
+          ? `Capacity must be ${game.minPlayers}–${game.maxPlayers}`
+          : "Pinned game version is unavailable",
+      });
+    }
+    const cutoff = Date.now() - PRESENCE_TTL_MS;
+    const members = await ctx.db
+      .query("roomMembers")
+      .withIndex("by_room", (q) => q.eq("roomId", room._id))
+      .collect();
+    const activePlayers = members.filter(
+      (member) => member.status === "active" && member.lastSeenAt >= cutoff,
+    ).length;
+    if (activePlayers > args.maxPlayers) {
+      throw new ConvexError({
+        code: "ROOM_OCCUPIED",
+        message: `Capacity cannot be lower than ${activePlayers} active players`,
+      });
+    }
+    const patch = {
+      name: args.name,
+      visibility: args.visibility,
+      maxPlayers: args.maxPlayers,
+      updatedAt: Date.now(),
+    };
+    if (args.removePassword) await ctx.db.patch(room._id, { ...patch, passwordHash: undefined });
+    else if (args.passwordHash)
+      await ctx.db.patch(room._id, { ...patch, passwordHash: args.passwordHash });
+    else await ctx.db.patch(room._id, patch);
+    return true;
+  },
+});
+
 export const join = action({
   args: { code: v.string(), password: v.optional(v.string()) },
   handler: async (ctx, args): Promise<JoinRoomResult> => {
@@ -299,6 +410,46 @@ export const listPublic = query({
   },
 });
 
+export const listMine = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await requireQueryUser(ctx);
+    const rooms = await ctx.db
+      .query("rooms")
+      .withIndex("by_host", (q) => q.eq("hostUserId", userId))
+      .take(100);
+    const cutoff = Date.now() - PRESENCE_TTL_MS;
+    const summaries = await Promise.all(
+      rooms.map(async (room) => {
+        const members = await ctx.db
+          .query("roomMembers")
+          .withIndex("by_room", (q) => q.eq("roomId", room._id))
+          .collect();
+        const activePlayers = members.filter(
+          (member) => member.status === "active" && member.lastSeenAt >= cutoff,
+        ).length;
+        return {
+          code: room.code,
+          name: room.name,
+          gameId: room.gameId,
+          gameVersion: room.gameVersion,
+          gameTitle: room.gameTitle,
+          hostName: room.hostName,
+          maxPlayers: room.maxPlayers,
+          activePlayers,
+          availableSpots: Math.max(0, room.maxPlayers - activePlayers),
+          requiresPassword: Boolean(room.passwordHash),
+          visibility: room.visibility,
+          status: room.status,
+          createdAt: room.createdAt,
+          updatedAt: room.updatedAt,
+        };
+      }),
+    );
+    return summaries.sort((a, b) => b.updatedAt - a.updatedAt);
+  },
+});
+
 export const getByCode = query({
   args: { code: v.string() },
   handler: async (ctx, args) => {
@@ -386,6 +537,27 @@ export const close = mutation({
     if (!room || room.hostUserId !== userId)
       throw new ConvexError({ code: "FORBIDDEN", message: "Only the host can close this room" });
     await ctx.db.patch(room._id, { status: "closed", updatedAt: Date.now() });
+    return true;
+  },
+});
+
+export const remove = mutation({
+  args: { code: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await requireMutationUser(ctx);
+    const room = await ctx.db
+      .query("rooms")
+      .withIndex("by_code", (q) => q.eq("code", args.code.trim().toUpperCase()))
+      .unique();
+    if (!room || room.hostUserId !== userId) {
+      throw new ConvexError({ code: "FORBIDDEN", message: "Only the host can delete this room" });
+    }
+    const members = await ctx.db
+      .query("roomMembers")
+      .withIndex("by_room", (q) => q.eq("roomId", room._id))
+      .collect();
+    for (const member of members) await ctx.db.delete(member._id);
+    await ctx.db.delete(room._id);
     return true;
   },
 });

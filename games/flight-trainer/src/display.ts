@@ -186,14 +186,23 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
     });
   });
   let raf = 0;
-  const loop = () => {
-    raf = requestAnimationFrame(loop);
-    const r = host.getBoundingClientRect(),
-      w = Math.max(2, r.width),
-      h = Math.max(2, r.height);
+  let viewWidth = 0;
+  let viewHeight = 0;
+  const resize = () => {
+    const w = Math.max(2, Math.round(host.clientWidth));
+    const h = Math.max(2, Math.round(host.clientHeight));
+    if (w === viewWidth && h === viewHeight) return;
+    viewWidth = w;
+    viewHeight = h;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+  };
+  const resizeObserver = new ResizeObserver(resize);
+  resizeObserver.observe(host);
+  resize();
+  const loop = () => {
+    raf = requestAnimationFrame(loop);
     if (state) {
       const me = state.aircraft.find((a) => a.id === ctx.playerId) ?? state.aircraft[0];
       if (me) {
@@ -234,6 +243,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   loop();
   return () => {
     cancelAnimationFrame(raf);
+    resizeObserver.disconnect();
     unsub();
     renderer.dispose();
     scene.traverse((o) => {

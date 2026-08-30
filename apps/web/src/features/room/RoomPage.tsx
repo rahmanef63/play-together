@@ -2,6 +2,7 @@ import { useAction, useMutation, useQuery } from "convex/react";
 import { type FormEvent, useEffect, useState } from "react";
 import { api } from "../../shared/convexApi";
 import { navigate } from "../../shared/navigation";
+import { ScrollArea } from "../../shared/ScrollArea";
 import type { CurrentUser, RoomDetails } from "../../shared/types";
 
 export function RoomPage({ code, user }: { code: string; user: CurrentUser }) {
@@ -69,44 +70,52 @@ export function RoomPage({ code, user }: { code: string; user: CurrentUser }) {
           </button>
           <span className="status-badge">{room.visibility}</span>
         </header>
-        <section className="panel invite-card">
-          <p className="eyebrow">ROOM INVITATION</p>
-          <h1>{room.name}</h1>
-          <p>
-            {room.gameTitle} · hosted by {room.hostName} · {room.activeMembers.length}/
-            {room.maxPlayers} players
-          </p>
-          {room.status === "open" ? (
-            <form onSubmit={join}>
-              {room.requiresPassword && (
-                <label className="field">
-                  <span>Room password</span>
-                  <input
-                    type="password"
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    minLength={4}
-                    maxLength={64}
-                    required
-                  />
-                </label>
+        <ScrollArea className="room-page-scroll" ariaLabel="Room invitation">
+          <div className="room-invite-scroll-content">
+            <section className="panel invite-card">
+              <p className="eyebrow">ROOM INVITATION</p>
+              <h1>{room.name}</h1>
+              <p>
+                {room.gameTitle} · hosted by {room.hostName} · {room.activeMembers.length}/
+                {room.maxPlayers} players
+              </p>
+              {room.status === "open" ? (
+                <form onSubmit={join}>
+                  {room.requiresPassword && (
+                    <label className="field">
+                      <span>Room password</span>
+                      <input
+                        type="password"
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        minLength={4}
+                        maxLength={64}
+                        required
+                      />
+                    </label>
+                  )}
+                  {error && (
+                    <p className="form-error" role="alert">
+                      {error}
+                    </p>
+                  )}
+                  <button className="primary-button full" type="submit" disabled={busy}>
+                    {busy ? "Joining…" : "Join room"}
+                  </button>
+                </form>
+              ) : (
+                <button
+                  className="secondary-button full"
+                  type="button"
+                  onClick={() => navigate("/")}
+                >
+                  This room has closed
+                </button>
               )}
-              {error && (
-                <p className="form-error" role="alert">
-                  {error}
-                </p>
-              )}
-              <button className="primary-button full" type="submit" disabled={busy}>
-                {busy ? "Joining…" : "Join room"}
-              </button>
-            </form>
-          ) : (
-            <button className="secondary-button full" type="button" onClick={() => navigate("/")}>
-              This room has closed
-            </button>
-          )}
-        </section>
+            </section>
+          </div>
+        </ScrollArea>
       </main>
     );
   }
@@ -119,96 +128,118 @@ export function RoomPage({ code, user }: { code: string; user: CurrentUser }) {
         </button>
         <span className="status-badge">{room.status}</span>
       </header>
-      <section className="room-identity">
-        <p className="eyebrow">
-          {room.gameTitle} · {room.gameVersion}
-        </p>
-        <h1>{room.name}</h1>
-        <button className="room-code" type="button" onClick={() => void copy()}>
-          <span>ROOM CODE</span>
-          <strong>{code}</strong>
-          <small>{copied ? "Copied" : "Tap to copy"}</small>
-        </button>
-      </section>
-      {error && <p className="global-error">{error}</p>}
-      <div className="room-layout">
-        <section className="panel launch-panel">
-          <p className="eyebrow">CHOOSE THIS DEVICE</p>
-          <h2>How are you playing?</h2>
-          <div className="launch-grid">
-            {room.gameModes.includes("shared-screen") && room.supportsRemote && (
-              <button
-                className="launch-card display-card"
-                type="button"
-                onClick={() => {
-                  const shared = window.open(`/play/${code}/display`, "_blank");
-                  if (!shared) {
-                    setError("Allow pop-ups so Play Together can open the shared game screen.");
-                    return;
-                  }
-                  try {
-                    shared.opener = null;
-                  } catch {}
-                  navigate(`/play/${code}/controller?mode=remote`);
-                }}
-              >
-                <span className="launch-icon">▣ + ◉</span>
-                <strong>Shared screen + remote</strong>
-                <p>Open the game on a browser/TV and use this device as its controller.</p>
-              </button>
-            )}
-            {room.supportsHandheld && (
-              <button
-                className="launch-card"
-                type="button"
-                onClick={() => navigate(`/play/${code}/controller?mode=handheld`)}
-              >
-                <span className="launch-icon">▤</span>
-                <strong>Handheld console</strong>
-                <p>
-                  {room.preferredOrientation === "landscape"
-                    ? "Designed for a PSP-style landscape layout."
-                    : room.preferredOrientation === "portrait"
-                      ? "Designed for a Game Boy-style portrait layout."
-                      : "Portrait feels like Game Boy; landscape rearranges like PSP."}
-                </p>
-              </button>
-            )}
-          </div>
-        </section>
-        <aside className="panel members-panel">
-          <div className="section-title">
-            <div>
-              <p className="eyebrow">CONNECTED</p>
-              <h2>Players</h2>
-            </div>
-            <span>
-              {room.activeMembers.length}/{room.maxPlayers}
-            </span>
-          </div>
-          <ul>
-            {room.activeMembers.map((member) => (
-              <li key={member.userId}>
-                <span className="member-dot" />
-                <strong>{member.displayName}</strong>
-                {member.userId === room.hostUserId && <small>Host</small>}
-              </li>
-            ))}
-          </ul>
-          <div className="room-actions">
-            <button className="secondary-button full" type="button" onClick={() => void copy()}>
-              Copy invite
+      <ScrollArea className="room-page-scroll" ariaLabel="Room details">
+        <div className="room-page-scroll__content">
+          <section className="room-identity">
+            <p className="eyebrow">
+              {room.gameTitle} · {room.gameVersion}
+            </p>
+            <h1>{room.name}</h1>
+            <button className="room-code" type="button" onClick={() => void copy()}>
+              <span>ROOM CODE</span>
+              <strong>{code}</strong>
+              <small>{copied ? "Copied" : "Tap to copy"}</small>
             </button>
-            <button
-              className="ghost-button danger full"
-              type="button"
-              onClick={() => void (isHost ? closeRoom() : exit())}
-            >
-              {isHost ? "Close room" : "Leave room"}
-            </button>
+          </section>
+          {error && <p className="global-error">{error}</p>}
+          <div className="room-layout">
+            <section className="panel launch-panel panel-frame">
+              <div className="section-title">
+                <div>
+                  <p className="eyebrow">CHOOSE THIS DEVICE</p>
+                  <h2>How are you playing?</h2>
+                </div>
+              </div>
+              <ScrollArea className="panel-scroll" ariaLabel="Play modes">
+                <div className="panel-scroll__content">
+                  <div className="launch-grid">
+                    {room.gameModes.includes("shared-screen") && room.supportsRemote && (
+                      <button
+                        className="launch-card display-card"
+                        type="button"
+                        onClick={() => {
+                          const shared = window.open(`/play/${code}/display`, "_blank");
+                          if (!shared) {
+                            setError(
+                              "Allow pop-ups so Play Together can open the shared game screen.",
+                            );
+                            return;
+                          }
+                          try {
+                            shared.opener = null;
+                          } catch {}
+                          navigate(`/play/${code}/controller?mode=remote`);
+                        }}
+                      >
+                        <span className="launch-icon">▣ + ◉</span>
+                        <strong>Shared screen + remote</strong>
+                        <p>Open the game on a browser/TV and use this device as its controller.</p>
+                      </button>
+                    )}
+                    {room.supportsHandheld && (
+                      <button
+                        className="launch-card"
+                        type="button"
+                        onClick={() => navigate(`/play/${code}/controller?mode=handheld`)}
+                      >
+                        <span className="launch-icon">▤</span>
+                        <strong>Handheld console</strong>
+                        <p>
+                          {room.preferredOrientation === "landscape"
+                            ? "Designed for a PSP-style landscape layout."
+                            : room.preferredOrientation === "portrait"
+                              ? "Designed for a Game Boy-style portrait layout."
+                              : "Portrait feels like Game Boy; landscape rearranges like PSP."}
+                        </p>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </ScrollArea>
+            </section>
+            <aside className="panel members-panel panel-frame">
+              <div className="section-title">
+                <div>
+                  <p className="eyebrow">CONNECTED</p>
+                  <h2>Players</h2>
+                </div>
+                <span>
+                  {room.activeMembers.length}/{room.maxPlayers}
+                </span>
+              </div>
+              <ScrollArea className="panel-scroll" ariaLabel="Connected players">
+                <div className="panel-scroll__content members-scroll-content">
+                  <ul>
+                    {room.activeMembers.map((member) => (
+                      <li key={member.userId}>
+                        <span className="member-dot" />
+                        <strong>{member.displayName}</strong>
+                        {member.userId === room.hostUserId && <small>Host</small>}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="room-actions">
+                    <button
+                      className="secondary-button full"
+                      type="button"
+                      onClick={() => void copy()}
+                    >
+                      Copy invite
+                    </button>
+                    <button
+                      className="ghost-button danger full"
+                      type="button"
+                      onClick={() => void (isHost ? closeRoom() : exit())}
+                    >
+                      {isHost ? "Close room" : "Leave room"}
+                    </button>
+                  </div>
+                </div>
+              </ScrollArea>
+            </aside>
           </div>
-        </aside>
-      </div>
+        </div>
+      </ScrollArea>
     </main>
   );
 }

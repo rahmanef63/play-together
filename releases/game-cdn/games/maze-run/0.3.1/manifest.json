@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "maze-run",
+    "version": "0.3.1",
+    "title": "Maze Run",
+    "description": "A multiplayer maze sprint with server-authoritative walls, movement, and finish tracking.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 20,
+    "snapshotRate": 10
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "adaptive",
+    "console": {
+      "renderer": "builtin",
+      "layout": "gamepad",
+      "controls": [
+        {
+          "id": "move",
+          "kind": "dpad",
+          "ariaLabel": "Move",
+          "zone": "left",
+          "directions": {
+            "up": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "move": {
+                    "x": 0,
+                    "y": -1
+                  }
+                }
+              },
+              "keys": [
+                "ArrowUp",
+                "KeyW"
+              ]
+            },
+            "down": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "move": {
+                    "x": 0,
+                    "y": 1
+                  }
+                }
+              },
+              "keys": [
+                "ArrowDown",
+                "KeyS"
+              ]
+            },
+            "left": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "move": {
+                    "x": -1,
+                    "y": 0
+                  }
+                }
+              },
+              "keys": [
+                "ArrowLeft",
+                "KeyA"
+              ]
+            },
+            "right": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "move": {
+                    "x": 1,
+                    "y": 0
+                  }
+                }
+              },
+              "keys": [
+                "ArrowRight",
+                "KeyD"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "865825d0af1e47969364640cb321c67bbce45d38d088961686a3a5c3cee40d93"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "ff472b57a80a91134c3e42f77835cfa8d65a6585610d9701b0cf404d5c2f4ee4"
+    }
+  }
+}

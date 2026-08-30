@@ -1,12 +1,14 @@
 import type {
   BuiltinConsoleConfig,
   GameMode,
+  HostedRoomSummary,
   PublicGameSummary,
   PublicRoomSummary,
 } from "@play-together/contracts";
 
 export type GameSummary = PublicGameSummary;
 export type RoomSummary = PublicRoomSummary;
+export type MyRoomSummary = HostedRoomSummary;
 
 export interface CurrentUser {
   id: string;
