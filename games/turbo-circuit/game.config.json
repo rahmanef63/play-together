@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "turbo-circuit",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "title": "Turbo Circuit",
     "description": "A 3D arcade circuit racer with steering, throttle, braking, nitro, checkpoints, laps, collision and AI rivals.",
     "minPlayers": 1,
@@ -15,7 +15,104 @@
   "controller": {
     "supportsRemote": true,
     "supportsHandheld": true,
-    "preferredOrientation": "landscape"
+    "preferredOrientation": "landscape",
+    "console": {
+      "renderer": "builtin",
+      "layout": "racing",
+      "controls": [
+        {
+          "id": "steer",
+          "kind": "stick",
+          "ariaLabel": "Steering stick",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "steer": "$x"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "steer": 0
+            }
+          },
+          "keys": {
+            "left": ["ArrowLeft", "KeyA"],
+            "right": ["ArrowRight", "KeyD"]
+          }
+        },
+        {
+          "id": "throttle",
+          "kind": "button",
+          "label": "GAS",
+          "ariaLabel": "Accelerate",
+          "face": "r2",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "throttle": 1
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "throttle": 0
+            }
+          },
+          "keys": ["ArrowUp", "KeyW"]
+        },
+        {
+          "id": "brake",
+          "kind": "button",
+          "label": "BRAKE",
+          "ariaLabel": "Brake",
+          "face": "l2",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "brake": 1
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "brake": 0
+            }
+          },
+          "keys": ["ArrowDown", "KeyS"]
+        },
+        {
+          "id": "boost",
+          "kind": "button",
+          "label": "A",
+          "ariaLabel": "Nitro boost",
+          "face": "a",
+          "zone": "bottom-right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "boost": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "boost": false
+            }
+          },
+          "keys": ["Space"]
+        }
+      ],
+      "initialState": {
+        "steer": 0,
+        "throttle": 0,
+        "brake": 0,
+        "boost": false
+      }
+    }
   },
   "capabilities": {
     "touch": true,

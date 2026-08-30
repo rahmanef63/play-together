@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "tug-war",
+    "version": "0.3.0",
+    "title": "Tug War",
+    "description": "Two teams hammer their PULL controls to drag the rope across the finish line.",
+    "minPlayers": 2,
+    "maxPlayers": 8,
+    "tickRate": 30,
+    "snapshotRate": 15
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "portrait",
+    "console": {
+      "renderer": "builtin",
+      "layout": "arcade",
+      "controls": [
+        {
+          "id": "pull",
+          "kind": "button",
+          "label": "A",
+          "ariaLabel": "Pull rope",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "pull"
+            }
+          },
+          "keys": [
+            "Space",
+            "Enter"
+          ]
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "2f9b734ca43c9c9eb5d542f372f549866070c05d2131666d6a09452f5bb65e2c"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "5d52cf4c4319fe5d09566beba4e594ce5c9ceb4ea723321d10e343a68f8c91f0"
+    }
+  }
+}

@@ -1,9 +1,15 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useAction, useQuery } from "convex/react";
-import { type FormEvent, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { api } from "../../shared/convexApi";
 import { navigate } from "../../shared/navigation";
-import type { CurrentUser, GameSummary, RoomSummary } from "../../shared/types";
+import type {
+  CurrentUser,
+  GameRegistryDocument,
+  GameRegistryEntry,
+  GameSummary,
+  RoomSummary,
+} from "../../shared/types";
 
 export function LobbyPage({ user }: { user: CurrentUser }) {
   const { signOut } = useAuthActions();
@@ -16,6 +22,20 @@ export function LobbyPage({ user }: { user: CurrentUser }) {
   const [joinCode, setJoinCode] = useState("");
   const [joinPassword, setJoinPassword] = useState("");
   const [selectedGameKey, setSelectedGameKey] = useState("");
+  const [registry, setRegistry] = useState<GameRegistryDocument | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch("/game-registry.json", { cache: "no-store", signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Game registry request failed (${response.status})`);
+        return response.json() as Promise<GameRegistryDocument>;
+      })
+      .then(setRegistry)
+      .catch((reason: unknown) => {
+        if (!(reason instanceof DOMException && reason.name === "AbortError")) setRegistry(null);
+      });
+    return () => controller.abort();
+  }, []);
   const defaultGame = games[0];
   const gameById = useMemo(
     () => new Map(games.map((game) => [`${game.gameId}@${game.version}`, game])),
@@ -24,6 +44,9 @@ export function LobbyPage({ user }: { user: CurrentUser }) {
   const effectiveGameKey =
     selectedGameKey || (defaultGame ? `${defaultGame.gameId}@${defaultGame.version}` : "");
   const selectedGame = gameById.get(effectiveGameKey) ?? defaultGame;
+  const selectedRegistry = registry?.games.find(
+    (entry) => `${entry.id}@${entry.version}` === effectiveGameKey,
+  );
 
   const onCreate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -198,6 +221,19 @@ export function LobbyPage({ user }: { user: CurrentUser }) {
                   );
                 })}
               </div>
+              {selectedRegistry?.controller.console && (
+                <div className="console-registry-card">
+                  <div>
+                    <span>Console</span>
+                    <strong>{consoleLayoutLabel(selectedRegistry)}</strong>
+                  </div>
+                  <div className="console-control-chips">
+                    {consoleControlLabels(selectedRegistry).map((label) => (
+                      <span key={label}>{label}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="form-row">
                 <label className="field">
                   <span>Visibility</span>
@@ -303,4 +339,27 @@ function initials(name: string) {
 }
 function readError(reason: unknown) {
   return reason instanceof Error ? reason.message : "The request could not be completed";
+}
+
+function consoleLayoutLabel(entry: GameRegistryEntry) {
+  const layout = entry.controller.console?.layout ?? "gamepad";
+  return layout === "gamepad"
+    ? "Gamepad"
+    : layout === "racing"
+      ? "Racing"
+      : layout === "flight"
+        ? "Flight"
+        : layout === "touch"
+          ? "Touch surface"
+          : "Arcade";
+}
+
+function consoleControlLabels(entry: GameRegistryEntry) {
+  const controls = entry.controller.console?.controls ?? [];
+  return controls.map((control) => {
+    if (control.kind === "stick") return "Analog stick";
+    if (control.kind === "dpad") return "D-pad";
+    if (control.kind === "touchpad") return "Touchpad";
+    return control.label;
+  });
 }

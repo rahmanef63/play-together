@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "sky-strike",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "title": "Sky Strike",
     "description": "A 3D arcade fighter dogfight with flight controls, cannon fire, homing missiles, lock-on, health, respawns and AI bandits.",
     "minPlayers": 1,
@@ -15,7 +15,121 @@
   "controller": {
     "supportsRemote": true,
     "supportsHandheld": true,
-    "preferredOrientation": "landscape"
+    "preferredOrientation": "landscape",
+    "console": {
+      "renderer": "builtin",
+      "layout": "flight",
+      "controls": [
+        {
+          "id": "flight-stick",
+          "kind": "stick",
+          "ariaLabel": "Flight stick",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "roll": "$x",
+              "pitch": "$y"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "roll": 0,
+              "pitch": 0
+            }
+          },
+          "keys": {
+            "up": ["ArrowUp", "KeyW"],
+            "down": ["ArrowDown", "KeyS"],
+            "left": ["ArrowLeft", "KeyA"],
+            "right": ["ArrowRight", "KeyD"]
+          }
+        },
+        {
+          "id": "gun",
+          "kind": "button",
+          "label": "A",
+          "ariaLabel": "Fire cannon",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "gun": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "gun": false
+            }
+          },
+          "keys": ["Space"]
+        },
+        {
+          "id": "missile",
+          "kind": "button",
+          "label": "B",
+          "ariaLabel": "Fire missile",
+          "face": "b",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "missile": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "missile": false
+            }
+          },
+          "keys": ["ShiftLeft", "ShiftRight"]
+        },
+        {
+          "id": "throttle-up",
+          "kind": "button",
+          "label": "Y",
+          "ariaLabel": "Increase throttle",
+          "face": "y",
+          "zone": "top-right",
+          "press": {
+            "type": "increment",
+            "field": "throttle",
+            "delta": 0.1,
+            "min": 0,
+            "max": 1
+          },
+          "keys": ["Equal"]
+        },
+        {
+          "id": "throttle-down",
+          "kind": "button",
+          "label": "X",
+          "ariaLabel": "Decrease throttle",
+          "face": "x",
+          "zone": "bottom-right",
+          "press": {
+            "type": "increment",
+            "field": "throttle",
+            "delta": -0.1,
+            "min": 0,
+            "max": 1
+          },
+          "keys": ["Minus"]
+        }
+      ],
+      "initialState": {
+        "pitch": 0,
+        "roll": 0,
+        "yaw": 0,
+        "throttle": 0.65,
+        "gun": false,
+        "missile": false
+      }
+    }
   },
   "capabilities": {
     "touch": true,

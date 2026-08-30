@@ -1,0 +1,281 @@
+.builtin-controller {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(72px, 0.38fr) minmax(0, 1fr);
+  grid-template-rows: minmax(38px, 0.28fr) minmax(0, 1fr) minmax(38px, 0.28fr);
+  grid-template-areas:
+    "top-left center top-right"
+    "left center right"
+    "bottom-left bottom bottom-right";
+  gap: clamp(6px, 1.4vmin, 14px);
+  padding: clamp(6px, 1.5vmin, 14px);
+}
+
+.builtin-controller__zone {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(6px, 1.2vmin, 12px);
+}
+
+.builtin-controller__zone:empty {
+  display: none;
+}
+.builtin-controller__zone--top-left {
+  grid-area: top-left;
+  justify-content: flex-start;
+}
+.builtin-controller__zone--top-right {
+  grid-area: top-right;
+  justify-content: flex-end;
+}
+.builtin-controller__zone--left {
+  grid-area: left;
+  justify-content: flex-start;
+}
+.builtin-controller__zone--center {
+  grid-area: center;
+  flex-direction: column;
+}
+.builtin-controller__zone--right {
+  grid-area: right;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.builtin-controller__zone--bottom-left {
+  grid-area: bottom-left;
+  justify-content: flex-start;
+}
+.builtin-controller__zone--bottom {
+  grid-area: bottom;
+}
+.builtin-controller__zone--bottom-right {
+  grid-area: bottom-right;
+  justify-content: flex-end;
+}
+
+.console-control--button,
+.console-dpad__button {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: var(--console-text);
+  background: linear-gradient(145deg, #322f3c, #15141c);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 5px 0 #09080d,
+    0 8px 16px rgba(0, 0, 0, 0.35);
+  font:
+    850 clamp(12px, 3.5vmin, 24px) / 1 ui-monospace,
+    monospace;
+  cursor: pointer;
+}
+
+.console-control--button {
+  width: clamp(52px, 13vmin, 92px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.console-control--button[data-active="true"],
+.console-dpad__button[data-active="true"] {
+  transform: translateY(4px) scale(0.97);
+  box-shadow:
+    inset 0 1px 5px rgba(0, 0, 0, 0.55),
+    0 1px 0 #09080d;
+}
+
+.console-control--button[data-face="a"] {
+  background: linear-gradient(145deg, #9f2f6f, #541637);
+}
+.console-control--button[data-face="b"] {
+  background: linear-gradient(145deg, #aa3042, #5b1722);
+}
+.console-control--button[data-face="x"] {
+  background: linear-gradient(145deg, #275d9f, #132d52);
+}
+.console-control--button[data-face="y"] {
+  background: linear-gradient(145deg, #a78625, #54430f);
+}
+.console-control--button[data-face="l1"],
+.console-control--button[data-face="r1"],
+.console-control--button[data-face="l2"],
+.console-control--button[data-face="r2"] {
+  width: clamp(72px, 18vmin, 130px);
+  aspect-ratio: 2.3 / 1;
+  border-radius: 999px;
+}
+.console-control--button[data-face="start"],
+.console-control--button[data-face="select"] {
+  width: clamp(56px, 12vmin, 84px);
+  aspect-ratio: 2.4 / 1;
+  border-radius: 999px;
+  font-size: clamp(9px, 2vmin, 14px);
+}
+
+.console-control--dpad {
+  position: relative;
+  width: clamp(118px, 29vmin, 190px);
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  filter: drop-shadow(0 7px 8px rgba(0, 0, 0, 0.4));
+}
+
+.console-dpad__button {
+  width: 100%;
+  height: 100%;
+  border-radius: 13px;
+  padding: 0;
+}
+.console-dpad__button--up {
+  grid-area: 1 / 2;
+}
+.console-dpad__button--down {
+  grid-area: 3 / 2;
+}
+.console-dpad__button--left {
+  grid-area: 2 / 1;
+}
+.console-dpad__button--right {
+  grid-area: 2 / 3;
+}
+.console-dpad__center {
+  grid-area: 2 / 2;
+  border-radius: 9px;
+  background: #17161e;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.console-control--stick {
+  --stick-x: 0%;
+  --stick-y: 0%;
+  position: relative;
+  width: clamp(128px, 31vmin, 210px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, #09090d 0 34%, transparent 35%),
+    radial-gradient(circle at 50% 50%, #35313f 0 57%, #15131c 58% 72%, #08080c 73%);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.05),
+    0 8px 16px rgba(0, 0, 0, 0.45);
+  touch-action: none;
+}
+
+.console-stick__knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 48%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(calc(-50% + var(--stick-x)), calc(-50% + var(--stick-y)));
+  background:
+    radial-gradient(circle at 38% 32%, rgba(255, 255, 255, 0.13), transparent 22%),
+    repeating-radial-gradient(circle at 50% 50%, #2f2c36 0 4px, #24212c 5px 8px);
+  box-shadow:
+    inset 0 -5px 10px rgba(0, 0, 0, 0.45),
+    0 7px 16px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+
+.console-control--touchpad {
+  position: relative;
+  width: min(100%, 420px);
+  height: min(100%, 210px);
+  min-height: 110px;
+  border: 1px solid rgba(181, 71, 223, 0.28);
+  border-radius: 24px;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(181, 71, 223, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(181, 71, 223, 0.06) 1px, transparent 1px),
+    radial-gradient(circle at center, #262031, #0d0c13 72%);
+  background-size:
+    24px 24px,
+    24px 24px,
+    auto;
+  touch-action: none;
+}
+
+.console-touchpad__crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--console-accent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 14px var(--console-accent);
+  pointer-events: none;
+}
+
+.builtin-controller--racing {
+  grid-template-columns: minmax(160px, 0.9fr) minmax(60px, 0.22fr) minmax(180px, 1.05fr);
+}
+.builtin-controller--racing .builtin-controller__zone--right {
+  align-items: stretch;
+}
+.builtin-controller--racing .builtin-controller__zone--right .console-control--button {
+  border-radius: 22px;
+  aspect-ratio: 1.5 / 1;
+  min-height: 72px;
+}
+.builtin-controller--flight {
+  grid-template-columns: minmax(170px, 1.12fr) minmax(62px, 0.28fr) minmax(180px, 0.92fr);
+}
+
+@media (orientation: portrait) {
+  .builtin-controller {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "top-left top-right" "left right" "bottom-left bottom-right";
+  }
+  .builtin-controller__zone--center,
+  .builtin-controller__zone--bottom {
+    display: none;
+  }
+}
+
+@media (max-height: 430px) and (orientation: landscape) {
+  .builtin-controller {
+    gap: 3px;
+    padding: 2px 6px;
+  }
+  .console-control--stick {
+    width: min(29vh, 150px);
+  }
+  .console-control--dpad {
+    width: min(29vh, 145px);
+  }
+  .console-control--button {
+    width: min(18vh, 70px);
+  }
+}
+
+@media (orientation: portrait) {
+  .builtin-controller--touch {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: "center";
+  }
+
+  .builtin-controller--touch .builtin-controller__zone--center {
+    display: flex;
+    width: 100%;
+    min-height: 0;
+  }
+
+  .builtin-controller--touch .console-control--touchpad {
+    width: 100%;
+    height: 100%;
+    min-height: 160px;
+  }
+}

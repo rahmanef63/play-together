@@ -995,3 +995,40 @@ h2 {
     display: none;
   }
 }
+
+.console-registry-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--panel-soft);
+}
+
+.console-registry-card > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.console-registry-card span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.console-control-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.console-control-chips span {
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+}

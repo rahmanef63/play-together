@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "snake-arena",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "title": "Snake Arena",
     "description": "A competitive grid snake arena with food, growth, collisions, and mobile D-pad controls.",
     "minPlayers": 1,
@@ -15,7 +15,69 @@
   "controller": {
     "supportsRemote": true,
     "supportsHandheld": true,
-    "preferredOrientation": "adaptive"
+    "preferredOrientation": "adaptive",
+    "console": {
+      "renderer": "builtin",
+      "layout": "gamepad",
+      "controls": [
+        {
+          "id": "move",
+          "kind": "dpad",
+          "ariaLabel": "Move snake",
+          "zone": "left",
+          "directions": {
+            "up": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "dir": {
+                    "x": 0,
+                    "y": -1
+                  }
+                }
+              },
+              "keys": ["ArrowUp", "KeyW"]
+            },
+            "down": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "dir": {
+                    "x": 0,
+                    "y": 1
+                  }
+                }
+              },
+              "keys": ["ArrowDown", "KeyS"]
+            },
+            "left": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "dir": {
+                    "x": -1,
+                    "y": 0
+                  }
+                }
+              },
+              "keys": ["ArrowLeft", "KeyA"]
+            },
+            "right": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "dir": {
+                    "x": 1,
+                    "y": 0
+                  }
+                }
+              },
+              "keys": ["ArrowRight", "KeyD"]
+            }
+          }
+        }
+      ]
+    }
   },
   "capabilities": {
     "touch": true,

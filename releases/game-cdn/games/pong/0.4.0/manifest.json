@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "pong",
+    "version": "0.4.0",
+    "title": "Pong Together",
+    "description": "A low-latency reference game proving shared-screen and handheld controller modes.",
+    "minPlayers": 1,
+    "maxPlayers": 2,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "adaptive",
+    "console": {
+      "renderer": "builtin",
+      "layout": "gamepad",
+      "controls": [
+        {
+          "id": "move",
+          "kind": "stick",
+          "ariaLabel": "Move paddle",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "move": "$y"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "move": 0
+            }
+          },
+          "keys": {
+            "up": [
+              "ArrowUp",
+              "KeyW"
+            ],
+            "down": [
+              "ArrowDown",
+              "KeyS"
+            ]
+          }
+        }
+      ],
+      "initialState": {
+        "move": 0
+      }
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "15b84c6cd08d0fe628f2d75eab9305ce42bc85057198db158c7dd7381554ab7b"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "4792093d05cac5a1eadb81c24df52fe993eb92e1e807d436c587b6ac0c6110aa"
+    }
+  }
+}

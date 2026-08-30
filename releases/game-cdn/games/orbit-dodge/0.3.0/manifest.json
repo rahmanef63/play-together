@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "orbit-dodge",
+    "version": "0.3.0",
+    "title": "Orbit Dodge",
+    "description": "Rotate around an orbital ring and evade incoming meteors as long as possible.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "adaptive",
+    "console": {
+      "renderer": "builtin",
+      "layout": "gamepad",
+      "controls": [
+        {
+          "id": "rotate",
+          "kind": "stick",
+          "ariaLabel": "Rotate around orbit",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "rotate": "$x"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "rotate": 0
+            }
+          },
+          "keys": {
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ]
+          }
+        }
+      ],
+      "initialState": {
+        "rotate": 0
+      }
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "aea1a29c5ab6991048e1a0a624d244d6fcc277340de741dda9febfc3cd2c315d"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "55f2e5ee90c80e544277bd802b667486bad9e0221b1d26467241ca7382ed6fd4"
+    }
+  }
+}

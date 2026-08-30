@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "maze-run",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "title": "Maze Run",
     "description": "A multiplayer maze sprint with server-authoritative walls, movement, and finish tracking.",
     "minPlayers": 1,
@@ -15,7 +15,69 @@
   "controller": {
     "supportsRemote": true,
     "supportsHandheld": true,
-    "preferredOrientation": "adaptive"
+    "preferredOrientation": "adaptive",
+    "console": {
+      "renderer": "builtin",
+      "layout": "gamepad",
+      "controls": [
+        {
+          "id": "move",
+          "kind": "dpad",
+          "ariaLabel": "Move",
+          "zone": "left",
+          "directions": {
+            "up": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "move": {
+                    "x": 0,
+                    "y": -1
+                  }
+                }
+              },
+              "keys": ["ArrowUp", "KeyW"]
+            },
+            "down": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "move": {
+                    "x": 0,
+                    "y": 1
+                  }
+                }
+              },
+              "keys": ["ArrowDown", "KeyS"]
+            },
+            "left": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "move": {
+                    "x": -1,
+                    "y": 0
+                  }
+                }
+              },
+              "keys": ["ArrowLeft", "KeyA"]
+            },
+            "right": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "move": {
+                    "x": 1,
+                    "y": 0
+                  }
+                }
+              },
+              "keys": ["ArrowRight", "KeyD"]
+            }
+          }
+        }
+      ]
+    }
   },
   "capabilities": {
     "touch": true,

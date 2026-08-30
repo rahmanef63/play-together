@@ -30,7 +30,7 @@ const base = {
 } satisfies GameManifest;
 
 describe("console shell preset", () => {
-  it("uses explicit cartridge metadata when present", () => {
+  it("uses explicit legacy cartridge metadata when present", () => {
     const manifest: GameManifest = {
       ...base,
       controller: { ...base.controller, shellPreset: "flight" },
@@ -38,22 +38,42 @@ describe("console shell preset", () => {
     expect(resolveConsoleShellPreset(manifest)).toBe("flight");
   });
 
-  it("infers racing and flight shells without coupling the platform to game ids", () => {
+  it("derives racing and flight shells from declarative console layout", () => {
+    const control = {
+      id: "action",
+      kind: "button" as const,
+      label: "A",
+      ariaLabel: "Action",
+      face: "a" as const,
+      zone: "right" as const,
+      press: { type: "send" as const, payload: { action: "go" } },
+    };
     expect(
       resolveConsoleShellPreset({
         ...base,
-        game: { ...base.game, title: "Turbo Circuit", description: "3D arcade circuit racer" },
+        controller: {
+          ...base.controller,
+          console: { renderer: "builtin", layout: "racing", controls: [control] },
+        },
       }),
     ).toBe("racing");
     expect(
       resolveConsoleShellPreset({
         ...base,
-        game: { ...base.game, title: "Pilot Trainer", description: "Aircraft flight simulator" },
+        controller: {
+          ...base.controller,
+          console: { renderer: "builtin", layout: "flight", controls: [control] },
+        },
       }),
     ).toBe("flight");
   });
 
-  it("falls back to classic for arbitrary cartridges", () => {
-    expect(resolveConsoleShellPreset(base)).toBe("classic");
+  it("does not infer hardware from game names and falls back to classic", () => {
+    expect(
+      resolveConsoleShellPreset({
+        ...base,
+        game: { ...base.game, title: "Turbo Fighter Flight Racing Simulator" },
+      }),
+    ).toBe("classic");
   });
 });

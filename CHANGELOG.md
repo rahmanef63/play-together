@@ -4,6 +4,21 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-08-30
+
+### Added
+
+- Manifest-native dynamic console topology for every active game: analog sticks, D-pads, A/B/X/Y face buttons, shoulders/triggers, racing/flight layouts, and touch surfaces are declared inside each game slice.
+- Generated `game-registry.json` as the portal discovery SSOT, derived from `games/*/game.config.json`.
+- Built-in mobile controller renderer shared by remote and handheld modes, with no game-name heuristics.
+- Architecture guards requiring package/config version parity, unique control IDs, and exactly one controller source of truth.
+
+### Changed
+
+- Removed all 15 duplicated `src/controller.ts` implementations; standard controllers are generated from immutable manifest metadata.
+- `entries.controller` is now optional for backward-compatible custom/legacy releases.
+- Published a new immutable version for all 15 active cartridges so rooms pin the exact new controller topology.
+
 
 ## [0.6.0] - 2026-08-30
 

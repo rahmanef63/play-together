@@ -10,17 +10,10 @@ export interface ConsoleShellSurface {
 }
 
 export function resolveConsoleShellPreset(manifest: GameManifest): ConsoleShellPreset {
-  const explicit = manifest.controller.shellPreset;
-  if (explicit) return explicit;
-
-  const searchable = [manifest.game.id, manifest.game.title, manifest.game.description]
-    .join(" ")
-    .toLowerCase();
-  if (/\b(race|racing|racer|circuit|car|driv|kart|motor)\b/.test(searchable)) return "racing";
-  if (/\b(flight|fighter|plane|aircraft|pilot|dogfight|aviation|sky)\b/.test(searchable)) {
-    return "flight";
-  }
-  return "classic";
+  const layout = manifest.controller.console?.layout;
+  if (layout === "racing") return "racing";
+  if (layout === "flight") return "flight";
+  return manifest.controller.shellPreset ?? "classic";
 }
 
 export function mountConsoleShell(

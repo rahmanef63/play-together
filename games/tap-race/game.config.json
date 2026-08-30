@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "tap-race",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "title": "Tap Race",
     "description": "A four-player button race with a game-specific TAP console for remote and handheld play.",
     "minPlayers": 1,
@@ -15,7 +15,28 @@
   "controller": {
     "supportsRemote": true,
     "supportsHandheld": true,
-    "preferredOrientation": "adaptive"
+    "preferredOrientation": "adaptive",
+    "console": {
+      "renderer": "builtin",
+      "layout": "arcade",
+      "controls": [
+        {
+          "id": "tap",
+          "kind": "button",
+          "label": "A",
+          "ariaLabel": "Tap to race",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "tap"
+            }
+          },
+          "keys": ["Space", "Enter"]
+        }
+      ]
+    }
   },
   "capabilities": {
     "touch": true,

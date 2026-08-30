@@ -238,11 +238,14 @@ A game is a self-contained vertical slice:
 
 ```text
 games/<game-id>/
-  game.config.json
+  game.config.json   # identity + immutable version + console/control topology
+  package.json
   src/display.ts
-  src/controller.ts
   src/server.ts
+  src/*.test.ts
 ```
+
+`game.config.json` is the slice SSOT. Standard phone controls are declarative (`stick`, `dpad`, `button`, `touchpad`) and support face buttons A/B/X/Y, shoulders/triggers, zones, keyboard bindings, and stateful actions. `pnpm game:registry` discovers every slice and generates the portal registry; the portal never hardcodes a game list. A custom `src/controller.ts` is reserved for a future non-builtin renderer and must not coexist with `controller.console.renderer = "builtin"`.
 
 Game code may import only the stable game SDK/contracts boundary.
 

@@ -6,6 +6,8 @@ const root = process.cwd();
 await run(process.execPath, ["scripts/generate-local-env.mjs"]);
 const environment = await loadEnvironment(resolve(root, ".env"));
 const runtime = { ...process.env, ...environment };
+delete runtime.CONVEX_DEPLOYMENT;
+delete runtime.CONVEX_DEPLOY_KEY;
 const compose = [
   "compose",
   "-f",
@@ -42,6 +44,8 @@ try {
   adminKey = (await readFile(keyPath, "utf8")).trim();
 } catch {}
 if (!adminKey) adminKey = await createAdminKey(runtime, keyPath);
+const selfHostedEnvPath = resolve(root, ".local/convex-selfhosted.env");
+await writeSelfHostedEnv(selfHostedEnvPath, convexAdminUrl, adminKey);
 
 let deployEnvironment = {
   ...runtime,
@@ -50,12 +54,21 @@ let deployEnvironment = {
 };
 try {
   await run(process.execPath, ["scripts/sync-convex-env.mjs"], deployEnvironment);
-  await run("pnpm", ["exec", "convex", "deploy", "--yes"], deployEnvironment);
+  await run(
+    "pnpm",
+    ["exec", "convex", "deploy", "--yes", "--env-file", selfHostedEnvPath],
+    deployEnvironment,
+  );
 } catch {
   adminKey = await createAdminKey(runtime, keyPath);
   deployEnvironment = { ...deployEnvironment, CONVEX_SELF_HOSTED_ADMIN_KEY: adminKey };
+  await writeSelfHostedEnv(selfHostedEnvPath, convexAdminUrl, adminKey);
   await run(process.execPath, ["scripts/sync-convex-env.mjs"], deployEnvironment);
-  await run("pnpm", ["exec", "convex", "deploy", "--yes"], deployEnvironment);
+  await run(
+    "pnpm",
+    ["exec", "convex", "deploy", "--yes", "--env-file", selfHostedEnvPath],
+    deployEnvironment,
+  );
 }
 
 await run(process.execPath, ["scripts/publish-to-convex.mjs"], deployEnvironment);
@@ -65,6 +78,17 @@ await Promise.all([
   waitFor(`http://localhost:${environment.WEB_PORT}/healthz`, 120_000),
 ]);
 console.log(`Local stack ready at http://localhost:${environment.WEB_PORT}`);
+
+async function writeSelfHostedEnv(path, deploymentUrl, adminKey) {
+  await mkdir(resolve(root, ".local"), { recursive: true, mode: 0o700 });
+  const content = [
+    `CONVEX_SELF_HOSTED_URL=${deploymentUrl}`,
+    `CONVEX_SELF_HOSTED_ADMIN_KEY=${adminKey}`,
+    "",
+  ].join("\n");
+  await writeFile(path, content, { mode: 0o600 });
+  await chmod(path, 0o600);
+}
 
 async function createAdminKey(env, path) {
   const output = await capture(

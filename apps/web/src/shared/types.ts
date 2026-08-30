@@ -1,4 +1,9 @@
-import type { GameMode, PublicGameSummary, PublicRoomSummary } from "@play-together/contracts";
+import type {
+  BuiltinConsoleConfig,
+  GameMode,
+  PublicGameSummary,
+  PublicRoomSummary,
+} from "@play-together/contracts";
 
 export type GameSummary = PublicGameSummary;
 export type RoomSummary = PublicRoomSummary;
@@ -39,3 +44,22 @@ export interface TicketResponse {
 }
 
 export type { GameMode };
+
+export interface GameRegistryEntry {
+  id: string;
+  version: string;
+  title: string;
+  description: string;
+  previewUrl: string;
+  controller: {
+    supportsRemote: boolean;
+    supportsHandheld: boolean;
+    preferredOrientation: "portrait" | "landscape" | "adaptive";
+    console?: BuiltinConsoleConfig;
+  };
+}
+
+export interface GameRegistryDocument {
+  schemaVersion: 1;
+  games: GameRegistryEntry[];
+}

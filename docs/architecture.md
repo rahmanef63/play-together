@@ -44,8 +44,8 @@ The tracked immutable release archive (and production CDN/object store) contains
 games/<game-id>/<version>/
   manifest.json
   display.js
-  controller.js
   server.js
+  controller.js   # optional, custom-controller releases only
 ```
 
 Every executable entry has a SHA-256 digest in `manifest.json`. The catalog stores a digest for the manifest itself. Publishing the same `<game-id>/<version>` with different bytes is rejected.
@@ -75,7 +75,7 @@ Each room and pinned release runs in its own Node.js worker thread with bounded 
 
 ### Game publication
 
-`games/*` → shared build script → immutable CDN files → `convex/games` registry.
+`games/<id>/game.config.json` → discovery/registry generator → shared build script → immutable manifest/CDN files → `convex/games` registry. Each game folder is one vertical slice and the portal derives discovery metadata from the generated registry rather than a hardcoded list.
 
 ### Room admission
 
@@ -87,7 +87,7 @@ Launch UI → `convex/tickets` → HMAC ticket → gateway verification and repl
 
 ### Realtime play
 
-Controller module → validated input protocol → room worker → validated snapshot protocol → display module. In handheld mode the browser runtime mounts the pinned display + controller modules together over the same realtime context; in shared-screen mode the display and phone controller are separate surfaces of the same room.
+Manifest-declared console → validated input protocol → room worker → validated snapshot protocol → display module. In handheld mode the browser runtime mounts the pinned display plus generated controls over the same realtime context; in shared-screen mode the display and phone console are separate surfaces of the same room. Legacy/custom controller bundles remain an optional manifest entry.
 
 ### Operations
 

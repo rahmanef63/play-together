@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "dodge-dash",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "title": "Dodge Dash",
     "description": "An endless lane dodger where players weave around incoming hazards for survival score.",
     "minPlayers": 1,
@@ -15,7 +15,38 @@
   "controller": {
     "supportsRemote": true,
     "supportsHandheld": true,
-    "preferredOrientation": "adaptive"
+    "preferredOrientation": "adaptive",
+    "console": {
+      "renderer": "builtin",
+      "layout": "gamepad",
+      "controls": [
+        {
+          "id": "move",
+          "kind": "stick",
+          "ariaLabel": "Dodge left or right",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "move": "$x"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "move": 0
+            }
+          },
+          "keys": {
+            "left": ["ArrowLeft", "KeyA"],
+            "right": ["ArrowRight", "KeyD"]
+          }
+        }
+      ],
+      "initialState": {
+        "move": 0
+      }
+    }
   },
   "capabilities": {
     "touch": true,
