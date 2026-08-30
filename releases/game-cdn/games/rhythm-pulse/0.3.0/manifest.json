@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "rhythm-pulse",
+    "version": "0.3.0",
+    "title": "Rhythm Pulse",
+    "description": "A timing game that scores taps by how close they land to the shared pulse.",
+    "minPlayers": 1,
+    "maxPlayers": 8,
+    "tickRate": 60,
+    "snapshotRate": 30
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "portrait",
+    "console": {
+      "renderer": "builtin",
+      "layout": "arcade",
+      "controls": [
+        {
+          "id": "tap",
+          "kind": "button",
+          "label": "A",
+          "ariaLabel": "Tap on beat",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "tap"
+            }
+          },
+          "keys": [
+            "Space",
+            "Enter"
+          ]
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "be1a9a2238023330f4bc9e54ffd6bb9197b011dee3ffbebda1994f325b73bf6b"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "b421d57b5ae34e7377162b61d33345992e4fdfcb2da1379a3023942242ee23f0"
+    }
+  }
+}

@@ -1,8 +1,8 @@
-import { type BrowserContext, expect, type Page, test } from "@playwright/test";
+import { type BrowserContext, expect, type FrameLocator, type Page, test } from "@playwright/test";
 
 const accountPassword = "SecurePass123!";
-const pong = "pong@0.3.0";
-const tapRace = "tap-race@0.3.0";
+const pong = "pong@0.4.0";
+const tapRace = "tap-race@0.4.0";
 const realtimeHealthUrl = process.env.E2E_REALTIME_HEALTH_URL ?? "http://127.0.0.1:8787/healthz";
 
 async function signUp(page: Page, name: string, email: string): Promise<void> {
@@ -77,6 +77,10 @@ test("public and password-protected rooms work across shared display and mobile 
 
   try {
     await signUp(host, `Host ${runId}`, `host-${runId}@example.test`);
+    await expect(host.locator(".console-registry-card")).toContainText("Console");
+    await expect(host.locator(".console-control-chips")).toContainText(
+      /Analog stick|D-pad|A|Touchpad/,
+    );
     const publicRoomName = `Public ${runId}`;
     const publicCode = await createRoom(host, {
       name: publicRoomName,
@@ -103,9 +107,8 @@ test("public and password-protected rooms work across shared display and mobile 
       remoteFrame.locator(".console-shell--remote.console-shell--classic"),
     ).toBeVisible();
     await expect(remoteFrame.locator(".console-shell__screen")).toHaveCount(0);
-    const down = remoteFrame.getByRole("button", { name: "Move paddle down" });
-    await expect(down).toBeVisible();
-    await down.click({ delay: 250 });
+    await expect(remoteFrame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible();
+    await useStick(host, remoteFrame, "move", 0, -0.85, 250);
 
     await expect
       .poll(async () => {
@@ -149,20 +152,14 @@ test("public and password-protected rooms work across shared display and mobile 
     await expectGameFrame(guest);
     const handheldFrame = guest.frameLocator("iframe.game-frame");
     await expect(handheldFrame.locator(".console-shell--handheld")).toBeVisible();
-    const controller = handheldFrame.locator(".pong-controller--handheld");
+    const controller = handheldFrame.locator('.builtin-controller[data-renderer="builtin"]');
     await expect(controller).toBeVisible();
     await expect(handheldFrame.locator("canvas")).toBeVisible();
-    const portraitColumnCount = await controller.evaluate(
-      (element) =>
-        getComputedStyle(element).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
-    );
-    expect(portraitColumnCount).toBe(1);
+    await expect(handheldFrame.locator('[data-control-id="move"]')).toBeVisible();
     await guest.screenshot({ path: testInfo.outputPath("handheld-portrait.png"), fullPage: true });
 
     await guest.setViewportSize({ width: 844, height: 390 });
-    await expect
-      .poll(() => controller.evaluate((element) => getComputedStyle(element).gridTemplateColumns))
-      .not.toBe("none");
+    await expect(controller).toBeVisible();
     await guest.screenshot({ path: testInfo.outputPath("handheld-landscape.png"), fullPage: true });
     await host.getByRole("button", { name: "Close room" }).click();
   } finally {
@@ -203,9 +200,10 @@ test("each game supplies its own independently loaded controller and shared disp
 
     await expectGameFrame(host);
     const game = host.frameLocator("iframe.game-frame");
+    await expect(game.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible();
     const tap = game.getByRole("button", { name: "Tap to race" });
     await expect(tap).toBeVisible();
-    await expect(game.getByRole("button", { name: "Move paddle down" })).toHaveCount(0);
+    await expect(game.locator('[data-control-id="move"]')).toHaveCount(0);
     for (let index = 0; index < 4; index += 1) await tap.click();
     await host.screenshot({ path: testInfo.outputPath("tap-race-remote.png"), fullPage: true });
     await display.screenshot({ path: testInfo.outputPath("tap-race-display.png"), fullPage: true });
@@ -224,30 +222,30 @@ test("all ten additional games are playable handheld cartridges with screen and 
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const games = [
     {
-      key: "reaction-rush@0.2.0",
+      key: "reaction-rush@0.3.0",
       title: "Reaction Rush",
       control: "Reaction button",
       maxPlayers: 8,
     },
     {
-      key: "memory-lights@0.2.0",
+      key: "memory-lights@0.3.0",
       title: "Memory Lights",
       control: "Red memory pad",
       maxPlayers: 8,
     },
-    { key: "snake-arena@0.2.0", title: "Snake Arena", control: "Move snake up", maxPlayers: 4 },
-    { key: "dodge-dash@0.2.0", title: "Dodge Dash", control: "Dodge left", maxPlayers: 4 },
+    { key: "snake-arena@0.3.0", title: "Snake Arena", control: "Move snake up", maxPlayers: 4 },
+    { key: "dodge-dash@0.3.0", title: "Dodge Dash", control: "Dodge left", maxPlayers: 4 },
     {
-      key: "target-blast@0.2.0",
+      key: "target-blast@0.3.0",
       title: "Target Blast",
       control: "Target aiming pad",
       maxPlayers: 8,
     },
-    { key: "tug-war@0.2.0", title: "Tug War", control: "Pull rope", maxPlayers: 2 },
-    { key: "rhythm-pulse@0.2.0", title: "Rhythm Pulse", control: "Tap on beat", maxPlayers: 8 },
-    { key: "maze-run@0.2.0", title: "Maze Run", control: "Move up", maxPlayers: 4 },
-    { key: "stack-tower@0.2.0", title: "Stack Tower", control: "Drop block", maxPlayers: 4 },
-    { key: "orbit-dodge@0.2.0", title: "Orbit Dodge", control: "Rotate clockwise", maxPlayers: 4 },
+    { key: "tug-war@0.3.0", title: "Tug War", control: "Pull rope", maxPlayers: 2 },
+    { key: "rhythm-pulse@0.3.0", title: "Rhythm Pulse", control: "Tap on beat", maxPlayers: 8 },
+    { key: "maze-run@0.3.0", title: "Maze Run", control: "Move up", maxPlayers: 4 },
+    { key: "stack-tower@0.3.0", title: "Stack Tower", control: "Drop block", maxPlayers: 4 },
+    { key: "orbit-dodge@0.3.0", title: "Orbit Dodge", control: "Rotate clockwise", maxPlayers: 4 },
   ];
 
   for (const [batchIndex, batch] of [games.slice(0, 5), games.slice(5)].entries()) {
@@ -289,9 +287,24 @@ test("all ten additional games are playable handheld cartridges with screen and 
         const frame = page.frameLocator("iframe.game-frame");
         await expect(frame.locator(".handheld-screen")).toBeVisible({ timeout: 20_000 });
         await expect(frame.locator(".handheld-controls")).toBeVisible({ timeout: 20_000 });
-        const control = frame.getByRole("button", { name: game.control });
-        await expect(control).toBeVisible({ timeout: 20_000 });
-        await control.click();
+        await expect(frame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible({
+          timeout: 20_000,
+        });
+        if (game.title === "Dodge Dash") {
+          await useStick(page, frame, "move", -0.8, 0, 100);
+        } else if (game.title === "Orbit Dodge") {
+          await useStick(page, frame, "rotate", 0.8, 0, 100);
+        } else {
+          const control = frame.getByRole("button", { name: game.control });
+          await expect(control).toBeVisible({ timeout: 20_000 });
+          await control.click();
+        }
+        if (game.title === "Memory Lights") {
+          await expect(frame.locator('[data-face="a"]')).toHaveCount(1);
+          await expect(frame.locator('[data-face="b"]')).toHaveCount(1);
+          await expect(frame.locator('[data-face="x"]')).toHaveCount(1);
+          await expect(frame.locator('[data-face="y"]')).toHaveCount(1);
+        }
         await expect(page.locator(".connection")).toHaveText("connected");
         await expect(page.locator(".play-error")).toHaveCount(0);
 
@@ -311,9 +324,9 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
 }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const cases = [
-    { key: "turbo-circuit@0.1.1", title: "Turbo Circuit", control: "Accelerate", delay: 900 },
-    { key: "sky-strike@0.1.1", title: "Sky Strike", control: "Fire cannon", delay: 180 },
-    { key: "flight-trainer@0.1.1", title: "Flight Trainer", control: "Throttle up", delay: 0 },
+    { key: "turbo-circuit@0.2.0", title: "Turbo Circuit", control: "Accelerate", delay: 900 },
+    { key: "sky-strike@0.2.0", title: "Sky Strike", control: "Fire cannon", delay: 180 },
+    { key: "flight-trainer@0.2.0", title: "Flight Trainer", control: "Throttle up", delay: 0 },
   ];
   const context = await browser.newContext({ viewport: { width: 844, height: 390 } });
   const page = await context.newPage();
@@ -334,6 +347,9 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
       const frame = page.frameLocator("iframe.game-frame");
       await expect(frame.locator(".handheld-screen canvas")).toBeVisible({ timeout: 20_000 });
       await expect(frame.locator(".handheld-controls")).toBeVisible({ timeout: 20_000 });
+      await expect(frame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible({
+        timeout: 20_000,
+      });
       const control = frame.getByRole("button", { name: game.control });
       await expect(control).toBeVisible({ timeout: 20_000 });
       await control.click({ delay: game.delay });
@@ -359,18 +375,18 @@ test("screenless landscape remotes select classic, racing, and flight console sh
       key: pong,
       title: "Pong Together",
       preset: "classic",
-      control: "Move paddle down",
+      control: "move",
       maxPlayers: 2,
     },
     {
-      key: "turbo-circuit@0.1.1",
+      key: "turbo-circuit@0.2.0",
       title: "Turbo Circuit",
       preset: "racing",
       control: "Accelerate",
       maxPlayers: 1,
     },
     {
-      key: "sky-strike@0.1.1",
+      key: "sky-strike@0.2.0",
       title: "Sky Strike",
       preset: "flight",
       control: "Fire cannon",
@@ -402,9 +418,16 @@ test("screenless landscape remotes select classic, racing, and flight console sh
         timeout: 20_000,
       });
       await expect(frame.locator(".console-shell__screen")).toHaveCount(0);
-      const control = frame.getByRole("button", { name: game.control });
-      await expect(control).toBeVisible({ timeout: 20_000 });
-      await control.click({ delay: game.preset === "racing" ? 300 : 60 });
+      await expect(frame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      if (game.preset === "classic") {
+        await useStick(page, frame, game.control, 0, -0.8, 120);
+      } else {
+        const control = frame.getByRole("button", { name: game.control });
+        await expect(control).toBeVisible({ timeout: 20_000 });
+        await control.click({ delay: game.preset === "racing" ? 300 : 60 });
+      }
       await expect(page.locator(".connection")).toHaveText("connected");
       await expect(page.locator(".play-error")).toHaveCount(0);
 
@@ -460,3 +483,24 @@ test("concurrent joins cannot overbook the final public room slot", async ({ bro
     await closeContext(hostContext);
   }
 });
+
+async function useStick(
+  page: Page,
+  frame: FrameLocator,
+  controlId: string,
+  x: number,
+  y: number,
+  holdMs = 80,
+) {
+  const stick = frame.locator(`[data-control-id="${controlId}"]`);
+  await expect(stick).toBeVisible({ timeout: 20_000 });
+  const box = await stick.boundingBox();
+  if (!box) throw new Error(`Stick ${controlId} has no bounding box`);
+  const targetX = box.x + box.width * (0.5 + x * 0.36);
+  const targetY = box.y + box.height * (0.5 - y * 0.36);
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(targetX, targetY, { steps: 4 });
+  await page.waitForTimeout(holdMs);
+  await page.mouse.up();
+}

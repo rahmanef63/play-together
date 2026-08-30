@@ -1,4 +1,4 @@
-import { readdir, readFile } from "node:fs/promises";
+import { access, readdir, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -27,11 +27,54 @@ export async function discoverGames(root = repositoryRoot) {
     if (typeof config.game.version !== "string" || !config.game.version.trim()) {
       throw new Error(`Game ${entry.name} has no version`);
     }
+    const packageJson = JSON.parse(await readFile(resolve(gameRoot, "package.json"), "utf8"));
+    if (packageJson.name !== `@play-together/game-${entry.name}`) {
+      throw new Error(`Game ${entry.name} package name does not match its slice id`);
+    }
+    if (packageJson.version !== config.game.version) {
+      throw new Error(`Game ${entry.name} package version and manifest config version differ`);
+    }
+    await requireFile(resolve(gameRoot, "src/display.ts"), `${entry.name} display source`);
+    await requireFile(resolve(gameRoot, "src/server.ts"), `${entry.name} server source`);
+    const consoleConfig = config?.controller?.console;
+    if (consoleConfig?.renderer === "builtin") {
+      if (!Array.isArray(consoleConfig.controls) || consoleConfig.controls.length === 0) {
+        throw new Error(`Game ${entry.name} builtin console has no controls`);
+      }
+      const controlIds = consoleConfig.controls.map((control) => control?.id);
+      if (
+        controlIds.some((id) => typeof id !== "string") ||
+        new Set(controlIds).size !== controlIds.length
+      ) {
+        throw new Error(`Game ${entry.name} builtin console control ids must be unique strings`);
+      }
+      try {
+        await access(resolve(gameRoot, "src/controller.ts"));
+        throw new Error(
+          `Game ${entry.name} defines both builtin console config and src/controller.ts`,
+        );
+      } catch (error) {
+        if (error?.message?.includes("defines both builtin console")) throw error;
+      }
+    } else {
+      await requireFile(
+        resolve(gameRoot, "src/controller.ts"),
+        `${entry.name} custom controller source`,
+      );
+    }
     games.push({ id: entry.name, root: gameRoot, config });
   }
   games.sort((left, right) => left.id.localeCompare(right.id));
   if (!games.length) throw new Error("No games were discovered under games/*");
   return games;
+}
+
+async function requireFile(path, label) {
+  try {
+    await access(path);
+  } catch (error) {
+    throw new Error(`Missing ${label}`, { cause: error });
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

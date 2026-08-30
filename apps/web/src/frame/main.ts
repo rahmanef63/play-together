@@ -10,6 +10,8 @@ import type {
   DisplayGameModule,
 } from "@play-together/game-sdk";
 import "./consoleShell.css";
+import "./builtinController.css";
+import { mountBuiltinController } from "./builtinController";
 import { mountConsoleShell, resolveConsoleShellPreset } from "./consoleShell";
 
 interface FrameInitMessage {
@@ -89,21 +91,17 @@ async function mount(message: FrameInitMessage): Promise<void> {
     const context = createContext(message);
     const preset = resolveConsoleShellPreset(manifest);
 
-    if (message.role === "controller" && message.mode === "handheld") {
-      const [displayModule, controllerModule] = await Promise.all([
-        importVerifiedModule<DisplayGameModule>(
-          resolveModuleUrl(message.manifestUrl, manifest.entries.display.url),
-          manifest.entries.display.sha256,
-        ),
-        importVerifiedModule<ControllerGameModule>(
-          resolveModuleUrl(message.manifestUrl, manifest.entries.controller.url),
-          manifest.entries.controller.sha256,
-        ),
-      ]);
-      if (!("mountDisplay" in displayModule) || !("mountController" in controllerModule)) {
-        throw new Error("Handheld mode requires both display and controller surfaces");
-      }
+    const builtinConsole =
+      manifest.controller.console?.renderer === "builtin" ? manifest.controller.console : undefined;
 
+    if (message.role === "controller" && message.mode === "handheld") {
+      const displayModule = await importVerifiedModule<DisplayGameModule>(
+        resolveModuleUrl(message.manifestUrl, manifest.entries.display.url),
+        manifest.entries.display.sha256,
+      );
+      if (!("mountDisplay" in displayModule)) {
+        throw new Error("Handheld mode requires a display surface");
+      }
       const surface = mountConsoleShell(gameRoot, {
         mode: "handheld",
         preset,
@@ -111,37 +109,64 @@ async function mount(message: FrameInitMessage): Promise<void> {
       });
       if (!surface.screen) throw new Error("Handheld shell did not create a game screen");
       const disposeDisplay = displayModule.mountDisplay(surface.screen, context);
-      const disposeController = controllerModule.mountController(surface.controls, context);
+
+      let disposeController: undefined | (() => void);
+      if (builtinConsole) {
+        disposeController = mountBuiltinController(surface.controls, builtinConsole, context);
+      } else {
+        const entry = manifest.entries.controller;
+        if (!entry) throw new Error("Legacy handheld controller entry is missing");
+        const controllerModule = await importVerifiedModule<ControllerGameModule>(
+          resolveModuleUrl(message.manifestUrl, entry.url),
+          entry.sha256,
+        );
+        if (!("mountController" in controllerModule)) {
+          throw new Error("Handheld mode requires a controller surface");
+        }
+        disposeController = controllerModule.mountController(surface.controls, context);
+      }
       cleanupModule = () => {
         disposeDisplay?.();
         disposeController?.();
         snapshotListeners.clear();
         surface.dispose();
       };
+    } else if (message.role === "controller") {
+      const surface = mountConsoleShell(gameRoot, {
+        mode: "remote",
+        preset,
+        title: manifest.game.title,
+      });
+      let disposeController: undefined | (() => void);
+      if (builtinConsole) {
+        disposeController = mountBuiltinController(surface.controls, builtinConsole, context);
+      } else {
+        const entry = manifest.entries.controller;
+        if (!entry) throw new Error("Legacy remote controller entry is missing");
+        const module = await importVerifiedModule<ControllerGameModule>(
+          resolveModuleUrl(message.manifestUrl, entry.url),
+          entry.sha256,
+        );
+        if (!("mountController" in module)) {
+          throw new Error("Game bundle does not implement the controller surface");
+        }
+        disposeController = module.mountController(surface.controls, context);
+      }
+      cleanupModule = () => {
+        disposeController?.();
+        snapshotListeners.clear();
+        surface.dispose();
+      };
     } else {
-      const entry =
-        message.role === "display" ? manifest.entries.display : manifest.entries.controller;
-      const module = await importVerifiedModule<DisplayGameModule | ControllerGameModule>(
+      const entry = manifest.entries.display;
+      const module = await importVerifiedModule<DisplayGameModule>(
         resolveModuleUrl(message.manifestUrl, entry.url),
         entry.sha256,
       );
-      if (message.role === "display" && "mountDisplay" in module) {
-        cleanupModule = module.mountDisplay(gameRoot, context);
-      } else if (message.role === "controller" && "mountController" in module) {
-        const surface = mountConsoleShell(gameRoot, {
-          mode: "remote",
-          preset,
-          title: manifest.game.title,
-        });
-        const disposeController = module.mountController(surface.controls, context);
-        cleanupModule = () => {
-          disposeController?.();
-          snapshotListeners.clear();
-          surface.dispose();
-        };
-      } else {
-        throw new Error(`Game bundle does not implement the ${message.role} surface`);
+      if (!("mountDisplay" in module)) {
+        throw new Error("Game bundle does not implement the display surface");
       }
+      cleanupModule = module.mountDisplay(gameRoot, context);
     }
     post({ type: "ready", title: manifest.game.title });
   } catch (reason) {

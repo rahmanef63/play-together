@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "snake-arena",
+    "version": "0.3.0",
+    "title": "Snake Arena",
+    "description": "A competitive grid snake arena with food, growth, collisions, and mobile D-pad controls.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 30,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "adaptive",
+    "console": {
+      "renderer": "builtin",
+      "layout": "gamepad",
+      "controls": [
+        {
+          "id": "move",
+          "kind": "dpad",
+          "ariaLabel": "Move snake",
+          "zone": "left",
+          "directions": {
+            "up": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "dir": {
+                    "x": 0,
+                    "y": -1
+                  }
+                }
+              },
+              "keys": [
+                "ArrowUp",
+                "KeyW"
+              ]
+            },
+            "down": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "dir": {
+                    "x": 0,
+                    "y": 1
+                  }
+                }
+              },
+              "keys": [
+                "ArrowDown",
+                "KeyS"
+              ]
+            },
+            "left": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "dir": {
+                    "x": -1,
+                    "y": 0
+                  }
+                }
+              },
+              "keys": [
+                "ArrowLeft",
+                "KeyA"
+              ]
+            },
+            "right": {
+              "press": {
+                "type": "send",
+                "payload": {
+                  "dir": {
+                    "x": 1,
+                    "y": 0
+                  }
+                }
+              },
+              "keys": [
+                "ArrowRight",
+                "KeyD"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "5c92f6596625c9f0647bc3fd7e8d782a4e2ebe04c512e7851c287f05eaf7507d"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "2dda34ab530320cd070e134b3b12a33590ca98c4b6c2eb008cda5e83282a68ab"
+    }
+  }
+}

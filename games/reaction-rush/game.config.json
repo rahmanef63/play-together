@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "reaction-rush",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "title": "Reaction Rush",
     "description": "A reflex duel where players must react to GO without false-starting.",
     "minPlayers": 1,
@@ -15,7 +15,28 @@
   "controller": {
     "supportsRemote": true,
     "supportsHandheld": true,
-    "preferredOrientation": "portrait"
+    "preferredOrientation": "portrait",
+    "console": {
+      "renderer": "builtin",
+      "layout": "arcade",
+      "controls": [
+        {
+          "id": "hit",
+          "kind": "button",
+          "label": "A",
+          "ariaLabel": "Reaction button",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "hit"
+            }
+          },
+          "keys": ["Space", "Enter"]
+        }
+      ]
+    }
   },
   "capabilities": {
     "touch": true,

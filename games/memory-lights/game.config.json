@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "memory-lights",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "title": "Memory Lights",
     "description": "A multiplayer memory challenge with a four-pad sequence that grows every round.",
     "minPlayers": 1,
@@ -15,7 +15,73 @@
   "controller": {
     "supportsRemote": true,
     "supportsHandheld": true,
-    "preferredOrientation": "portrait"
+    "preferredOrientation": "portrait",
+    "console": {
+      "renderer": "builtin",
+      "layout": "gamepad",
+      "controls": [
+        {
+          "id": "pad-0",
+          "kind": "button",
+          "label": "A",
+          "ariaLabel": "Red memory pad",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "pad": 0
+            }
+          },
+          "keys": ["Digit1", "KeyA"]
+        },
+        {
+          "id": "pad-1",
+          "kind": "button",
+          "label": "B",
+          "ariaLabel": "Green memory pad",
+          "face": "b",
+          "zone": "right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "pad": 1
+            }
+          },
+          "keys": ["Digit2", "KeyS"]
+        },
+        {
+          "id": "pad-2",
+          "kind": "button",
+          "label": "X",
+          "ariaLabel": "Blue memory pad",
+          "face": "x",
+          "zone": "right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "pad": 2
+            }
+          },
+          "keys": ["Digit3", "KeyD"]
+        },
+        {
+          "id": "pad-3",
+          "kind": "button",
+          "label": "Y",
+          "ariaLabel": "Yellow memory pad",
+          "face": "y",
+          "zone": "right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "pad": 3
+            }
+          },
+          "keys": ["Digit4", "KeyF"]
+        }
+      ]
+    }
   },
   "capabilities": {
     "touch": true,

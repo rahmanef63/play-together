@@ -28,6 +28,7 @@ describe("published game releases", () => {
       const manifest = gameManifestSchema.parse(JSON.parse(manifestBytes.toString("utf8")));
       expect(`${manifest.game.id}@${manifest.game.version}`).toBe(identity);
       for (const entry of Object.values(manifest.entries)) {
+        if (!entry) continue;
         const bytes = await readFile(resolve(releaseRoot, entry.url));
         const digest = createHash("sha256").update(bytes).digest("hex");
         expect(digest).toBe(entry.sha256);

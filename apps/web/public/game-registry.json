@@ -1,0 +1,1066 @@
+{
+  "schemaVersion": 1,
+  "games": [
+    {
+      "id": "dodge-dash",
+      "version": "0.3.0",
+      "title": "Dodge Dash",
+      "description": "An endless lane dodger where players weave around incoming hazards for survival score.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": true,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "adaptive",
+        "console": {
+          "renderer": "builtin",
+          "layout": "gamepad",
+          "controls": [
+            {
+              "id": "move",
+              "kind": "stick",
+              "ariaLabel": "Dodge left or right",
+              "zone": "left",
+              "action": {
+                "type": "patch",
+                "values": {
+                  "move": "$x"
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "move": 0
+                }
+              },
+              "keys": {
+                "left": ["ArrowLeft", "KeyA"],
+                "right": ["ArrowRight", "KeyD"]
+              }
+            }
+          ],
+          "initialState": {
+            "move": 0
+          }
+        }
+      },
+      "previewUrl": "/game-previews/dodge-dash.png"
+    },
+    {
+      "id": "flight-trainer",
+      "version": "0.2.0",
+      "title": "Flight Trainer",
+      "description": "A 3D flight-training simulator with throttle, pitch, roll, yaw, flaps, landing gear, stall/crash physics, instruments and checkpoint navigation.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": false,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "landscape",
+        "console": {
+          "renderer": "builtin",
+          "layout": "flight",
+          "controls": [
+            {
+              "id": "yoke",
+              "kind": "stick",
+              "ariaLabel": "Flight yoke",
+              "zone": "left",
+              "action": {
+                "type": "patch",
+                "values": {
+                  "roll": "$x",
+                  "pitch": "$y"
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "roll": 0,
+                  "pitch": 0
+                }
+              },
+              "keys": {
+                "up": ["ArrowUp", "KeyW"],
+                "down": ["ArrowDown", "KeyS"],
+                "left": ["ArrowLeft", "KeyA"],
+                "right": ["ArrowRight", "KeyD"]
+              }
+            },
+            {
+              "id": "yaw-left",
+              "kind": "button",
+              "label": "L1",
+              "ariaLabel": "Yaw left",
+              "face": "l1",
+              "zone": "top-left",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "yaw": -1
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "yaw": 0
+                }
+              },
+              "keys": ["KeyQ"]
+            },
+            {
+              "id": "yaw-right",
+              "kind": "button",
+              "label": "R1",
+              "ariaLabel": "Yaw right",
+              "face": "r1",
+              "zone": "top-right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "yaw": 1
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "yaw": 0
+                }
+              },
+              "keys": ["KeyE"]
+            },
+            {
+              "id": "flaps",
+              "kind": "button",
+              "label": "A",
+              "ariaLabel": "Toggle flaps",
+              "face": "a",
+              "zone": "right",
+              "press": {
+                "type": "toggle",
+                "field": "flaps"
+              }
+            },
+            {
+              "id": "gear",
+              "kind": "button",
+              "label": "B",
+              "ariaLabel": "Toggle landing gear",
+              "face": "b",
+              "zone": "right",
+              "press": {
+                "type": "toggle",
+                "field": "gear"
+              }
+            },
+            {
+              "id": "throttle-up",
+              "kind": "button",
+              "label": "Y",
+              "ariaLabel": "Throttle up",
+              "face": "y",
+              "zone": "right",
+              "press": {
+                "type": "increment",
+                "field": "throttle",
+                "delta": 0.12,
+                "min": 0,
+                "max": 1
+              },
+              "keys": ["Equal"]
+            },
+            {
+              "id": "throttle-down",
+              "kind": "button",
+              "label": "X",
+              "ariaLabel": "Throttle down",
+              "face": "x",
+              "zone": "right",
+              "press": {
+                "type": "increment",
+                "field": "throttle",
+                "delta": -0.12,
+                "min": 0,
+                "max": 1
+              },
+              "keys": ["Minus"]
+            },
+            {
+              "id": "restart",
+              "kind": "button",
+              "label": "START",
+              "ariaLabel": "Restart flight",
+              "face": "start",
+              "zone": "bottom",
+              "press": {
+                "type": "pulse",
+                "values": {
+                  "restart": true
+                },
+                "releaseValues": {
+                  "restart": false
+                },
+                "durationMs": 80
+              }
+            }
+          ],
+          "initialState": {
+            "pitch": 0,
+            "roll": 0,
+            "yaw": 0,
+            "throttle": 0,
+            "flaps": false,
+            "gear": true,
+            "restart": false
+          }
+        }
+      },
+      "previewUrl": "/game-previews/flight-trainer.png"
+    },
+    {
+      "id": "maze-run",
+      "version": "0.3.0",
+      "title": "Maze Run",
+      "description": "A multiplayer maze sprint with server-authoritative walls, movement, and finish tracking.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": true,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "adaptive",
+        "console": {
+          "renderer": "builtin",
+          "layout": "gamepad",
+          "controls": [
+            {
+              "id": "move",
+              "kind": "dpad",
+              "ariaLabel": "Move",
+              "zone": "left",
+              "directions": {
+                "up": {
+                  "press": {
+                    "type": "send",
+                    "payload": {
+                      "move": {
+                        "x": 0,
+                        "y": -1
+                      }
+                    }
+                  },
+                  "keys": ["ArrowUp", "KeyW"]
+                },
+                "down": {
+                  "press": {
+                    "type": "send",
+                    "payload": {
+                      "move": {
+                        "x": 0,
+                        "y": 1
+                      }
+                    }
+                  },
+                  "keys": ["ArrowDown", "KeyS"]
+                },
+                "left": {
+                  "press": {
+                    "type": "send",
+                    "payload": {
+                      "move": {
+                        "x": -1,
+                        "y": 0
+                      }
+                    }
+                  },
+                  "keys": ["ArrowLeft", "KeyA"]
+                },
+                "right": {
+                  "press": {
+                    "type": "send",
+                    "payload": {
+                      "move": {
+                        "x": 1,
+                        "y": 0
+                      }
+                    }
+                  },
+                  "keys": ["ArrowRight", "KeyD"]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "previewUrl": "/game-previews/maze-run.png"
+    },
+    {
+      "id": "memory-lights",
+      "version": "0.3.0",
+      "title": "Memory Lights",
+      "description": "A multiplayer memory challenge with a four-pad sequence that grows every round.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": false,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "portrait",
+        "console": {
+          "renderer": "builtin",
+          "layout": "gamepad",
+          "controls": [
+            {
+              "id": "pad-0",
+              "kind": "button",
+              "label": "A",
+              "ariaLabel": "Red memory pad",
+              "face": "a",
+              "zone": "right",
+              "press": {
+                "type": "send",
+                "payload": {
+                  "pad": 0
+                }
+              },
+              "keys": ["Digit1", "KeyA"]
+            },
+            {
+              "id": "pad-1",
+              "kind": "button",
+              "label": "B",
+              "ariaLabel": "Green memory pad",
+              "face": "b",
+              "zone": "right",
+              "press": {
+                "type": "send",
+                "payload": {
+                  "pad": 1
+                }
+              },
+              "keys": ["Digit2", "KeyS"]
+            },
+            {
+              "id": "pad-2",
+              "kind": "button",
+              "label": "X",
+              "ariaLabel": "Blue memory pad",
+              "face": "x",
+              "zone": "right",
+              "press": {
+                "type": "send",
+                "payload": {
+                  "pad": 2
+                }
+              },
+              "keys": ["Digit3", "KeyD"]
+            },
+            {
+              "id": "pad-3",
+              "kind": "button",
+              "label": "Y",
+              "ariaLabel": "Yellow memory pad",
+              "face": "y",
+              "zone": "right",
+              "press": {
+                "type": "send",
+                "payload": {
+                  "pad": 3
+                }
+              },
+              "keys": ["Digit4", "KeyF"]
+            }
+          ]
+        }
+      },
+      "previewUrl": "/game-previews/memory-lights.png"
+    },
+    {
+      "id": "orbit-dodge",
+      "version": "0.3.0",
+      "title": "Orbit Dodge",
+      "description": "Rotate around an orbital ring and evade incoming meteors as long as possible.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": true,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "adaptive",
+        "console": {
+          "renderer": "builtin",
+          "layout": "gamepad",
+          "controls": [
+            {
+              "id": "rotate",
+              "kind": "stick",
+              "ariaLabel": "Rotate around orbit",
+              "zone": "left",
+              "action": {
+                "type": "patch",
+                "values": {
+                  "rotate": "$x"
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "rotate": 0
+                }
+              },
+              "keys": {
+                "left": ["ArrowLeft", "KeyA"],
+                "right": ["ArrowRight", "KeyD"]
+              }
+            }
+          ],
+          "initialState": {
+            "rotate": 0
+          }
+        }
+      },
+      "previewUrl": "/game-previews/orbit-dodge.png"
+    },
+    {
+      "id": "pong",
+      "version": "0.4.0",
+      "title": "Pong Together",
+      "description": "A low-latency reference game proving shared-screen and handheld controller modes.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": true,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "adaptive",
+        "console": {
+          "renderer": "builtin",
+          "layout": "gamepad",
+          "controls": [
+            {
+              "id": "move",
+              "kind": "stick",
+              "ariaLabel": "Move paddle",
+              "zone": "left",
+              "action": {
+                "type": "patch",
+                "values": {
+                  "move": "$y"
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "move": 0
+                }
+              },
+              "keys": {
+                "up": ["ArrowUp", "KeyW"],
+                "down": ["ArrowDown", "KeyS"]
+              }
+            }
+          ],
+          "initialState": {
+            "move": 0
+          }
+        }
+      },
+      "previewUrl": "/game-previews/pong.png"
+    },
+    {
+      "id": "reaction-rush",
+      "version": "0.3.0",
+      "title": "Reaction Rush",
+      "description": "A reflex duel where players must react to GO without false-starting.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": false,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "portrait",
+        "console": {
+          "renderer": "builtin",
+          "layout": "arcade",
+          "controls": [
+            {
+              "id": "hit",
+              "kind": "button",
+              "label": "A",
+              "ariaLabel": "Reaction button",
+              "face": "a",
+              "zone": "right",
+              "press": {
+                "type": "send",
+                "payload": {
+                  "action": "hit"
+                }
+              },
+              "keys": ["Space", "Enter"]
+            }
+          ]
+        }
+      },
+      "previewUrl": "/game-previews/reaction-rush.png"
+    },
+    {
+      "id": "rhythm-pulse",
+      "version": "0.3.0",
+      "title": "Rhythm Pulse",
+      "description": "A timing game that scores taps by how close they land to the shared pulse.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": false,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "portrait",
+        "console": {
+          "renderer": "builtin",
+          "layout": "arcade",
+          "controls": [
+            {
+              "id": "tap",
+              "kind": "button",
+              "label": "A",
+              "ariaLabel": "Tap on beat",
+              "face": "a",
+              "zone": "right",
+              "press": {
+                "type": "send",
+                "payload": {
+                  "action": "tap"
+                }
+              },
+              "keys": ["Space", "Enter"]
+            }
+          ]
+        }
+      },
+      "previewUrl": "/game-previews/rhythm-pulse.png"
+    },
+    {
+      "id": "sky-strike",
+      "version": "0.2.0",
+      "title": "Sky Strike",
+      "description": "A 3D arcade fighter dogfight with flight controls, cannon fire, homing missiles, lock-on, health, respawns and AI bandits.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": false,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "landscape",
+        "console": {
+          "renderer": "builtin",
+          "layout": "flight",
+          "controls": [
+            {
+              "id": "flight-stick",
+              "kind": "stick",
+              "ariaLabel": "Flight stick",
+              "zone": "left",
+              "action": {
+                "type": "patch",
+                "values": {
+                  "roll": "$x",
+                  "pitch": "$y"
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "roll": 0,
+                  "pitch": 0
+                }
+              },
+              "keys": {
+                "up": ["ArrowUp", "KeyW"],
+                "down": ["ArrowDown", "KeyS"],
+                "left": ["ArrowLeft", "KeyA"],
+                "right": ["ArrowRight", "KeyD"]
+              }
+            },
+            {
+              "id": "gun",
+              "kind": "button",
+              "label": "A",
+              "ariaLabel": "Fire cannon",
+              "face": "a",
+              "zone": "right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "gun": true
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "gun": false
+                }
+              },
+              "keys": ["Space"]
+            },
+            {
+              "id": "missile",
+              "kind": "button",
+              "label": "B",
+              "ariaLabel": "Fire missile",
+              "face": "b",
+              "zone": "right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "missile": true
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "missile": false
+                }
+              },
+              "keys": ["ShiftLeft", "ShiftRight"]
+            },
+            {
+              "id": "throttle-up",
+              "kind": "button",
+              "label": "Y",
+              "ariaLabel": "Increase throttle",
+              "face": "y",
+              "zone": "top-right",
+              "press": {
+                "type": "increment",
+                "field": "throttle",
+                "delta": 0.1,
+                "min": 0,
+                "max": 1
+              },
+              "keys": ["Equal"]
+            },
+            {
+              "id": "throttle-down",
+              "kind": "button",
+              "label": "X",
+              "ariaLabel": "Decrease throttle",
+              "face": "x",
+              "zone": "bottom-right",
+              "press": {
+                "type": "increment",
+                "field": "throttle",
+                "delta": -0.1,
+                "min": 0,
+                "max": 1
+              },
+              "keys": ["Minus"]
+            }
+          ],
+          "initialState": {
+            "pitch": 0,
+            "roll": 0,
+            "yaw": 0,
+            "throttle": 0.65,
+            "gun": false,
+            "missile": false
+          }
+        }
+      },
+      "previewUrl": "/game-previews/sky-strike.png"
+    },
+    {
+      "id": "snake-arena",
+      "version": "0.3.0",
+      "title": "Snake Arena",
+      "description": "A competitive grid snake arena with food, growth, collisions, and mobile D-pad controls.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": true,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "adaptive",
+        "console": {
+          "renderer": "builtin",
+          "layout": "gamepad",
+          "controls": [
+            {
+              "id": "move",
+              "kind": "dpad",
+              "ariaLabel": "Move snake",
+              "zone": "left",
+              "directions": {
+                "up": {
+                  "press": {
+                    "type": "send",
+                    "payload": {
+                      "dir": {
+                        "x": 0,
+                        "y": -1
+                      }
+                    }
+                  },
+                  "keys": ["ArrowUp", "KeyW"]
+                },
+                "down": {
+                  "press": {
+                    "type": "send",
+                    "payload": {
+                      "dir": {
+                        "x": 0,
+                        "y": 1
+                      }
+                    }
+                  },
+                  "keys": ["ArrowDown", "KeyS"]
+                },
+                "left": {
+                  "press": {
+                    "type": "send",
+                    "payload": {
+                      "dir": {
+                        "x": -1,
+                        "y": 0
+                      }
+                    }
+                  },
+                  "keys": ["ArrowLeft", "KeyA"]
+                },
+                "right": {
+                  "press": {
+                    "type": "send",
+                    "payload": {
+                      "dir": {
+                        "x": 1,
+                        "y": 0
+                      }
+                    }
+                  },
+                  "keys": ["ArrowRight", "KeyD"]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "previewUrl": "/game-previews/snake-arena.png"
+    },
+    {
+      "id": "stack-tower",
+      "version": "0.3.0",
+      "title": "Stack Tower",
+      "description": "A timing-based tower race where every drop must overlap the block below.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": false,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "portrait",
+        "console": {
+          "renderer": "builtin",
+          "layout": "arcade",
+          "controls": [
+            {
+              "id": "drop",
+              "kind": "button",
+              "label": "A",
+              "ariaLabel": "Drop block",
+              "face": "a",
+              "zone": "right",
+              "press": {
+                "type": "send",
+                "payload": {
+                  "action": "drop"
+                }
+              },
+              "keys": ["Space", "Enter"]
+            }
+          ]
+        }
+      },
+      "previewUrl": "/game-previews/stack-tower.png"
+    },
+    {
+      "id": "tap-race",
+      "version": "0.4.0",
+      "title": "Tap Race",
+      "description": "A four-player button race with a game-specific TAP console for remote and handheld play.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": false,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "adaptive",
+        "console": {
+          "renderer": "builtin",
+          "layout": "arcade",
+          "controls": [
+            {
+              "id": "tap",
+              "kind": "button",
+              "label": "A",
+              "ariaLabel": "Tap to race",
+              "face": "a",
+              "zone": "right",
+              "press": {
+                "type": "send",
+                "payload": {
+                  "action": "tap"
+                }
+              },
+              "keys": ["Space", "Enter"]
+            }
+          ]
+        }
+      },
+      "previewUrl": "/game-previews/tap-race.png"
+    },
+    {
+      "id": "target-blast",
+      "version": "0.3.0",
+      "title": "Target Blast",
+      "description": "A precision target game where each phone becomes a touch aiming surface.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": false,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "portrait",
+        "console": {
+          "renderer": "builtin",
+          "layout": "touch",
+          "controls": [
+            {
+              "id": "aim",
+              "kind": "touchpad",
+              "ariaLabel": "Target aiming pad",
+              "zone": "center",
+              "action": {
+                "type": "send",
+                "payload": {
+                  "action": "shoot",
+                  "x": "$x",
+                  "y": "$y"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "previewUrl": "/game-previews/target-blast.png"
+    },
+    {
+      "id": "tug-war",
+      "version": "0.3.0",
+      "title": "Tug War",
+      "description": "Two teams hammer their PULL controls to drag the rope across the finish line.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": false,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "portrait",
+        "console": {
+          "renderer": "builtin",
+          "layout": "arcade",
+          "controls": [
+            {
+              "id": "pull",
+              "kind": "button",
+              "label": "A",
+              "ariaLabel": "Pull rope",
+              "face": "a",
+              "zone": "right",
+              "press": {
+                "type": "send",
+                "payload": {
+                  "action": "pull"
+                }
+              },
+              "keys": ["Space", "Enter"]
+            }
+          ]
+        }
+      },
+      "previewUrl": "/game-previews/tug-war.png"
+    },
+    {
+      "id": "turbo-circuit",
+      "version": "0.2.0",
+      "title": "Turbo Circuit",
+      "description": "A 3D arcade circuit racer with steering, throttle, braking, nitro, checkpoints, laps, collision and AI rivals.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": false,
+        "motion": false
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "landscape",
+        "console": {
+          "renderer": "builtin",
+          "layout": "racing",
+          "controls": [
+            {
+              "id": "steer",
+              "kind": "stick",
+              "ariaLabel": "Steering stick",
+              "zone": "left",
+              "action": {
+                "type": "patch",
+                "values": {
+                  "steer": "$x"
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "steer": 0
+                }
+              },
+              "keys": {
+                "left": ["ArrowLeft", "KeyA"],
+                "right": ["ArrowRight", "KeyD"]
+              }
+            },
+            {
+              "id": "throttle",
+              "kind": "button",
+              "label": "GAS",
+              "ariaLabel": "Accelerate",
+              "face": "r2",
+              "zone": "right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "throttle": 1
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "throttle": 0
+                }
+              },
+              "keys": ["ArrowUp", "KeyW"]
+            },
+            {
+              "id": "brake",
+              "kind": "button",
+              "label": "BRAKE",
+              "ariaLabel": "Brake",
+              "face": "l2",
+              "zone": "right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "brake": 1
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "brake": 0
+                }
+              },
+              "keys": ["ArrowDown", "KeyS"]
+            },
+            {
+              "id": "boost",
+              "kind": "button",
+              "label": "A",
+              "ariaLabel": "Nitro boost",
+              "face": "a",
+              "zone": "bottom-right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "boost": true
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "boost": false
+                }
+              },
+              "keys": ["Space"]
+            }
+          ],
+          "initialState": {
+            "steer": 0,
+            "throttle": 0,
+            "brake": 0,
+            "boost": false
+          }
+        }
+      },
+      "previewUrl": "/game-previews/turbo-circuit.png"
+    }
+  ]
+}

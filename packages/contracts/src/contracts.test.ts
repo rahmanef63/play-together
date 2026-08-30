@@ -39,6 +39,60 @@ describe("public contracts", () => {
     expect(parsed.game.id).toBe("pong");
   });
 
+  it("accepts a manifest-native builtin console without a controller bundle", () => {
+    const parsed = gameManifestSchema.parse({
+      schemaVersion: 1,
+      protocolVersion: GAME_PROTOCOL_VERSION,
+      game: {
+        id: "manifest-console",
+        version: "1.0.0",
+        title: "Manifest Console",
+        description: "Declarative controls",
+        minPlayers: 1,
+        maxPlayers: 4,
+        tickRate: 60,
+        snapshotRate: 20,
+      },
+      modes: ["shared-screen", "handheld"],
+      controller: {
+        supportsRemote: true,
+        supportsHandheld: true,
+        preferredOrientation: "landscape",
+        console: {
+          renderer: "builtin",
+          layout: "gamepad",
+          initialState: { move: 0 },
+          controls: [
+            {
+              id: "move",
+              kind: "stick",
+              ariaLabel: "Move",
+              zone: "left",
+              action: { type: "patch", values: { move: "$x" } },
+              release: { type: "patch", values: { move: 0 } },
+            },
+            {
+              id: "action",
+              kind: "button",
+              label: "A",
+              ariaLabel: "Action",
+              face: "a",
+              zone: "right",
+              press: { type: "send", payload: { action: "go" } },
+            },
+          ],
+        },
+      },
+      entries: {
+        display: { url: "./display.js", sha256: digest },
+        server: { url: "./server.js", sha256: digest },
+      },
+      capabilities: { touch: true, keyboard: true, gamepad: true, motion: false },
+    });
+    expect(parsed.controller.console?.controls).toHaveLength(2);
+    expect(parsed.entries.controller).toBeUndefined();
+  });
+
   it("rejects unknown realtime message types", () => {
     expect(clientMessageSchema.safeParse({ type: "execute", command: "rm" }).success).toBe(false);
   });

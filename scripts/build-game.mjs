@@ -28,7 +28,8 @@ const common = {
   legalComments: "none",
   logLevel: "warning",
 };
-await Promise.all([
+const builtinController = config?.controller?.console?.renderer === "builtin";
+const buildTasks = [
   build({
     ...common,
     platform: "browser",
@@ -37,28 +38,33 @@ await Promise.all([
   }),
   build({
     ...common,
-    platform: "browser",
-    entryPoints: [resolve(gameRoot, "src/controller.ts")],
-    outfile: resolve(outdir, "controller.js"),
-  }),
-  build({
-    ...common,
     platform: "node",
     entryPoints: [resolve(gameRoot, "src/server.ts")],
     outfile: resolve(outdir, "server.js"),
   }),
-]);
+];
+if (!builtinController) {
+  buildTasks.push(
+    build({
+      ...common,
+      platform: "browser",
+      entryPoints: [resolve(gameRoot, "src/controller.ts")],
+      outfile: resolve(outdir, "controller.js"),
+    }),
+  );
+}
+await Promise.all(buildTasks);
 const digest = async (name) =>
   createHash("sha256")
     .update(await readFile(resolve(outdir, name)))
     .digest("hex");
-const manifest = {
-  ...config,
-  entries: {
-    display: { url: "./display.js", sha256: await digest("display.js") },
-    controller: { url: "./controller.js", sha256: await digest("controller.js") },
-    server: { url: "./server.js", sha256: await digest("server.js") },
-  },
+const entries = {
+  display: { url: "./display.js", sha256: await digest("display.js") },
+  server: { url: "./server.js", sha256: await digest("server.js") },
 };
+if (!builtinController) {
+  entries.controller = { url: "./controller.js", sha256: await digest("controller.js") };
+}
+const manifest = { ...config, entries };
 await writeFile(resolve(outdir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`${manifest.game.id}@${manifest.game.version}`);
