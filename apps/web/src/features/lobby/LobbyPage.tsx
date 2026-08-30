@@ -4,6 +4,7 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { api } from "../../shared/convexApi";
 import { navigate } from "../../shared/navigation";
 import { ScrollArea } from "../../shared/ScrollArea";
+import { PreviewCardSkeleton, RoomCardSkeleton, SkeletonBlock } from "../../shared/Skeleton";
 import type {
   CurrentUser,
   GameRegistryDocument,
@@ -13,11 +14,21 @@ import type {
   RoomSummary,
 } from "../../shared/types";
 
-export function LobbyPage({ user }: { user: CurrentUser }) {
+export function LobbyPage({
+  user,
+  focus = "home",
+}: {
+  user: CurrentUser;
+  focus?: "home" | "rooms";
+}) {
   const { signOut } = useAuthActions();
-  const games = (useQuery(api.games.listLatestPublished) ?? []) as GameSummary[];
-  const rooms = (useQuery(api.rooms.listPublic) ?? []) as RoomSummary[];
-  const myRooms = (useQuery(api.rooms.listMine) ?? []) as MyRoomSummary[];
+  const gamesResult = useQuery(api.games.listLatestPublished) as GameSummary[] | undefined;
+  const roomsResult = useQuery(api.rooms.listPublic) as RoomSummary[] | undefined;
+  const myRoomsResult = useQuery(api.rooms.listMine) as MyRoomSummary[] | undefined;
+  const games = gamesResult ?? [];
+  const rooms = roomsResult ?? [];
+  const myRooms = myRoomsResult ?? [];
+  const loadingGames = gamesResult === undefined;
   const createRoom = useAction(api.rooms.create);
   const joinRoom = useAction(api.rooms.join);
   const updateRoom = useAction(api.rooms.update);
@@ -154,8 +165,8 @@ export function LobbyPage({ user }: { user: CurrentUser }) {
   };
 
   return (
-    <main className="app-shell app-shell--lobby">
-      <header className="topbar">
+    <main className={`app-shell app-shell--lobby${focus === "rooms" ? " app-shell--rooms" : ""}`}>
+      <header className="topbar desktop-topbar">
         <button className="brand-button" type="button" onClick={() => navigate("/")}>
           <span>PT</span> Play Together
         </button>
@@ -259,31 +270,36 @@ export function LobbyPage({ user }: { user: CurrentUser }) {
                     </select>
                   </label>
                   <span className="game-picker-label">Gameplay previews</span>
-                  <div className="game-picker">
-                    {games.map((game) => {
-                      const key = `${game.gameId}@${game.version}`;
-                      const active = key === effectiveGameKey;
-                      return (
-                        <button
-                          className={`game-preview-card${active ? " game-preview-card--active" : ""}`}
-                          type="button"
-                          key={key}
-                          aria-pressed={active}
-                          onClick={() => setSelectedGameKey(key)}
-                        >
-                          <img
-                            src={`/game-previews/${game.gameId}.png`}
-                            alt={`${game.title} gameplay preview`}
-                            loading="lazy"
-                          />
-                          <span>
-                            <strong>{game.title}</strong>
-                            <small>v{game.version}</small>
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {loadingGames ? (
+                    <PreviewCardSkeleton count={4} />
+                  ) : (
+                    <div className="game-picker">
+                      {games.map((game) => {
+                        const key = `${game.gameId}@${game.version}`;
+                        const active = key === effectiveGameKey;
+                        return (
+                          <button
+                            className={`game-preview-card${active ? " game-preview-card--active" : ""}`}
+                            type="button"
+                            key={key}
+                            aria-pressed={active}
+                            onClick={() => setSelectedGameKey(key)}
+                          >
+                            <img
+                              src={`/game-previews/${game.gameId}.png`}
+                              alt={`${game.title} gameplay preview`}
+                              loading="lazy"
+                              decoding="async"
+                            />
+                            <span>
+                              <strong>{game.title}</strong>
+                              <small>v{game.version}</small>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                   {selectedRegistry?.controller.console && (
                     <div className="console-registry-card">
                       <div>
@@ -327,6 +343,15 @@ export function LobbyPage({ user }: { user: CurrentUser }) {
                     Create room
                   </button>
                 </form>
+              ) : loadingGames ? (
+                <div className="create-form-skeleton" aria-hidden="true">
+                  <SkeletonBlock width="38%" height={10} />
+                  <SkeletonBlock height={44} />
+                  <SkeletonBlock width="31%" height={10} />
+                  <PreviewCardSkeleton count={2} />
+                  <SkeletonBlock height={44} />
+                  <SkeletonBlock height={44} />
+                </div>
               ) : (
                 <EmptyState
                   title="No published game yet"
@@ -367,154 +392,158 @@ export function LobbyPage({ user }: { user: CurrentUser }) {
           </div>
           <ScrollArea className="panel-scroll room-list-scroll" ariaLabel={`${roomTab} room list`}>
             <div className="room-list">
-              {roomTab === "public"
-                ? rooms.map((room) => (
-                    <article className="room-card" key={room.code}>
-                      <div>
-                        <div className="room-card__top">
-                          <strong>{room.name}</strong>
-                          {room.requiresPassword && <span title="Password protected">Locked</span>}
+              {(roomTab === "public" ? roomsResult === undefined : myRoomsResult === undefined) ? (
+                <RoomCardSkeleton count={4} />
+              ) : roomTab === "public" ? (
+                rooms.map((room) => (
+                  <article className="room-card" key={room.code}>
+                    <div>
+                      <div className="room-card__top">
+                        <strong>{room.name}</strong>
+                        {room.requiresPassword && <span title="Password protected">Locked</span>}
+                      </div>
+                      <p>
+                        {room.gameTitle} · hosted by {room.hostName}
+                      </p>
+                    </div>
+                    <div className="room-card__actions">
+                      <span>
+                        {room.availableSpots}/{room.maxPlayers} spots
+                      </span>
+                      <button
+                        className="secondary-button"
+                        type="button"
+                        onClick={() => {
+                          setJoinCode(room.code);
+                          if (!room.requiresPassword) void onJoin(room.code, "");
+                        }}
+                      >
+                        Join
+                      </button>
+                    </div>
+                  </article>
+                ))
+              ) : (
+                myRooms.map((room) => (
+                  <article className="room-card room-card--owned" key={room.code}>
+                    {editingCode === room.code ? (
+                      <form
+                        className="room-editor"
+                        onSubmit={(event) => void onUpdate(event, room)}
+                      >
+                        <div className="room-editor__meta">
+                          <strong>{room.gameTitle}</strong>
+                          <span>
+                            {room.gameVersion} · {room.code}
+                          </span>
                         </div>
-                        <p>
-                          {room.gameTitle} · hosted by {room.hostName}
-                        </p>
-                      </div>
-                      <div className="room-card__actions">
-                        <span>
-                          {room.availableSpots}/{room.maxPlayers} spots
-                        </span>
-                        <button
-                          className="secondary-button"
-                          type="button"
-                          onClick={() => {
-                            setJoinCode(room.code);
-                            if (!room.requiresPassword) void onJoin(room.code, "");
-                          }}
-                        >
-                          Join
-                        </button>
-                      </div>
-                    </article>
-                  ))
-                : myRooms.map((room) => (
-                    <article className="room-card room-card--owned" key={room.code}>
-                      {editingCode === room.code ? (
-                        <form
-                          className="room-editor"
-                          onSubmit={(event) => void onUpdate(event, room)}
-                        >
-                          <div className="room-editor__meta">
-                            <strong>{room.gameTitle}</strong>
-                            <span>
-                              {room.gameVersion} · {room.code}
-                            </span>
-                          </div>
+                        <label className="field">
+                          <span>Room name</span>
+                          <input
+                            name="name"
+                            defaultValue={room.name}
+                            minLength={2}
+                            maxLength={64}
+                            required
+                          />
+                        </label>
+                        <div className="form-row">
                           <label className="field">
-                            <span>Room name</span>
-                            <input
-                              name="name"
-                              defaultValue={room.name}
-                              minLength={2}
-                              maxLength={64}
-                              required
-                            />
-                          </label>
-                          <div className="form-row">
-                            <label className="field">
-                              <span>Visibility</span>
-                              <select name="visibility" defaultValue={room.visibility}>
-                                <option value="public">Public</option>
-                                <option value="private">Private</option>
-                              </select>
-                            </label>
-                            <label className="field">
-                              <span>Player slots</span>
-                              <input
-                                name="maxPlayers"
-                                type="number"
-                                min={1}
-                                max={64}
-                                defaultValue={room.maxPlayers}
-                              />
-                            </label>
-                          </div>
-                          <label className="field">
-                            <span>Password action</span>
-                            <select name="passwordMode" defaultValue="keep">
-                              <option value="keep">Keep current</option>
-                              <option value="set">Set new password</option>
-                              <option value="remove">Remove password</option>
+                            <span>Visibility</span>
+                            <select name="visibility" defaultValue={room.visibility}>
+                              <option value="public">Public</option>
+                              <option value="private">Private</option>
                             </select>
                           </label>
                           <label className="field">
-                            <span>New password</span>
+                            <span>Player slots</span>
                             <input
-                              name="password"
-                              type="password"
-                              minLength={4}
-                              maxLength={64}
-                              placeholder="Used only for Set new password"
+                              name="maxPlayers"
+                              type="number"
+                              min={1}
+                              max={64}
+                              defaultValue={room.maxPlayers}
                             />
                           </label>
-                          <div className="room-editor__actions">
-                            <button className="primary-button" type="submit" disabled={busy}>
-                              Save changes
+                        </div>
+                        <label className="field">
+                          <span>Password action</span>
+                          <select name="passwordMode" defaultValue="keep">
+                            <option value="keep">Keep current</option>
+                            <option value="set">Set new password</option>
+                            <option value="remove">Remove password</option>
+                          </select>
+                        </label>
+                        <label className="field">
+                          <span>New password</span>
+                          <input
+                            name="password"
+                            type="password"
+                            minLength={4}
+                            maxLength={64}
+                            placeholder="Used only for Set new password"
+                          />
+                        </label>
+                        <div className="room-editor__actions">
+                          <button className="primary-button" type="submit" disabled={busy}>
+                            Save changes
+                          </button>
+                          <button
+                            className="ghost-button"
+                            type="button"
+                            onClick={() => setEditingCode(null)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <>
+                        <div>
+                          <div className="room-card__top">
+                            <strong>{room.name}</strong>
+                            <span>{room.visibility}</span>
+                            <span>{room.status}</span>
+                            {room.requiresPassword && <span>Locked</span>}
+                          </div>
+                          <p>
+                            {room.gameTitle} · {room.gameVersion} · {room.code} ·{" "}
+                            {room.activePlayers}/{room.maxPlayers} players
+                          </p>
+                        </div>
+                        <div className="room-card__actions room-card__actions--crud">
+                          {room.status === "open" && (
+                            <button
+                              className="secondary-button"
+                              type="button"
+                              onClick={() => navigate(`/room/${room.code}`)}
+                            >
+                              Open
                             </button>
+                          )}
+                          {room.status === "open" && (
                             <button
                               className="ghost-button"
                               type="button"
-                              onClick={() => setEditingCode(null)}
+                              onClick={() => setEditingCode(room.code)}
                             >
-                              Cancel
+                              Edit
                             </button>
-                          </div>
-                        </form>
-                      ) : (
-                        <>
-                          <div>
-                            <div className="room-card__top">
-                              <strong>{room.name}</strong>
-                              <span>{room.visibility}</span>
-                              <span>{room.status}</span>
-                              {room.requiresPassword && <span>Locked</span>}
-                            </div>
-                            <p>
-                              {room.gameTitle} · {room.gameVersion} · {room.code} ·{" "}
-                              {room.activePlayers}/{room.maxPlayers} players
-                            </p>
-                          </div>
-                          <div className="room-card__actions room-card__actions--crud">
-                            {room.status === "open" && (
-                              <button
-                                className="secondary-button"
-                                type="button"
-                                onClick={() => navigate(`/room/${room.code}`)}
-                              >
-                                Open
-                              </button>
-                            )}
-                            {room.status === "open" && (
-                              <button
-                                className="ghost-button"
-                                type="button"
-                                onClick={() => setEditingCode(room.code)}
-                              >
-                                Edit
-                              </button>
-                            )}
-                            <button
-                              className={`ghost-button danger${deleteCode === room.code ? " danger-confirm" : ""}`}
-                              type="button"
-                              disabled={busy}
-                              onClick={() => void onDelete(room)}
-                            >
-                              {deleteCode === room.code ? "Confirm delete" : "Delete"}
-                            </button>
-                          </div>
-                        </>
-                      )}
-                    </article>
-                  ))}
+                          )}
+                          <button
+                            className={`ghost-button danger${deleteCode === room.code ? " danger-confirm" : ""}`}
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void onDelete(room)}
+                          >
+                            {deleteCode === room.code ? "Confirm delete" : "Delete"}
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </article>
+                ))
+              )}
               {roomTab === "public" && !rooms.length && (
                 <EmptyState
                   title="No public rooms"

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "play-together-games": {
+      "command": "node",
+      "args": ["scripts/game-mcp-server.mjs"]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "name": "play-together",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "description": "Version-isolated multiplayer game platform with mobile controllers and shared browser displays.",
   "packageManager": "pnpm@10.32.1",
@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "turbo run dev --parallel",
-    "build": "pnpm game:publish && turbo run build",
+    "build": "pnpm prepare:web && pnpm game:publish && pnpm workspace:build && pnpm web:build:check",
     "typecheck": "turbo run typecheck && pnpm typecheck:convex",
     "test": "pnpm game:publish && turbo run test && vitest run --config vitest.root.config.ts",
     "lint": "biome check --diagnostic-level=error .",
@@ -18,7 +18,7 @@
     "game:build": "turbo run build --filter=./games/*",
     "game:publish": "node scripts/publish-games.mjs && pnpm game:registry",
     "smoke:realtime": "node scripts/smoke-realtime.mjs",
-    "verify": "pnpm lint && pnpm architecture:check && pnpm typecheck && pnpm test && pnpm build && pnpm smoke:realtime && pnpm security:check",
+    "verify": "pnpm prepare:web && pnpm game:tools:sync && pnpm lint && pnpm architecture:check && pnpm typecheck && pnpm test && pnpm build && pnpm smoke:realtime && pnpm security:check",
     "convex:codegen": "convex codegen",
     "env:local": "node scripts/generate-local-env.mjs",
     "stack:bootstrap": "node scripts/bootstrap-local.mjs",
@@ -38,10 +38,18 @@
     "stack:down": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin down --remove-orphans",
     "stack:config": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin config --quiet",
     "game:previews": "node scripts/capture-game-previews.mjs",
-    "vercel:build": "pnpm game:publish && turbo run build --filter=@play-together/realtime --filter=@play-together/web && node scripts/prepare-vercel-output.mjs",
+    "vercel:build": "pnpm prepare:web && pnpm game:publish && turbo run build --filter=@play-together/realtime --filter=@play-together/web && pnpm web:build:check && node scripts/prepare-vercel-output.mjs",
     "template:pack": "node scripts/package-game-template.mjs",
     "template:publish": "node scripts/publish-template.mjs",
-    "game:registry": "node scripts/generate-game-registry.mjs"
+    "game:registry": "node scripts/generate-game-registry.mjs",
+    "pwa:stamp": "node scripts/stamp-pwa.mjs",
+    "docs:sync": "node scripts/sync-submission-docs.mjs",
+    "game:tools:sync": "node scripts/sync-game-tools.mjs",
+    "mcp:game": "node scripts/game-mcp-server.mjs",
+    "game:tool": "node scripts/game-tool.mjs",
+    "prepare:web": "pnpm pwa:stamp && pnpm docs:sync",
+    "web:build:check": "node scripts/check-web-build.mjs",
+    "workspace:build": "node scripts/run-workspace-build.mjs"
   },
   "dependencies": {
     "@auth/core": "0.41.3",

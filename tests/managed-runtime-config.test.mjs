@@ -15,6 +15,15 @@ describe("managed Vercel runtime configuration", () => {
       source: "/api/templates/download",
       destination: "/api/template-download",
     });
+    for (const route of ["/rooms", "/developers"]) {
+      expect(vercel.rewrites).toContainEqual({ source: route, destination: "/index.html" });
+    }
+    for (const source of ["/version.json", "/sw.js", "/manifest.webmanifest"]) {
+      expect(vercel.headers).toContainEqual({
+        source,
+        headers: [{ key: "Cache-Control", value: "public, max-age=0, must-revalidate" }],
+      });
+    }
     expect(turbo.globalEnv).toEqual(
       expect.arrayContaining(["VITE_CONVEX_URL", "VITE_REALTIME_URL"]),
     );

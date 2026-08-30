@@ -27,35 +27,64 @@ export function ScrollArea({
   ariaLabel?: string;
 }) {
   const viewportRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef(0);
   const [metrics, setMetrics] = useState<ScrollMetrics>(EMPTY_METRICS);
 
-  const updateMetrics = useCallback(() => {
+  const measure = useCallback(() => {
+    frameRef.current = 0;
     const viewport = viewportRef.current;
     if (!viewport) return;
     const { clientHeight, scrollHeight, scrollTop } = viewport;
-    if (clientHeight <= 0 || scrollHeight <= clientHeight + 1) {
-      setMetrics(EMPTY_METRICS);
-      return;
-    }
-    const thumbRatio = Math.max(0.12, Math.min(1, clientHeight / scrollHeight));
-    const scrollRange = Math.max(1, scrollHeight - clientHeight);
-    const thumbOffset = Math.max(0, Math.min(1, scrollTop / scrollRange));
-    setMetrics({ visible: true, thumbRatio, thumbOffset });
+    const next: ScrollMetrics =
+      clientHeight <= 0 || scrollHeight <= clientHeight + 1
+        ? EMPTY_METRICS
+        : {
+            visible: true,
+            thumbRatio: Math.max(0.12, Math.min(1, clientHeight / scrollHeight)),
+            thumbOffset: Math.max(
+              0,
+              Math.min(1, scrollTop / Math.max(1, scrollHeight - clientHeight)),
+            ),
+          };
+    setMetrics((previous) =>
+      previous.visible === next.visible &&
+      Math.abs(previous.thumbRatio - next.thumbRatio) < 0.001 &&
+      Math.abs(previous.thumbOffset - next.thumbOffset) < 0.001
+        ? previous
+        : next,
+    );
   }, []);
+
+  const scheduleMeasure = useCallback(() => {
+    if (frameRef.current) return;
+    frameRef.current = requestAnimationFrame(measure);
+  }, [measure]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return;
-    const observer = new ResizeObserver(updateMetrics);
-    observer.observe(viewport);
-    for (const child of Array.from(viewport.children)) observer.observe(child);
-    viewport.addEventListener("scroll", updateMetrics, { passive: true });
-    updateMetrics();
-    return () => {
-      observer.disconnect();
-      viewport.removeEventListener("scroll", updateMetrics);
+    const resizeObserver = new ResizeObserver(scheduleMeasure);
+    const observeChildren = () => {
+      resizeObserver.disconnect();
+      resizeObserver.observe(viewport);
+      for (const child of Array.from(viewport.children)) resizeObserver.observe(child);
     };
-  }, [updateMetrics]);
+    observeChildren();
+    const mutationObserver = new MutationObserver(() => {
+      observeChildren();
+      scheduleMeasure();
+    });
+    mutationObserver.observe(viewport, { childList: true });
+    viewport.addEventListener("scroll", scheduleMeasure, { passive: true });
+    scheduleMeasure();
+    return () => {
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+      viewport.removeEventListener("scroll", scheduleMeasure);
+      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      frameRef.current = 0;
+    };
+  }, [scheduleMeasure]);
 
   const thumbTravelPercent = metrics.thumbOffset * ((1 / metrics.thumbRatio - 1) * 100);
   const style = {

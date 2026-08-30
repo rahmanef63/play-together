@@ -50,6 +50,12 @@ The launch UI treats the shared screen and phone remote as one experience. Handh
 
 The phone console chassis is a platform concern; each cartridge still owns its actual buttons, sticks, gestures, and input semantics. Remote mode is **screenless** and landscape-first, while handheld mode mounts the pinned display and controller together. The verified manifest may set `controller.shellPreset` to `classic`, `racing`, or `flight`; older immutable releases remain compatible through a deterministic metadata fallback. The shell uses `100dvh`, safe-area insets, disabled accidental zoom/scroll, and touch-first sizing for iOS and Android.
 
+### Native PWA shell
+
+On phones the portal uses a safe-area-aware bottom app dock with Home, Rooms, Templates, Submit, and System destinations. Lobby panels, gameplay previews, templates, and launch-mode cards use touch-friendly horizontal snap rails instead of shrinking desktop grids. Native browser scrollbars stay hidden behind application-owned scroll areas. Routes outside the hot gameplay path are lazy-loaded, lists render skeleton placeholders while Convex data is pending, and preview images use lazy async decoding.
+
+The service worker is stamped from the platform semantic version on every build. When a newer version is waiting, the app shows a reload toast that removes only `play-together-*` caches and application-owned version cookies before activating the new worker. **Convex authentication/session state is deliberately preserved.**
+
 ## Why the architecture is different
 
 A platform update should not force every game to move together, and a game release should not silently alter an active room.
@@ -171,7 +177,7 @@ The repository follows a **vertical-slice architecture**. Cross-slice dependenci
 | Sky Strike | 1–4 | Flight stick + weapons | 3D dogfight, lock-on, cannon, homing missiles and AI bandits |
 | Flight Trainer | 1–4 | Yoke + throttle + systems | 3D takeoff, navigation, instruments, stall/crash and landing training |
 
-Every game ships independent `display`, `controller`, and authoritative `server` bundles. Updating one cartridge does not require changing another game or migrating an active room.
+Every game ships independent `display` and authoritative `server` bundles; standard controllers are generated from manifest topology, while a custom controller bundle remains optional. Updating one cartridge does not require changing another game or migrating an active room.
 
 #### Real gameplay previews
 
@@ -264,6 +270,18 @@ Release rules:
 6. Existing rooms keep their pinned release.
 
 Read [docs/game-sdk.md](docs/game-sdk.md) and [docs/submitting-games.md](docs/submitting-games.md) before implementing a new game. The submission guide includes a copy-ready base prompt for AI coding agents and the required validation checklist.
+
+### Game MCP and project tools
+
+The repository exposes game lifecycle operations through both `.mcp.json` (stdio MCP) and `.mso/functions.json` (MSO project functions). Run the standalone server with:
+
+```bash
+pnpm mcp:game
+```
+
+Available operations are `game_list`, `game_get`, `game_create`, `game_update`, `game_delete`, `game_validate`, `game_publish`, `game_registry`, and `game_prompt`. MSO exposes the same capabilities as `game.list`, `game.get`, etc. Create/update/delete are bounded to `games/<id>`; published versions cannot be mutated or deleted, and `game_publish` creates only the local immutable archive. **Production registration is still performed only by verified main-branch CI.**
+
+The live PWA also exposes the canonical guide and one-click full prompt at **`/developers`**. The prompt is generated from `docs/submitting-games.md`, so frontend instructions and repository rules cannot drift independently.
 
 ## Sell a game template
 

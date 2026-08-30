@@ -1,13 +1,22 @@
 {
+  "id": "/",
   "name": "Play Together",
   "short_name": "Play Together",
   "description": "Use mobile devices as controllers or handheld consoles for shared browser games.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "any",
-  "background_color": "#17151f",
-  "theme_color": "#17151f",
+  "background_color": "#090a0d",
+  "theme_color": "#090a0d",
+  "categories": ["games", "entertainment"],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    { "name": "Rooms", "short_name": "Rooms", "url": "/rooms" },
+    { "name": "Templates", "short_name": "Templates", "url": "/templates" },
+    { "name": "Submit Game", "short_name": "Submit", "url": "/developers" }
+  ],
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }

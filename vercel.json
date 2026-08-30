@@ -33,6 +33,14 @@
     {
       "source": "/templates",
       "destination": "/index.html"
+    },
+    {
+      "source": "/rooms",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/developers",
+      "destination": "/index.html"
     }
   ],
   "headers": [
@@ -88,6 +96,33 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/version.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
         }
       ]
     }

@@ -5,12 +5,19 @@ import type { ReactNode } from "react";
 import { useMemo } from "react";
 
 const convexUrl = import.meta.env.VITE_CONVEX_URL;
-if (!convexUrl) throw new Error("VITE_CONVEX_URL is required");
 
 type UntypedAction = (reference: unknown, args?: unknown) => Promise<unknown>;
 
 export function AppProviders({ children }: { children: ReactNode }) {
-  const client = useMemo(() => createConvexClient(convexUrl), []);
+  const client = useMemo(() => (convexUrl ? createConvexClient(convexUrl) : null), []);
+  if (!client) {
+    return (
+      <main className="centered-state config-error-state">
+        <strong>Play Together is not configured.</strong>
+        <p>The browser deployment is missing its Convex endpoint.</p>
+      </main>
+    );
+  }
   return <ConvexAuthProvider client={client}>{children}</ConvexAuthProvider>;
 }
 

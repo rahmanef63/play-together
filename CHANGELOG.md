@@ -4,6 +4,28 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-08-31
+
+### Added
+
+- Native-feeling mobile PWA navigation with a safe-area-aware five-item dock, full-width snap cards, horizontal game/template/launch rails, and standalone manifest shortcuts.
+- Skeleton loading states, route-level lazy loading, async image decoding, and content-visibility hints for offscreen cards.
+- Version-stamped service-worker update flow with an in-app reload toast that clears only Play Together caches/version cookies while preserving authentication sessions.
+- Frontend `/developers` submission kit with repository-backed docs, MCP/tool reference, and one-click copy of the canonical full game prompt through validation and CI publish.
+- Project-owned stdio MCP server and MSO fixed-argv functions for game list/get/create/update/delete/validate/local-publish/registry/prompt operations.
+- Game tool regression coverage for immutable update/delete guards, MCP protocol parity, and generated PWA/docs artifacts.
+
+### Changed
+
+- Mobile lobby uses full-viewport horizontal snap panels instead of vertically compressing Create and Room containers.
+- Mobile Templates, room launch modes, and submission rules use touch-first horizontal card rails with native scrollbars hidden.
+- Game CRUD tooling keeps production deployment credentials out of the tool process and leaves production registration to verified main-branch CI.
+
+### Security
+
+- Published game versions cannot be modified by `game_update` without an explicit greater semantic version, and any game with release history is protected from `game_delete`.
+- PWA cache refresh never clears Convex authentication storage or unrelated site cookies.
+
 ## [0.8.0] - 2026-08-30
 
 ### Added
