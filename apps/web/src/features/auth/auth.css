@@ -1,0 +1,125 @@
+.auth-page {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 480px);
+  gap: clamp(30px, 6vw, 100px);
+  align-items: center;
+  padding: max(28px, env(safe-area-inset-top)) clamp(22px, 6vw, 100px)
+    max(28px, env(safe-area-inset-bottom));
+}
+
+.auth-hero {
+  max-width: 850px;
+}
+
+.auth-hero > p:not(.eyebrow) {
+  color: #b5c8bb;
+  max-width: 650px;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.65;
+}
+
+.brand-mark,
+.brand-button span {
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #07110c;
+  font-weight: 900;
+  letter-spacing: -0.08em;
+}
+
+.brand-mark {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  margin-bottom: 52px;
+}
+
+.mode-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 32px;
+}
+
+.mode-strip span,
+.status-badge {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d7e9dd;
+  padding: 8px 11px;
+  border-radius: var(--radius-pill);
+  font-size: 0.73rem;
+  font-weight: 750;
+}
+
+.auth-card {
+  padding: 22px;
+}
+
+.segmented {
+  background: rgba(0, 0, 0, 0.28);
+  padding: 5px;
+  border-radius: 15px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 24px;
+}
+
+.segmented button {
+  border: 0;
+  border-radius: 11px;
+  padding: 11px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.segmented button.active {
+  background: #1f392a;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.microcopy {
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  margin: 14px 4px 0;
+}
+
+.auth-link-button {
+  width: 100%;
+  margin-top: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 8px;
+  font-size: 0.82rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.auth-link-button:hover,
+.auth-link-button:focus-visible {
+  color: var(--accent);
+}
+
+.auth-copy {
+  margin: 4px 0 18px;
+}
+
+@media (max-width: 900px) {
+  .auth-page {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-hero {
+    padding-top: 30px;
+  }
+
+  .brand-mark {
+    margin-bottom: 28px;
+  }
+}

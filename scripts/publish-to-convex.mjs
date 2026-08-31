@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { ConvexHttpClient } from "convex/browser";
 import { makeFunctionReference } from "convex/server";
+import { retryManifestFetch } from "./publish-to-convex/retry.mjs";
 
 const requestedIds = new Set(process.argv.slice(2));
 const environment = await loadEnvironment(resolve(process.cwd(), ".env"));
@@ -42,11 +43,13 @@ for (const release of releases) {
   if (digest !== release.manifestSha256) {
     throw new Error(`Catalog digest mismatch for ${release.gameId}@${release.version}`);
   }
-  await client.action(makeFunctionReference("games:publish"), {
-    manifestUrl: new URL(release.manifestPath, `${cdnOrigin.replace(/\/$/, "")}/`).toString(),
-    manifestSha256: digest,
-    publishToken,
-  });
+  await retryManifestFetch(() =>
+    client.action(makeFunctionReference("games:publish"), {
+      manifestUrl: new URL(release.manifestPath, `${cdnOrigin.replace(/\/$/, "")}/`).toString(),
+      manifestSha256: digest,
+      publishToken,
+    }),
+  );
   console.log(`Published ${release.gameId}@${release.version} to Convex`);
 }
 

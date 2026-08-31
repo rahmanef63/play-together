@@ -1,0 +1,23 @@
+@media (orientation: portrait) {
+  .console-shell--remote .console-shell__chassis,
+  .console-shell--remote.console-shell--racing .console-shell__chassis,
+  .console-shell--remote.console-shell--flight .console-shell__chassis,
+  .console-shell--remote.console-shell--classic .console-shell__chassis {
+    width: min(100%, 430px);
+    height: clamp(300px, 48dvh, 400px);
+    max-height: calc(100% - 6px);
+    padding: 10px 8px;
+    border-radius: 24px;
+  }
+}
+
+@media (max-height: 430px) and (orientation: landscape) {
+  .console-shell--remote .console-shell__chassis,
+  .console-shell--remote.console-shell--racing .console-shell__chassis,
+  .console-shell--remote.console-shell--flight .console-shell__chassis,
+  .console-shell--remote.console-shell--classic .console-shell__chassis {
+    height: calc(100% - 4px);
+    max-height: 300px;
+    border-radius: 20px;
+  }
+}

@@ -13,6 +13,14 @@
 9. Do not add compatibility files, duplicate APIs, re-export shims, placeholder modules, or second sources of truth.
 10. Do not commit `.env`, admin keys, game-publish tokens, join-ticket secrets, JWT keys, or generated local state.
 
+## File and ownership budget
+
+- Maintained `.ts`, `.tsx`, `.js`, `.mjs`, and `.css` implementation files must stay at or below 200 lines. `pnpm architecture:check` enforces this.
+- Split by real ownership (model, lifecycle, protocol, renderer, HUD, scene), never by arbitrary `part1`/`part2` chunks.
+- Web features may not import sibling feature internals. `shared` and `frame` may not depend on feature slices.
+- Prefer existing semantic CSS custom properties; do not recreate global monolithic stylesheets.
+- `README.md` is orientation; `docs/agent-onboarding.md` is the task-routing map. Read both before repository-wide refactors.
+
 ## Vertical-slice flow
 
 Organize changes by user capability, not by generic technical layer:
@@ -37,6 +45,8 @@ A slice may span UI, Convex, contracts, gateway, game SDK, and tests. Keep its p
 - Published release catalog: immutable manifests in the game CDN plus registered digest in Convex.
 - Environment names and deployment rules: `.env.example` and `docs/deployment.md`.
 - Commands and verification gates: root `package.json`.
+- Agent task routing: `docs/agent-onboarding.md`.
+- Canonical game-submission prompt: `docs/game-submission-prompt.txt`.
 
 ## Required verification
 

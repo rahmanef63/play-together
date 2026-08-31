@@ -4,64 +4,22 @@ import type {
   ServerGameContext,
   ServerPlayer,
 } from "@play-together/game-sdk";
+import {
+  CPS,
+  clamp,
+  dist,
+  type InputState,
+  LAPS,
+  type Racer,
+  type RaceState,
+  RX,
+  RZ,
+  resolveCollisions,
+  tangentHeading,
+  trackDeviation,
+  WIDTH,
+} from "./server/raceModel.js";
 
-type Phase = "countdown" | "racing" | "finished";
-interface InputState {
-  steer: number;
-  throttle: number;
-  brake: number;
-  boost: boolean;
-}
-interface Racer {
-  id: string;
-  name: string;
-  bot: boolean;
-  x: number;
-  z: number;
-  heading: number;
-  speed: number;
-  lap: number;
-  nextCheckpoint: number;
-  nitro: number;
-  finished: boolean;
-  finishMs: number | null;
-  steering: number;
-  input: InputState;
-}
-interface RaceState {
-  kind: "turbo-circuit";
-  phase: Phase;
-  countdownMs: number;
-  raceMs: number;
-  lapsToWin: number;
-  track: { rx: number; rz: number; width: number; checkpoints: Array<{ x: number; z: number }> };
-  racers: Racer[];
-  winnerId: string | null;
-}
-const RX = 62,
-  RZ = 38,
-  WIDTH = 16,
-  LAPS = 3;
-const CPS = [
-  { x: RX, z: 0 },
-  { x: 0, z: RZ },
-  { x: -RX, z: 0 },
-  { x: 0, z: -RZ },
-];
-const clamp = (n: number, a: number, b: number) => Math.max(a, Math.min(b, n));
-const dist = (a: { x: number; z: number }, b: { x: number; z: number }) =>
-  Math.hypot(a.x - b.x, a.z - b.z);
-function trackDeviation(x: number, z: number) {
-  const q = Math.hypot(x / RX, z / RZ) || 1;
-  const cx = x / q,
-    cz = z / q;
-  return Math.hypot(x - cx, z - cz);
-}
-function tangentHeading(angle: number) {
-  const dx = -RX * Math.sin(angle),
-    dz = RZ * Math.cos(angle);
-  return Math.atan2(dx, dz);
-}
 class TurboCircuit implements ServerGame {
   readonly #s: RaceState = {
     kind: "turbo-circuit",
@@ -188,7 +146,7 @@ class TurboCircuit implements ServerGame {
       }
       this.#checkpoint(r);
     }
-    this.#collisions();
+    resolveCollisions(this.#s.racers);
     const humans = this.#s.racers.filter((r) => !r.bot);
     if (humans.length > 0 && humans.every((r) => r.finished)) this.#s.phase = "finished";
   }
@@ -217,28 +175,6 @@ class TurboCircuit implements ServerGame {
         this.#s.winnerId ??= r.id;
       }
     }
-  }
-  #collisions() {
-    for (let i = 0; i < this.#s.racers.length; i++)
-      for (let j = i + 1; j < this.#s.racers.length; j++) {
-        const a = this.#s.racers[i]!,
-          b = this.#s.racers[j]!;
-        if (dist(a, b) >= 3.2) continue;
-        const dx = a.x - b.x,
-          dz = a.z - b.z,
-          d = Math.hypot(dx, dz) || 1,
-          push = (3.2 - d) * 0.5;
-        if (!a.bot) {
-          a.x += (dx / d) * push;
-          a.z += (dz / d) * push;
-          a.speed *= 0.86;
-        }
-        if (!b.bot) {
-          b.x -= (dx / d) * push;
-          b.z -= (dz / d) * push;
-          b.speed *= 0.86;
-        }
-      }
   }
   snapshot() {
     const racers = this.#s.racers.map(({ input, steering, ...r }) => r);

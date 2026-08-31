@@ -1,0 +1,114 @@
+.app-shell,
+.room-page {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+  padding: max(14px, env(safe-area-inset-top)) clamp(14px, 3vw, 38px)
+    max(28px, env(safe-area-inset-bottom));
+}
+
+.room-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.82fr) minmax(0, 1.4fr);
+  gap: 20px;
+}
+
+.room-page {
+  min-height: 100dvh;
+}
+
+.room-identity {
+  text-align: center;
+  padding: clamp(40px, 8vw, 90px) 0 36px;
+}
+
+.room-identity h1 {
+  font-size: clamp(2.8rem, 8vw, 6.6rem);
+}
+
+.room-code {
+  display: inline-grid;
+  gap: var(--space-2);
+  justify-items: center;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  border-radius: 22px;
+  padding: 14px 26px;
+}
+
+.room-code span,
+.room-code small {
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.room-code strong {
+  font:
+    900 clamp(2rem, 7vw, 4.3rem) / 1 ui-monospace,
+    monospace;
+  letter-spacing: 0.13em;
+  color: var(--accent);
+}
+
+.room-layout {
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.55fr);
+}
+
+.room-page {
+  width: 100%;
+  max-width: none;
+  height: 100svh;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.room-page-scroll {
+  min-height: 0;
+}
+
+.room-page-scroll__content {
+  min-height: 100%;
+  padding: 0 2px max(12px, env(safe-area-inset-bottom));
+}
+
+.room-invite-scroll-content {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 18px 2px max(18px, env(safe-area-inset-bottom));
+}
+
+.room-identity {
+  padding: clamp(18px, 4vh, 48px) 0 clamp(18px, 3vh, 30px);
+}
+
+.room-identity h1 {
+  font-size: clamp(2.4rem, 7vw, 5.8rem);
+}
+
+.room-layout {
+  min-width: 0;
+  min-height: 340px;
+  align-items: stretch;
+}
+
+.room-layout > .panel-frame {
+  height: min(58svh, 620px);
+  min-height: 320px;
+}
+
+@media (max-width: 900px) {
+  .room-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .room-layout > .panel-frame {
+    height: min(52svh, 520px);
+  }
+}

@@ -1,53 +1,23 @@
-import { randomUUID } from "node:crypto";
-import { pathToFileURL } from "node:url";
-import { Worker } from "node:worker_threads";
 import type { TicketClaims } from "@play-together/contracts";
 import type { WebSocket } from "ws";
 import type { ResolvedGameModule } from "../modules/module-store.js";
-import { classifySocketPressure } from "./backpressure.js";
-import {
-  authorityInstanceId,
-  type CoordinatedInput,
-  type CoordinatedPresencePlayer,
-  type CoordinatedSnapshot,
-  type RoomCoordinatorHandle,
+import type {
+  CoordinatedInput,
+  CoordinatedPresencePlayer,
+  CoordinatedSnapshot,
+  RoomCoordinatorHandle,
 } from "./room-coordinator.js";
-
-interface ClientConnection {
-  id: string;
-  socket: WebSocket;
-  claims: TicketClaims;
-  connectedAt: number;
-  messagesInWindow: number;
-  lastSequence: number;
-  windowStartedAt: number;
-  expiryTimer: ReturnType<typeof setTimeout>;
-}
-
-const WORKER_READY_TIMEOUT_MS = 8_000;
-
-interface WorkerMessage {
-  type: "ready" | "snapshot" | "error" | "disposed";
-  tick?: number;
-  serverTime?: number;
-  state?: unknown;
-  message?: string;
-  fatal?: boolean;
-}
+import { RoomGameWorker } from "./room-game-worker.js";
+import { RoomSessionClients } from "./room-session-clients.js";
+import { RoomSessionDistribution } from "./room-session-distribution.js";
 
 export class RoomSession {
   readonly key: string;
-  readonly #worker: Worker;
-  readonly #clients = new Map<string, ClientConnection>();
+  readonly #worker: RoomGameWorker;
+  readonly #clients = new RoomSessionClients();
   readonly #onEmpty: () => void;
-  #ready: Promise<void>;
-  #resolveReady!: () => void;
-  #rejectReady!: (error: Error) => void;
   #closed = false;
-  #readyTimer: ReturnType<typeof setTimeout> | null = null;
-  #coordinator: RoomCoordinatorHandle | null = null;
-  #coordinatedControllers = new Map<string, number>();
-  #isCoordinatorAuthority = false;
+  readonly #distribution: RoomSessionDistribution;
 
   constructor(
     claims: TicketClaims,
@@ -57,72 +27,25 @@ export class RoomSession {
   ) {
     this.#onEmpty = onEmpty;
     this.key = `${claims.roomId}:${claims.gameId}@${claims.gameVersion}:${claims.manifestSha256}`;
-    this.#ready = new Promise((resolve, reject) => {
-      this.#resolveReady = resolve;
-      this.#rejectReady = reject;
-    });
-    this.#readyTimer = setTimeout(() => {
-      const error = new Error("Game worker did not become ready in time");
-      this.#rejectReady(error);
-      this.#broadcast(
-        {
-          type: "error",
-          code: "GAME_WORKER_TIMEOUT",
-          message: "This room's game process did not start in time",
-          fatal: true,
+    this.#worker = new RoomGameWorker(
+      claims,
+      module,
+      {
+        onSnapshot: (snapshot) => this.#onSnapshot(snapshot),
+        onGameError: (message, fatal) => {
+          this.#clients.broadcast({ type: "error", code: "GAME_ERROR", message, fatal });
+          if (fatal) this.close();
         },
-        false,
-      );
-      this.close();
-    }, WORKER_READY_TIMEOUT_MS);
-    this.#readyTimer.unref();
-
-    const workerUrl = workerScriptPath
-      ? pathToFileURL(workerScriptPath)
-      : new URL("./game-worker.js", import.meta.url);
-    this.#worker = new Worker(workerUrl, {
-      workerData: {
-        modulePath: module.modulePath,
-        context: {
-          roomId: claims.roomId,
-          gameId: claims.gameId,
-          gameVersion: claims.gameVersion,
-          seed: stableSeed(claims.roomId),
+        onFatal: (code, message) => {
+          this.#clients.broadcast({ type: "error", code, message, fatal: true }, false);
+          this.close();
         },
-        tickRate: module.manifest.game.tickRate,
-        snapshotRate: module.manifest.game.snapshotRate,
       },
-      resourceLimits: {
-        maxOldGenerationSizeMb: 256,
-        maxYoungGenerationSizeMb: 32,
-        stackSizeMb: 4,
-      },
-    });
-    this.#worker.on("message", (message: WorkerMessage) => this.#onWorkerMessage(message));
-    this.#worker.on("error", (error) => {
-      this.#clearReadyTimer();
-      const normalized = error instanceof Error ? error : new Error(String(error));
-      this.#rejectReady(normalized);
-      this.#broadcast({
-        type: "error",
-        code: "GAME_WORKER_CRASH",
-        message: "This room's game process stopped",
-        fatal: true,
-      });
-      this.close();
-    });
-    this.#worker.on("exit", (code) => {
-      this.#clearReadyTimer();
-      if (!this.#closed && code !== 0) {
-        this.#broadcast({
-          type: "error",
-          code: "GAME_WORKER_EXIT",
-          message: "This room's game process exited",
-          fatal: true,
-        });
-        this.close();
-      }
-    });
+      workerScriptPath,
+    );
+    this.#distribution = new RoomSessionDistribution(this.#worker, this.#clients, (reason) =>
+      this.#coordinationFailed(reason),
+    );
   }
 
   get size(): number {
@@ -130,102 +53,41 @@ export class RoomSession {
   }
 
   attachCoordinator(coordinator: RoomCoordinatorHandle): void {
-    if (this.#coordinator) throw new Error("Room coordinator is already attached");
-    this.#coordinator = coordinator;
+    this.#distribution.attach(coordinator);
   }
 
   syncDistributedPresence(players: CoordinatedPresencePlayer[]): void {
-    if (!this.#coordinator || this.#closed) return;
-    this.#isCoordinatorAuthority = authorityInstanceId(players) === this.#coordinator.instanceId;
-
-    const nextControllers = new Map<string, number>();
-    for (const player of players) {
-      if (player.role !== "controller") continue;
-      const current = nextControllers.get(player.playerId);
-      if (current === undefined || player.connectedAt < current) {
-        nextControllers.set(player.playerId, player.connectedAt);
-      }
-    }
-    for (const [playerId, connectedAt] of nextControllers) {
-      if (!this.#coordinatedControllers.has(playerId)) {
-        this.#worker.postMessage({ type: "join", playerId, connectedAt });
-      }
-    }
-    for (const playerId of this.#coordinatedControllers.keys()) {
-      if (!nextControllers.has(playerId)) this.#worker.postMessage({ type: "leave", playerId });
-    }
-    this.#coordinatedControllers = nextControllers;
-    this.#broadcast({
-      type: "presence",
-      players: players.map((player) => ({
-        playerId: player.playerId,
-        role: player.role,
-        mode: player.mode,
-        connectedAt: player.connectedAt,
-      })),
-    });
+    if (!this.#closed) this.#distribution.syncPresence(players);
   }
 
   handleDistributedInput(input: CoordinatedInput): void {
-    if (!this.#coordinator || this.#closed) return;
-    if (!this.#coordinatedControllers.has(input.playerId)) {
-      this.#coordinatedControllers.set(input.playerId, input.connectedAt);
-      this.#worker.postMessage({
-        type: "join",
-        playerId: input.playerId,
-        connectedAt: input.connectedAt,
-      });
-    }
-    this.#worker.postMessage({
-      type: "input",
-      playerId: input.playerId,
-      payload: input.payload,
-      sequence: input.sequence,
-    });
+    if (!this.#closed) this.#distribution.handleInput(input);
   }
 
   handleDistributedSnapshot(snapshot: CoordinatedSnapshot): void {
-    if (!this.#coordinator || this.#closed) return;
-    this.#broadcast({ type: "snapshot", ...snapshot }, true);
+    if (!this.#closed) this.#distribution.handleSnapshot(snapshot);
   }
 
   async add(socket: WebSocket, claims: TicketClaims): Promise<string> {
-    await this.#ready;
+    await this.#worker.ready;
     if (this.#closed) throw new Error("Room session is closed");
-    const id = randomUUID();
-    const connectedAt = Date.now();
-    const expiresInMs = claims.exp * 1_000 - connectedAt;
-    if (expiresInMs <= 0) throw new Error("Realtime ticket expired before connection");
-    const expiryTimer = setTimeout(() => {
-      const active = this.#clients.get(id);
-      if (active) active.socket.close(4001, "ticket expired");
-    }, expiresInMs);
-    expiryTimer.unref();
-    const connection: ClientConnection = {
-      id,
-      socket,
-      claims,
-      connectedAt,
-      messagesInWindow: 0,
-      lastSequence: -1,
-      windowStartedAt: connectedAt,
-      expiryTimer,
-    };
-    this.#clients.set(id, connection);
-    if (this.#coordinator) {
-      await this.#coordinator.register({
-        connectionId: id,
-        playerId: claims.sub,
-        role: claims.role,
-        mode: claims.mode,
-        connectedAt,
-      });
-    } else if (claims.role === "controller" && !this.#hasOtherController(claims.sub, id)) {
-      this.#worker.postMessage({ type: "join", playerId: claims.sub, connectedAt });
+    const connection = this.#clients.add(socket, claims);
+    const distributed = await this.#distribution.register(connection.id, {
+      playerId: claims.sub,
+      role: claims.role,
+      mode: claims.mode,
+      connectedAt: connection.connectedAt,
+    });
+    if (
+      !distributed &&
+      claims.role === "controller" &&
+      !this.#clients.hasOtherController(claims.sub, connection.id)
+    ) {
+      this.#worker.join(claims.sub, connection.connectedAt);
     }
-    this.#send(socket, {
+    this.#clients.send(socket, {
       type: "welcome",
-      connectionId: id,
+      connectionId: connection.id,
       playerId: claims.sub,
       roomId: claims.roomId,
       roomCode: claims.roomCode,
@@ -235,15 +97,15 @@ export class RoomSession {
       gameVersion: claims.gameVersion,
       protocolVersion: 1,
     });
-    if (!this.#coordinator) this.#broadcastPresence();
-    return id;
+    if (!this.#distribution.active) this.#clients.broadcastPresence();
+    return connection.id;
   }
 
   handle(connectionId: string, message: { type: string; [key: string]: unknown }): void {
     const connection = this.#clients.get(connectionId);
     if (!connection || this.#closed) return;
-    if (!this.#charge(connection)) {
-      this.#send(connection.socket, {
+    if (!this.#clients.charge(connection)) {
+      this.#clients.send(connection.socket, {
         type: "error",
         code: "RATE_LIMIT",
         message: "Input rate exceeded",
@@ -253,59 +115,40 @@ export class RoomSession {
       return;
     }
     if (message.type === "heartbeat") {
-      this.#send(connection.socket, {
+      this.#clients.send(connection.socket, {
         type: "pong",
         sentAt: Number(message.sentAt) || 0,
         serverTime: Date.now(),
       });
-      if (this.#coordinator) {
-        void this.#coordinator
-          .heartbeat(connectionId)
-          .catch((error) => this.#coordinationFailed(error));
-      }
+      this.#distribution.heartbeat(connectionId);
       return;
     }
-    if (message.type === "input" && connection.claims.role === "controller") {
-      const sequence = Number(message.seq);
-      if (!Number.isInteger(sequence) || sequence <= connection.lastSequence) return;
-      connection.lastSequence = sequence;
-      if (this.#coordinator) {
-        void this.#coordinator
-          .publishInput({
-            playerId: connection.claims.sub,
-            connectedAt: connection.connectedAt,
-            payload: message.payload,
-            sequence,
-          })
-          .catch((error) => this.#coordinationFailed(error));
-      } else {
-        this.#worker.postMessage({
-          type: "input",
-          playerId: connection.claims.sub,
-          payload: message.payload,
-          sequence,
-        });
-      }
+    if (message.type !== "input" || connection.claims.role !== "controller") return;
+    const sequence = Number(message.seq);
+    if (!Number.isInteger(sequence) || sequence <= connection.lastSequence) return;
+    connection.lastSequence = sequence;
+    if (
+      !this.#distribution.publishInput({
+        playerId: connection.claims.sub,
+        connectedAt: connection.connectedAt,
+        payload: message.payload,
+        sequence,
+      })
+    ) {
+      this.#worker.input(connection.claims.sub, message.payload, sequence);
     }
   }
 
   remove(connectionId: string): void {
-    const connection = this.#clients.get(connectionId);
+    const connection = this.#clients.remove(connectionId);
     if (!connection) return;
-    this.#clients.delete(connectionId);
-    clearTimeout(connection.expiryTimer);
-    if (this.#coordinator) {
-      void this.#coordinator
-        .unregister(connectionId)
-        .catch((error) => this.#coordinationFailed(error));
-    } else {
+    if (!this.#distribution.unregister(connectionId)) {
       if (
         connection.claims.role === "controller" &&
-        !this.#hasOtherController(connection.claims.sub)
-      ) {
-        this.#worker.postMessage({ type: "leave", playerId: connection.claims.sub });
-      }
-      this.#broadcastPresence();
+        !this.#clients.hasOtherController(connection.claims.sub)
+      )
+        this.#worker.leave(connection.claims.sub);
+      this.#clients.broadcastPresence();
     }
     if (this.#clients.size === 0) this.#onEmpty();
   }
@@ -313,103 +156,20 @@ export class RoomSession {
   close(): void {
     if (this.#closed) return;
     this.#closed = true;
-    for (const connection of this.#clients.values()) {
-      clearTimeout(connection.expiryTimer);
-      connection.socket.close(1012, "room restarted");
-    }
-    this.#clients.clear();
-    this.#coordinatedControllers.clear();
-    this.#isCoordinatorAuthority = false;
-    const coordinator = this.#coordinator;
-    this.#coordinator = null;
-    if (coordinator) void coordinator.close();
-    this.#clearReadyTimer();
-    this.#worker.postMessage({ type: "dispose" });
-    setTimeout(() => void this.#worker.terminate(), 2_000).unref();
+    this.#clients.closeAll();
+    this.#distribution.close();
+    this.#worker.dispose();
   }
 
-  #onWorkerMessage(message: WorkerMessage): void {
-    if (message.type === "ready") {
-      this.#clearReadyTimer();
-      this.#resolveReady();
-      return;
-    }
-    if (message.type === "snapshot") {
-      const snapshot: CoordinatedSnapshot = {
-        tick: message.tick ?? 0,
-        serverTime: message.serverTime ?? Date.now(),
-        state: message.state,
-      };
-      if (this.#coordinator) {
-        if (this.#isCoordinatorAuthority) {
-          void this.#coordinator
-            .publishSnapshot(snapshot)
-            .catch((error) => this.#coordinationFailed(error));
-        }
-      } else {
-        this.#broadcast({ type: "snapshot", ...snapshot }, true);
-      }
-      return;
-    }
-    if (message.type === "error") {
-      this.#broadcast({
-        type: "error",
-        code: "GAME_ERROR",
-        message: message.message ?? "Game error",
-        fatal: Boolean(message.fatal),
-      });
-      if (message.fatal) this.close();
-    }
-  }
-
-  #hasOtherController(playerId: string, exceptId?: string): boolean {
-    return [...this.#clients.values()].some(
-      (connection) =>
-        connection.id !== exceptId &&
-        connection.claims.role === "controller" &&
-        connection.claims.sub === playerId,
-    );
-  }
-
-  #charge(connection: ClientConnection): boolean {
-    const now = Date.now();
-    if (now - connection.windowStartedAt >= 10_000) {
-      connection.windowStartedAt = now;
-      connection.messagesInWindow = 0;
-    }
-    connection.messagesInWindow += 1;
-    return connection.messagesInWindow <= 700;
-  }
-
-  #broadcastPresence(): void {
-    this.#broadcast({
-      type: "presence",
-      players: [...this.#clients.values()].map((connection) => ({
-        playerId: connection.claims.sub,
-        role: connection.claims.role,
-        mode: connection.claims.mode,
-        connectedAt: connection.connectedAt,
-      })),
-    });
-  }
-
-  #broadcast(message: unknown, droppableSnapshot = false): void {
-    const serialized = JSON.stringify(message);
-    for (const connection of this.#clients.values()) {
-      if (connection.socket.readyState !== connection.socket.OPEN) continue;
-      const pressure = classifySocketPressure(connection.socket.bufferedAmount);
-      if (pressure === "close") {
-        connection.socket.close(1013, "client too slow");
-        continue;
-      }
-      if (droppableSnapshot && pressure === "drop-snapshot") continue;
-      connection.socket.send(serialized);
+  #onSnapshot(snapshot: CoordinatedSnapshot): void {
+    if (!this.#distribution.publishSnapshot(snapshot)) {
+      this.#clients.broadcast({ type: "snapshot", ...snapshot }, true);
     }
   }
 
   #coordinationFailed(reason: unknown): void {
     if (this.#closed) return;
-    this.#broadcast({
+    this.#clients.broadcast({
       type: "error",
       code: "COORDINATION_UNAVAILABLE",
       message: reason instanceof Error ? reason.message : "Shared room coordination is unavailable",
@@ -417,23 +177,4 @@ export class RoomSession {
     });
     this.close();
   }
-
-  #clearReadyTimer(): void {
-    if (!this.#readyTimer) return;
-    clearTimeout(this.#readyTimer);
-    this.#readyTimer = null;
-  }
-
-  #send(socket: WebSocket, message: unknown): void {
-    if (socket.readyState === socket.OPEN) socket.send(JSON.stringify(message));
-  }
-}
-
-function stableSeed(value: string): number {
-  let hash = 2166136261;
-  for (const character of value) {
-    hash ^= character.charCodeAt(0);
-    hash = Math.imul(hash, 16777619);
-  }
-  return hash >>> 0;
 }

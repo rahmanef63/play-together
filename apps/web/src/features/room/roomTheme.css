@@ -1,0 +1,10 @@
+/* Room-owned reduced-glass theme. */
+.launch-panel,
+.members-panel,
+.launch-card {
+  background: var(--arcade-surface);
+  border-color: var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  backdrop-filter: none;
+}

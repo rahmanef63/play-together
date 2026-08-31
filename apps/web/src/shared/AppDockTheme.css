@@ -1,0 +1,16 @@
+.app-dock__surface,
+.update-toast {
+  background: #1a1f20;
+  border-color: rgba(234, 217, 174, 0.2);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.34);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.primary-button,
+.secondary-button,
+.ghost-button,
+.brand-button,
+.avatar-button {
+  border-radius: var(--radius-sm);
+}

@@ -257,7 +257,7 @@
     },
     {
       "name": "game.prompt",
-      "description": "Return the canonical full game-submission prompt extracted from docs/submitting-games.md.",
+      "description": "Return the canonical full game-submission prompt from docs/game-submission-prompt.txt.",
       "inputSchema": {
         "type": "object",
         "properties": {},

@@ -1,0 +1,81 @@
+@keyframes skeleton-shimmer {
+  to {
+    background-position-x: -220%;
+  }
+}
+
+.docs-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: var(--radius-xl);
+}
+
+@media (max-width: 760px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    background: #090a0d;
+  }
+
+  .lobby-grid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    grid-template: none;
+    align-items: stretch;
+    gap: var(--space-5);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    padding: 1px 0 3px;
+  }
+}
+
+@media (max-width: 760px) and (orientation: landscape) and (max-height: 500px) {
+  .lobby-grid {
+    gap: 9px;
+  }
+}
+
+@media (max-width: 760px) {
+  .desktop-topbar {
+    display: none;
+  }
+
+  .panel-frame > .section-title {
+    margin-bottom: 10px;
+  }
+
+  .section-title h2 {
+    font-size: 1.22rem;
+  }
+
+  .section-title .eyebrow {
+    margin-bottom: 5px;
+  }
+
+  .panel-scroll__content {
+    padding-bottom: 14px;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    color-scheme: dark;
+    --mobile-card: rgba(24, 26, 31, 0.88);
+    --mobile-card-soft: rgba(31, 34, 39, 0.74);
+  }
+}

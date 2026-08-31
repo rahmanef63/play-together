@@ -1,0 +1,167 @@
+/* Remote-only topology: compact physical controls, never stretched by viewport height. */
+.console-shell--remote .builtin-controller {
+  width: min(100%, 680px);
+  max-width: 680px;
+  height: min(100%, 350px);
+  max-height: 350px;
+  margin: auto;
+  align-self: center;
+}
+.console-control--button[data-semantic-label="true"] {
+  width: clamp(68px, 15vmin, 108px);
+  aspect-ratio: 1.28 / 1;
+  border-radius: clamp(16px, 3vmin, 24px);
+  padding: 5px 7px;
+  font-size: clamp(9px, 2.45vmin, 15px);
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+}
+
+/* Racing remotes use two intentional hand zones: steering left, pedals/actions right. */
+.console-shell--remote .builtin-controller--racing {
+  grid-template-columns: minmax(150px, 1fr) minmax(190px, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "left right"
+    "left bottom-right";
+  column-gap: clamp(18px, 6vw, 64px);
+  row-gap: var(--console-space-md);
+}
+.console-shell--remote .builtin-controller--racing .builtin-controller__zone--left {
+  justify-content: center;
+  align-items: center;
+}
+.console-shell--remote .builtin-controller--racing .builtin-controller__zone--right {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(72px, 96px));
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 1.8vw, 14px);
+}
+.console-shell--remote
+  .builtin-controller--racing
+  .builtin-controller__zone--right
+  .console-control--button {
+  width: 100%;
+  height: clamp(86px, 24vh, 136px);
+  min-height: 0;
+  aspect-ratio: auto;
+  border-radius: clamp(18px, 3vmin, 26px);
+}
+.console-shell--remote .builtin-controller--racing .builtin-controller__zone--bottom-right {
+  justify-content: center;
+  align-items: center;
+}
+.console-shell--remote
+  .builtin-controller--racing
+  .builtin-controller__zone--bottom-right
+  .console-control--button {
+  width: clamp(76px, 16vmin, 106px);
+  min-height: 48px;
+  aspect-ratio: 1.35 / 1;
+}
+
+.console-shell--remote .builtin-controller--flight {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.18fr) minmax(0, 1fr);
+}
+.console-shell--remote .builtin-controller--flight .builtin-controller__zone--right {
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (orientation: landscape) {
+  .console-shell--remote .console-control--stick,
+  .console-shell--remote .console-control--dpad {
+    width: min(42vh, 27vw, 164px);
+  }
+  .console-shell--remote
+    .console-control--button:not([data-face="l1"]):not([data-face="r1"]):not([data-face="l2"]):not(
+      [data-face="r2"]
+    ) {
+    width: min(20vh, 13vw, 82px);
+  }
+  .console-shell--remote .console-control--button[data-semantic-label="true"] {
+    width: min(25vh, 17vw, 106px);
+    min-width: 62px;
+    min-height: 44px;
+  }
+  .console-shell--remote .console-control--button[data-face="l1"],
+  .console-shell--remote .console-control--button[data-face="r1"],
+  .console-shell--remote .console-control--button[data-face="l2"],
+  .console-shell--remote .console-control--button[data-face="r2"] {
+    width: min(25vh, 18vw, 112px);
+    min-height: 42px;
+  }
+}
+
+@media (orientation: portrait) {
+  .console-shell--remote .builtin-controller,
+  .console-shell--remote .builtin-controller--flight {
+    width: min(100%, 400px);
+    height: min(100%, 500px);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "left right"
+      "bottom-left bottom-right";
+    gap: 10px;
+  }
+  .console-shell--remote .builtin-controller--racing {
+    width: min(100%, 400px);
+    height: min(100%, 500px);
+    grid-template-columns: minmax(150px, 1.08fr) minmax(148px, 0.92fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "left right"
+      "left bottom-right";
+    column-gap: clamp(10px, 3vw, 18px);
+    row-gap: 10px;
+    padding: 10px 8px;
+  }
+  .console-shell--remote .console-control--stick,
+  .console-shell--remote .console-control--dpad {
+    width: min(42vw, 172px);
+  }
+  .console-shell--remote .builtin-controller--racing .builtin-controller__zone--right {
+    grid-template-columns: repeat(2, minmax(60px, 78px));
+    gap: var(--console-space-md);
+  }
+  .console-shell--remote
+    .builtin-controller--racing
+    .builtin-controller__zone--right
+    .console-control--button {
+    width: 100%;
+    height: clamp(108px, 24vh, 154px);
+    min-width: 0;
+    min-height: 0;
+  }
+  .console-shell--remote .builtin-controller--racing .builtin-controller__zone--bottom-right {
+    justify-content: flex-end;
+    padding-right: 4px;
+  }
+  .console-shell--remote
+    .builtin-controller--racing
+    .builtin-controller__zone--bottom-right
+    .console-control--button {
+    width: min(26vw, 94px);
+    min-width: 72px;
+    min-height: 52px;
+  }
+}
+
+@media (max-width: 390px) and (orientation: portrait) {
+  .console-shell--remote .builtin-controller--racing {
+    grid-template-columns: minmax(132px, 1fr) minmax(126px, 0.86fr);
+    column-gap: 6px;
+    padding-inline: 4px;
+  }
+  .console-shell--remote .console-control--stick {
+    width: min(40vw, 152px);
+  }
+  .console-shell--remote .builtin-controller--racing .builtin-controller__zone--right {
+    grid-template-columns: repeat(2, minmax(54px, 68px));
+    gap: 6px;
+  }
+}

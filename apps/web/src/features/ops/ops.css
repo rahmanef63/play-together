@@ -1,0 +1,193 @@
+.ops-console-page {
+  background: var(--arcade-ink);
+}
+
+.ops-console-content {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+  padding: clamp(18px, 3vw, 34px) clamp(14px, 3vw, 34px) 40px;
+}
+
+.ops-console-overview {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.58fr);
+  gap: clamp(18px, 3vw, 36px);
+  align-items: stretch;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 18px;
+}
+
+.ops-console-overview__copy {
+  min-width: 0;
+  align-self: center;
+}
+
+.ops-console-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--arcade-mustard);
+  font:
+    750 0.72rem / 1.2 ui-monospace,
+    "SFMono-Regular",
+    Menlo,
+    Consolas,
+    monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ops-console-overview h1 {
+  max-width: none;
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 4.8vw, 4.25rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+
+.ops-console-overview p {
+  max-width: 720px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.ops-console-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin-top: 20px;
+  color: var(--arcade-cream);
+}
+
+.ops-console-summary strong {
+  font:
+    850 clamp(1.5rem, 3vw, 2.4rem) / 1 ui-monospace,
+    monospace;
+  color: var(--arcade-mustard);
+}
+
+.ops-console-summary span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.ops-console-overview__art {
+  min-width: 0;
+  min-height: 168px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(234, 217, 174, 0.22);
+  border-radius: var(--radius-md);
+  background: #0d1112;
+}
+
+.ops-console-overview__art img {
+  width: 100%;
+  height: 100%;
+  min-height: 168px;
+  max-height: 238px;
+  display: block;
+  object-fit: cover;
+  object-position: center 48%;
+  filter: saturate(0.82) contrast(1.02);
+}
+
+.ops-console-grid {
+  grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.65fr);
+  align-items: stretch;
+  min-width: 0;
+  min-height: 0;
+}
+
+.ops-console-grid > .panel-frame {
+  height: clamp(430px, 58svh, 700px);
+  min-height: 0;
+  padding: clamp(16px, 2.2vw, 24px);
+}
+
+.ops-panel-title {
+  align-items: end;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.ops-panel-title h2 {
+  margin: 0;
+  font-size: clamp(1.15rem, 2vw, 1.55rem);
+}
+
+.ops-panel-title > span {
+  color: var(--muted);
+  font:
+    650 0.72rem / 1 ui-monospace,
+    monospace;
+}
+
+.ops-panel-scroll {
+  min-height: 0;
+}
+
+.ops-game-list {
+  display: grid;
+  gap: 0;
+  padding: 0 8px 10px 0;
+}
+
+.ops-game-list .game-version {
+  border: 0;
+  border-bottom: 1px solid rgba(234, 217, 174, 0.12);
+  border-radius: 0;
+  background: transparent;
+  padding: 14px 4px;
+}
+
+.ops-game-list .game-version:last-child {
+  border-bottom: 0;
+}
+
+.ops-game-list .game-version code {
+  color: var(--arcade-cream);
+}
+
+.ops-architecture-content {
+  display: grid;
+  gap: var(--space-9);
+  padding: 2px 8px 10px 0;
+}
+
+.ops-architecture-content > p {
+  margin: 0;
+}
+
+.ops-architecture-content ol {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: ops-step;
+}
+
+.ops-architecture-content li {
+  counter-increment: ops-step;
+  position: relative;
+  min-height: 48px;
+  padding: 12px 4px 12px 38px;
+  border-bottom: 1px solid rgba(234, 217, 174, 0.12);
+  color: #ded5be;
+  line-height: 1.42;
+}
+
+.ops-architecture-content li::before {
+  content: counter(ops-step, decimal-leading-zero);
+  position: absolute;
+  left: 2px;
+  top: 13px;
+  color: var(--arcade-mustard);
+  font:
+    800 0.72rem / 1 ui-monospace,
+    monospace;
+}

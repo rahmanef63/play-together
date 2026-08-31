@@ -5,7 +5,7 @@ import {
   gameManifestSchema,
   serverMessageSchema,
   ticketClaimsSchema,
-} from "./index";
+} from "./index.js";
 
 const digest = "a".repeat(64);
 

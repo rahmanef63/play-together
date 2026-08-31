@@ -1,0 +1,124 @@
+.template-heading > div:first-child > p:last-child {
+  max-width: 720px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.template-stat {
+  display: grid;
+  justify-items: end;
+  gap: var(--space-1);
+  min-width: 84px;
+}
+
+.template-stat strong {
+  font-size: 2.1rem;
+  line-height: 1;
+}
+
+.template-stat span,
+.template-user {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-7);
+  padding-bottom: 36px;
+}
+
+.template-card {
+  overflow: hidden;
+  padding: 0;
+}
+
+.template-preview {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: #0c100e;
+  border-bottom: 1px solid var(--line);
+}
+
+.template-card__body {
+  display: grid;
+  gap: var(--space-5);
+  padding: 18px;
+}
+
+.template-card__meta,
+.template-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+
+.template-card__meta code {
+  color: var(--accent);
+  font-size: 0.72rem;
+}
+
+.template-card__meta span {
+  color: var(--muted);
+  font-size: 0.7rem;
+  text-align: right;
+}
+
+.template-card h2 {
+  margin: 0;
+}
+
+.template-card p {
+  min-height: 3.2em;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.template-card__footer {
+  margin-top: 6px;
+}
+
+.template-buy-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.template-empty {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 980px) {
+  .template-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .template-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .template-stat {
+    justify-items: start;
+  }
+
+  .template-user {
+    display: none;
+  }
+}
+
+/* Template-owned reduced-glass theme. */
+.template-card {
+  background: var(--arcade-surface);
+  border-color: var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  backdrop-filter: none;
+}

@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchVerifiedAsset } from "./index";
+import { fetchVerifiedAsset } from "./index.js";
 
 describe("verified game assets", () => {
   afterEach(() => vi.unstubAllGlobals());

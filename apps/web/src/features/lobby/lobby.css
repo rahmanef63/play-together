@@ -1,0 +1,168 @@
+.page-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-10);
+  padding: clamp(48px, 8vw, 100px) 0 clamp(30px, 5vw, 60px);
+}
+
+.page-heading h1 {
+  max-width: 780px;
+  font-size: clamp(2.6rem, 6vw, 5.2rem);
+  margin-bottom: 0;
+}
+
+.page-heading > div > p:last-child {
+  color: var(--muted);
+  max-width: 680px;
+  line-height: 1.6;
+}
+
+.join-inline {
+  display: grid;
+  grid-template-columns: 150px 190px auto;
+  gap: var(--space-4);
+  width: min(560px, 100%);
+}
+
+.join-inline input:first-child {
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+}
+
+.lobby-grid {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(320px, 0.82fr) minmax(0, 1.4fr);
+  align-items: stretch;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.create-panel,
+.rooms-panel {
+  padding: clamp(18px, 2.5vw, 30px);
+}
+
+.app-shell--lobby {
+  width: 100%;
+  max-width: none;
+  height: 100svh;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.app-shell--lobby .page-heading {
+  padding-top: clamp(20px, 4vh, 58px);
+  padding-bottom: clamp(16px, 3vh, 34px);
+}
+
+.app-shell--lobby .page-heading h1 {
+  font-size: clamp(2.2rem, 5vw, 4.8rem);
+}
+
+/* Explicit lobby grid placement: optional alerts must not steal the flexible content row. */
+.app-shell--lobby {
+  position: relative;
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.app-shell--lobby > .topbar {
+  grid-row: 1;
+}
+
+.app-shell--lobby > .page-heading {
+  grid-row: 2;
+}
+
+.app-shell--lobby > .lobby-grid {
+  grid-row: 3;
+}
+
+.app-shell--lobby > .global-error {
+  position: absolute;
+  z-index: 40;
+  top: max(68px, calc(env(safe-area-inset-top) + 56px));
+  left: 50%;
+  width: min(680px, calc(100% - 32px));
+  transform: translateX(-50%);
+  margin: 0;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.38);
+}
+
+@media (max-width: 900px) {
+  .page-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .join-inline {
+    grid-template-columns: 1fr 1fr auto;
+  }
+}
+
+@media (max-width: 620px) {
+  .page-heading {
+    padding-top: 52px;
+  }
+
+  .join-inline {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-shell--lobby {
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 620px) {
+  .app-shell--lobby {
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  .app-shell--lobby .page-heading {
+    padding-top: 16px;
+    padding-bottom: 14px;
+  }
+
+  .app-shell--lobby .page-heading h1 {
+    font-size: clamp(2rem, 11vw, 3.1rem);
+  }
+}
+
+@media (max-width: 900px) and (max-height: 559px) {
+  .app-shell--lobby .page-heading {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    gap: var(--space-6);
+  }
+
+  .app-shell--lobby .page-heading h1 {
+    display: none;
+  }
+
+  .app-shell--lobby .page-heading .eyebrow {
+    margin-bottom: 0;
+  }
+}
+@media (max-width: 900px) {
+  .lobby-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 900px) and (max-height: 559px) {
+  .lobby-grid {
+    grid-template-columns: minmax(300px, 0.82fr) minmax(0, 1.4fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+}

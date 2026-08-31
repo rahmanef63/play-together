@@ -1,0 +1,62 @@
+body {
+  background: var(--bg);
+}
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+input,
+select {
+  border-radius: var(--radius-sm);
+  background: #141819;
+}
+
+input:focus,
+select:focus {
+  box-shadow: 0 0 0 2px rgba(211, 154, 50, 0.18);
+}
+
+.primary-button {
+  background: var(--arcade-mustard);
+  color: #171511;
+  box-shadow: none;
+}
+
+.secondary-button {
+  background: transparent;
+  color: var(--arcade-cream);
+  border-color: rgba(234, 217, 174, 0.24);
+}
+
+.ghost-button:hover {
+  background: rgba(234, 217, 174, 0.06);
+}
+
+.pulse-dot {
+  border-radius: 2px;
+  background: var(--arcade-mustard);
+  box-shadow: none;
+}
+
+.eyebrow {
+  color: var(--arcade-mustard);
+  letter-spacing: 0.1em;
+}
+
+.scroll-area__track {
+  width: 6px;
+  border-radius: 3px;
+  background: #101314;
+  border: 1px solid rgba(234, 217, 174, 0.1);
+}
+
+.scroll-area__thumb {
+  border-radius: 2px;
+  background: var(--arcade-mustard);
+  box-shadow: none;
+}

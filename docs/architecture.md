@@ -69,6 +69,26 @@ A browser game slice may bundle its own third-party renderer (for example Three.
 
 Each room and pinned release runs in its own Node.js worker thread with bounded heap/stack settings. A worker crash closes only that room session. This protects availability between normal trusted game releases, but worker threads share the host process permissions. Third-party untrusted server modules require a separate process/container or microVM policy before publication.
 
+## Dependency direction and ownership
+
+The repository follows vertical ownership with thin composition boundaries:
+
+```text
+app composition → feature slice → shared contracts/runtime boundaries
+                         ↓
+                    Convex facade → private domain modules
+                         ↓
+             realtime session orchestrator → worker/client/distribution owners
+
+games/<id> → game SDK/contracts only
+```
+
+`apps/web/src/features/<slice>` owns its page, model/hooks, components, and styles. A feature must not import a sibling feature's internals. `shared` contains only true cross-feature primitives; `frame` contains sandbox/controller/display runtime and must remain feature-agnostic. Public Convex files preserve API paths but delegate to private domain modules. Realtime session components own state instead of accumulating helper methods on one class.
+
+Maintained implementation files have a 200-line budget enforced by `scripts/check-boundaries.mjs`. The budget is a cohesion guard, not a request for arbitrary file splitting: extract an independently nameable concern and keep its state with its owner. Generated artifacts, immutable release archives, lockfiles, and narrative history are not architecture units.
+
+Visual SSOT follows the same ownership: app tokens live under `apps/web/src/styles`, game-frame tokens under `apps/web/src/frame/styles`, feature rules are colocated, and legacy compatibility overrides are isolated explicitly.
+
 ## Vertical slices
 
 ### Identity
