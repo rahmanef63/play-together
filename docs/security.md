@@ -59,7 +59,7 @@ The game frame is same-origin but sandboxed without parent DOM permission. Commu
 
 ## Managed realtime boundary
 
-Vercel WebSocket Functions may be restarted or horizontally instantiated. The browser reconnect path is mandatory. Until the optional cross-instance transient coordinator is enabled, one authoritative room must remain on one Function instance; the managed phase should not be described as horizontally coordinated multiplayer. Durable state remains in Convex and must not be replaced by a transient coordinator.
+Vercel WebSocket Functions may be restarted or horizontally instantiated, and different players in the same room are not guaranteed to land on one Function instance. Managed production therefore requires the Redis room coordinator. Redis carries only bounded transient connection leases, validated input, presence, and authority snapshots; durable users/rooms/membership/tickets/game metadata remain in Convex. If Redis is missing or becomes unavailable, the realtime room fails closed rather than silently running divergent per-instance simulations. The browser reconnect path remains mandatory.
 
 ## Containers
 

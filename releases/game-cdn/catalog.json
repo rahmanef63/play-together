@@ -420,6 +420,13 @@
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.2.3/manifest.json",
       "manifestSha256": "ba84735442c8372a6627e155389fa0262666d401c15f45108332f5ca8618f68d"
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.3.0",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.3.0/manifest.json",
+      "manifestSha256": "c3bc267eb646849bfd7c048a961b5ac93c46fc0714e1cd898c06a79310894882"
     }
   ]
 }

@@ -281,25 +281,6 @@ body {
   }
 }
 
-@media (orientation: portrait) {
-  .console-shell--remote .console-shell__chassis::after {
-    content: "ROTATE FOR FULL CONTROLLER";
-    position: absolute;
-    z-index: 5;
-    right: 14px;
-    bottom: 12px;
-    width: auto;
-    height: auto;
-    color: rgba(243, 237, 249, 0.45);
-    font:
-      700 9px / 1 ui-monospace,
-      monospace;
-    letter-spacing: 0.12em;
-    background: none;
-    border: 0;
-  }
-}
-
 @media (max-height: 430px) and (orientation: landscape) {
   .console-shell {
     padding: 3px;
@@ -337,42 +318,67 @@ body {
   max-height: 100%;
 }
 
-/* A remote is a bounded controller body, not a viewport-filling stretched surface. */
+/* Phone remotes behave like a bounded gamepad and respect mobile safe areas. */
 .console-shell--remote {
   display: grid;
   place-items: center;
+  padding: max(6px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+    max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
 }
 .console-shell--remote .console-shell__chassis {
   width: min(100%, 760px);
   max-width: 760px;
-  height: min(100%, 430px);
-  max-height: 430px;
+  height: min(100%, 420px);
+  max-height: 420px;
   margin: auto;
   padding: clamp(8px, 1.8vmin, 16px) clamp(10px, 2.2vw, 24px);
+  border-radius: clamp(26px, 6vmin, 48px);
 }
 .console-shell--remote .console-shell__controls {
   display: grid;
   place-items: center;
+  width: 100%;
+  height: 100%;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.console-shell--remote .console-shell__status {
+  top: max(8px, env(safe-area-inset-top));
+  font-size: clamp(8px, 1.7vmin, 11px);
 }
 
 @media (orientation: portrait) {
   .console-shell--remote .console-shell__chassis {
     width: min(100%, 430px);
     max-width: 430px;
-    height: min(100%, 640px);
-    max-height: 640px;
-    padding: 14px 10px;
-    border-radius: 34px;
+    height: min(100%, 560px);
+    max-height: 560px;
+    padding: 12px 10px;
+    border-radius: 30px;
     clip-path: none;
+  }
+  .console-shell--remote.console-shell--racing .console-shell__chassis,
+  .console-shell--remote.console-shell--flight .console-shell__chassis {
+    background:
+      radial-gradient(circle at 20% 54%, rgba(213, 60, 133, 0.1), transparent 30%),
+      linear-gradient(160deg, #29232e, #17151d 65%);
+  }
+  .console-shell--remote .console-shell__status {
+    top: 8px;
+    opacity: 0.52;
   }
 }
 
 @media (max-height: 430px) and (orientation: landscape) {
+  .console-shell--remote {
+    padding-block: max(3px, env(safe-area-inset-top)) max(3px, env(safe-area-inset-bottom));
+  }
   .console-shell--remote .console-shell__chassis {
     width: min(100%, 720px);
     height: calc(100% - 2px);
+    max-height: 390px;
     padding: 4px 12px;
-    border-radius: 30px;
+    border-radius: 26px;
   }
 }

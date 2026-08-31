@@ -31,4 +31,24 @@ describe("gateway configuration", () => {
     expect(config.allowInsecureModuleOrigins).toBe(false);
     expect(config.maxPayloadBytes).toBe(65_536);
   });
+  it("fails fast when distributed coordination is required without Redis", () => {
+    expect(() =>
+      loadConfig({
+        JOIN_TICKET_SECRET: "x".repeat(40),
+        ALLOWED_ORIGINS: "https://play.test",
+        GAME_MODULE_ORIGINS: "https://games.test",
+        REQUIRE_DISTRIBUTED_COORDINATION: "true",
+      }),
+    ).toThrow(/REDIS_URL/);
+
+    const config = loadConfig({
+      JOIN_TICKET_SECRET: "x".repeat(40),
+      ALLOWED_ORIGINS: "https://play.test",
+      GAME_MODULE_ORIGINS: "https://games.test",
+      REQUIRE_DISTRIBUTED_COORDINATION: "true",
+      REDIS_URL: "redis://localhost:6379",
+    });
+    expect(config.requireDistributedCoordination).toBe(true);
+    expect(config.redisUrl).toBe("redis://localhost:6379");
+  });
 });

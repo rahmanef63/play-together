@@ -5,8 +5,14 @@ import { verifyTicket } from "@play-together/security";
 import { type WebSocket, WebSocketServer } from "ws";
 import { type GatewayConfig, loadConfig } from "./config.js";
 import { GameModuleStore } from "./features/modules/module-store.js";
+import { RedisRoomCoordinator } from "./features/rooms/redis-room-coordinator.js";
+import type { RoomCoordinator } from "./features/rooms/room-coordinator.js";
 import { RoomManager } from "./features/rooms/room-manager.js";
 import { TicketReplayGuard } from "./features/tickets/replay-guard.js";
+
+export interface GatewayOptions {
+  roomCoordinator?: RoomCoordinator | null;
+}
 
 export interface GatewayHandle {
   server: Server;
@@ -15,7 +21,7 @@ export interface GatewayHandle {
   roomCount(): number;
 }
 
-export function createGateway(config: GatewayConfig): GatewayHandle {
+export function createGateway(config: GatewayConfig, options: GatewayOptions = {}): GatewayHandle {
   const moduleStore = new GameModuleStore(
     config.moduleCacheDirectory,
     config.moduleOrigins,
@@ -23,7 +29,21 @@ export function createGateway(config: GatewayConfig): GatewayHandle {
     config.allowInsecureModuleOrigins,
   );
   const replayGuard = new TicketReplayGuard();
-  const rooms = new RoomManager(moduleStore, config.roomIdleTimeoutMs, config.workerScriptPath);
+  const roomCoordinator =
+    options.roomCoordinator === undefined
+      ? config.redisUrl
+        ? new RedisRoomCoordinator(config.redisUrl)
+        : null
+      : options.roomCoordinator;
+  if (config.requireDistributedCoordination && !roomCoordinator) {
+    throw new Error("Distributed room coordination is required but no coordinator is configured");
+  }
+  const rooms = new RoomManager(
+    moduleStore,
+    config.roomIdleTimeoutMs,
+    config.workerScriptPath,
+    roomCoordinator,
+  );
   const websocketServer = new WebSocketServer({
     noServer: true,
     maxPayload: config.maxPayloadBytes,
@@ -48,6 +68,7 @@ export function createGateway(config: GatewayConfig): GatewayHandle {
         service: "play-together-realtime",
         protocolVersion: 1,
         rooms: rooms.size,
+        coordination: roomCoordinator ? "distributed" : "local",
       }),
     );
   });
@@ -146,6 +167,7 @@ export function createGateway(config: GatewayConfig): GatewayHandle {
       }),
     close: async () => {
       rooms.closeAll();
+      await roomCoordinator?.close();
       for (const client of websocketServer.clients) client.close(1001, "server closing");
       await new Promise<void>((resolve, reject) =>
         server.close((error) => (error ? reject(error) : resolve())),

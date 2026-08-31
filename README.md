@@ -63,7 +63,7 @@ A platform update should not force every game to move together, and a game relea
 Play Together therefore separates the platform from game releases:
 
 - **Convex Cloud control plane** — users, authentication, published games, rooms, memberships, capacity, template entitlements, and signed connection/download tickets.
-- **Vercel realtime gateway** — transient input, authoritative simulation, snapshots, presence, validation, and room lifecycle.
+- **Vercel realtime gateway + Redis room bus** — authoritative simulation with cross-Function presence, validated input fan-out, authority snapshots, and room lifecycle. Redis is transient coordination only; Convex remains the durable control plane.
 - **Vercel game CDN** — immutable, SHA-256-pinned browser/controller/server bundles served from the static deployment.
 - **Vercel web shell / PWA** — registration, lobby, password reset, template marketplace, device-mode selection, and sandbox hosting.
 - **Game workers** — one isolated worker per active room, pinned to one exact game release.
@@ -299,9 +299,9 @@ The managed target removes the VPS from the runtime path:
 | Realtime | Vercel WebSocket Function | same-origin `/api/realtime` |
 | Durable control plane/auth | Convex Cloud | managed cloud/site endpoints |
 | Paid template source | Vercel Private Blob | exact-path signed downloads |
-| Cross-instance coordinator | optional Redis | transient only; not Convex replacement |
+| Cross-instance coordinator | Vercel Redis (`sin1`) | required for managed realtime; transient only |
 
-The small-scale managed release keeps one authoritative room in one Function instance. Browser reconnect is built in, but full horizontal room coordination is intentionally gated behind the optional transient coordinator.
+Managed production requires the connected Redis room coordinator. Separate Vercel WebSocket connections may land on different Function instances, so validated controller input, global presence, authority election, and snapshots are relayed through Redis. Only the elected room replica publishes snapshots; Convex remains the durable SSOT and Redis is never used as the game catalog or durable room database.
 
 Password reset is handled by Convex Auth and Resend using the shared sender `official@rahmanef.com`, with a project-specific display name/tag. Paid template source is kept outside this public MIT repository and is delivered only after a Convex entitlement check.
 

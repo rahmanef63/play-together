@@ -25,6 +25,7 @@ interface Racer {
   nitro: number;
   finished: boolean;
   finishMs: number | null;
+  steering: number;
   input: InputState;
 }
 interface RaceState {
@@ -89,6 +90,7 @@ class TurboCircuit implements ServerGame {
         nitro: 100,
         finished: false,
         finishMs: null,
+        steering: 0,
         input: { steer: 0, throttle: 1, brake: 0, boost: false },
       });
     }
@@ -111,6 +113,7 @@ class TurboCircuit implements ServerGame {
       nitro: 100,
       finished: false,
       finishMs: null,
+      steering: 0,
       input: { steer: 0, throttle: 0, brake: 0, boost: false },
     });
   }
@@ -151,27 +154,37 @@ class TurboCircuit implements ServerGame {
     for (const r of this.#s.racers) {
       if (r.bot || r.finished) continue;
       const input = r.input;
-      const onTrack = trackDeviation(r.x, r.z) <= WIDTH * 0.58;
+      const steerTarget = Math.abs(input.steer) < 0.08 ? 0 : input.steer;
+      const steerAlpha = 1 - Math.exp(-9 * dt);
+      r.steering += (steerTarget - r.steering) * steerAlpha;
+      const devBeforeMove = trackDeviation(r.x, r.z);
+      const onTrack = devBeforeMove <= WIDTH * 0.62;
       const boosting = input.boost && r.nitro > 1 && input.throttle > 0.2;
-      const accel =
-        input.throttle * (boosting ? 32 : 23) -
-        input.brake * 38 -
-        ((onTrack ? 0.8 : 7.5) * r.speed) / 30;
-      r.speed = clamp(r.speed + accel * dt, -8, boosting ? 56 : 43);
+      const rollingDrag = onTrack
+        ? 1.15 + Math.abs(r.speed) * 0.028
+        : 4.8 + Math.abs(r.speed) * 0.085;
+      const accel = input.throttle * (boosting ? 32 : 24) - input.brake * 36 - rollingDrag;
+      r.speed = clamp(r.speed + accel * dt, -6, boosting ? 56 : 44);
+      if (input.throttle < 0.02 && input.brake < 0.02 && Math.abs(r.speed) < 0.4) r.speed = 0;
       if (boosting) r.nitro = Math.max(0, r.nitro - 27 * dt);
       else r.nitro = Math.min(100, r.nitro + 8 * dt);
-      const steerGrip = clamp(Math.abs(r.speed) / 18, 0.18, 1.2);
-      r.heading -= input.steer * 1.85 * steerGrip * dt * (r.speed < 0 ? -1 : 1);
+
+      const speedRatio = clamp(Math.abs(r.speed) / 44, 0, 1);
+      const steeringAuthority = 1.12 - speedRatio * 0.34;
+      const motionGrip = clamp(Math.abs(r.speed) / 7, 0, 1);
+      r.heading -= r.steering * 2.08 * steeringAuthority * motionGrip * dt * (r.speed < 0 ? -1 : 1);
       r.x += Math.sin(r.heading) * r.speed * dt;
       r.z += Math.cos(r.heading) * r.speed * dt;
+
       const dev = trackDeviation(r.x, r.z);
-      if (dev > WIDTH * 1.25) {
+      if (dev > WIDTH * 0.72) {
         const q = Math.hypot(r.x / RX, r.z / RZ) || 1,
           tx = r.x / q,
           tz = r.z / q;
-        r.x += (tx - r.x) * 0.8 * dt;
-        r.z += (tz - r.z) * 0.8 * dt;
-        r.speed *= Math.max(0, 1 - 2.2 * dt);
+        const recovery = dev > WIDTH * 1.7 ? 2.4 : 1.05;
+        r.x += (tx - r.x) * recovery * dt;
+        r.z += (tz - r.z) * recovery * dt;
+        r.speed *= Math.max(0, 1 - (dev > WIDTH * 1.7 ? 1.7 : 0.75) * dt);
       }
       this.#checkpoint(r);
     }
@@ -218,17 +231,17 @@ class TurboCircuit implements ServerGame {
         if (!a.bot) {
           a.x += (dx / d) * push;
           a.z += (dz / d) * push;
-          a.speed *= 0.72;
+          a.speed *= 0.86;
         }
         if (!b.bot) {
           b.x -= (dx / d) * push;
           b.z -= (dz / d) * push;
-          b.speed *= 0.72;
+          b.speed *= 0.86;
         }
       }
   }
   snapshot() {
-    const racers = this.#s.racers.map(({ input, ...r }) => r);
+    const racers = this.#s.racers.map(({ input, steering, ...r }) => r);
     return structuredClone({ ...this.#s, racers });
   }
 }

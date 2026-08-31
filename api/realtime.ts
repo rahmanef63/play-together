@@ -10,6 +10,8 @@ const environment: NodeJS.ProcessEnv = {
   MODULE_CACHE_DIR: process.env.MODULE_CACHE_DIR ?? "/tmp/play-together-game-modules",
   GAME_WORKER_PATH:
     process.env.GAME_WORKER_PATH ?? resolve(process.cwd(), "apps/realtime/dist/game-worker.js"),
+  REQUIRE_DISTRIBUTED_COORDINATION:
+    process.env.VERCEL === "1" ? "true" : process.env.REQUIRE_DISTRIBUTED_COORDINATION,
 };
 
 const gateway = createGateway(loadConfig(environment));

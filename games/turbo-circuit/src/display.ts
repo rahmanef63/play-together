@@ -35,6 +35,9 @@ interface RacerPose {
 const smoothing = (rate: number, dt: number) => 1 - Math.exp(-rate * dt);
 const smoothAngle = (current: number, target: number, alpha: number) =>
   current + Math.atan2(Math.sin(target - current), Math.cos(target - current)) * alpha;
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+const tangentHeading = (angle: number, rx = 62, rz = 38) =>
+  Math.atan2(-rx * Math.sin(angle), rz * Math.cos(angle));
 function carMesh(color: number) {
   const g = new THREE.Group();
   const body = new THREE.Mesh(
@@ -71,7 +74,41 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
     bottom = document.createElement("div");
   bottom.style.cssText = "display:flex;gap:12px;align-items:end;justify-content:space-between";
   hud.append(top, bottom);
-  host.append(canvas, hud);
+
+  const minimap = document.createElement("div");
+  minimap.setAttribute("aria-label", "Track minimap");
+  minimap.style.cssText =
+    "position:absolute;right:12px;top:54px;width:clamp(118px,18vw,176px);aspect-ratio:1.55;border-radius:14px;background:rgba(7,11,15,.68);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);backdrop-filter:blur(8px);padding:7px;pointer-events:none";
+  const mapSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  mapSvg.setAttribute("viewBox", "-82 -52 164 104");
+  mapSvg.setAttribute("width", "100%");
+  mapSvg.setAttribute("height", "100%");
+  const mapOuter = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+  mapOuter.setAttribute("cx", "0");
+  mapOuter.setAttribute("cy", "0");
+  mapOuter.setAttribute("rx", "70");
+  mapOuter.setAttribute("ry", "46");
+  mapOuter.setAttribute("fill", "none");
+  mapOuter.setAttribute("stroke", "rgba(255,255,255,.26)");
+  mapOuter.setAttribute("stroke-width", "2");
+  const mapTrack = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+  mapTrack.setAttribute("cx", "0");
+  mapTrack.setAttribute("cy", "0");
+  mapTrack.setAttribute("rx", "62");
+  mapTrack.setAttribute("ry", "38");
+  mapTrack.setAttribute("fill", "none");
+  mapTrack.setAttribute("stroke", "#f6d44a");
+  mapTrack.setAttribute("stroke-width", "4");
+  mapTrack.setAttribute("stroke-dasharray", "4 4");
+  mapSvg.append(mapOuter, mapTrack);
+  minimap.append(mapSvg);
+  const mapDots = new Map<string, SVGCircleElement>();
+
+  const wrongWay = document.createElement("div");
+  wrongWay.style.cssText =
+    "position:absolute;left:50%;top:17%;transform:translateX(-50%);padding:7px 12px;border-radius:999px;background:rgba(181,28,52,.82);font:900 clamp(11px,2vw,16px)/1 system-ui;color:white;letter-spacing:.08em;opacity:0;transition:opacity 120ms ease;pointer-events:none";
+  wrongWay.textContent = "WRONG WAY";
+  host.append(canvas, hud, minimap, wrongWay);
   root.append(host);
   const renderer = new THREE.WebGLRenderer({
     canvas,
@@ -109,6 +146,59 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   road.rotation.x = -Math.PI / 2;
   road.position.y = 0.01;
   scene.add(road);
+
+  const infieldShape = new THREE.Shape();
+  infieldShape.absellipse(0, 0, RX - W / 2 - 1.4, RZ - W / 2 - 1.4, 0, Math.PI * 2, false);
+  const infield = new THREE.Mesh(
+    new THREE.ShapeGeometry(infieldShape, 72),
+    new THREE.MeshStandardMaterial({ color: 0x3f742d, roughness: 1 }),
+  );
+  infield.rotation.x = -Math.PI / 2;
+  infield.position.y = 0.005;
+  scene.add(infield);
+
+  const curbGeometry = new THREE.BoxGeometry(0.85, 0.12, 2.5);
+  const curbRed = new THREE.InstancedMesh(
+    curbGeometry,
+    new THREE.MeshStandardMaterial({ color: 0xdc3346, roughness: 0.82 }),
+    96,
+  );
+  const curbWhite = new THREE.InstancedMesh(
+    curbGeometry,
+    new THREE.MeshStandardMaterial({ color: 0xf4f1ec, roughness: 0.82 }),
+    96,
+  );
+  const curbDummy = new THREE.Object3D();
+  let redIndex = 0;
+  let whiteIndex = 0;
+  for (const sign of [-1, 1]) {
+    for (let i = 0; i < 96; i++) {
+      const a = (i / 96) * Math.PI * 2;
+      const rx = RX + sign * (W / 2 - 0.35);
+      const rz = RZ + sign * (W / 2 - 0.35);
+      curbDummy.position.set(rx * Math.cos(a), 0.08, rz * Math.sin(a));
+      curbDummy.rotation.set(0, tangentHeading(a, rx, rz), 0);
+      curbDummy.updateMatrix();
+      if (i % 2 === 0) curbRed.setMatrixAt(redIndex++, curbDummy.matrix);
+      else curbWhite.setMatrixAt(whiteIndex++, curbDummy.matrix);
+    }
+  }
+  curbRed.instanceMatrix.needsUpdate = true;
+  curbWhite.instanceMatrix.needsUpdate = true;
+  scene.add(curbRed, curbWhite);
+
+  const startWhite = new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.9 });
+  const startDark = new THREE.MeshStandardMaterial({ color: 0x15171a, roughness: 0.9 });
+  for (let lane = 0; lane < 8; lane++) {
+    for (let side = 0; side < 2; side++) {
+      const tile = new THREE.Mesh(
+        new THREE.BoxGeometry(1.3, 0.045, W / 8),
+        (lane + side) % 2 === 0 ? startWhite : startDark,
+      );
+      tile.position.set((side - 0.5) * 1.3, 0.075, -RZ - W / 2 + W / 16 + lane * (W / 8));
+      scene.add(tile);
+    }
+  }
   const stripeMat = new THREE.MeshStandardMaterial({ color: 0xf6d44a });
   for (let i = 0; i < 72; i++) {
     const a = (i / 72) * Math.PI * 2,
@@ -119,17 +209,85 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
     m.rotation.y = Math.atan2(-RX * Math.sin(a), RZ * Math.cos(a));
     scene.add(m);
   }
-  const barrierMat = new THREE.MeshStandardMaterial({ color: 0xe5e7eb });
+  const barrierMats = [
+    new THREE.MeshStandardMaterial({ color: 0xe7e7e7, roughness: 0.8 }),
+    new THREE.MeshStandardMaterial({ color: 0xd83b4f, roughness: 0.8 }),
+  ];
   for (const sign of [-1, 1])
     for (let i = 0; i < 54; i++) {
       const a = (i / 54) * Math.PI * 2,
         rx = RX + sign * (W / 2 + 1.2),
         rz = RZ + sign * (W / 2 + 1.2);
-      const m = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.85, 2.5), barrierMat);
+      const m = new THREE.Mesh(
+        new THREE.BoxGeometry(0.55, 0.85, 2.5),
+        barrierMats[Math.floor(i / 3) % barrierMats.length],
+      );
       m.position.set(rx * Math.cos(a), 0.42, rz * Math.sin(a));
-      m.rotation.y = Math.atan2(-rx * Math.sin(a), rz * Math.cos(a));
+      m.rotation.y = tangentHeading(a, rx, rz);
       scene.add(m);
     }
+
+  const standMat = new THREE.MeshStandardMaterial({ color: 0x303642, roughness: 0.78 });
+  const seatMat = new THREE.MeshStandardMaterial({ color: 0x7652a8, roughness: 0.7 });
+  for (const z of [-64, 64]) {
+    for (const x of [-42, -14, 14, 42]) {
+      const stand = new THREE.Group();
+      const base = new THREE.Mesh(new THREE.BoxGeometry(20, 2.3, 6), standMat);
+      base.position.y = 1.15;
+      const seats = new THREE.Mesh(new THREE.BoxGeometry(18, 3.8, 3.6), seatMat);
+      seats.position.set(0, 3.1, z > 0 ? 1 : -1);
+      stand.add(base, seats);
+      stand.position.set(x, 0, z);
+      scene.add(stand);
+    }
+  }
+
+  const treeTrunks = new THREE.InstancedMesh(
+    new THREE.CylinderGeometry(0.35, 0.5, 3, 6),
+    new THREE.MeshStandardMaterial({ color: 0x765236, roughness: 1 }),
+    28,
+  );
+  const treeCrowns = new THREE.InstancedMesh(
+    new THREE.ConeGeometry(2.2, 5.2, 7),
+    new THREE.MeshStandardMaterial({ color: 0x285c33, roughness: 1 }),
+    28,
+  );
+  const treeDummy = new THREE.Object3D();
+  for (let i = 0; i < 28; i++) {
+    const a = (i / 28) * Math.PI * 2 + 0.08 * Math.sin(i * 1.7);
+    const rx = 103 + (i % 3) * 7;
+    const rz = 74 + ((i + 1) % 3) * 6;
+    const x = rx * Math.cos(a);
+    const z = rz * Math.sin(a);
+    treeDummy.position.set(x, 1.5, z);
+    treeDummy.rotation.set(0, a, 0);
+    treeDummy.updateMatrix();
+    treeTrunks.setMatrixAt(i, treeDummy.matrix);
+    treeDummy.position.y = 5.25;
+    treeDummy.updateMatrix();
+    treeCrowns.setMatrixAt(i, treeDummy.matrix);
+  }
+  treeTrunks.instanceMatrix.needsUpdate = true;
+  treeCrowns.instanceMatrix.needsUpdate = true;
+  scene.add(treeTrunks, treeCrowns);
+
+  const billboardMat = new THREE.MeshStandardMaterial({
+    color: 0x171923,
+    emissive: 0x54206c,
+    emissiveIntensity: 0.7,
+    roughness: 0.5,
+  });
+  for (const [x, z, rotation] of [
+    [-92, -24, Math.PI / 2],
+    [-92, 24, Math.PI / 2],
+    [92, -24, -Math.PI / 2],
+    [92, 24, -Math.PI / 2],
+  ] as const) {
+    const sign = new THREE.Mesh(new THREE.BoxGeometry(14, 5, 0.6), billboardMat);
+    sign.position.set(x, 4, z);
+    sign.rotation.y = rotation;
+    scene.add(sign);
+  }
   const cpMat = new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.35 });
   for (const cp of [
     { x: RX, z: 0 },
@@ -148,21 +306,31 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   let state: S | null = null;
   const unsub = ctx.subscribe((m) => {
     if (!ok(m.state)) return;
-    state = m.state;
-    for (const [i, r] of state.racers.entries()) {
+    const nextState = m.state;
+    state = nextState;
+    for (const [i, r] of nextState.racers.entries()) {
       let mesh = cars.get(r.id);
       if (!mesh) {
         mesh = carMesh(r.bot ? 0xd1d5db : (colors[i % colors.length] ?? 0xffffff));
         cars.set(r.id, mesh);
         poses.set(r.id, { x: r.x, z: r.z, heading: r.heading });
         scene.add(mesh);
+        const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        dot.setAttribute("r", r.bot ? "1.8" : "2.7");
+        dot.setAttribute("fill", r.bot ? "#d1d5db" : `hsl(${(i * 67) % 360} 82% 62%)`);
+        dot.setAttribute("stroke", "rgba(0,0,0,.55)");
+        dot.setAttribute("stroke-width", ".8");
+        mapSvg.append(dot);
+        mapDots.set(r.id, dot);
       }
     }
     for (const [id, mesh] of cars)
-      if (!state.racers.some((r) => r.id === id)) {
+      if (!nextState.racers.some((r) => r.id === id)) {
         scene.remove(mesh);
         cars.delete(id);
         poses.delete(id);
+        mapDots.get(id)?.remove();
+        mapDots.delete(id);
       }
   });
   let raf = 0;
@@ -200,23 +368,33 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
         pose.heading = teleported ? r.heading : smoothAngle(pose.heading, r.heading, poseAlpha);
         mesh.position.set(pose.x, 0, pose.z);
         mesh.rotation.y = pose.heading;
+        const dot = mapDots.get(r.id);
+        if (dot) {
+          dot.setAttribute("cx", pose.x.toFixed(2));
+          dot.setAttribute("cy", pose.z.toFixed(2));
+        }
       }
       const humans = state.racers.filter((r) => !r.bot);
       const me =
         state.racers.find((r) => r.id === ctx.playerId && !r.bot) ?? humans[0] ?? state.racers[0];
       const mePose = me ? poses.get(me.id) : undefined;
       if (me && mePose) {
-        const back = ctx.mode === "handheld" ? 11 + Math.min(7, Math.abs(me.speed) * 0.12) : 19;
+        const speed = Math.abs(me.speed);
+        const back = ctx.mode === "handheld" ? 12 + Math.min(7, speed * 0.11) : 19;
+        const lookAhead = clamp(3.5 + speed * 0.14, 3.5, 10.5);
         const desiredCamera = new THREE.Vector3(
           mePose.x - Math.sin(mePose.heading) * back,
-          ctx.mode === "handheld" ? 5.6 : 10.5,
+          ctx.mode === "handheld" ? 6.1 : 10.5,
           mePose.z - Math.cos(mePose.heading) * back,
         );
         const desiredTarget = new THREE.Vector3(
-          mePose.x,
-          ctx.mode === "handheld" ? 1.2 : 1,
-          mePose.z,
+          mePose.x + Math.sin(mePose.heading) * lookAhead,
+          ctx.mode === "handheld" ? 1.1 : 1,
+          mePose.z + Math.cos(mePose.heading) * lookAhead,
         );
+        const targetFov = ctx.mode === "handheld" ? 59 + clamp(speed / 44, 0, 1) * 7 : 62;
+        camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, smoothing(4.5, dt));
+        camera.updateProjectionMatrix();
         if (!cameraReady) {
           camera.position.copy(desiredCamera);
           cameraTarget.copy(desiredTarget);
@@ -226,6 +404,10 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
           cameraTarget.lerp(desiredTarget, smoothing(11, dt));
         }
         camera.lookAt(cameraTarget);
+        const ellipseAngle = Math.atan2(mePose.z / RZ, mePose.x / RX);
+        const expectedHeading = tangentHeading(ellipseAngle, RX, RZ);
+        const forwardAlignment = Math.cos(mePose.heading - expectedHeading);
+        wrongWay.style.opacity = speed > 6 && forwardAlignment < -0.22 ? "1" : "0";
         const order = [...state.racers].sort(
           (a, b) => b.lap * 4 + b.nextCheckpoint - (a.lap * 4 + a.nextCheckpoint),
         );
