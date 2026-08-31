@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "packId": "turbo-circuit-runtime-vNEXT",
+  "status": "example-not-runtime",
+  "renderer": "threejs-hybrid-2.5d",
+  "atlases": {
+    "vehicles": {
+      "image": "vehicles.webp",
+      "metadata": "vehicles.atlas.json",
+      "requiredKeys": [
+        "car.red.dir.000",
+        "car.red.dir.045",
+        "car.red.dir.090",
+        "car.red.dir.135",
+        "car.red.dir.180",
+        "car.red.dir.225",
+        "car.red.dir.270",
+        "car.red.dir.315"
+      ]
+    },
+    "trackside": {
+      "image": "trackside.webp",
+      "metadata": "trackside.atlas.json",
+      "requiredKeys": ["tree.round", "grandstand", "billboard", "barrier.red-white", "cone"]
+    },
+    "effects": {
+      "image": "effects.webp",
+      "metadata": "effects.atlas.json",
+      "requiredKeys": ["pickup.nitro", "fx.smoke.large", "fx.impact", "fx.explosion"]
+    }
+  },
+  "worldScale": {
+    "car": {
+      "width": 2.2,
+      "height": 1.3
+    },
+    "barrier": {
+      "height": 0.9
+    },
+    "tree": {
+      "heightRange": [4.5, 7.0]
+    },
+    "grandstand": {
+      "heightRange": [5.0, 8.0]
+    }
+  },
+  "directionConvention": {
+    "dir.000": "vehicle forward in world-space",
+    "rotationOrder": [
+      "dir.000",
+      "dir.045",
+      "dir.090",
+      "dir.135",
+      "dir.180",
+      "dir.225",
+      "dir.270",
+      "dir.315"
+    ],
+    "selection": "nearest 45-degree relative heading to active camera"
+  }
+}

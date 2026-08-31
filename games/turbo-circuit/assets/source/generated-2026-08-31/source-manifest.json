@@ -1,0 +1,337 @@
+{
+  "schemaVersion": 1,
+  "assetPackId": "turbo-circuit-generated-2026-08-31",
+  "status": "source-unvalidated",
+  "rendererTarget": "threejs-hybrid-2.5d",
+  "sourcePolicy": {
+    "runtimeImportAllowed": false,
+    "fixedGridAssumed": false,
+    "requiresSemanticCropReview": true,
+    "requiresTransparentBackground": true,
+    "requiresAtlasNormalizationBeforeRuntime": true
+  },
+  "sheets": [
+    {
+      "id": "vehicle.red",
+      "file": "car-red-sprite-sheet.png",
+      "sha256": "2840b4451ad33ade0f54066faddc2f67673d5d32853595b0cfc2985b7435954c",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "hasAlpha": true,
+      "status": "candidate-hybrid",
+      "usage": ["player-car", "ai-car"],
+      "family": "vehicle",
+      "variant": "red",
+      "slicing": {
+        "sourceMethod": "semantic-alpha-regions",
+        "fixedGrid": false,
+        "reviewRequired": true,
+        "targetAtlasGrid": "4x2 directional base + separate state/effect atlas"
+      },
+      "requiredRuntimeFrames": [
+        "dir.000",
+        "dir.045",
+        "dir.090",
+        "dir.135",
+        "dir.180",
+        "dir.225",
+        "dir.270",
+        "dir.315"
+      ],
+      "optionalStateFrames": ["brake", "boost"],
+      "notes": [
+        "Do not treat visual rows as a reliable grid. Direction completeness must be verified manually. Motion effects must be split from base vehicle frames."
+      ]
+    },
+    {
+      "id": "vehicle.blue",
+      "file": "car-blue-sprite-sheet.png",
+      "sha256": "8de6a297c2d2f78d3e15bb54def849164595f6f8446532190840e984fb87d483",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "hasAlpha": true,
+      "status": "candidate-hybrid-needs-direction-audit",
+      "usage": ["player-car", "ai-car"],
+      "family": "vehicle",
+      "variant": "blue",
+      "slicing": {
+        "sourceMethod": "semantic-alpha-regions",
+        "fixedGrid": false,
+        "reviewRequired": true,
+        "targetAtlasGrid": "4x2 directional base + separate state/effect atlas"
+      },
+      "requiredRuntimeFrames": [
+        "dir.000",
+        "dir.045",
+        "dir.090",
+        "dir.135",
+        "dir.180",
+        "dir.225",
+        "dir.270",
+        "dir.315"
+      ],
+      "optionalStateFrames": ["brake", "boost"],
+      "notes": [
+        "Sheet visually contains fewer distinct poses than red. Regenerate if any of the 8 directional frames cannot be mapped cleanly."
+      ]
+    },
+    {
+      "id": "vehicle.yellow",
+      "file": "car-yellow-sprite-sheet.png",
+      "sha256": "9f32c1d2d95749a8aee23b6bface35b5a24c624cc8b9ad31698b8d9621972370",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "hasAlpha": true,
+      "status": "candidate-hybrid-needs-direction-audit",
+      "usage": ["player-car", "ai-car"],
+      "family": "vehicle",
+      "variant": "yellow",
+      "slicing": {
+        "sourceMethod": "semantic-alpha-regions",
+        "fixedGrid": false,
+        "reviewRequired": true,
+        "targetAtlasGrid": "4x2 directional base + separate state/effect atlas"
+      },
+      "requiredRuntimeFrames": [
+        "dir.000",
+        "dir.045",
+        "dir.090",
+        "dir.135",
+        "dir.180",
+        "dir.225",
+        "dir.270",
+        "dir.315"
+      ],
+      "optionalStateFrames": ["brake", "boost"],
+      "notes": [
+        "Regenerate rather than inventing missing directions. Base vehicle atlas must not bake exhaust/light effects."
+      ]
+    },
+    {
+      "id": "track.topdown",
+      "file": "track-tile-collection.png",
+      "sha256": "3d4622e8915b69e99d32126055517f24620ec83e77000923c12be5643ae4baf8",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "hasAlpha": true,
+      "status": "candidate-2.5d-migration",
+      "usage": ["future-tilemap-track"],
+      "family": "track",
+      "variant": "topdown",
+      "slicing": {
+        "sourceMethod": "semantic-alpha-regions",
+        "fixedGrid": false,
+        "reviewRequired": true,
+        "targetAtlasGrid": "trimmed JSON atlas; normalize each tile to shared lane/socket metrics"
+      },
+      "requiredRuntimeFrames": [
+        "straight.1lane",
+        "straight.2lane",
+        "start-finish",
+        "curve.90.left",
+        "curve.90.right",
+        "hairpin",
+        "intersection.t",
+        "intersection.cross",
+        "intersection.y"
+      ],
+      "notes": [
+        "Not wired into current 3D oval. Use only after lane width and edge sockets are normalized."
+      ]
+    },
+    {
+      "id": "track.perspective",
+      "file": "track-tileset.png",
+      "sha256": "05e4979e6e7708e92a1c0b75678f11927ec29a0541c4808ef6f4d5eb82ed5e16",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "hasAlpha": true,
+      "status": "regenerate-camera-mismatch",
+      "usage": ["reference-only"],
+      "family": "track",
+      "variant": "perspective",
+      "slicing": {
+        "sourceMethod": "none-until-regenerated",
+        "fixedGrid": false,
+        "reviewRequired": true,
+        "targetAtlasGrid": "N/A"
+      },
+      "requiredRuntimeFrames": [],
+      "notes": [
+        "Perspective/elevation does not match the top-down tile collection or the current Three.js world camera. Keep as reference only; regenerate with one canonical camera."
+      ]
+    },
+    {
+      "id": "track.props",
+      "file": "track-props-sprite-sheet.png",
+      "sha256": "51cf4a54ee5d0075974a35af33d84c0cdd7b195ebd40e2e5d6593d7613b65dcd",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "hasAlpha": true,
+      "status": "candidate-hybrid",
+      "usage": ["three-sprite-trackside"],
+      "family": "props",
+      "variant": "trackside",
+      "slicing": {
+        "sourceMethod": "semantic-alpha-regions",
+        "fixedGrid": false,
+        "reviewRequired": true,
+        "targetAtlasGrid": "trimmed JSON atlas"
+      },
+      "requiredRuntimeFrames": [
+        "garage",
+        "control-tower",
+        "grandstand",
+        "billboard",
+        "pit-booth",
+        "fuel-station",
+        "tunnel"
+      ],
+      "notes": ["Good candidate for THREE.Sprite billboards before a full renderer rewrite."]
+    },
+    {
+      "id": "track.decor",
+      "file": "trackside-asset-sheet.png",
+      "sha256": "3511a1481fd42e523ec602b0f1af597479257b9e5e98e8bfd3d7ed1da5b259aa",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "hasAlpha": true,
+      "status": "candidate-hybrid",
+      "usage": ["three-sprite-trackside"],
+      "family": "decor",
+      "variant": "environment",
+      "slicing": {
+        "sourceMethod": "semantic-alpha-regions",
+        "fixedGrid": false,
+        "reviewRequired": true,
+        "targetAtlasGrid": "trimmed JSON atlas"
+      },
+      "requiredRuntimeFrames": [
+        "tree.round",
+        "tree.pine",
+        "tree.wide",
+        "tree.column",
+        "tree.small",
+        "tree.palm",
+        "bush",
+        "plant",
+        "sign.turn",
+        "sign.direction",
+        "billboard",
+        "grandstand",
+        "flag",
+        "rocks",
+        "hay-bale"
+      ],
+      "notes": [
+        "Replace procedural trees/signs gradually; maintain one world-scale table per semantic class."
+      ]
+    },
+    {
+      "id": "track.hazards",
+      "file": "hazard-sprite-sheet.png",
+      "sha256": "ee678aef174186524948badec2206d8d7760caf23b686903b6338669e2b75577",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "hasAlpha": true,
+      "status": "candidate-hybrid",
+      "usage": ["three-sprite-hazards", "collision-visuals"],
+      "family": "hazard",
+      "variant": "mixed",
+      "slicing": {
+        "sourceMethod": "semantic-alpha-regions",
+        "fixedGrid": false,
+        "reviewRequired": true,
+        "targetAtlasGrid": "trimmed JSON atlas"
+      },
+      "requiredRuntimeFrames": [
+        "barrier.red-white",
+        "cone",
+        "tire-stack",
+        "guardrail",
+        "warning-barricade",
+        "oil-spill",
+        "boost-pad",
+        "parking-block"
+      ],
+      "notes": ["Collision geometry remains server/world-authoritative; sprites are visual only."]
+    },
+    {
+      "id": "race.pickups-effects",
+      "file": "pickup-effect-sprite-sheet.png",
+      "sha256": "55c1bd8fe8d3240adde1003bf5ed0fd57f08175094b1289493e0cb5f81700db6",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "hasAlpha": true,
+      "status": "candidate-hybrid",
+      "usage": ["hud-pickups", "world-pickups", "race-effects"],
+      "family": "effects",
+      "variant": "mixed",
+      "slicing": {
+        "sourceMethod": "semantic-alpha-regions",
+        "fixedGrid": false,
+        "reviewRequired": true,
+        "targetAtlasGrid": "separate pickups atlas and effects atlas"
+      },
+      "requiredRuntimeFrames": [
+        "pickup.nitro",
+        "pickup.repair",
+        "pickup.shield",
+        "pickup.coin",
+        "pad.boost",
+        "fx.smoke.large",
+        "fx.smoke.medium",
+        "fx.smoke.small",
+        "fx.skid",
+        "fx.impact",
+        "fx.explosion",
+        "fx.celebration"
+      ],
+      "notes": [
+        "Separate persistent pickup icons from transient effects; do not pack both into one runtime lifecycle if it complicates texture residency."
+      ]
+    },
+    {
+      "id": "race.event",
+      "file": "event-asset-sheet.png",
+      "sha256": "c3fc1ad551c022d5af315706e109f0d1bc40b466b7a2e3e7bb30912307e4b8db",
+      "width": 1448,
+      "height": 1086,
+      "mode": "RGBA",
+      "hasAlpha": true,
+      "status": "candidate-hybrid",
+      "usage": ["start-finish", "race-event-decor", "result-screen"],
+      "family": "event",
+      "variant": "race",
+      "slicing": {
+        "sourceMethod": "semantic-alpha-regions",
+        "fixedGrid": false,
+        "reviewRequired": true,
+        "targetAtlasGrid": "trimmed JSON atlas"
+      },
+      "requiredRuntimeFrames": [
+        "gantry.start",
+        "gantry.finish",
+        "arch",
+        "scoreboard",
+        "turn.left",
+        "turn.right",
+        "podium",
+        "warning",
+        "trophy"
+      ],
+      "notes": [
+        "Keep functional UI text in HTML/SVG; these are world/event props, not replacement buttons."
+      ]
+    }
+  ]
+}
