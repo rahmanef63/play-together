@@ -94,5 +94,6 @@ console.log(`Local environment: ${envState}`);
 console.log(`Convex auth material: ${authCreated ? "created" : "kept"}`);
 
 function formatEnv(key, value) {
-  return `${key}=${JSON.stringify(String(value))}`;
+  const text = String(value);
+  return text.includes('"') ? `${key}='${text}'` : `${key}=${text}`;
 }
