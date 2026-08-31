@@ -164,7 +164,7 @@ export const GAME_TOOL_DEFINITIONS = [
     mcpName: "game_prompt",
     msoName: "game.prompt",
     description:
-      "Return the canonical full game-submission prompt extracted from docs/submitting-games.md.",
+      "Return the canonical full game-submission prompt from docs/game-submission-prompt.txt.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
 ];

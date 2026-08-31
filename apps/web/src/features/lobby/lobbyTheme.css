@@ -1,0 +1,11 @@
+/* Lobby-owned reduced-glass theme. */
+.create-panel,
+.rooms-panel,
+.game-preview-card,
+.room-card {
+  background: var(--arcade-surface);
+  border-color: var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  backdrop-filter: none;
+}

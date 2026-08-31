@@ -1,0 +1,181 @@
+.create-form-skeleton,
+.developer-prompt-skeleton {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.developer-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 28px;
+  padding: clamp(46px, 8vw, 96px) 0 36px;
+}
+
+.developer-hero h1 {
+  max-width: 900px;
+  margin-bottom: 14px;
+}
+
+.developer-hero > div:first-child > p:last-child {
+  max-width: 720px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.developer-hero__actions {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 230px;
+}
+
+.developer-card-rail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-6);
+  margin-bottom: 20px;
+}
+
+.developer-guide-card {
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-3xl);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025));
+  content-visibility: auto;
+  contain-intrinsic-size: 190px;
+}
+
+.developer-guide-card > span {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: rgba(201, 255, 220, 0.1);
+  color: var(--accent);
+  font:
+    800 0.7rem / 1 ui-monospace,
+    monospace;
+}
+
+.developer-guide-card strong {
+  font-size: 1.03rem;
+}
+
+.developer-guide-card p {
+  margin: auto 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.developer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+  gap: var(--space-8);
+}
+
+.developer-panel {
+  min-width: 0;
+  min-height: 520px;
+  padding: 22px;
+}
+
+.developer-panel--prompt {
+  height: min(68svh, 760px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: var(--space-7);
+}
+
+.developer-prompt-scroll {
+  min-height: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-2xl);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.developer-prompt {
+  margin: 0;
+  padding: 16px 18px 28px 16px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: #dce3de;
+  font:
+    500 0.76rem / 1.65 ui-monospace,
+    "SFMono-Regular",
+    Menlo,
+    Consolas,
+    monospace;
+}
+
+.developer-prompt-skeleton {
+  padding: 18px;
+}
+
+.developer-tools-intro {
+  color: var(--muted);
+  line-height: 1.55;
+  font-size: 0.82rem;
+}
+
+.developer-tools-intro code,
+.developer-command-card code {
+  color: var(--accent);
+}
+
+.developer-tool-list {
+  display: grid;
+  gap: var(--space-4);
+  margin: 16px 0;
+}
+
+.developer-tool-list article {
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.028);
+  content-visibility: auto;
+  contain-intrinsic-size: 76px;
+}
+
+.developer-tool-list code {
+  color: var(--accent);
+  font-weight: 750;
+}
+
+.developer-tool-list p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.developer-command-card {
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: var(--radius-xl);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.developer-command-card span {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+/* Developer-owned reduced-glass theme. */
+.developer-panel,
+.developer-guide-card {
+  background: var(--arcade-surface);
+  border-color: var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  backdrop-filter: none;
+}

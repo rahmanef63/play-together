@@ -1,0 +1,56 @@
+/* Stable viewport shells and app-owned scroll areas. */
+html,
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.danger-confirm {
+  background: rgba(153, 36, 36, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(255, 156, 156, 0.28);
+}
+
+@keyframes remote-radar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 620px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: reduced-motion accessibility override */
+    scroll-behavior: auto !important;
+    /* biome-ignore lint/complexity/noImportantStyles: reduced-motion accessibility override */
+    animation-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: reduced-motion accessibility override */
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .topbar nav .ghost-button {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .topbar nav .ghost-button.mobile-keep {
+    display: inline-flex;
+  }
+}

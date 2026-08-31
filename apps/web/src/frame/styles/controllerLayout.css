@@ -1,0 +1,60 @@
+.builtin-controller {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(72px, 0.38fr) minmax(0, 1fr);
+  grid-template-rows: minmax(38px, 0.28fr) minmax(0, 1fr) minmax(38px, 0.28fr);
+  grid-template-areas:
+    "top-left center top-right"
+    "left center right"
+    "bottom-left bottom bottom-right";
+  gap: clamp(6px, 1.4vmin, 14px);
+  padding: clamp(6px, 1.5vmin, 14px);
+}
+
+.builtin-controller__zone {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(6px, 1.2vmin, 12px);
+}
+
+.builtin-controller__zone:empty {
+  display: none;
+}
+.builtin-controller__zone--top-left {
+  grid-area: top-left;
+  justify-content: flex-start;
+}
+.builtin-controller__zone--top-right {
+  grid-area: top-right;
+  justify-content: flex-end;
+}
+.builtin-controller__zone--left {
+  grid-area: left;
+  justify-content: flex-start;
+}
+.builtin-controller__zone--center {
+  grid-area: center;
+  flex-direction: column;
+}
+.builtin-controller__zone--right {
+  grid-area: right;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.builtin-controller__zone--bottom-left {
+  grid-area: bottom-left;
+  justify-content: flex-start;
+}
+.builtin-controller__zone--bottom {
+  grid-area: bottom;
+}
+.builtin-controller__zone--bottom-right {
+  grid-area: bottom-right;
+  justify-content: flex-end;
+}

@@ -1,0 +1,73 @@
+@media (max-width: 760px) {
+  .developer-card-rail::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .developer-card-rail {
+    scroll-behavior: auto;
+  }
+}
+
+@media (max-width: 980px) {
+  .developer-card-rail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .developer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .developer-hero__actions {
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .developer-card-rail {
+    width: 100%;
+    display: flex;
+    grid-template-columns: none;
+    gap: 9px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding: 2px 2px 12px;
+  }
+
+  .developer-guide-card {
+    flex: 0 0 82%;
+    min-height: 172px;
+    scroll-snap-align: center;
+    border-radius: var(--radius-3xl);
+  }
+
+  .developer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .developer-panel {
+    min-height: 0;
+    padding: 15px;
+    border-radius: 26px;
+  }
+
+  .developer-panel--prompt {
+    height: min(66svh, 620px);
+  }
+
+  .developer-prompt {
+    font-size: 0.71rem;
+  }
+}
+
+@media (max-width: 760px) and (orientation: landscape) and (max-height: 500px) {
+  .developer-page__content {
+    padding-bottom: calc(68px + env(safe-area-inset-bottom));
+  }
+}

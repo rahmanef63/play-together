@@ -1,0 +1,111 @@
+@media (max-width: 560px) {
+  .play-toolbar {
+    gap: var(--space-2);
+    padding-inline: 2px;
+  }
+
+  .play-toolbar .ghost-button {
+    min-height: 32px;
+    padding-inline: 8px;
+    font-size: 0.72rem;
+  }
+
+  .play-toolbar__actions {
+    gap: var(--space-2);
+  }
+
+  .play-toolbar__label--long {
+    display: none;
+  }
+
+  .play-toolbar__label--short {
+    display: inline;
+  }
+
+  .play-toolbar strong {
+    font-size: 0.66rem;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 700px) {
+  .play-page {
+    grid-template-rows: 38px minmax(0, 1fr);
+  }
+
+  .play-toolbar {
+    min-height: 36px;
+  }
+
+  .play-toolbar .ghost-button {
+    min-height: 30px;
+    padding-inline: 9px;
+  }
+}
+
+@media (max-width: 620px) {
+  .play-toolbar .ghost-button {
+    padding: 0 9px;
+    font-size: 0.74rem;
+  }
+}
+
+@media (max-width: 680px) {
+  .play-toolbar__actions .ghost-button:first-child:not(:last-child) {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .play-toolbar {
+    opacity: 0.68;
+  }
+}
+
+@media (max-width: 900px) {
+  .play-page--controller.play-page--remote .play-toolbar__role-switch {
+    display: none;
+  }
+
+  .play-page--controller.play-page--remote .play-toolbar {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    opacity: 0.94;
+  }
+
+  .play-page--controller.play-page--remote .play-toolbar > div:nth-child(2) {
+    min-width: 0;
+    text-align: center;
+  }
+
+  .play-page--controller.play-page--remote .play-toolbar > div:nth-child(2) strong {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 620px) and (orientation: portrait) {
+  .play-page--controller.play-page--remote .play-toolbar {
+    top: max(4px, env(safe-area-inset-top));
+    left: max(4px, env(safe-area-inset-left));
+    right: max(4px, env(safe-area-inset-right));
+    min-height: 42px;
+    padding: 2px;
+    border-radius: 13px;
+  }
+
+  .play-page--controller.play-page--remote .play-toolbar .ghost-button {
+    min-height: 34px;
+    padding-inline: 10px;
+    font-size: 0.72rem;
+  }
+
+  .play-page--controller.play-page--remote .play-toolbar__fullscreen {
+    max-width: 88px;
+  }
+
+  .play-page--controller.play-page--remote .device-frame {
+    top: max(50px, calc(env(safe-area-inset-top) + 46px));
+    bottom: max(2px, env(safe-area-inset-bottom));
+  }
+}

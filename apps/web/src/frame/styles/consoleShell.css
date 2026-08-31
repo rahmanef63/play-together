@@ -1,0 +1,110 @@
+html,
+body,
+#game-root {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+body {
+  background: transparent;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.console-shell {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(6px, 1.25vmin, 14px);
+  background:
+    radial-gradient(circle at 50% -10%, rgba(112, 78, 151, 0.24), transparent 45%),
+    linear-gradient(145deg, #252130, #15131c 68%);
+  color: var(--console-text);
+}
+
+.console-shell__chassis {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--console-edge);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.045), transparent 22%),
+    linear-gradient(160deg, #262231, #191721 64%, #121119);
+  box-shadow:
+    inset 0 1px 0 var(--console-highlight),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.45),
+    0 12px 36px var(--console-shadow);
+}
+
+.console-shell__chassis::before,
+.console-shell__chassis::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.console-shell__status {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: var(--console-space-md);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.console-shell__status-light {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--console-accent);
+  box-shadow: 0 0 10px var(--console-accent);
+}
+
+.console-shell__vents {
+  display: block;
+  width: 58px;
+  height: 10px;
+  opacity: 0.35;
+  background: repeating-linear-gradient(90deg, #05050a 0 5px, transparent 5px 10px);
+}
+
+.console-shell__screen,
+.console-shell__controls {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.console-shell__screen {
+  background: #030307;
+  border: 3px solid #0b0a10;
+  box-shadow:
+    inset 0 0 0 2px rgba(148, 132, 181, 0.18),
+    inset 0 0 34px rgba(0, 0, 0, 0.78),
+    0 2px 0 rgba(255, 255, 255, 0.04);
+}
+
+.console-shell__controls {
+  position: relative;
+  overflow: hidden;
+}

@@ -1,0 +1,90 @@
+.console-shell {
+  background: var(--console-bg);
+}
+
+.console-shell__chassis {
+  border: 2px solid var(--console-edge);
+  background: var(--console-panel);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+    0 8px 20px var(--console-shadow);
+}
+
+.console-shell__status-light {
+  border-radius: 2px;
+  background: var(--console-accent);
+  box-shadow: none;
+}
+
+.console-shell__screen {
+  background: #080b0c;
+  border-color: #0b0d0e;
+  box-shadow: inset 0 0 0 2px rgba(234, 217, 174, 0.09);
+}
+
+.console-shell--racing {
+  --console-accent: var(--console-accent);
+}
+
+.console-shell--flight {
+  --console-accent: var(--console-teal);
+}
+
+/* Remote chassis is intentionally plain. Controls own the SVG artwork; no giant overlay frame. */
+.console-shell--remote {
+  place-items: end center;
+}
+
+.console-shell--remote .console-shell__chassis,
+.console-shell--remote.console-shell--racing .console-shell__chassis,
+.console-shell--remote.console-shell--flight .console-shell__chassis,
+.console-shell--remote.console-shell--classic .console-shell__chassis {
+  width: min(100%, 760px);
+  height: clamp(248px, 66dvh, 340px);
+  max-height: calc(100% - 4px);
+  clip-path: none;
+  border-radius: clamp(22px, 5vmin, 34px);
+  background: #1b2122;
+  padding: clamp(8px, 1.8vmin, 14px) clamp(10px, 2.2vw, 20px);
+}
+
+.console-shell--remote .console-shell__chassis::before,
+.console-shell--remote .console-shell__chassis::after {
+  display: none;
+  content: none;
+}
+
+.console-shell--remote .console-shell__controls {
+  overflow: visible;
+  border-radius: var(--console-radius-lg);
+}
+
+.console-control--button,
+.console-dpad__button {
+  border-color: rgba(234, 217, 174, 0.14);
+  background: #252a2b;
+  box-shadow:
+    inset 0 1px 0 rgba(234, 217, 174, 0.08),
+    0 4px 0 #0b0d0e;
+}
+
+.console-control--button[data-face="a"] {
+  background: #a8443b;
+}
+
+.console-control--button[data-face="b"] {
+  background: #8d3a33;
+}
+
+.console-control--button[data-face="x"] {
+  background: var(--console-blue);
+}
+
+.console-control--button[data-face="y"] {
+  background: #b88229;
+}
+
+.console-dpad__center {
+  background: #15191a;
+  box-shadow: inset 0 0 0 1px rgba(234, 217, 174, 0.08);
+}

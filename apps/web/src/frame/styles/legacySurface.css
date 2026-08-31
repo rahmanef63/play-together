@@ -1,0 +1,48 @@
+/* Historical cartridge DOM can carry stronger/inline sizing. Keep compatibility normalization isolated here. */
+.console-shell__controls > :first-child {
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge surface normalization */
+  width: 100% !important;
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge surface normalization */
+  height: 100% !important;
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge surface normalization */
+  min-width: 0 !important;
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge surface normalization */
+  min-height: 0 !important;
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge surface normalization */
+  padding: clamp(6px, 1.6vmin, 12px) !important;
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge surface normalization */
+  background: transparent !important;
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge surface normalization */
+  color: var(--console-text) !important;
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge surface normalization */
+  box-shadow: none !important;
+}
+.console-shell__controls button {
+  touch-action: none;
+}
+@media (orientation: landscape) {
+  .console-shell--remote .console-shell__controls > :first-child {
+    /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge surface normalization */
+    padding: clamp(4px, 1.5vmin, 10px) !important;
+  }
+}
+#game-root > * {
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge root normalization */
+  width: 100% !important;
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge root normalization */
+  height: 100% !important;
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge root normalization */
+  min-width: 0 !important;
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge root normalization */
+  min-height: 0 !important;
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge root normalization */
+  max-width: none !important;
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge root normalization */
+  max-height: none !important;
+  /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge root normalization */
+  margin: 0 !important;
+}
+#game-root canvas {
+  max-width: 100%;
+  max-height: 100%;
+}

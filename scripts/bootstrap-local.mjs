@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { requiresConvexNetworkRefresh } from "./local-stack/topology.mjs";
 
 const root = process.cwd();
 await run(process.execPath, ["scripts/generate-local-env.mjs"]);
@@ -18,8 +19,21 @@ const compose = [
   "admin",
 ];
 
+const topologyBefore = await readStackTopology(runtime);
+const convexAdminUrl = environment.CONVEX_SELF_HOSTED_URL || environment.VITE_CONVEX_URL;
+
 await run("pnpm", ["--filter", "@play-together/contracts", "build"], runtime);
 await run("pnpm", ["game:publish"], runtime);
+await run(
+  "docker",
+  [...compose, "up", "-d", "--build", "--wait", "convex-backend", "convex-dashboard", "game-cdn"],
+  runtime,
+);
+const topologyAfter = await readStackTopology(runtime);
+if (requiresConvexNetworkRefresh(topologyBefore, topologyAfter)) {
+  await run("docker", [...compose, "restart", "convex-backend"], runtime);
+}
+await waitFor(`${convexAdminUrl}/version`, 120_000);
 await run(
   "docker",
   [
@@ -27,16 +41,13 @@ await run(
     "up",
     "-d",
     "--build",
+    "--force-recreate",
+    "--no-deps",
     "--wait",
-    "convex-backend",
     "convex-site-loopback",
-    "convex-dashboard",
-    "game-cdn",
   ],
   runtime,
 );
-const convexAdminUrl = environment.CONVEX_SELF_HOSTED_URL || environment.VITE_CONVEX_URL;
-await waitFor(`${convexAdminUrl}/version`, 120_000);
 
 const keyPath = resolve(root, ".local/convex-admin-key");
 let adminKey = "";
@@ -53,22 +64,12 @@ let deployEnvironment = {
   CONVEX_SELF_HOSTED_ADMIN_KEY: adminKey,
 };
 try {
-  await run(process.execPath, ["scripts/sync-convex-env.mjs"], deployEnvironment);
-  await run(
-    "pnpm",
-    ["exec", "convex", "deploy", "--yes", "--env-file", selfHostedEnvPath],
-    deployEnvironment,
-  );
+  await deployConvex(deployEnvironment, selfHostedEnvPath);
 } catch {
   adminKey = await createAdminKey(runtime, keyPath);
   deployEnvironment = { ...deployEnvironment, CONVEX_SELF_HOSTED_ADMIN_KEY: adminKey };
   await writeSelfHostedEnv(selfHostedEnvPath, convexAdminUrl, adminKey);
-  await run(process.execPath, ["scripts/sync-convex-env.mjs"], deployEnvironment);
-  await run(
-    "pnpm",
-    ["exec", "convex", "deploy", "--yes", "--env-file", selfHostedEnvPath],
-    deployEnvironment,
-  );
+  await deployConvex(deployEnvironment, selfHostedEnvPath);
 }
 
 await run(process.execPath, ["scripts/publish-to-convex.mjs"], deployEnvironment);
@@ -79,6 +80,14 @@ await Promise.all([
 ]);
 console.log(`Local stack ready at http://localhost:${environment.WEB_PORT}`);
 
+async function deployConvex(environment, envPath) {
+  await run(process.execPath, ["scripts/sync-convex-env.mjs"], environment);
+  await run("pnpm", ["exec", "convex", "deploy", "--yes", "--env-file", envPath], environment);
+  // Self-hosted deploy can replace action workers. Re-apply function env so the
+  // newly deployed runtime sees local fetch-origin mappings before publication.
+  await run(process.execPath, ["scripts/sync-convex-env.mjs"], environment);
+}
+
 async function writeSelfHostedEnv(path, deploymentUrl, adminKey) {
   await mkdir(resolve(root, ".local"), { recursive: true, mode: 0o700 });
   const content = [
@@ -88,6 +97,15 @@ async function writeSelfHostedEnv(path, deploymentUrl, adminKey) {
   ].join("\n");
   await writeFile(path, content, { mode: 0o600 });
   await chmod(path, 0o600);
+}
+
+async function readStackTopology(env) {
+  const [gameCdn, convexBackend] = await Promise.all(
+    ["game-cdn", "convex-backend"].map((service) =>
+      capture("docker", [...compose, "ps", "-q", service], env).catch(() => ""),
+    ),
+  );
+  return { gameCdn: gameCdn.trim(), convexBackend: convexBackend.trim() };
 }
 
 async function createAdminKey(env, path) {

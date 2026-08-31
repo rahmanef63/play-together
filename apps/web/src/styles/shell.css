@@ -1,0 +1,129 @@
+.primary-button,
+.secondary-button,
+.ghost-button,
+.brand-button,
+.avatar-button {
+  border: 0;
+  border-radius: var(--radius-xl);
+  min-height: 44px;
+  padding: 0 17px;
+  font-weight: 750;
+}
+
+.topbar nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.brand-button {
+  display: flex;
+  gap: var(--space-5);
+  align-items: center;
+  background: transparent;
+  color: #fff;
+  padding-left: 0;
+}
+
+.brand-button span {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+}
+
+.avatar-button {
+  width: 42px;
+  padding: 0;
+  border-radius: 50%;
+  color: #07110c;
+  background: var(--accent);
+}
+
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-8);
+  align-items: start;
+  margin-bottom: 22px;
+}
+
+.section-title h2 {
+  margin-bottom: 0;
+}
+
+.section-title > span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.game-version {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 20px;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.game-version p {
+  color: var(--muted);
+  margin: 5px 0 0;
+}
+
+.game-version > div:last-child {
+  display: grid;
+  justify-items: end;
+  gap: var(--space-4);
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.game-version code {
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+}
+
+.architecture-card ol {
+  color: #b7c9bd;
+  padding-left: 20px;
+  line-height: 1.7;
+}
+
+.console-control-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.console-control-chips span {
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.panel-frame {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.panel-frame > .section-title {
+  margin-bottom: 16px;
+}
+
+.panel-scroll {
+  min-height: 0;
+}
+
+.panel-scroll__content {
+  min-width: 0;
+  min-height: min-content;
+  padding: 2px 2px 8px;
+}

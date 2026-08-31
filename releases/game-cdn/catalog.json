@@ -72,6 +72,13 @@
       "manifestSha256": "f319755354169b1a6aafe9e67096b6f32492ec98770b1aa10b8cedd2dcc08f8c"
     },
     {
+      "gameId": "flight-trainer",
+      "version": "0.2.4",
+      "title": "Flight Trainer",
+      "manifestPath": "/games/flight-trainer/0.2.4/manifest.json",
+      "manifestSha256": "7019a9796f1a6a3adc5701aa524c9299cdf611a54095fe115d62e58b519a08b6"
+    },
+    {
       "gameId": "maze-run",
       "version": "0.1.0",
       "title": "Maze Run",
@@ -261,6 +268,13 @@
       "manifestSha256": "180f50cff1f7031f0c663e10e0e6937b89c819899be48d9e681243a72078f341"
     },
     {
+      "gameId": "sky-strike",
+      "version": "0.2.4",
+      "title": "Sky Strike",
+      "manifestPath": "/games/sky-strike/0.2.4/manifest.json",
+      "manifestSha256": "27b6c1c06279109123a47755f9c32b0c4b7fdad249aa1ef64b294ba77751bfc8"
+    },
+    {
       "gameId": "snake-arena",
       "version": "0.1.0",
       "title": "Snake Arena",
@@ -434,6 +448,13 @@
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.4.0/manifest.json",
       "manifestSha256": "4fa7847685bec03cc0569629e22e3670662f82f8a4d1faf837076bf66e618ee6"
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.4.1",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.4.1/manifest.json",
+      "manifestSha256": "28fc5bfa6a4c8fca40b14e11f75d84f5857896a74fc28fa1b0f645aa6062a8a6"
     }
   ]
 }

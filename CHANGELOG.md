@@ -4,6 +4,16 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+## [0.11.4] - 2026-08-31
+
+### Changed
+
+- Refactored the web, frame runtime, Convex rooms/templates, realtime room runtime, public contracts/runtime packages, game-admin tooling, E2E scenarios, and the three advanced game cartridges into explicit vertical ownership slices with maintained implementation files capped at 200 lines.
+- Replaced monolithic app/frame stylesheets with feature-owned styles and shared semantic custom-property tokens while isolating legacy compatibility overrides.
+- Added architecture enforcement for line budget, feature dependency direction, shared/frame boundaries, and game isolation.
+- Added concise agent onboarding and task-routing docs; the game-submission AI prompt is now one canonical SSOT consumed by docs sync, `/developers`, MCP, and MSO project tools.
+- Turbo Circuit `0.4.1`, Sky Strike `0.2.4`, and Flight Trainer `0.2.4` preserve gameplay behavior while splitting authoritative models/combat and display scene/HUD/camera/rendering concerns into maintainable cartridge-owned modules.
+
 ## [0.11.3] - 2026-08-31
 
 ### Added

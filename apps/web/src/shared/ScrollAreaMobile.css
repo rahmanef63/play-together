@@ -1,0 +1,10 @@
+@media (max-width: 760px) {
+  .scroll-area__viewport {
+    padding-right: 5px;
+  }
+
+  .scroll-area__track {
+    right: 0;
+    width: 3px;
+  }
+}

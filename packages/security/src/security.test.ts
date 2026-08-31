@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { signTicket, verifyTicket } from "./index";
+import { signTicket, verifyTicket } from "./index.js";
 
 const secret = "correct-horse-battery-staple-32-bytes-minimum";
 const claims = {

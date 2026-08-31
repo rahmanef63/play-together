@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "sky-strike",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "title": "Sky Strike",
     "description": "A 3D arcade fighter dogfight with flight controls, cannon fire, homing missiles, lock-on, health, respawns and AI bandits.",
     "minPlayers": 1,

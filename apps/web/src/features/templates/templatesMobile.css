@@ -1,0 +1,129 @@
+.template-card {
+  content-visibility: auto;
+}
+
+@media (max-width: 760px) {
+  .template-grid::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .template-grid {
+    scroll-behavior: auto;
+  }
+}
+
+.template-page,
+.developer-page,
+.ops-page-native {
+  width: 100%;
+  max-width: none;
+  height: 100svh;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.template-page__scroll,
+.developer-page__scroll,
+.ops-page-native__scroll {
+  min-height: 0;
+}
+
+.template-page__content,
+.developer-page__content,
+.ops-page-native__content {
+  min-height: 100%;
+  padding: 0 2px 38px;
+}
+
+.template-card {
+  contain-intrinsic-size: 430px;
+}
+
+@media (max-width: 760px) {
+  .template-page,
+  .developer-page,
+  .ops-page-native {
+    height: 100svh;
+    grid-template-rows: minmax(0, 1fr);
+    padding-top: max(8px, env(safe-area-inset-top));
+    padding-bottom: 0;
+  }
+
+  .template-page__content,
+  .developer-page__content,
+  .ops-page-native__content {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .template-heading,
+  .developer-hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: var(--space-7);
+    padding: 18px 2px 20px;
+  }
+
+  .template-heading h1,
+  .developer-hero h1 {
+    max-width: 14ch;
+    margin-bottom: 10px;
+    font-size: clamp(2rem, 9vw, 3rem);
+  }
+
+  .template-stat {
+    justify-items: start;
+  }
+
+  .template-grid {
+    width: 100%;
+    display: flex;
+    grid-template-columns: none;
+    gap: var(--space-5);
+    overflow-x: auto;
+    overflow-y: visible;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding: 2px 2px 14px;
+  }
+
+  .template-card {
+    flex: 0 0 88%;
+    scroll-snap-align: center;
+    border-radius: 26px;
+    background: linear-gradient(160deg, var(--mobile-card), rgba(14, 15, 18, 0.94));
+  }
+
+  .template-card p {
+    min-height: 0;
+  }
+
+  .template-empty {
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 760px) and (orientation: landscape) and (max-height: 500px) {
+  .developer-hero,
+  .template-heading {
+    padding-top: 6px;
+    padding-bottom: 12px;
+  }
+
+  .developer-hero h1,
+  .template-heading h1 {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 760px) and (orientation: landscape) and (max-height: 500px) {
+  .template-page__content {
+    padding-bottom: calc(68px + env(safe-area-inset-bottom));
+  }
+}

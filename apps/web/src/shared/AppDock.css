@@ -1,0 +1,114 @@
+/* Native-feeling application chrome layered over the core portal styles. */
+.app-dock {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .app-dock {
+    position: fixed;
+    z-index: 100;
+    left: 50%;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    display: block;
+    width: min(520px, calc(100vw - 16px));
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .app-dock__surface {
+    min-height: 66px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: center;
+    gap: var(--space-1);
+    padding: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-3xl);
+    background: rgba(24, 25, 29, 0.78);
+    box-shadow:
+      0 18px 46px rgba(0, 0, 0, 0.42),
+      inset 0 1px rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(28px) saturate(1.55);
+    -webkit-backdrop-filter: blur(28px) saturate(1.55);
+    pointer-events: auto;
+  }
+
+  .app-dock__item {
+    min-width: 0;
+    min-height: 56px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 3px;
+    border: 0;
+    border-radius: var(--radius-2xl);
+    background: transparent;
+    color: #8f929b;
+    padding: 4px 2px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .app-dock__item svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .app-dock__item span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.57rem;
+    line-height: 1;
+    font-weight: 650;
+  }
+
+  .app-dock__item--active {
+    color: #f5f5f7;
+    background: rgba(255, 255, 255, 0.095);
+  }
+
+  .app-dock__item--active svg {
+    color: var(--accent);
+  }
+}
+
+@media (max-width: 760px) and (orientation: landscape) and (max-height: 500px) {
+  .app-dock {
+    width: min(480px, calc(100vw - 28px));
+  }
+
+  .app-dock__surface {
+    min-height: 52px;
+    border-radius: 20px;
+  }
+
+  .app-dock__item {
+    min-height: 43px;
+    grid-template-columns: auto auto;
+    gap: 5px;
+  }
+
+  .app-dock__item svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .app-dock__item span {
+    font-size: 0.55rem;
+  }
+}
+
+@media (display-mode: standalone) and (max-width: 760px) {
+  .app-dock {
+    bottom: max(6px, env(safe-area-inset-bottom));
+  }
+
+  .app-dock__surface {
+    background: rgba(27, 28, 32, 0.72);
+  }
+}

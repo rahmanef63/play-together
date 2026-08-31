@@ -1,0 +1,72 @@
+.console-control--stick {
+  border: 0;
+  background: transparent url("/assets/ui/remote/steering-base.svg") center / contain no-repeat;
+  box-shadow: none;
+}
+
+.console-stick__knob {
+  width: 48%;
+  background: transparent url("/assets/ui/remote/steering-knob.svg") center / contain no-repeat;
+  box-shadow: none;
+}
+
+.console-shell--racing
+  .builtin-controller--racing
+  .builtin-controller__zone--right
+  .console-control--button[data-control-id="throttle"],
+.console-shell--racing
+  .builtin-controller--racing
+  .builtin-controller__zone--right
+  .console-control--button[data-control-id="brake"] {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  color: var(--console-text);
+  background-color: transparent;
+  background-position: center 32%;
+  background-size: auto 78%;
+  background-repeat: no-repeat;
+  border: 0;
+  box-shadow: none;
+  padding: 0 4px 6px;
+  font-size: clamp(10px, 2vmin, 14px);
+  font-weight: 800;
+}
+
+.console-shell--racing
+  .builtin-controller--racing
+  .builtin-controller__zone--right
+  .console-control--button[data-control-id="throttle"] {
+  background-image: url("/assets/ui/remote/pedal-gas.svg");
+}
+
+.console-shell--racing
+  .builtin-controller--racing
+  .builtin-controller__zone--right
+  .console-control--button[data-control-id="brake"] {
+  background-image: url("/assets/ui/remote/pedal-brake.svg");
+}
+
+.console-shell--racing
+  .builtin-controller--racing
+  .console-control--button[data-control-id="boost"] {
+  color: var(--console-text);
+  background: transparent url("/assets/ui/remote/boost-button.svg") center / 100% 100% no-repeat;
+  border: 0;
+  box-shadow: none;
+}
+
+.console-control--touchpad {
+  border-color: rgba(57, 120, 122, 0.42);
+  border-radius: var(--console-radius-md);
+  background-color: #14191a;
+  background-image:
+    linear-gradient(rgba(57, 120, 122, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(57, 120, 122, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.console-touchpad__crosshair {
+  border-color: var(--console-teal);
+  box-shadow: none;
+}

@@ -1,0 +1,30 @@
+.room-invite-page {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.invite-card {
+  width: min(560px, 100%);
+  align-self: center;
+  justify-self: center;
+  padding: clamp(24px, 5vw, 48px);
+  text-align: center;
+}
+
+.invite-card h1 {
+  font-size: clamp(2.4rem, 8vw, 4.8rem);
+}
+
+.invite-card > p:not(.eyebrow) {
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.invite-card form {
+  text-align: left;
+}
+
+.room-invite-page {
+  grid-template-rows: auto minmax(0, 1fr);
+}

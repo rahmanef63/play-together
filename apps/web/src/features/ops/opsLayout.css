@@ -1,0 +1,16 @@
+.ops-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.82fr) minmax(0, 1.4fr);
+  gap: 20px;
+}
+
+.ops-grid > .panel,
+.architecture-card {
+  padding: clamp(18px, 2.5vw, 30px);
+}
+
+@media (max-width: 900px) {
+  .ops-grid {
+    grid-template-columns: 1fr;
+  }
+}

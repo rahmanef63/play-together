@@ -1,5 +1,15 @@
 import { createHash, randomUUID } from "node:crypto";
-import Redis from "ioredis";
+import type Redis from "ioredis";
+import {
+  createRedis,
+  KEY_TTL_SECONDS,
+  MAX_EVENT_BYTES,
+  PRESENCE_REFRESH_MS,
+  PRESENCE_STALE_MS,
+  parseEvent,
+  parsePresence,
+  type RedisRoomEvent,
+} from "./redis-room-protocol.js";
 import type {
   CoordinatedInput,
   CoordinatedPresencePlayer,
@@ -8,16 +18,6 @@ import type {
   RoomCoordinatorCallbacks,
   RoomCoordinatorHandle,
 } from "./room-coordinator.js";
-
-const PRESENCE_STALE_MS = 45_000;
-const PRESENCE_REFRESH_MS = 10_000;
-const KEY_TTL_SECONDS = 60 * 60;
-const MAX_EVENT_BYTES = 256 * 1024;
-
-type RedisRoomEvent =
-  | { type: "presence" }
-  | { type: "input"; input: CoordinatedInput }
-  | { type: "snapshot"; snapshot: CoordinatedSnapshot };
 
 export class RedisRoomCoordinator implements RoomCoordinator {
   readonly #url: string;
@@ -194,47 +194,5 @@ class RedisRoomHandle implements RoomCoordinatorHandle {
         left.connectedAt - right.connectedAt || left.connectionId.localeCompare(right.connectionId),
     );
     this.#callbacks.onPresence(players);
-  }
-}
-
-function createRedis(url: string): Redis {
-  return new Redis(url, {
-    lazyConnect: true,
-    maxRetriesPerRequest: null,
-    enableReadyCheck: true,
-    retryStrategy: (attempt) => Math.min(200 * attempt, 5_000),
-  });
-}
-
-function parsePresence(encoded: string): CoordinatedPresencePlayer | null {
-  try {
-    const value = JSON.parse(encoded) as Partial<CoordinatedPresencePlayer>;
-    if (
-      typeof value.connectionId !== "string" ||
-      typeof value.instanceId !== "string" ||
-      typeof value.playerId !== "string" ||
-      (value.role !== "controller" && value.role !== "display") ||
-      (value.mode !== "remote" && value.mode !== "handheld") ||
-      typeof value.connectedAt !== "number"
-    ) {
-      return null;
-    }
-    return value as CoordinatedPresencePlayer;
-  } catch {
-    return null;
-  }
-}
-
-function parseEvent(encoded: string): RedisRoomEvent | null {
-  try {
-    const value = JSON.parse(encoded) as RedisRoomEvent;
-    if (value.type === "presence") return value;
-    if (value.type === "input" && value.input && typeof value.input.playerId === "string")
-      return value;
-    if (value.type === "snapshot" && value.snapshot && Number.isFinite(value.snapshot.tick))
-      return value;
-    return null;
-  } catch {
-    return null;
   }
 }

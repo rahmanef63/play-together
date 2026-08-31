@@ -1,0 +1,199 @@
+/* Room session lobby: no game runtime is mounted until the host starts. */
+.pregame-menu {
+  position: absolute;
+  z-index: 10;
+  inset: max(48px, calc(env(safe-area-inset-top) + 46px)) max(4px, env(safe-area-inset-right))
+    max(4px, env(safe-area-inset-bottom)) max(4px, env(safe-area-inset-left));
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  padding: clamp(10px, 2.4vw, 28px);
+  overscroll-behavior: contain;
+}
+
+.pregame-menu--loading {
+  align-content: center;
+  gap: var(--space-5);
+  color: #b7afc1;
+}
+
+.pregame-menu__panel {
+  width: min(980px, 100%);
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.72fr);
+  grid-template-areas:
+    "heading qr"
+    "settings qr"
+    "waiting qr"
+    "actions qr";
+  align-items: center;
+  gap: clamp(12px, 2vw, 22px);
+  padding: clamp(18px, 3vw, 34px);
+  border: 1px solid rgba(206, 190, 234, 0.14);
+  border-radius: clamp(24px, 4vw, 38px);
+  background: var(--panel-solid);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.42),
+    inset 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.pregame-menu__heading {
+  grid-area: heading;
+  min-width: 0;
+}
+
+.pregame-menu__heading h1 {
+  margin: 3px 0 5px;
+  font-size: clamp(2rem, 5vw, 4.6rem);
+  line-height: 0.98;
+}
+
+.pregame-menu__heading > p:last-child {
+  margin: 0;
+  color: #aaa2b4;
+}
+
+.pregame-menu__settings {
+  grid-area: settings;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(90px, 0.6fr));
+  gap: var(--space-4);
+}
+
+.pregame-menu__settings > div {
+  min-width: 0;
+  padding: 10px 12px;
+  display: grid;
+  gap: 3px;
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.045);
+}
+
+.pregame-menu__settings span,
+.room-invite-qr__meta > span {
+  color: #8f8799;
+  font:
+    800 0.6rem / 1 ui-monospace,
+    monospace;
+  letter-spacing: 0.13em;
+}
+
+.pregame-menu__settings strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #f2edf6;
+  font-size: 0.78rem;
+}
+
+.pregame-waiting {
+  grid-area: waiting;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 11px;
+  padding: 12px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--accent-strong) 8%, transparent);
+}
+
+.pregame-waiting__icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent-strong) 10%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-strong) 20%, transparent);
+}
+
+.pregame-waiting > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.pregame-waiting span:last-child,
+.pregame-menu__host-note {
+  color: #aaa2b4;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.pregame-menu__actions {
+  grid-area: actions;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.pregame-menu__actions .primary-button,
+.pregame-menu__actions .secondary-button {
+  min-height: 46px;
+  padding-inline: 22px;
+}
+
+@media (max-width: 720px) {
+  .pregame-menu {
+    place-items: start stretch;
+    padding: 8px 4px 12px;
+  }
+
+  .pregame-menu__panel {
+    width: 100%;
+    grid-template-columns: 1fr;
+    grid-template-areas: "heading" "settings" "qr" "waiting" "actions";
+    padding: 15px;
+    border-radius: var(--radius-3xl);
+  }
+
+  .pregame-menu__settings {
+    grid-template-columns: 1fr 0.55fr 0.55fr;
+  }
+
+  .pregame-menu__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pregame-menu__actions > * {
+    width: 100%;
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .pregame-menu {
+    top: max(40px, calc(env(safe-area-inset-top) + 38px));
+    padding: 4px 8px;
+  }
+
+  .pregame-menu__panel {
+    width: min(920px, 100%);
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 0.34fr);
+    grid-template-areas: "heading qr" "settings qr" "waiting qr" "actions qr";
+    gap: 7px 12px;
+    padding: 10px 14px;
+    border-radius: 20px;
+  }
+
+  .pregame-menu__heading h1 {
+    font-size: clamp(1.45rem, 5vh, 2.2rem);
+  }
+
+  .pregame-menu__settings > div,
+  .pregame-waiting {
+    padding-block: 7px;
+  }
+
+  .pregame-menu__actions .primary-button,
+  .pregame-menu__actions .secondary-button {
+    min-height: 34px;
+  }
+}

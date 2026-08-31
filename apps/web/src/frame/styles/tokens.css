@@ -1,0 +1,22 @@
+:root {
+  color-scheme: dark;
+  --console-bg: #111416;
+  --console-panel: #202628;
+  --console-panel-deep: #0d1011;
+  --console-edge: rgba(234, 217, 174, 0.28);
+  --console-highlight: rgba(234, 217, 174, 0.08);
+  --console-shadow: rgba(0, 0, 0, 0.46);
+  --console-accent: #d39a32;
+  --console-action: #b84f43;
+  --console-text: #eee2c4;
+  --console-teal: #39787a;
+  --console-blue: #355c73;
+  --console-space-xs: 2px;
+  --console-space-sm: 4px;
+  --console-space-md: 8px;
+  --console-space-lg: 12px;
+  --console-radius-sm: 8px;
+  --console-radius-md: 12px;
+  --console-radius-lg: 18px;
+  --console-radius-pill: 999px;
+}

@@ -6,7 +6,7 @@
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
-  gap: 2px;
+  gap: var(--space-1);
   overflow: hidden;
   background: #050509;
 }
@@ -48,7 +48,7 @@
   left: max(8px, env(safe-area-inset-left));
   bottom: max(8px, env(safe-area-inset-bottom));
   padding: 6px 9px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(8, 8, 13, 0.62);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
   color: #fff;

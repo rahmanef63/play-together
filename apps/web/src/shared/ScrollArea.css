@@ -1,0 +1,80 @@
+.scroll-area {
+  --scroll-thumb-ratio: 1;
+  --scroll-thumb-offset: 0%;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.scroll-area__viewport {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 10px;
+}
+
+.scroll-area__viewport::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.scroll-area__viewport:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  outline-offset: -1px;
+  border-radius: var(--radius-md);
+}
+
+.scroll-area__track {
+  position: absolute;
+  z-index: 5;
+  top: 5px;
+  right: 2px;
+  bottom: 5px;
+  width: 5px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.035);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease;
+}
+
+.scroll-area__track--visible {
+  opacity: 0.78;
+}
+
+.scroll-area__thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(var(--scroll-thumb-ratio) * 100%);
+  min-height: 24px;
+  transform: translateY(var(--scroll-thumb-offset));
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    var(--accent-strong),
+    color-mix(in srgb, var(--accent) 52%, transparent)
+  );
+  box-shadow: 0 0 12px rgba(120, 242, 165, 0.16);
+}
+
+.scroll-area:hover .scroll-area__track--visible,
+.scroll-area:focus-within .scroll-area__track--visible {
+  opacity: 1;
+}
+
+.scroll-area__viewport {
+  scroll-padding-block: 12px;
+}
