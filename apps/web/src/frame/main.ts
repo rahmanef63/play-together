@@ -11,6 +11,7 @@ import type {
 } from "@play-together/game-sdk";
 import "./consoleShell.css";
 import "./builtinController.css";
+import "./arcadeConsole.css";
 import "./displayGrid.css";
 import { mountBuiltinController } from "./builtinController";
 import { mountConsoleShell, resolveConsoleShellPreset } from "./consoleShell";

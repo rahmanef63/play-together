@@ -1572,9 +1572,7 @@ body::-webkit-scrollbar {
   padding: clamp(18px, 3vw, 34px);
   border: 1px solid rgba(206, 190, 234, 0.14);
   border-radius: clamp(24px, 4vw, 38px);
-  background:
-    radial-gradient(circle at 88% 12%, rgba(181, 71, 223, 0.16), transparent 30%),
-    linear-gradient(160deg, rgba(37, 33, 48, 0.96), rgba(17, 15, 24, 0.98));
+  background: var(--panel-solid);
   box-shadow:
     0 24px 70px rgba(0, 0, 0, 0.42),
     inset 0 1px rgba(255, 255, 255, 0.05);
@@ -1631,7 +1629,7 @@ body::-webkit-scrollbar {
   gap: 11px;
   padding: 12px;
   border-radius: 16px;
-  background: rgba(181, 71, 223, 0.075);
+  background: color-mix(in srgb, var(--accent-strong) 8%, transparent);
 }
 .pregame-waiting__icon {
   width: 42px;
@@ -1639,9 +1637,9 @@ body::-webkit-scrollbar {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  color: #d58bf0;
-  background: rgba(181, 71, 223, 0.1);
-  box-shadow: inset 0 0 0 1px rgba(213, 139, 240, 0.2);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent-strong) 10%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-strong) 20%, transparent);
 }
 .pregame-waiting > div {
   min-width: 0;

@@ -12,8 +12,8 @@ export function OpsPage({ user }: { user: CurrentUser }) {
   const games = gamesResult ?? [];
 
   return (
-    <main className="app-shell ops-page-native">
-      <header className="topbar desktop-topbar">
+    <main className="app-shell ops-page-native ops-console-page">
+      <header className="topbar desktop-topbar ops-console-topbar">
         <button className="brand-button" type="button" onClick={() => navigate("/")}>
           <span>PT</span> Play Together
         </button>
@@ -21,31 +21,54 @@ export function OpsPage({ user }: { user: CurrentUser }) {
           ← Lobby
         </button>
       </header>
+
       <ScrollArea className="ops-page-native__scroll" ariaLabel="Platform system console">
-        <div className="ops-page-native__content">
-          <section className="page-heading ops-heading">
-            <div>
-              <p className="eyebrow">SYSTEM CONSOLE</p>
-              <h1>Platform and game versions.</h1>
+        <div className="ops-page-native__content ops-console-content">
+          <section className="ops-console-overview" aria-labelledby="ops-title">
+            <div className="ops-console-overview__copy">
+              <span className="ops-console-label">System console</span>
+              <h1 id="ops-title">Platform operations</h1>
               <p>
-                Signed in as {user.name}. Publishing stays server-side; no release token is exposed
-                here.
+                Published game releases and the isolation rules that keep room sessions pinned to
+                exact versions. Signed in as {user.name}.
               </p>
+              <div className="ops-console-summary">
+                <strong>{gamesResult === undefined ? "…" : games.length}</strong>
+                <span>published games</span>
+              </div>
             </div>
+            <figure className="ops-console-overview__art" aria-hidden="true">
+              <img src="/assets/ui/ops/ops-hero-control-room.webp" alt="" />
+            </figure>
           </section>
-          <div className="ops-grid">
-            <section className="panel ops-catalog-panel">
-              <div className="section-title">
+
+          <div className="ops-grid ops-console-grid">
+            <section className="panel panel-frame ops-catalog-panel">
+              <div className="section-title ops-panel-title">
                 <div>
-                  <p className="eyebrow">CATALOG</p>
+                  <span className="ops-console-label">Catalog</span>
                   <h2>Published games</h2>
                 </div>
-                <span>{gamesResult === undefined ? "…" : games.length}</span>
+                <span>{gamesResult === undefined ? "Loading" : `${games.length} total`}</span>
               </div>
-              <div className="ops-game-list">
-                {gamesResult === undefined
-                  ? GAME_SKELETON_KEYS.map((key) => <GameVersionSkeleton key={key} />)
-                  : games.map((game) => (
+
+              <ScrollArea
+                className="panel-scroll ops-panel-scroll"
+                ariaLabel="Published game versions"
+              >
+                <div className="panel-scroll__content ops-game-list">
+                  {gamesResult === undefined ? (
+                    GAME_SKELETON_KEYS.map((key) => <GameVersionSkeleton key={key} />)
+                  ) : games.length === 0 ? (
+                    <div className="ops-empty-state">
+                      <img src="/assets/ui/states/ops-empty-rooms.webp" alt="" aria-hidden="true" />
+                      <div>
+                        <strong>No published games</strong>
+                        <p>Published cartridges will appear here after validation and release.</p>
+                      </div>
+                    </div>
+                  ) : (
+                    games.map((game) => (
                       <article className="game-version" key={`${game.gameId}@${game.version}`}>
                         <div>
                           <strong>{game.title}</strong>
@@ -60,25 +83,44 @@ export function OpsPage({ user }: { user: CurrentUser }) {
                           </span>
                         </div>
                       </article>
-                    ))}
-              </div>
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
             </section>
-            <aside className="panel architecture-card">
-              <p className="eyebrow">ISOLATION MODEL</p>
-              <h2>One game update is not a platform update.</h2>
-              <ol>
-                <li>Room stores an immutable game version and manifest hash.</li>
-                <li>Browser verifies controller/display bundles before import.</li>
-                <li>Gateway verifies the server bundle and starts a room Worker.</li>
-                <li>Existing rooms retain their pinned version.</li>
-              </ol>
-              <button
-                className="secondary-button full"
-                type="button"
-                onClick={() => navigate("/developers")}
+
+            <aside className="panel panel-frame architecture-card ops-architecture-panel">
+              <div className="section-title ops-panel-title">
+                <div>
+                  <span className="ops-console-label">Isolation model</span>
+                  <h2>Release boundaries</h2>
+                </div>
+              </div>
+
+              <ScrollArea
+                className="panel-scroll ops-panel-scroll"
+                ariaLabel="Release isolation model"
               >
-                Open submission & MCP guide
-              </button>
+                <div className="panel-scroll__content ops-architecture-content">
+                  <p>
+                    A game release changes independently from the portal. Existing rooms keep their
+                    stored manifest and server bundle.
+                  </p>
+                  <ol>
+                    <li>Room stores an immutable game version and manifest hash.</li>
+                    <li>Browser verifies controller and display bundles before import.</li>
+                    <li>Gateway verifies the server bundle and starts an isolated room Worker.</li>
+                    <li>Existing rooms retain their pinned version until the room closes.</li>
+                  </ol>
+                  <button
+                    className="secondary-button full"
+                    type="button"
+                    onClick={() => navigate("/developers")}
+                  >
+                    Open submission & MCP guide
+                  </button>
+                </div>
+              </ScrollArea>
             </aside>
           </div>
         </div>

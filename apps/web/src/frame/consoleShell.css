@@ -6,8 +6,8 @@
   --console-edge: rgba(190, 174, 230, 0.2);
   --console-highlight: rgba(255, 255, 255, 0.075);
   --console-shadow: rgba(0, 0, 0, 0.62);
-  --console-accent: #b547df;
-  --console-action: #b92d78;
+  --console-accent: #d39a32;
+  --console-action: #b84f43;
   --console-text: #f3edf9;
 }
 
@@ -184,7 +184,7 @@ body {
 .console-shell--remote.console-shell--classic .console-shell__chassis::before {
   inset: 6% 2%;
   border-radius: 48% 48% 36% 36% / 42% 42% 58% 58%;
-  background: radial-gradient(circle at 50% 0%, rgba(181, 71, 223, 0.11), transparent 54%);
+  background: color-mix(in srgb, var(--console-accent) 8%, transparent);
 }
 
 .console-shell--remote.console-shell--classic .console-shell__chassis {
@@ -203,7 +203,7 @@ body {
 }
 
 .console-shell--racing {
-  --console-accent: #d53c85;
+  --console-accent: #d39a32;
 }
 
 .console-shell--remote.console-shell--racing .console-shell__chassis {
@@ -219,10 +219,7 @@ body {
     4% 86%,
     0 18%
   );
-  background:
-    radial-gradient(circle at 18% 50%, rgba(213, 60, 133, 0.13), transparent 25%),
-    radial-gradient(circle at 82% 50%, rgba(213, 60, 133, 0.13), transparent 25%),
-    linear-gradient(160deg, #29232e, #17151d 65%);
+  background: linear-gradient(160deg, #292b2b, #171a1a 65%);
 }
 
 .console-shell--remote.console-shell--racing .console-shell__chassis::before,
@@ -231,7 +228,7 @@ body {
   bottom: 12%;
   width: 9%;
   border-radius: 50%;
-  border: 2px solid rgba(213, 60, 133, 0.18);
+  border: 2px solid color-mix(in srgb, var(--console-accent) 18%, transparent);
 }
 
 .console-shell--remote.console-shell--racing .console-shell__chassis::before {
@@ -243,14 +240,12 @@ body {
 }
 
 .console-shell--flight {
-  --console-accent: #8b5cf6;
+  --console-accent: #39787a;
 }
 
 .console-shell--remote.console-shell--flight .console-shell__chassis {
   clip-path: polygon(3% 8%, 22% 0, 78% 0, 97% 8%, 100% 84%, 88% 100%, 12% 100%, 0 84%);
-  background:
-    linear-gradient(90deg, rgba(139, 92, 246, 0.08), transparent 15% 85%, rgba(139, 92, 246, 0.08)),
-    linear-gradient(160deg, #252331, #14131b 68%);
+  background: linear-gradient(160deg, #252b2b, #141818 68%);
 }
 
 .console-shell--remote.console-shell--flight .console-shell__chassis::before {
@@ -360,9 +355,7 @@ body {
   }
   .console-shell--remote.console-shell--racing .console-shell__chassis,
   .console-shell--remote.console-shell--flight .console-shell__chassis {
-    background:
-      radial-gradient(circle at 20% 54%, rgba(213, 60, 133, 0.1), transparent 30%),
-      linear-gradient(160deg, #29232e, #17151d 65%);
+    background: linear-gradient(160deg, #292b2b, #171a1a 65%);
   }
   .console-shell--remote .console-shell__status {
     top: 8px;
