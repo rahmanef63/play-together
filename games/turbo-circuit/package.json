@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node ../../scripts/build-game.mjs games/turbo-circuit",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "node scripts/validate-assets.mjs && vitest run",
+    "assets:validate": "node scripts/validate-assets.mjs"
   },
   "dependencies": {
     "@play-together/game-sdk": "workspace:*",
