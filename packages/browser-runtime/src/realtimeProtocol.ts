@@ -15,5 +15,6 @@ export interface RealtimeClientOptions {
 }
 
 export const BASE_PROTOCOL = "play-together.v1";
+export const CONNECT_TIMEOUT_MS = 8_000;
 export const TICKET_PROTOCOL_PREFIX = "ptt.";
 export const REFRESH_SKEW_MS = 15_000;
