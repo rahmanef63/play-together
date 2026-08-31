@@ -4,6 +4,20 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+## [0.11.2] - 2026-08-31
+
+### Changed
+
+- Reframed the frontend around a restrained classic-arcade design system: charcoal, cream, muted red, teal, mustard, and desaturated blue replace glassy gradients, purple/neon accents, and oversized generic dashboard styling.
+- Added production-optimized retro arcade bitmap assets for the ops console and remote controls, plus responsive SVG controller frames that switch between portrait and landscape without raster stretching.
+- `/ops` now uses bounded panel frames with independent application-owned scroll areas for the published-game catalog and release-isolation model, while retaining a compact responsive outer viewport.
+- Turbo Circuit remote controls now render the generated joystick base, joystick knob, and GAS pedal as independent assets inside the declarative racing controller layout.
+
+### Fixed
+
+- Added browser regression coverage for `/ops` panel scrolling, asset loading, and 390px mobile horizontal-overflow safety.
+- Removed remaining hard-coded purple controller/pre-game accents in favor of shared design tokens.
+
 ## [0.11.1] - 2026-08-31
 
 ### Fixed
