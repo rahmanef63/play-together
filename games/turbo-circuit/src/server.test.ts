@@ -23,7 +23,7 @@ describe("Turbo Circuit", () => {
     expect(me.nitro).toBeLessThan(100);
   });
   it("maps left steering to the vehicle's local left side", async () => {
-    const g = await createServerGame({ ...ctx, seed: 3, gameVersion: "0.2.3" });
+    const g = await createServerGame({ ...ctx, seed: 3, gameVersion: "0.3.0" });
     await g.onJoin({ id: "left", connectedAt: 0 });
     for (let i = 0; i < 70; i++) await g.tick(i * 50, 50);
     const before = (g.snapshot() as any).racers.find((r: any) => r.id === "left");
@@ -34,5 +34,19 @@ describe("Turbo Circuit", () => {
     const rightZ = Math.sin(before.heading);
     const lateral = (after.x - before.x) * rightX + (after.z - before.z) * rightZ;
     expect(lateral).toBeLessThan(0);
+  });
+  it("filters tiny steering noise so the car holds a stable line", async () => {
+    const g = await createServerGame({ ...ctx, seed: 9, gameVersion: "0.3.0" });
+    await g.onJoin({ id: "steady", connectedAt: 0 });
+    for (let i = 0; i < 70; i++) await g.tick(i * 50, 50);
+    const before = (g.snapshot() as any).racers.find((r: any) => r.id === "steady");
+    await g.onInput("steady", { throttle: 1, steer: 0.04, brake: 0, boost: false }, 1);
+    for (let i = 0; i < 20; i++) await g.tick(4000 + i * 50, 50);
+    const after = (g.snapshot() as any).racers.find((r: any) => r.id === "steady");
+    const delta = Math.atan2(
+      Math.sin(after.heading - before.heading),
+      Math.cos(after.heading - before.heading),
+    );
+    expect(Math.abs(delta)).toBeLessThan(0.08);
   });
 });

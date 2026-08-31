@@ -69,6 +69,7 @@ async function expectPregame(page: Page): Promise<void> {
 
 async function startGame(page: Page): Promise<void> {
   await expectPregame(page);
+  await expect(page.locator(".room-invite-qr img").first()).toBeVisible({ timeout: 10_000 });
   await page.getByRole("button", { name: "Start Game" }).click();
   await expectGameFrame(page);
 }
@@ -398,7 +399,7 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
 }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const cases = [
-    { key: "turbo-circuit@0.2.3", title: "Turbo Circuit", control: "Accelerate", delay: 900 },
+    { key: "turbo-circuit@0.3.0", title: "Turbo Circuit", control: "Accelerate", delay: 900 },
     { key: "sky-strike@0.2.3", title: "Sky Strike", control: "Fire cannon", delay: 180 },
     { key: "flight-trainer@0.2.3", title: "Flight Trainer", control: "Throttle up", delay: 0 },
   ];
@@ -440,9 +441,9 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
   }
 });
 
-test("screenless landscape remotes select classic, racing, and flight console shells", async ({
+test("screenless remotes stay bounded in landscape and portrait across console shells", async ({
   browser,
-}) => {
+}, testInfo) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const cases = [
     {
@@ -454,7 +455,7 @@ test("screenless landscape remotes select classic, racing, and flight console sh
       maxPlayers: 2,
     },
     {
-      key: "turbo-circuit@0.2.3",
+      key: "turbo-circuit@0.3.0",
       title: "Turbo Circuit",
       preset: "racing",
       control: "Accelerate",
@@ -532,6 +533,48 @@ test("screenless landscape remotes select classic, racing, and flight console sh
       if (game.visibleAction) {
         await expect(frame.getByText(game.visibleAction, { exact: true })).toBeVisible();
       }
+      if (game.preset === "racing") {
+        await page.screenshot({ path: testInfo.outputPath("turbo-remote-landscape.png") });
+        await page.setViewportSize({ width: 390, height: 844 });
+        await expect(frame.getByRole("button", { name: "Accelerate" })).toBeVisible();
+        await expect(frame.getByRole("button", { name: "Brake" })).toBeVisible();
+        await expect(frame.getByRole("button", { name: "Nitro boost" })).toBeVisible();
+        const portraitGeometry = await frame.locator("body").evaluate(() => {
+          const rectFor = (selector: string) => {
+            const element = document.querySelector<HTMLElement>(selector);
+            if (!element) throw new Error(`Missing ${selector}`);
+            const rect = element.getBoundingClientRect();
+            return { top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height };
+          };
+          return {
+            viewportWidth: innerWidth,
+            viewportHeight: innerHeight,
+            scrollWidth: document.documentElement.scrollWidth,
+            gas: rectFor('[data-control-id="throttle"]'),
+            brake: rectFor('[data-control-id="brake"]'),
+            boost: rectFor('[data-control-id="boost"]'),
+            stick: rectFor('[data-control-id="steer"]'),
+          };
+        });
+        expect(portraitGeometry.scrollWidth).toBeLessThanOrEqual(
+          portraitGeometry.viewportWidth + 1,
+        );
+        for (const control of [
+          portraitGeometry.gas,
+          portraitGeometry.brake,
+          portraitGeometry.boost,
+          portraitGeometry.stick,
+        ]) {
+          expect(control.top).toBeGreaterThanOrEqual(-1);
+          expect(control.bottom).toBeLessThanOrEqual(portraitGeometry.viewportHeight + 1);
+        }
+        expect(portraitGeometry.gas.height).toBeLessThan(portraitGeometry.viewportHeight * 0.34);
+        expect(portraitGeometry.brake.height).toBeLessThan(portraitGeometry.viewportHeight * 0.34);
+        expect(portraitGeometry.boost.width).toBeGreaterThanOrEqual(70);
+        await expect(page.locator(".play-toolbar__role-switch")).toBeHidden();
+        await page.screenshot({ path: testInfo.outputPath("turbo-remote-portrait.png") });
+        await page.setViewportSize({ width: 844, height: 390 });
+      }
       if (game.preset === "classic") {
         await useStick(page, frame, game.control, 0, -0.8, 120);
       } else {
@@ -568,7 +611,7 @@ test("remote controllers automatically move per-player games between shared and 
     const roomName = `Split Circuit ${runId}`;
     const code = await createRoom(host, {
       name: roomName,
-      gameKey: "turbo-circuit@0.2.3",
+      gameKey: "turbo-circuit@0.3.0",
       maxPlayers: 3,
       visibility: "public",
     });

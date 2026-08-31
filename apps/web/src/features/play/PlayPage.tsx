@@ -326,7 +326,11 @@ export function PlayPage({
             </button>
           )}
           {isPlaying && (
-            <button className="ghost-button" type="button" onClick={() => void fullscreen()}>
+            <button
+              className="ghost-button play-toolbar__fullscreen"
+              type="button"
+              onClick={() => void fullscreen()}
+            >
               Fullscreen
             </button>
           )}
@@ -448,8 +452,8 @@ function PregameMenu({
             <strong>{room.gameVersion}</strong>
           </div>
         </div>
-        {role === "display" ? (
-          <RoomInviteQr code={code} />
+        {role === "display" || isHost ? (
+          <RoomInviteQr code={code} compact={role !== "display"} />
         ) : (
           <div className="pregame-waiting">
             <span className="pregame-waiting__icon" aria-hidden="true">
