@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 100" role="img" aria-labelledby="title">
+  <title id="title">Boost button</title>
+  <rect x="6" y="6" width="148" height="88" rx="28" fill="#a8443b" stroke="#ead9ae" stroke-width="5"/>
+  <path d="M42 50h26l-9-15 36 15-36 15 9-15H42z" fill="#f0d597"/>
+  <path d="M105 35h12M105 50h18M105 65h12" stroke="#39787a" stroke-width="5" stroke-linecap="round"/>
+</svg>

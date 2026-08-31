@@ -322,7 +322,12 @@ export function PlayPage({
           )}
           {mode === "remote" && (
             <button className="ghost-button" type="button" onClick={switchRemoteRole}>
-              {resolvedRole === "display" ? "Use as remote" : "Use as display"}
+              <span className="play-toolbar__label--long">
+                {resolvedRole === "display" ? "Use as remote" : "Use as display"}
+              </span>
+              <span className="play-toolbar__label--short">
+                {resolvedRole === "display" ? "Remote" : "Display"}
+              </span>
             </button>
           )}
           {isPlaying && (
@@ -331,7 +336,8 @@ export function PlayPage({
               type="button"
               onClick={() => void fullscreen()}
             >
-              Fullscreen
+              <span className="play-toolbar__label--long">Fullscreen</span>
+              <span className="play-toolbar__label--short">Full</span>
             </button>
           )}
         </div>

@@ -32,6 +32,75 @@ interface RacerPose {
   z: number;
   heading: number;
 }
+
+type CarViewName =
+  | "front"
+  | "front_right"
+  | "right"
+  | "rear_right"
+  | "rear"
+  | "rear_left"
+  | "left"
+  | "front_left";
+
+interface CarAtlasMeta {
+  image: string;
+  frameWidth: number;
+  frameHeight: number;
+  frames: Record<CarViewName, { x: number; y: number; width: number; height: number }>;
+}
+
+interface CarVisual {
+  root: THREE.Group;
+  fallback: THREE.Group;
+  sprite: THREE.Sprite;
+  material: THREE.SpriteMaterial;
+  view: CarViewName;
+}
+
+const CAR_VIEWS: CarViewName[] = [
+  "front",
+  "front_right",
+  "right",
+  "rear_right",
+  "rear",
+  "rear_left",
+  "left",
+  "front_left",
+];
+
+function parseCarAtlas(value: unknown): CarAtlasMeta {
+  if (typeof value !== "object" || value === null)
+    throw new Error("Invalid vehicle atlas metadata");
+  const candidate = value as Partial<CarAtlasMeta>;
+  if (
+    !candidate.frames ||
+    typeof candidate.frameWidth !== "number" ||
+    typeof candidate.frameHeight !== "number"
+  ) {
+    throw new Error("Vehicle atlas metadata is incomplete");
+  }
+  for (const name of CAR_VIEWS) {
+    const frame = candidate.frames[name];
+    if (!frame || ![frame.x, frame.y, frame.width, frame.height].every(Number.isFinite)) {
+      throw new Error(`Vehicle atlas frame is missing: ${name}`);
+    }
+  }
+  return candidate as CarAtlasMeta;
+}
+
+function carViewForCamera(camera: THREE.Vector3, pose: RacerPose): CarViewName {
+  const dx = camera.x - pose.x;
+  const dz = camera.z - pose.z;
+  const length = Math.hypot(dx, dz) || 1;
+  const vx = dx / length;
+  const vz = dz / length;
+  const forward = vx * Math.sin(pose.heading) + vz * Math.cos(pose.heading);
+  const right = vx * Math.cos(pose.heading) - vz * Math.sin(pose.heading);
+  const angle = Math.atan2(right, forward);
+  const sector = ((Math.round(angle / (Math.PI / 4)) % 8) + 8) % 8;
+  return CAR_VIEWS[sector] ?? "rear";
+}
 const smoothing = (rate: number, dt: number) => 1 - Math.exp(-rate * dt);
 const smoothAngle = (current: number, target: number, alpha: number) =>
   current + Math.atan2(Math.sin(target - current), Math.cos(target - current)) * alpha;
@@ -228,7 +297,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
     }
 
   const standMat = new THREE.MeshStandardMaterial({ color: 0x303642, roughness: 0.78 });
-  const seatMat = new THREE.MeshStandardMaterial({ color: 0x7652a8, roughness: 0.7 });
+  const seatMat = new THREE.MeshStandardMaterial({ color: 0xb84f43, roughness: 0.7 });
   for (const z of [-64, 64]) {
     for (const x of [-42, -14, 14, 42]) {
       const stand = new THREE.Group();
@@ -272,8 +341,8 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   scene.add(treeTrunks, treeCrowns);
 
   const billboardMat = new THREE.MeshStandardMaterial({
-    color: 0x171923,
-    emissive: 0x54206c,
+    color: 0x172426,
+    emissive: 0x245f62,
     emissiveIntensity: 0.7,
     roughness: 0.5,
   });
@@ -300,21 +369,85 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
     ring.rotation.x = Math.PI / 2;
     scene.add(ring);
   }
-  const cars = new Map<string, THREE.Group>();
+  const cars = new Map<string, CarVisual>();
   const poses = new Map<string, RacerPose>();
-  const colors = [0xef4444, 0x3b82f6, 0xf59e0b, 0x8b5cf6, 0x22c55e, 0x06b6d4, 0xf97316];
+  const colors = [0xef4444, 0x3b82f6, 0xf59e0b, 0x39787a, 0x22c55e, 0x06b6d4, 0xf97316];
+  const carTextures = new Map<CarViewName, THREE.Texture>();
+  let atlasBaseTexture: THREE.Texture | null = null;
+  let atlasReady = false;
+  host.dataset.assetState = "loading";
+
+  const createCarVisual = (fallbackColor: number, bot: boolean): CarVisual => {
+    const group = new THREE.Group();
+    const fallback = carMesh(fallbackColor);
+    const material = new THREE.SpriteMaterial({
+      transparent: true,
+      alphaTest: 0.03,
+      depthWrite: false,
+      color: bot ? 0xd6d9d7 : 0xffffff,
+    });
+    const sprite = new THREE.Sprite(material);
+    sprite.center.set(0.5, 0.18);
+    sprite.scale.set(5.2, 3.9, 1);
+    sprite.visible = atlasReady;
+    fallback.visible = !atlasReady;
+    group.add(fallback, sprite);
+    return { root: group, fallback, sprite, material, view: "rear" };
+  };
+
+  const applyAtlasToCars = () => {
+    for (const visual of cars.values()) {
+      visual.fallback.visible = false;
+      visual.sprite.visible = true;
+      visual.material.map = carTextures.get(visual.view) ?? carTextures.get("rear") ?? null;
+      visual.material.needsUpdate = true;
+    }
+  };
+
+  void Promise.all([ctx.loadAsset("vehicle.red.atlas"), ctx.loadAsset("vehicle.red.frames")])
+    .then(async ([imageBlob, metadataBlob]) => {
+      const metadata = parseCarAtlas(JSON.parse(await metadataBlob.text()));
+      const objectUrl = URL.createObjectURL(imageBlob);
+      try {
+        const base = await new THREE.TextureLoader().loadAsync(objectUrl);
+        base.colorSpace = THREE.SRGBColorSpace;
+        base.magFilter = THREE.LinearFilter;
+        base.minFilter = THREE.LinearFilter;
+        atlasBaseTexture = base;
+        const imageWidth = (base.image as { width: number }).width;
+        const imageHeight = (base.image as { height: number }).height;
+        for (const name of CAR_VIEWS) {
+          const frame = metadata.frames[name];
+          const texture = base.clone();
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.repeat.set(frame.width / imageWidth, frame.height / imageHeight);
+          texture.offset.set(frame.x / imageWidth, 1 - (frame.y + frame.height) / imageHeight);
+          texture.needsUpdate = true;
+          carTextures.set(name, texture);
+        }
+        atlasReady = true;
+        host.dataset.assetState = "ready";
+        applyAtlasToCars();
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
+    })
+    .catch(() => {
+      host.dataset.assetState = "fallback";
+    });
+
   let state: S | null = null;
   const unsub = ctx.subscribe((m) => {
     if (!ok(m.state)) return;
     const nextState = m.state;
     state = nextState;
     for (const [i, r] of nextState.racers.entries()) {
-      let mesh = cars.get(r.id);
-      if (!mesh) {
-        mesh = carMesh(r.bot ? 0xd1d5db : (colors[i % colors.length] ?? 0xffffff));
-        cars.set(r.id, mesh);
+      let visual = cars.get(r.id);
+      if (!visual) {
+        visual = createCarVisual(r.bot ? 0xd1d5db : (colors[i % colors.length] ?? 0xffffff), r.bot);
+        cars.set(r.id, visual);
         poses.set(r.id, { x: r.x, z: r.z, heading: r.heading });
-        scene.add(mesh);
+        scene.add(visual.root);
         const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         dot.setAttribute("r", r.bot ? "1.8" : "2.7");
         dot.setAttribute("fill", r.bot ? "#d1d5db" : `hsl(${(i * 67) % 360} 82% 62%)`);
@@ -324,9 +457,9 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
         mapDots.set(r.id, dot);
       }
     }
-    for (const [id, mesh] of cars)
+    for (const [id, visual] of cars)
       if (!nextState.racers.some((r) => r.id === id)) {
-        scene.remove(mesh);
+        scene.remove(visual.root);
         cars.delete(id);
         poses.delete(id);
         mapDots.get(id)?.remove();
@@ -359,15 +492,23 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
     if (state) {
       const poseAlpha = smoothing(14, dt);
       for (const r of state.racers) {
-        const mesh = cars.get(r.id);
+        const visual = cars.get(r.id);
         const pose = poses.get(r.id);
-        if (!mesh || !pose) continue;
+        if (!visual || !pose) continue;
         const teleported = Math.hypot(r.x - pose.x, r.z - pose.z) > 30;
         pose.x = teleported ? r.x : THREE.MathUtils.lerp(pose.x, r.x, poseAlpha);
         pose.z = teleported ? r.z : THREE.MathUtils.lerp(pose.z, r.z, poseAlpha);
         pose.heading = teleported ? r.heading : smoothAngle(pose.heading, r.heading, poseAlpha);
-        mesh.position.set(pose.x, 0, pose.z);
-        mesh.rotation.y = pose.heading;
+        visual.root.position.set(pose.x, 0, pose.z);
+        visual.fallback.rotation.y = pose.heading;
+        if (atlasReady) {
+          const nextView = carViewForCamera(camera.position, pose);
+          if (nextView !== visual.view) {
+            visual.view = nextView;
+            visual.material.map = carTextures.get(nextView) ?? carTextures.get("rear") ?? null;
+            visual.material.needsUpdate = true;
+          }
+        }
         const dot = mapDots.get(r.id);
         if (dot) {
           dot.setAttribute("cx", pose.x.toFixed(2));
@@ -429,6 +570,8 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
     resizeObserver.disconnect();
     unsub();
     renderer.dispose();
+    for (const texture of carTextures.values()) texture.dispose();
+    atlasBaseTexture?.dispose();
     scene.traverse((o) => {
       const m = o as THREE.Mesh;
       if (m.geometry) m.geometry.dispose();

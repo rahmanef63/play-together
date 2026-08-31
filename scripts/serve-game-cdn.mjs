@@ -8,6 +8,16 @@ const types = {
   ".json": "application/json; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
   ".map": "application/json; charset=utf-8",
+  ".png": "image/png",
+  ".webp": "image/webp",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".svg": "image/svg+xml",
+  ".mp3": "audio/mpeg",
+  ".ogg": "audio/ogg",
+  ".wav": "audio/wav",
+  ".glb": "model/gltf-binary",
+  ".bin": "application/octet-stream",
 };
 
 export function createGameCdnServer(options = {}) {

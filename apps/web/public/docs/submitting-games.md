@@ -235,3 +235,21 @@ Reject a submission if any of these are true:
 - The game folder cannot be removed without breaking unrelated games.
 - The registry, manifest, or tests disagree about the controller topology.
 - `presentation.remoteDisplay` is missing/invalid, or a per-player display ignores `ctx.playerId` and cannot be mounted independently per viewport.
+
+## Immutable static game assets
+
+A game may ship image/audio/data assets from `games/<id>/assets/runtime/asset-manifest.json`. These are **game assets** (for example `GAME ASSET SHEET`, `SPRITE SHEET`, `TILESET`, track props, effects), not host UI chrome.
+
+```json
+{
+  "schemaVersion": 1,
+  "assets": {
+    "vehicle.red.atlas": {
+      "file": "vehicle-red-atlas.png",
+      "contentType": "image/png"
+    }
+  }
+}
+```
+
+The build copies only declared files into the immutable cartridge, pins SHA-256 and byte size in the release manifest, and exposes them to browser game modules through `BrowserGameContext.loadAsset(name)`. `loadAsset` verifies the SHA-256 before returning a `Blob`; do not fetch arbitrary unpinned cartridge art from a game module. Source/reference sheets stay under `assets/source/` and are never published automatically.

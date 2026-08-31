@@ -11,13 +11,10 @@
     "tickRate": 60,
     "snapshotRate": 20
   },
-  "modes": ["shared-screen", "handheld"],
-  "presentation": {
-    "remoteDisplay": {
-      "mode": "per-player",
-      "maxViewports": 4
-    }
-  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
   "controller": {
     "supportsRemote": true,
     "supportsHandheld": true,
@@ -44,8 +41,14 @@
             }
           },
           "keys": {
-            "left": ["ArrowLeft", "KeyA"],
-            "right": ["ArrowRight", "KeyD"]
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ]
           }
         },
         {
@@ -67,7 +70,10 @@
               "throttle": 0
             }
           },
-          "keys": ["ArrowUp", "KeyW"]
+          "keys": [
+            "ArrowUp",
+            "KeyW"
+          ]
         },
         {
           "id": "brake",
@@ -88,7 +94,10 @@
               "brake": 0
             }
           },
-          "keys": ["ArrowDown", "KeyS"]
+          "keys": [
+            "ArrowDown",
+            "KeyS"
+          ]
         },
         {
           "id": "boost",
@@ -109,7 +118,9 @@
               "boost": false
             }
           },
-          "keys": ["Space"],
+          "keys": [
+            "Space"
+          ],
           "displayLabel": "BOOST"
         }
       ],
@@ -126,5 +137,29 @@
     "keyboard": true,
     "gamepad": false,
     "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "7e085be0b2d2a92f22c7cdd1211c86a36b62bb0cc10fce815db7bf00b2888784"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "1304b47aaf4272c89b4ebd22045142b460fac1fe03587a3f54e9920624b5f7bf"
+    }
+  },
+  "assets": {
+    "vehicle.red.atlas": {
+      "url": "./assets/vehicle-red-atlas.png",
+      "sha256": "77d2033c3baeeff4ef6b3c1220fd7e4458da316b97206f65519da9ea0dfc3373",
+      "contentType": "image/png",
+      "bytes": 648252
+    },
+    "vehicle.red.frames": {
+      "url": "./assets/vehicle-red-atlas.json",
+      "sha256": "69cef2480d2c8cef5e8a59786f74b31fe7867667b3a8140d20ec15a8adedb4df",
+      "contentType": "application/json",
+      "bytes": 1830
+    }
   }
 }

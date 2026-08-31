@@ -35,6 +35,21 @@ export async function fetchVerifiedManifest(
   return gameManifestSchema.parse(JSON.parse(new TextDecoder().decode(bytes)));
 }
 
+export async function fetchVerifiedAsset(
+  assetUrl: string,
+  expectedSha256: string,
+  contentType: string,
+): Promise<Blob> {
+  const response = await fetch(assetUrl, { cache: "force-cache", credentials: "omit" });
+  if (!response.ok) throw new Error(`Game asset request failed (${response.status})`);
+  const bytes = await response.arrayBuffer();
+  const actual = await sha256Hex(bytes);
+  if (actual !== expectedSha256.toLowerCase()) {
+    throw new Error("Game asset integrity check failed");
+  }
+  return new Blob([bytes], { type: contentType });
+}
+
 export async function importVerifiedModule<T>(
   moduleUrl: string,
   expectedSha256: string,

@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "source": "../source/generated-2026-08-31/car-red-sprite-sheet.png",
+  "sourceSha256": "2840b4451ad33ade0f54066faddc2f67673d5d32853595b0cfc2985b7435954c",
+  "selectionMethod": "alpha-connected-components",
+  "frames": {
+    "rear": {
+      "componentBounds": {
+        "x": 661,
+        "y": 334,
+        "width": 224,
+        "height": 183
+      },
+      "atlasCell": {
+        "column": 0,
+        "row": 0
+      }
+    },
+    "rear_right": {
+      "componentBounds": {
+        "x": 1161,
+        "y": 327,
+        "width": 253,
+        "height": 195
+      },
+      "atlasCell": {
+        "column": 1,
+        "row": 0
+      }
+    },
+    "right": {
+      "componentBounds": {
+        "x": 1143,
+        "y": 564,
+        "width": 255,
+        "height": 216
+      },
+      "atlasCell": {
+        "column": 2,
+        "row": 0
+      }
+    },
+    "front_right": {
+      "componentBounds": {
+        "x": 869,
+        "y": 562,
+        "width": 257,
+        "height": 208
+      },
+      "atlasCell": {
+        "column": 3,
+        "row": 0
+      }
+    },
+    "front": {
+      "componentBounds": {
+        "x": 610,
+        "y": 558,
+        "width": 229,
+        "height": 207
+      },
+      "atlasCell": {
+        "column": 0,
+        "row": 1
+      }
+    },
+    "front_left": {
+      "componentBounds": {
+        "x": 344,
+        "y": 560,
+        "width": 248,
+        "height": 205
+      },
+      "atlasCell": {
+        "column": 1,
+        "row": 1
+      }
+    },
+    "left": {
+      "componentBounds": {
+        "x": 54,
+        "y": 555,
+        "width": 277,
+        "height": 209
+      },
+      "atlasCell": {
+        "column": 2,
+        "row": 1
+      }
+    },
+    "rear_left": {
+      "componentBounds": {
+        "x": 35,
+        "y": 314,
+        "width": 293,
+        "height": 198
+      },
+      "atlasCell": {
+        "column": 3,
+        "row": 1
+      }
+    }
+  }
+}

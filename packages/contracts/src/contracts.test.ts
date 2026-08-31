@@ -35,9 +35,18 @@ describe("public contracts", () => {
         controller: { url: "./controller.js", sha256: digest },
         server: { url: "./server.js", sha256: digest },
       },
+      assets: {
+        "vehicle.red.atlas": {
+          url: "./assets/vehicle-red-atlas.png",
+          sha256: digest,
+          contentType: "image/png",
+          bytes: 1024,
+        },
+      },
       capabilities: { touch: true, keyboard: true, gamepad: true, motion: false },
     });
     expect(parsed.game.id).toBe("pong");
+    expect(parsed.assets?.["vehicle.red.atlas"]?.contentType).toBe("image/png");
   });
 
   it("accepts a manifest-native builtin console without a controller bundle", () => {

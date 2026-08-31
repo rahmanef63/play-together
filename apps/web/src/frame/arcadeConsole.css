@@ -36,48 +36,41 @@
   box-shadow: inset 0 0 0 2px rgba(234, 217, 174, 0.09);
 }
 
-.console-shell--remote.console-shell--classic .console-shell__chassis::before {
-  display: none;
-}
-
 .console-shell--racing {
   --console-accent: #d39a32;
-}
-
-.console-shell--remote.console-shell--racing .console-shell__chassis,
-.console-shell--remote.console-shell--flight .console-shell__chassis {
-  clip-path: none;
-  background: var(--console-panel);
-}
-
-.console-shell--remote .console-shell__chassis::after {
-  inset: 0;
-  z-index: 3;
-  width: auto !important;
-  border: 0 !important;
-  border-radius: inherit !important;
-  background: url("/assets/ui/remote/remote-frame-landscape.svg") center / 100% 100% no-repeat;
-}
-
-@media (orientation: portrait) {
-  .console-shell--remote .console-shell__chassis::after {
-    background-image: url("/assets/ui/remote/remote-frame-portrait.svg");
-  }
-}
-
-.console-shell--remote.console-shell--racing .console-shell__chassis::before,
-.console-shell--remote.console-shell--racing .console-shell__chassis::after {
-  border-color: rgba(211, 154, 50, 0.24);
 }
 
 .console-shell--flight {
   --console-accent: var(--console-teal);
 }
 
-.console-shell--remote.console-shell--flight .console-shell__chassis::before {
-  height: 4px;
-  background: var(--console-teal);
-  opacity: 0.7;
+/* Remote chassis is intentionally plain. Controls own the SVG artwork; no giant overlay frame. */
+.console-shell--remote {
+  place-items: end center;
+}
+
+.console-shell--remote .console-shell__chassis,
+.console-shell--remote.console-shell--racing .console-shell__chassis,
+.console-shell--remote.console-shell--flight .console-shell__chassis,
+.console-shell--remote.console-shell--classic .console-shell__chassis {
+  width: min(100%, 760px);
+  height: clamp(248px, 66dvh, 340px);
+  max-height: calc(100% - 4px);
+  clip-path: none;
+  border-radius: clamp(22px, 5vmin, 34px);
+  background: #1b2122;
+  padding: clamp(8px, 1.8vmin, 14px) clamp(10px, 2.2vw, 20px);
+}
+
+.console-shell--remote .console-shell__chassis::before,
+.console-shell--remote .console-shell__chassis::after {
+  display: none;
+  content: none;
+}
+
+.console-shell--remote .console-shell__controls {
+  overflow: visible;
+  border-radius: 18px;
 }
 
 .console-control--button,
@@ -111,24 +104,60 @@
 }
 
 .console-control--stick {
-  background: #15191a url("/assets/ui/remote/remote-stick-base.webp") center / cover no-repeat;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-}
-
-.console-stick__knob {
-  width: 51%;
-  background:
-    transparent url("/assets/ui/remote/remote-stick-knob.webp") center / contain no-repeat;
+  border: 0;
+  background: transparent url("/assets/ui/remote/steering-base.svg") center / contain no-repeat;
   box-shadow: none;
 }
 
-.console-shell--remote
+.console-stick__knob {
+  width: 48%;
+  background: transparent url("/assets/ui/remote/steering-knob.svg") center / contain no-repeat;
+  box-shadow: none;
+}
+
+.console-shell--racing
+  .builtin-controller--racing
+  .builtin-controller__zone--right
+  .console-control--button[data-control-id="throttle"],
+.console-shell--racing
+  .builtin-controller--racing
+  .builtin-controller__zone--right
+  .console-control--button[data-control-id="brake"] {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  color: var(--console-text);
+  background-color: transparent;
+  background-position: center 32%;
+  background-size: auto 78%;
+  background-repeat: no-repeat;
+  border: 0;
+  box-shadow: none;
+  padding: 0 4px 6px;
+  font-size: clamp(10px, 2vmin, 14px);
+  font-weight: 800;
+}
+
+.console-shell--racing
   .builtin-controller--racing
   .builtin-controller__zone--right
   .console-control--button[data-control-id="throttle"] {
-  color: transparent;
-  background: #171b1c url("/assets/ui/remote/remote-pedal-gas.webp") center / contain no-repeat;
-  border-color: rgba(234, 217, 174, 0.2);
+  background-image: url("/assets/ui/remote/pedal-gas.svg");
+}
+
+.console-shell--racing
+  .builtin-controller--racing
+  .builtin-controller__zone--right
+  .console-control--button[data-control-id="brake"] {
+  background-image: url("/assets/ui/remote/pedal-brake.svg");
+}
+
+.console-shell--racing
+  .builtin-controller--racing
+  .console-control--button[data-control-id="boost"] {
+  color: var(--console-text);
+  background: transparent url("/assets/ui/remote/boost-button.svg") center / 100% 100% no-repeat;
+  border: 0;
   box-shadow: none;
 }
 
@@ -145,4 +174,28 @@
 .console-touchpad__crosshair {
   border-color: var(--console-teal);
   box-shadow: none;
+}
+
+@media (orientation: portrait) {
+  .console-shell--remote .console-shell__chassis,
+  .console-shell--remote.console-shell--racing .console-shell__chassis,
+  .console-shell--remote.console-shell--flight .console-shell__chassis,
+  .console-shell--remote.console-shell--classic .console-shell__chassis {
+    width: min(100%, 430px);
+    height: clamp(300px, 48dvh, 400px);
+    max-height: calc(100% - 6px);
+    padding: 10px 8px;
+    border-radius: 24px;
+  }
+}
+
+@media (max-height: 430px) and (orientation: landscape) {
+  .console-shell--remote .console-shell__chassis,
+  .console-shell--remote.console-shell--racing .console-shell__chassis,
+  .console-shell--remote.console-shell--flight .console-shell__chassis,
+  .console-shell--remote.console-shell--classic .console-shell__chassis {
+    height: calc(100% - 4px);
+    max-height: 300px;
+    border-radius: 20px;
+  }
 }

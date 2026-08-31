@@ -181,81 +181,12 @@ body {
   transform: translateX(-50%);
 }
 
-.console-shell--remote.console-shell--classic .console-shell__chassis::before {
-  inset: 6% 2%;
-  border-radius: 48% 48% 36% 36% / 42% 42% 58% 58%;
-  background: color-mix(in srgb, var(--console-accent) 8%, transparent);
-}
-
-.console-shell--remote.console-shell--classic .console-shell__chassis {
-  clip-path: polygon(
-    4% 4%,
-    96% 4%,
-    100% 26%,
-    98% 78%,
-    90% 96%,
-    67% 90%,
-    33% 90%,
-    10% 96%,
-    2% 78%,
-    0 26%
-  );
-}
-
 .console-shell--racing {
   --console-accent: #d39a32;
 }
 
-.console-shell--remote.console-shell--racing .console-shell__chassis {
-  clip-path: polygon(
-    7% 1%,
-    93% 1%,
-    100% 18%,
-    96% 86%,
-    84% 99%,
-    58% 92%,
-    42% 92%,
-    16% 99%,
-    4% 86%,
-    0 18%
-  );
-  background: linear-gradient(160deg, #292b2b, #171a1a 65%);
-}
-
-.console-shell--remote.console-shell--racing .console-shell__chassis::before,
-.console-shell--remote.console-shell--remote.console-shell--racing .console-shell__chassis::after {
-  top: 18%;
-  bottom: 12%;
-  width: 9%;
-  border-radius: 50%;
-  border: 2px solid color-mix(in srgb, var(--console-accent) 18%, transparent);
-}
-
-.console-shell--remote.console-shell--racing .console-shell__chassis::before {
-  left: 3%;
-}
-
-.console-shell--remote.console-shell--racing .console-shell__chassis::after {
-  right: 3%;
-}
-
 .console-shell--flight {
   --console-accent: #39787a;
-}
-
-.console-shell--remote.console-shell--flight .console-shell__chassis {
-  clip-path: polygon(3% 8%, 22% 0, 78% 0, 97% 8%, 100% 84%, 88% 100%, 12% 100%, 0 84%);
-  background: linear-gradient(160deg, #252b2b, #141818 68%);
-}
-
-.console-shell--remote.console-shell--flight .console-shell__chassis::before {
-  left: 50%;
-  top: 0;
-  width: 30%;
-  height: 7px;
-  transform: translateX(-50%);
-  background: linear-gradient(90deg, transparent, var(--console-accent), transparent);
-  opacity: 0.55;
 }
 
 @media (orientation: landscape) {

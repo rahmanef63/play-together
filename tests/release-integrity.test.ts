@@ -35,6 +35,12 @@ describe("published game releases", () => {
         const digest = createHash("sha256").update(bytes).digest("hex");
         expect(digest).toBe(entry.sha256);
       }
+      for (const asset of Object.values(manifest.assets ?? {})) {
+        const bytes = await readFile(resolve(releaseRoot, asset.url));
+        const digest = createHash("sha256").update(bytes).digest("hex");
+        expect(digest).toBe(asset.sha256);
+        expect(bytes.byteLength).toBe(asset.bytes);
+      }
     }
     expect([...identities]).toContain("pong@0.1.0");
     expect([...identities]).toContain("pong@0.2.0");

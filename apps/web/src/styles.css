@@ -547,9 +547,7 @@ h2 {
   min-height: 100dvh;
   display: grid;
   grid-template-rows: 46px minmax(0, 1fr);
-  background:
-    radial-gradient(circle at 50% -16%, rgba(95, 68, 130, 0.24), transparent 46%),
-    linear-gradient(145deg, #272331, #17151f 72%);
+  background: #111416;
   padding: max(3px, env(safe-area-inset-top)) max(3px, env(safe-area-inset-right))
     max(3px, env(safe-area-inset-bottom)) max(3px, env(safe-area-inset-left));
   overflow: hidden;
@@ -589,11 +587,45 @@ h2 {
 }
 .play-toolbar .ghost-button {
   min-height: 34px;
-  border-radius: 12px;
-  padding: 0 11px;
-  background: rgba(8, 7, 13, 0.68);
-  color: #eee8f5;
-  box-shadow: inset 0 0 0 1px rgba(186, 170, 221, 0.13);
+  border-radius: 10px;
+  padding: 0 10px;
+  background: #171b1c;
+  color: #eee2c4;
+  box-shadow: inset 0 0 0 1px rgba(234, 217, 174, 0.14);
+}
+.play-toolbar__actions {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  white-space: nowrap;
+}
+.play-toolbar__label--short {
+  display: none;
+}
+@media (max-width: 560px) {
+  .play-toolbar {
+    gap: 4px;
+    padding-inline: 2px;
+  }
+  .play-toolbar .ghost-button {
+    min-height: 32px;
+    padding-inline: 8px;
+    font-size: 0.72rem;
+  }
+  .play-toolbar__actions {
+    gap: 4px;
+  }
+  .play-toolbar__label--long {
+    display: none;
+  }
+  .play-toolbar__label--short {
+    display: inline;
+  }
+  .play-toolbar strong {
+    font-size: 0.66rem;
+  }
 }
 .connection {
   font:
@@ -607,7 +639,7 @@ h2 {
   letter-spacing: 0.12em;
 }
 .connection--connected {
-  color: #b24adb;
+  color: #5fa6a7;
 }
 .play-error {
   position: fixed;
@@ -1290,29 +1322,25 @@ body::-webkit-scrollbar {
   height: 100svh;
   min-width: 0;
   min-height: 0;
-  display: block;
-  padding: 0;
+  display: grid;
+  grid-template-rows: max(42px, calc(36px + env(safe-area-inset-top))) minmax(0, 1fr);
+  padding: 0 max(3px, env(safe-area-inset-right)) max(3px, env(safe-area-inset-bottom))
+    max(3px, env(safe-area-inset-left));
   overflow: hidden;
   overscroll-behavior: none;
   contain: layout paint size;
+  background: #111416;
 }
 .play-toolbar {
-  position: absolute;
+  position: relative;
   z-index: 30;
-  top: max(5px, env(safe-area-inset-top));
-  left: max(5px, env(safe-area-inset-left));
-  right: max(5px, env(safe-area-inset-right));
+  min-width: 0;
   min-height: 38px;
-  padding: 2px 4px;
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(10, 9, 15, 0.74), rgba(10, 9, 15, 0.46));
-  box-shadow: inset 0 0 0 1px rgba(186, 170, 221, 0.09);
-  backdrop-filter: blur(10px);
-  opacity: 0.82;
-  transition: opacity 140ms ease;
-}
-.play-toolbar:hover,
-.play-toolbar:focus-within {
+  padding: max(3px, env(safe-area-inset-top)) 3px 3px;
+  border-bottom: 1px solid rgba(234, 217, 174, 0.12);
+  border-radius: 0;
+  background: #111416;
+  box-shadow: none;
   opacity: 1;
 }
 .play-toolbar .ghost-button {
@@ -1320,11 +1348,11 @@ body::-webkit-scrollbar {
 }
 .play-toolbar__actions {
   min-width: 0;
-  display: flex !important;
-  grid-auto-flow: initial;
+  display: flex;
+  align-items: center;
   justify-content: flex-end;
-  gap: 4px !important;
-  text-align: right !important;
+  gap: 4px;
+  text-align: right;
 }
 .remote-discovery {
   position: absolute;

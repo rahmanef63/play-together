@@ -52,6 +52,12 @@ describe("static HTTP boundaries", () => {
     await mkdir(join(root, "games/demo/1.0.0"), { recursive: true });
     await writeFile(join(root, "catalog.json"), '{"games":[]}');
     await writeFile(join(root, "games/demo/1.0.0/server.js"), "export {};");
+    await mkdir(join(root, "games/demo/1.0.0/assets"), { recursive: true });
+    await writeFile(
+      join(root, "games/demo/1.0.0/assets/car.png"),
+      Buffer.from([0x89, 0x50, 0x4e, 0x47]),
+    );
+    await writeFile(join(root, "games/demo/1.0.0/assets/blocked.txt"), "not allowed");
     const { port, close } = await listen(createGameCdnServer({ root }));
     cleanups.push(async () => {
       await close();
@@ -64,6 +70,12 @@ describe("static HTTP boundaries", () => {
     expect(asset.status).toBe(200);
     expect(asset.headers["access-control-allow-origin"]).toBe("*");
     expect(asset.headers["cache-control"]).toContain("immutable");
+    const image = await rawRequest(port, "/games/demo/1.0.0/assets/car.png");
+    expect(image.status).toBe(200);
+    expect(image.headers["content-type"]).toBe("image/png");
+    expect(image.headers["cache-control"]).toContain("immutable");
+    expect(image.headers["access-control-allow-origin"]).toBe("*");
+    expect((await rawRequest(port, "/games/demo/1.0.0/assets/blocked.txt")).status).toBe(415);
     expect((await rawRequest(port, "/games/demo/1.0.0/image.png")).status).toBe(404);
     expect((await rawRequest(port, "/healthz")).status).toBe(200);
   });

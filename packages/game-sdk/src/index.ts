@@ -29,6 +29,7 @@ export interface BrowserGameContext {
   sendInput(payload: unknown): void;
   subscribe(listener: (snapshot: SnapshotMessage) => void): () => void;
   getLatestSnapshot(): SnapshotMessage | null;
+  loadAsset(name: string): Promise<Blob>;
   setStatus(message: string): void;
 }
 
