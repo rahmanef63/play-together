@@ -4,99 +4,73 @@ import type {
   ServerGameContext,
   ServerPlayer,
 } from "@play-together/game-sdk";
+import { createBot, updateBotDriver } from "./server/botDriver.js";
+import { updateHumanDriver } from "./server/driverPhysics.js";
 import {
-  CPS,
-  clamp,
   dist,
   type InputState,
-  LAPS,
   type Racer,
   type RaceState,
-  RX,
-  RZ,
   resolveCollisions,
-  tangentHeading,
-  trackDeviation,
-  WIDTH,
 } from "./server/raceModel.js";
+import { applySetupInput, resetGrid } from "./server/setup.js";
+import { CARS, circuitCheckpoints, clamp, DEFAULT_CAR, DEFAULT_CIRCUIT } from "./shared/catalog.js";
 
 class TurboCircuit implements ServerGame {
-  readonly #s: RaceState = {
-    kind: "turbo-circuit",
-    phase: "countdown",
-    countdownMs: 3000,
-    raceMs: 0,
-    lapsToWin: LAPS,
-    track: { rx: RX, rz: RZ, width: WIDTH, checkpoints: CPS },
-    racers: [],
-    winnerId: null,
-  };
+  readonly #s: RaceState;
   #clock = 0;
-  constructor(_ctx: ServerGameContext) {
-    for (let i = 0; i < 3; i++) {
-      const angle = -Math.PI / 2 - (i + 1) * 0.11;
-      this.#s.racers.push({
-        id: `ai-${i + 1}`,
-        name: `CPU ${i + 1}`,
-        bot: true,
-        x: RX * Math.cos(angle),
-        z: RZ * Math.sin(angle),
-        heading: tangentHeading(angle),
-        speed: 25 + i * 1.4,
-        lap: 0,
-        nextCheckpoint: 0,
-        nitro: 100,
-        finished: false,
-        finishMs: null,
-        steering: 0,
-        input: { steer: 0, throttle: 1, brake: 0, boost: false },
-      });
-    }
+  #readyClock = 0;
+  constructor(ctx: ServerGameContext) {
+    const circuit = DEFAULT_CIRCUIT;
+    this.#s = {
+      kind: "turbo-circuit",
+      phase: "setup",
+      countdownMs: 3000,
+      raceMs: 0,
+      lapsToWin: circuit.laps,
+      circuitId: circuit.id,
+      track: {
+        id: circuit.id,
+        name: circuit.name,
+        width: circuit.width,
+        checkpoints: circuitCheckpoints(circuit),
+      },
+      racers: Array.from({ length: 3 }, (_, index) => createBot(index, ctx.seed, circuit.id)),
+      winnerId: null,
+    };
   }
-  onJoin(p: ServerPlayer) {
-    if (this.#s.racers.some((r) => r.id === p.id)) return;
-    const humans = this.#s.racers.filter((r) => !r.bot);
-    if (humans.length >= 4) return;
-    const lane = (humans.length - 1.5) * 2.4;
-    this.#s.racers.push({
-      id: p.id,
-      name: `P${humans.length + 1}`,
-      bot: false,
-      x: lane,
-      z: -RZ,
-      heading: Math.PI / 2,
-      speed: 0,
-      lap: 0,
-      nextCheckpoint: 0,
-      nitro: 100,
-      finished: false,
-      finishMs: null,
-      steering: 0,
-      input: { steer: 0, throttle: 0, brake: 0, boost: false },
-    });
+  onJoin(player: ServerPlayer) {
+    if (this.#s.racers.some((racer) => racer.id === player.id)) return;
+    const humans = this.#s.racers.filter((racer) => !racer.bot);
+    if (humans.length >= 4 || this.#s.phase !== "setup") return;
+    this.#s.racers.push(this.#human(player.id, humans.length));
+    resetGrid(this.#s);
   }
   onLeave(id: string) {
-    this.#s.racers = this.#s.racers.filter((r) => r.bot || r.id !== id);
+    this.#s.racers = this.#s.racers.filter((racer) => racer.bot || racer.id !== id);
+    if (this.#s.phase === "setup") resetGrid(this.#s);
   }
   onInput(id: string, payload: unknown) {
     if (typeof payload !== "object" || payload === null) return;
-    const r = this.#s.racers.find((x) => x.id === id && !x.bot);
-    if (!r) return;
-    const p = payload as Partial<InputState>;
-    if (p.steer !== undefined && typeof p.steer !== "number") return;
-    if (p.throttle !== undefined && typeof p.throttle !== "number") return;
-    if (p.brake !== undefined && typeof p.brake !== "number") return;
-    if (p.boost !== undefined && typeof p.boost !== "boolean") return;
-    r.input = {
-      steer: clamp(Number(p.steer ?? r.input.steer), -1, 1),
-      throttle: clamp(Number(p.throttle ?? r.input.throttle), 0, 1),
-      brake: clamp(Number(p.brake ?? r.input.brake), 0, 1),
-      boost: Boolean(p.boost ?? r.input.boost),
+    const racer = this.#s.racers.find((item) => item.id === id && !item.bot);
+    if (!racer) return;
+    const patch = payload as Partial<InputState>;
+    if (!validInput(patch)) return;
+    racer.input = {
+      steer: clamp(Number(patch.steer ?? racer.input.steer), -1, 1),
+      menuY: clamp(Number(patch.menuY ?? racer.input.menuY), -1, 1),
+      drive: Boolean(patch.drive ?? racer.input.drive),
+      brake: clamp(Number(patch.brake ?? racer.input.brake), 0, 1),
+      boost: Boolean(patch.boost ?? racer.input.boost),
+      cockpit: Boolean(patch.cockpit ?? racer.input.cockpit),
     };
+    racer.cockpit = racer.input.cockpit;
+    if (this.#s.phase === "setup") applySetupInput(this.#s, racer, patch);
   }
   tick(_now: number, delta: number) {
-    const ms = clamp(delta, 0, 50),
-      dt = ms / 1000;
+    const ms = clamp(delta, 0, 50);
+    const dt = ms / 1000;
+    if (this.#s.phase === "setup") return this.#tickSetup(ms);
     this.#clock += ms;
     if (this.#s.phase === "countdown") {
       this.#s.countdownMs = Math.max(0, 3000 - this.#clock);
@@ -108,77 +82,79 @@ class TurboCircuit implements ServerGame {
     }
     if (this.#s.phase !== "racing") return;
     this.#s.raceMs += ms;
-    this.#updateBots(dt);
-    for (const r of this.#s.racers) {
-      if (r.bot || r.finished) continue;
-      const input = r.input;
-      const steerTarget = Math.abs(input.steer) < 0.08 ? 0 : input.steer;
-      const steerAlpha = 1 - Math.exp(-9 * dt);
-      r.steering += (steerTarget - r.steering) * steerAlpha;
-      const devBeforeMove = trackDeviation(r.x, r.z);
-      const onTrack = devBeforeMove <= WIDTH * 0.62;
-      const boosting = input.boost && r.nitro > 1 && input.throttle > 0.2;
-      const rollingDrag = onTrack
-        ? 1.15 + Math.abs(r.speed) * 0.028
-        : 4.8 + Math.abs(r.speed) * 0.085;
-      const accel = input.throttle * (boosting ? 32 : 24) - input.brake * 36 - rollingDrag;
-      r.speed = clamp(r.speed + accel * dt, -6, boosting ? 56 : 44);
-      if (input.throttle < 0.02 && input.brake < 0.02 && Math.abs(r.speed) < 0.4) r.speed = 0;
-      if (boosting) r.nitro = Math.max(0, r.nitro - 27 * dt);
-      else r.nitro = Math.min(100, r.nitro + 8 * dt);
-
-      const speedRatio = clamp(Math.abs(r.speed) / 44, 0, 1);
-      const steeringAuthority = 1.12 - speedRatio * 0.34;
-      const motionGrip = clamp(Math.abs(r.speed) / 7, 0, 1);
-      r.heading -= r.steering * 2.08 * steeringAuthority * motionGrip * dt * (r.speed < 0 ? -1 : 1);
-      r.x += Math.sin(r.heading) * r.speed * dt;
-      r.z += Math.cos(r.heading) * r.speed * dt;
-
-      const dev = trackDeviation(r.x, r.z);
-      if (dev > WIDTH * 0.72) {
-        const q = Math.hypot(r.x / RX, r.z / RZ) || 1,
-          tx = r.x / q,
-          tz = r.z / q;
-        const recovery = dev > WIDTH * 1.7 ? 2.4 : 1.05;
-        r.x += (tx - r.x) * recovery * dt;
-        r.z += (tz - r.z) * recovery * dt;
-        r.speed *= Math.max(0, 1 - (dev > WIDTH * 1.7 ? 1.7 : 0.75) * dt);
-      }
-      this.#checkpoint(r);
+    for (const racer of this.#s.racers) {
+      if (racer.finished) continue;
+      if (racer.bot) updateBotDriver(racer, this.#s, dt);
+      else updateHumanDriver(racer, this.#s, dt);
+      this.#checkpoint(racer);
     }
     resolveCollisions(this.#s.racers);
-    const humans = this.#s.racers.filter((r) => !r.bot);
-    if (humans.length > 0 && humans.every((r) => r.finished)) this.#s.phase = "finished";
+    const humans = this.#s.racers.filter((racer) => !racer.bot);
+    if (humans.length > 0 && humans.every((racer) => racer.finished)) this.#s.phase = "finished";
   }
-  #updateBots(dt: number) {
-    for (const [i, r] of this.#s.racers.filter((r) => r.bot).entries()) {
-      if (r.finished) continue;
-      let angle = Math.atan2(r.z / RZ, r.x / RX);
-      angle += dt * (0.39 + i * 0.012);
-      r.x = RX * Math.cos(angle);
-      r.z = RZ * Math.sin(angle);
-      r.heading = tangentHeading(angle);
-      r.speed = 25 + i * 1.6 + Math.sin(this.#s.raceMs / 1400 + i) * 1.5;
-      this.#checkpoint(r);
-    }
+  #tickSetup(ms: number) {
+    const humans = this.#s.racers.filter((racer) => !racer.bot);
+    if (humans.length > 0 && humans.every((racer) => racer.ready)) this.#readyClock += ms;
+    else this.#readyClock = 0;
+    if (this.#readyClock < 650) return;
+    resetGrid(this.#s);
+    this.#s.phase = "countdown";
+    this.#s.countdownMs = 3000;
+    this.#clock = 0;
+    this.#readyClock = 0;
   }
-  #checkpoint(r: Racer) {
-    const cp = CPS[r.nextCheckpoint];
-    if (!cp || dist(r, cp) > 11) return;
-    r.nextCheckpoint += 1;
-    if (r.nextCheckpoint >= CPS.length) {
-      r.nextCheckpoint = 0;
-      r.lap += 1;
-      if (r.lap >= LAPS) {
-        r.finished = true;
-        r.finishMs = this.#s.raceMs;
-        this.#s.winnerId ??= r.id;
-      }
-    }
+  #checkpoint(racer: Racer) {
+    const checkpoint = this.#s.track.checkpoints[racer.nextCheckpoint];
+    if (!checkpoint || dist(racer, checkpoint) > Math.max(10, this.#s.track.width * 0.72)) return;
+    racer.nextCheckpoint += 1;
+    if (racer.nextCheckpoint < this.#s.track.checkpoints.length) return;
+    racer.nextCheckpoint = 0;
+    racer.lap += 1;
+    if (racer.lap < this.#s.lapsToWin) return;
+    racer.finished = true;
+    racer.finishMs = this.#s.raceMs;
+    this.#s.winnerId ??= racer.id;
+  }
+  #human(id: string, index: number): Racer {
+    return {
+      id,
+      name: `P${index + 1}`,
+      bot: false,
+      carId: CARS[index % CARS.length]?.id ?? DEFAULT_CAR.id,
+      ready: false,
+      autoDrive: false,
+      cockpit: false,
+      x: 0,
+      z: 0,
+      heading: 0,
+      speed: 0,
+      lap: 0,
+      nextCheckpoint: 1,
+      nitro: 100,
+      finished: false,
+      finishMs: null,
+      steering: 0,
+      menuXActive: false,
+      menuYActive: false,
+      input: { steer: 0, menuY: 0, drive: false, brake: 0, boost: false, cockpit: false },
+    };
   }
   snapshot() {
-    const racers = this.#s.racers.map(({ input, steering, ...r }) => r);
+    const racers = this.#s.racers.map(
+      ({ input, steering, menuXActive, menuYActive, brain, ...racer }) => racer,
+    );
     return structuredClone({ ...this.#s, racers });
   }
+}
+
+function validInput(input: Partial<InputState>) {
+  return (
+    (input.steer === undefined || typeof input.steer === "number") &&
+    (input.menuY === undefined || typeof input.menuY === "number") &&
+    (input.drive === undefined || typeof input.drive === "boolean") &&
+    (input.brake === undefined || typeof input.brake === "number") &&
+    (input.boost === undefined || typeof input.boost === "boolean") &&
+    (input.cockpit === undefined || typeof input.cockpit === "boolean")
+  );
 }
 export const createServerGame: CreateServerGame = (ctx) => new TurboCircuit(ctx);

@@ -4,6 +4,16 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+### Added
+
+- Turbo Circuit `0.5.1` upgrades the racer into a PS1-inspired couple mode with a cartridge-owned garage for circuit/car selection, three circuit layouts, three handling profiles, dynamic minimap, analog/numeric speedometer, lap/position/timer HUD, chase/driver cameras, wrong-way feedback, and finish results.
+- CPU rivals now drive the same authoritative racing-line geometry as players and use seeded, low-frequency logistic-chaos targets for bounded variation in lane choice, pace, mistakes, and nitro timing without frame-to-frame random jitter.
+
+### Changed
+
+- Turbo Circuit mobile input is now two-thumb friendly: `GO` is pressed once to latch auto-throttle, `BRAKE` and `BOOST` remain direct controls, `VIEW` toggles the camera, and continuous `GAS`/throttle input has been removed. Boost works whenever the car is already moving and no longer depends on holding gas.
+- Turbo Circuit `0.5.0` is retained as an immutable intermediate release; `0.5.1` is the refined release with smoothed CPU chaos, garage stat bars, race timer, and results board.
+
 ## [0.11.5] - 2026-09-01
 
 ### Fixed

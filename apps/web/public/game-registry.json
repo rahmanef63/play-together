@@ -1043,9 +1043,9 @@
     },
     {
       "id": "turbo-circuit",
-      "version": "0.4.1",
+      "version": "0.5.1",
       "title": "Turbo Circuit",
-      "description": "A hybrid 2.5D arcade circuit racer with verified directional car sprites, forgiving steering, readable track landmarks, minimap, nitro, checkpoints, collisions and AI rivals.",
+      "description": "A PS1-inspired couple circuit racer with car and circuit selection, auto-throttle, chase/driver cameras, analog speedometer, dynamic tracks, nitro, checkpoints, collisions, and racing-line CPU rivals driven by bounded chaotic variation.",
       "modes": ["shared-screen", "handheld"],
       "capabilities": {
         "touch": true,
@@ -1070,50 +1070,50 @@
             {
               "id": "steer",
               "kind": "stick",
-              "ariaLabel": "Steering stick",
+              "ariaLabel": "Steering and garage selection stick",
               "zone": "left",
               "action": {
                 "type": "patch",
                 "values": {
-                  "steer": "$x"
+                  "steer": "$x",
+                  "menuY": "$y"
                 }
               },
               "release": {
                 "type": "patch",
                 "values": {
-                  "steer": 0
+                  "steer": 0,
+                  "menuY": 0
                 }
               },
               "keys": {
                 "left": ["ArrowLeft", "KeyA"],
-                "right": ["ArrowRight", "KeyD"]
+                "right": ["ArrowRight", "KeyD"],
+                "up": ["KeyW"],
+                "down": ["KeyS"]
               }
             },
             {
-              "id": "throttle",
+              "id": "drive",
               "kind": "button",
-              "label": "GAS",
-              "ariaLabel": "Accelerate",
+              "label": "GO",
+              "displayLabel": "GO",
+              "ariaLabel": "Ready and start auto drive",
               "face": "r2",
               "zone": "right",
               "press": {
-                "type": "patch",
-                "values": {
-                  "throttle": 1
+                "type": "send",
+                "payload": {
+                  "drive": true
                 }
               },
-              "release": {
-                "type": "patch",
-                "values": {
-                  "throttle": 0
-                }
-              },
-              "keys": ["ArrowUp", "KeyW"]
+              "keys": ["Enter", "KeyG"]
             },
             {
               "id": "brake",
               "kind": "button",
               "label": "BRAKE",
+              "displayLabel": "BRAKE",
               "ariaLabel": "Brake",
               "face": "l2",
               "zone": "right",
@@ -1129,12 +1129,13 @@
                   "brake": 0
                 }
               },
-              "keys": ["ArrowDown", "KeyS"]
+              "keys": ["ArrowDown"]
             },
             {
               "id": "boost",
               "kind": "button",
-              "label": "A",
+              "label": "BOOST",
+              "displayLabel": "BOOST",
               "ariaLabel": "Nitro boost",
               "face": "a",
               "zone": "bottom-right",
@@ -1150,15 +1151,29 @@
                   "boost": false
                 }
               },
-              "keys": ["Space"],
-              "displayLabel": "BOOST"
+              "keys": ["Space"]
+            },
+            {
+              "id": "camera",
+              "kind": "button",
+              "label": "VIEW",
+              "displayLabel": "VIEW",
+              "ariaLabel": "Toggle chase or driver camera",
+              "face": "y",
+              "zone": "bottom-right",
+              "press": {
+                "type": "toggle",
+                "field": "cockpit"
+              },
+              "keys": ["KeyV"]
             }
           ],
           "initialState": {
             "steer": 0,
-            "throttle": 0,
+            "menuY": 0,
             "brake": 0,
-            "boost": false
+            "boost": false,
+            "cockpit": false
           }
         }
       },
