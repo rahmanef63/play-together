@@ -15,10 +15,10 @@ test("screenless remotes stay bounded in landscape and portrait across console s
       maxPlayers: 2,
     },
     {
-      key: "turbo-circuit@0.4.1",
+      key: "turbo-circuit@0.5.1",
       title: "Turbo Circuit",
       preset: "racing",
-      control: "Accelerate",
+      control: "Ready and start auto drive",
       visibleAction: "BOOST",
       maxPlayers: 1,
     },
@@ -96,9 +96,15 @@ test("screenless remotes stay bounded in landscape and portrait across console s
       if (game.preset === "racing") {
         await page.screenshot({ path: testInfo.outputPath("turbo-remote-landscape.png") });
         await page.setViewportSize({ width: 390, height: 844 });
-        await expect(frame.getByRole("button", { name: "Accelerate" })).toBeVisible();
+        await expect(
+          frame.getByRole("button", { name: "Ready and start auto drive" }),
+        ).toBeVisible();
         await expect(frame.getByRole("button", { name: "Brake" })).toBeVisible();
         await expect(frame.getByRole("button", { name: "Nitro boost" })).toBeVisible();
+        await expect(
+          frame.getByRole("button", { name: "Toggle chase or driver camera" }),
+        ).toBeVisible();
+        await expect(frame.locator('[data-control-id="throttle"]')).toHaveCount(0);
         const portraitGeometry = await frame.locator("body").evaluate(() => {
           const rectFor = (selector: string) => {
             const element = document.querySelector<HTMLElement>(selector);
@@ -110,9 +116,10 @@ test("screenless remotes stay bounded in landscape and portrait across console s
             viewportWidth: innerWidth,
             viewportHeight: innerHeight,
             scrollWidth: document.documentElement.scrollWidth,
-            gas: rectFor('[data-control-id="throttle"]'),
+            go: rectFor('[data-control-id="drive"]'),
             brake: rectFor('[data-control-id="brake"]'),
             boost: rectFor('[data-control-id="boost"]'),
+            camera: rectFor('[data-control-id="camera"]'),
             stick: rectFor('[data-control-id="steer"]'),
           };
         });
@@ -120,15 +127,16 @@ test("screenless remotes stay bounded in landscape and portrait across console s
           portraitGeometry.viewportWidth + 1,
         );
         for (const control of [
-          portraitGeometry.gas,
+          portraitGeometry.go,
           portraitGeometry.brake,
           portraitGeometry.boost,
+          portraitGeometry.camera,
           portraitGeometry.stick,
         ]) {
           expect(control.top).toBeGreaterThanOrEqual(-1);
           expect(control.bottom).toBeLessThanOrEqual(portraitGeometry.viewportHeight + 1);
         }
-        expect(portraitGeometry.gas.height).toBeLessThan(portraitGeometry.viewportHeight * 0.34);
+        expect(portraitGeometry.go.height).toBeLessThan(portraitGeometry.viewportHeight * 0.34);
         expect(portraitGeometry.brake.height).toBeLessThan(portraitGeometry.viewportHeight * 0.34);
         expect(portraitGeometry.boost.width).toBeGreaterThanOrEqual(70);
         await expect(page.locator(".play-toolbar__role-switch")).toBeHidden();

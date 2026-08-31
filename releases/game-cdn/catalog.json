@@ -455,6 +455,20 @@
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.4.1/manifest.json",
       "manifestSha256": "28fc5bfa6a4c8fca40b14e11f75d84f5857896a74fc28fa1b0f645aa6062a8a6"
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.5.0",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.5.0/manifest.json",
+      "manifestSha256": "5d0ed45aa9c9b3bc663417c7963dde7ccea4d0e5a832335d579e624dd2352bbb"
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.5.1",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.5.1/manifest.json",
+      "manifestSha256": "486b17c9267c4dda6bd1bdfc2a4b389bbc2d11bc978561f2e79ef578ecbbb8a9"
     }
   ]
 }

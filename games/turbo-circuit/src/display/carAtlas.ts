@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import type { CarSpec } from "../shared/catalog.js";
 import type { RacerPose } from "./model.js";
 
 export type CarViewName =
@@ -22,6 +23,8 @@ export interface CarVisual {
   sprite: THREE.Sprite;
   material: THREE.SpriteMaterial;
   view: CarViewName;
+  carId: string;
+  useAtlas: boolean;
 }
 export const CAR_VIEWS: CarViewName[] = [
   "front",
@@ -51,6 +54,7 @@ export function parseCarAtlas(value: unknown): CarAtlasMeta {
   }
   return candidate as CarAtlasMeta;
 }
+
 export function carViewForCamera(camera: THREE.Vector3, pose: RacerPose): CarViewName {
   const dx = camera.x - pose.x;
   const dz = camera.z - pose.z;
@@ -62,25 +66,29 @@ export function carViewForCamera(camera: THREE.Vector3, pose: RacerPose): CarVie
   const sector = ((Math.round(Math.atan2(right, forward) / (Math.PI / 4)) % 8) + 8) % 8;
   return CAR_VIEWS[sector] ?? "rear";
 }
-export function carMesh(color: number) {
+
+export function carMesh(car: CarSpec) {
   const group = new THREE.Group();
+  const wide = car.id === "comet-gt" ? 2.3 : car.id === "manta-rs" ? 2 : 2.15;
+  const long = car.id === "comet-gt" ? 4.45 : car.id === "manta-rs" ? 4.05 : 4.25;
   const body = new THREE.Mesh(
-    new THREE.BoxGeometry(2.1, 0.7, 4.2),
-    new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0.15 }),
+    new THREE.BoxGeometry(wide, 0.68, long),
+    new THREE.MeshStandardMaterial({ color: car.color, roughness: 0.5, metalness: 0.18 }),
   );
   body.position.y = 0.65;
-  group.add(body);
   const cabin = new THREE.Mesh(
-    new THREE.BoxGeometry(1.55, 0.6, 1.8),
-    new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.15, metalness: 0.5 }),
+    new THREE.BoxGeometry(wide * 0.7, 0.58, long * 0.42),
+    new THREE.MeshStandardMaterial({ color: 0x111820, roughness: 0.16, metalness: 0.48 }),
   );
-  cabin.position.set(0, 1.15, -0.25);
-  group.add(cabin);
-  const spoiler = new THREE.Mesh(
-    new THREE.BoxGeometry(2.2, 0.12, 0.45),
-    new THREE.MeshStandardMaterial({ color: 0x0b0f19 }),
-  );
-  spoiler.position.set(0, 0.95, -1.75);
-  group.add(spoiler);
+  cabin.position.set(0, 1.12, -0.18);
+  group.add(body, cabin);
+  if (car.id === "falcon-r") {
+    const spoiler = new THREE.Mesh(
+      new THREE.BoxGeometry(wide + 0.1, 0.12, 0.42),
+      new THREE.MeshStandardMaterial({ color: 0x111317 }),
+    );
+    spoiler.position.set(0, 0.95, -long * 0.42);
+    group.add(spoiler);
+  }
   return group;
 }

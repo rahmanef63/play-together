@@ -1,7 +1,13 @@
+import type { CarId, CircuitId } from "../shared/catalog.js";
+
 export interface Racer {
   id: string;
   name: string;
   bot: boolean;
+  carId: CarId;
+  ready: boolean;
+  autoDrive: boolean;
+  cockpit: boolean;
   x: number;
   z: number;
   heading: number;
@@ -14,11 +20,17 @@ export interface Racer {
 }
 export interface TurboState {
   kind: "turbo-circuit";
-  phase: string;
+  phase: "setup" | "countdown" | "racing" | "finished";
   countdownMs: number;
   raceMs: number;
   lapsToWin: number;
-  track: { rx: number; rz: number; width: number; checkpoints: Array<{ x: number; z: number }> };
+  circuitId: CircuitId;
+  track: {
+    id: CircuitId;
+    name: string;
+    width: number;
+    checkpoints: Array<{ x: number; z: number }>;
+  };
   racers: Racer[];
   winnerId: string | null;
 }

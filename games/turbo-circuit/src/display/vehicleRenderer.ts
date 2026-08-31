@@ -1,5 +1,6 @@
 import type { BrowserGameContext } from "@play-together/game-sdk";
 import * as THREE from "three";
+import { carById } from "../shared/catalog.js";
 import {
   CAR_VIEWS,
   type CarViewName,
@@ -10,8 +11,6 @@ import {
 } from "./carAtlas.js";
 import { smoothAngle, smoothing } from "./math.js";
 import type { Racer, RacerPose } from "./model.js";
-
-const COLORS = [0xef4444, 0x3b82f6, 0xf59e0b, 0x39787a, 0x22c55e, 0x06b6d4, 0xf97316];
 
 export class VehicleRenderer {
   readonly #scene: THREE.Scene;
@@ -42,32 +41,26 @@ export class VehicleRenderer {
   }
 
   sync(racers: Racer[]) {
-    for (const [i, racer] of racers.entries()) {
+    for (const [index, racer] of racers.entries()) {
       let visual = this.#cars.get(racer.id);
-      if (visual) continue;
-      visual = this.#createVisual(
-        racer.bot ? 0xd1d5db : (COLORS[i % COLORS.length] ?? 0xffffff),
-        racer.bot,
-      );
-      this.#cars.set(racer.id, visual);
-      this.#poses.set(racer.id, { x: racer.x, z: racer.z, heading: racer.heading });
-      this.#scene.add(visual.root);
-      const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      dot.setAttribute("r", racer.bot ? "1.8" : "2.7");
-      dot.setAttribute("fill", racer.bot ? "#d1d5db" : `hsl(${(i * 67) % 360} 82% 62%)`);
-      dot.setAttribute("stroke", "rgba(0,0,0,.55)");
-      dot.setAttribute("stroke-width", ".8");
-      this.#mapSvg.append(dot);
-      this.#mapDots.set(racer.id, dot);
-    }
-    for (const [id, visual] of this.#cars)
-      if (!racers.some((racer) => racer.id === id)) {
-        this.#scene.remove(visual.root);
-        this.#cars.delete(id);
-        this.#poses.delete(id);
-        this.#mapDots.get(id)?.remove();
-        this.#mapDots.delete(id);
+      if (visual && visual.carId !== racer.carId) {
+        this.#removeVisual(racer.id, visual);
+        visual = undefined;
       }
+      if (!visual) {
+        visual = this.#createVisual(racer.carId);
+        this.#cars.set(racer.id, visual);
+        this.#poses.set(racer.id, { x: racer.x, z: racer.z, heading: racer.heading });
+        this.#scene.add(visual.root);
+      }
+      this.#ensureMapDot(racer, index);
+    }
+    for (const [id, visual] of this.#cars) {
+      if (racers.some((racer) => racer.id === id)) continue;
+      this.#removeVisual(id, visual);
+      this.#mapDots.get(id)?.remove();
+      this.#mapDots.delete(id);
+    }
   }
 
   update(racers: Racer[], camera: THREE.PerspectiveCamera, dt: number) {
@@ -76,20 +69,13 @@ export class VehicleRenderer {
       const visual = this.#cars.get(racer.id);
       const pose = this.#poses.get(racer.id);
       if (!visual || !pose) continue;
-      const teleported = Math.hypot(racer.x - pose.x, racer.z - pose.z) > 30;
+      const teleported = Math.hypot(racer.x - pose.x, racer.z - pose.z) > 28;
       pose.x = teleported ? racer.x : THREE.MathUtils.lerp(pose.x, racer.x, alpha);
       pose.z = teleported ? racer.z : THREE.MathUtils.lerp(pose.z, racer.z, alpha);
       pose.heading = teleported ? racer.heading : smoothAngle(pose.heading, racer.heading, alpha);
       visual.root.position.set(pose.x, 0, pose.z);
       visual.fallback.rotation.y = pose.heading;
-      if (this.#atlasReady) {
-        const nextView = carViewForCamera(camera.position, pose);
-        if (nextView !== visual.view) {
-          visual.view = nextView;
-          visual.material.map = this.#textures.get(nextView) ?? this.#textures.get("rear") ?? null;
-          visual.material.needsUpdate = true;
-        }
-      }
+      if (visual.useAtlas && this.#atlasReady) this.#updateAtlasView(visual, pose, camera.position);
       const dot = this.#mapDots.get(racer.id);
       if (dot) {
         dot.setAttribute("cx", pose.x.toFixed(2));
@@ -98,30 +84,79 @@ export class VehicleRenderer {
     }
   }
 
+  setCockpit(playerId: string, cockpit: boolean) {
+    const visual = this.#cars.get(playerId);
+    if (visual) visual.root.visible = !cockpit;
+  }
+
+  resetMapDots() {
+    for (const dot of this.#mapDots.values()) dot.remove();
+    this.#mapDots.clear();
+  }
+
   pose(id: string): RacerPose | undefined {
     return this.#poses.get(id);
   }
+
   dispose() {
+    for (const [id, visual] of this.#cars) this.#removeVisual(id, visual);
     for (const texture of this.#textures.values()) texture.dispose();
     this.#baseTexture?.dispose();
+    this.resetMapDots();
   }
 
-  #createVisual(color: number, bot: boolean): CarVisual {
+  #createVisual(carId: string): CarVisual {
+    const car = carById(carId);
     const root = new THREE.Group();
-    const fallback = carMesh(color);
+    const fallback = carMesh(car);
+    const useAtlas = car.id === "falcon-r";
     const material = new THREE.SpriteMaterial({
       transparent: true,
       alphaTest: 0.03,
       depthWrite: false,
-      color: bot ? 0xd6d9d7 : 0xffffff,
     });
     const sprite = new THREE.Sprite(material);
     sprite.center.set(0.5, 0.18);
     sprite.scale.set(5.2, 3.9, 1);
-    sprite.visible = this.#atlasReady;
-    fallback.visible = !this.#atlasReady;
+    sprite.visible = useAtlas && this.#atlasReady;
+    fallback.visible = !sprite.visible;
     root.add(fallback, sprite);
-    return { root, fallback, sprite, material, view: "rear" };
+    return { root, fallback, sprite, material, view: "rear", carId: car.id, useAtlas };
+  }
+
+  #updateAtlasView(visual: CarVisual, pose: RacerPose, camera: THREE.Vector3) {
+    const nextView = carViewForCamera(camera, pose);
+    if (nextView === visual.view && visual.material.map) return;
+    visual.view = nextView;
+    visual.material.map = this.#textures.get(nextView) ?? this.#textures.get("rear") ?? null;
+    visual.material.needsUpdate = true;
+    visual.sprite.visible = true;
+    visual.fallback.visible = false;
+  }
+
+  #ensureMapDot(racer: Racer, index: number) {
+    if (this.#mapDots.has(racer.id)) return;
+    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    dot.setAttribute("r", racer.bot ? "1.7" : "2.7");
+    dot.setAttribute("fill", racer.bot ? "#d5d5d1" : `hsl(${(index * 71) % 360} 82% 62%)`);
+    dot.setAttribute("stroke", "#111a");
+    dot.setAttribute("stroke-width", ".8");
+    this.#mapSvg.append(dot);
+    this.#mapDots.set(racer.id, dot);
+  }
+
+  #removeVisual(id: string, visual: CarVisual) {
+    this.#scene.remove(visual.root);
+    visual.root.traverse((object) => {
+      const mesh = object as THREE.Mesh;
+      mesh.geometry?.dispose();
+      const material = mesh.material;
+      if (Array.isArray(material)) for (const item of material) item.dispose();
+      else if (material && material !== visual.material) material.dispose();
+    });
+    visual.material.dispose();
+    this.#cars.delete(id);
+    this.#poses.delete(id);
   }
 
   async #loadAtlas(imageBlob: Blob, metadataBlob: Blob, host: HTMLElement) {
@@ -147,10 +182,9 @@ export class VehicleRenderer {
       this.#atlasReady = true;
       host.dataset.assetState = "ready";
       for (const visual of this.#cars.values()) {
+        if (!visual.useAtlas) continue;
         visual.fallback.visible = false;
         visual.sprite.visible = true;
-        visual.material.map = this.#textures.get(visual.view) ?? this.#textures.get("rear") ?? null;
-        visual.material.needsUpdate = true;
       }
     } finally {
       URL.revokeObjectURL(objectUrl);
