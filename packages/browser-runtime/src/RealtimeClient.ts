@@ -4,9 +4,9 @@ import {
   type SnapshotMessage,
   serverMessageSchema,
 } from "@play-together/contracts";
-
 import {
   BASE_PROTOCOL,
+  CONNECT_TIMEOUT_MS,
   type ConnectionStatus,
   type ConnectionTicket,
   type Listener,
@@ -29,7 +29,7 @@ export class RealtimeClient {
   #connecting = false;
   #ticket: ConnectionTicket;
   #heartbeat: ReturnType<typeof setInterval> | null = null;
-  #refreshTimer: ReturnType<typeof setTimeout> | null = null;
+  #socketTimer: ReturnType<typeof setTimeout> | null = null;
   #reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(options: RealtimeClientOptions) {
@@ -40,7 +40,6 @@ export class RealtimeClient {
   get status(): ConnectionStatus {
     return this.#status;
   }
-
   get latestSnapshot(): SnapshotMessage | null {
     return this.#latest;
   }
@@ -102,16 +101,26 @@ export class RealtimeClient {
         `${TICKET_PROTOCOL_PREFIX}${this.#ticket.token}`,
       ]);
       this.#socket = socket;
+      this.#socketTimer = setTimeout(() => {
+        if (this.#socket !== socket || this.#stopped) return;
+        this.#socket = null;
+        this.#socketTimer = null;
+        socket.close(4001, "connect timeout");
+        this.#attempt += 1;
+        this.#scheduleReconnect();
+      }, CONNECT_TIMEOUT_MS);
 
       socket.addEventListener("open", () => {
         if (this.#socket !== socket) return;
+        if (this.#socketTimer) clearTimeout(this.#socketTimer);
+        this.#socketTimer = null;
         this.#attempt = 0;
         this.#setStatus("connected");
         this.#heartbeat = setInterval(() => {
           this.#send({ type: "heartbeat", sentAt: Date.now() });
         }, 15_000);
         const refreshIn = Math.max(1_000, this.#ticket.expiresAt - Date.now() - REFRESH_SKEW_MS);
-        this.#refreshTimer = setTimeout(() => {
+        this.#socketTimer = setTimeout(() => {
           if (this.#socket === socket) socket.close(4000, "refresh ticket");
         }, refreshIn);
       });
@@ -178,9 +187,9 @@ export class RealtimeClient {
 
   #clearConnectionTimers(): void {
     if (this.#heartbeat) clearInterval(this.#heartbeat);
-    if (this.#refreshTimer) clearTimeout(this.#refreshTimer);
+    if (this.#socketTimer) clearTimeout(this.#socketTimer);
     this.#heartbeat = null;
-    this.#refreshTimer = null;
+    this.#socketTimer = null;
   }
 
   #clearTimers(): void {

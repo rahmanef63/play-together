@@ -4,6 +4,13 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+## [0.11.5] - 2026-09-01
+
+### Fixed
+
+- Added an 8-second WebSocket handshake watchdog so a stalled production realtime connection is closed and retried with a refreshed ticket instead of remaining in `connecting` indefinitely.
+- Added browser-runtime regression coverage for a WebSocket that never reaches `open`, preserving bounded reconnect behavior without weakening production E2E expectations.
+
 ## [0.11.4] - 2026-08-31
 
 ### Changed
