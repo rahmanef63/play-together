@@ -41,8 +41,46 @@ describe("local environment migration", () => {
     expect(migrated).toContain(`JOIN_TICKET_SECRET=${existingSecret}`);
     expect(migrated).toContain(`GAME_PUBLISH_TOKEN=${existingPublishToken}`);
     expect(migrated).toContain("CONVEX_INSTANCE_SECRET=existing-convex-secret");
-    expect(migrated).toContain(
-      'GAME_MODULE_FETCH_ORIGIN_MAP="{\\"http://localhost:8081\\":\\"http://game-cdn:8080\\"}"',
-    );
+    const values = readEnvironment(migrated);
+    expect(JSON.parse(values.GAME_MODULE_FETCH_ORIGIN_MAP)).toEqual({
+      "http://localhost:8081": "http://game-cdn:8080",
+    });
+  });
+
+  it("creates a fresh env whose JSON topology values survive the runtime loader", async () => {
+    const root = await mkdtemp(resolve(tmpdir(), "play-together-env-fresh-"));
+    temporaryRoots.push(root);
+
+    const script = resolve(process.cwd(), "scripts/generate-local-env.mjs");
+    const { stdout } = await execFileAsync(process.execPath, [script], { cwd: root });
+    const created = await readFile(resolve(root, ".env"), "utf8");
+    const values = readEnvironment(created);
+
+    expect(stdout).toContain("Local environment: created");
+    expect(JSON.parse(values.GAME_MODULE_FETCH_ORIGIN_MAP)).toEqual({
+      "http://localhost:8081": "http://game-cdn:8080",
+    });
+    expect(values.JOIN_TICKET_SECRET).toBeTruthy();
+    expect(values.GAME_PUBLISH_TOKEN).toBeTruthy();
+    expect(values.CONVEX_INSTANCE_SECRET).toBeTruthy();
   });
 });
+
+function readEnvironment(content) {
+  const values = {};
+  for (const line of content.split(/\r?\n/)) {
+    if (!line || line.trimStart().startsWith("#")) continue;
+    const index = line.indexOf("=");
+    if (index < 1) continue;
+    const key = line.slice(0, index).trim();
+    let value = line.slice(index + 1).trim();
+    if (
+      (value.startsWith("'") && value.endsWith("'")) ||
+      (value.startsWith('"') && value.endsWith('"'))
+    ) {
+      value = value.slice(1, -1);
+    }
+    values[key] = value;
+  }
+  return values;
+}
