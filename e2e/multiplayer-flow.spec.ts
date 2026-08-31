@@ -399,7 +399,7 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
 }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const cases = [
-    { key: "turbo-circuit@0.3.0", title: "Turbo Circuit", control: "Accelerate", delay: 900 },
+    { key: "turbo-circuit@0.4.0", title: "Turbo Circuit", control: "Accelerate", delay: 900 },
     { key: "sky-strike@0.2.3", title: "Sky Strike", control: "Fire cannon", delay: 180 },
     { key: "flight-trainer@0.2.3", title: "Flight Trainer", control: "Throttle up", delay: 0 },
   ];
@@ -421,6 +421,9 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
       });
       const frame = page.frameLocator("iframe.game-frame");
       await expect(frame.locator(".handheld-screen canvas")).toBeVisible({ timeout: 20_000 });
+      if (game.title === "Turbo Circuit") {
+        await expect(frame.locator('[data-asset-state="ready"]')).toBeVisible({ timeout: 20_000 });
+      }
       await expect(frame.locator(".handheld-controls")).toBeVisible({ timeout: 20_000 });
       await expect(frame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible({
         timeout: 20_000,
@@ -455,7 +458,7 @@ test("screenless remotes stay bounded in landscape and portrait across console s
       maxPlayers: 2,
     },
     {
-      key: "turbo-circuit@0.3.0",
+      key: "turbo-circuit@0.4.0",
       title: "Turbo Circuit",
       preset: "racing",
       control: "Accelerate",
@@ -611,7 +614,7 @@ test("remote controllers automatically move per-player games between shared and 
     const roomName = `Split Circuit ${runId}`;
     const code = await createRoom(host, {
       name: roomName,
-      gameKey: "turbo-circuit@0.3.0",
+      gameKey: "turbo-circuit@0.4.0",
       maxPlayers: 3,
       visibility: "public",
     });
@@ -746,6 +749,9 @@ test("mobile PWA shell uses full-width snap cards, native dock, and live submiss
       "aria-current",
       "page",
     );
+    // Game previews are populated from the async published-game catalog. Wait for the real
+    // rail instead of racing the skeleton-to-content transition before measuring layout.
+    await expect(page.locator(".game-picker")).toBeVisible({ timeout: 20_000 });
 
     const layout = await page.evaluate(() => {
       const rail = document.querySelector<HTMLElement>(".lobby-grid");

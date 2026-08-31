@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" fill="none">
-  <title>Decorative landscape arcade controller frame</title>
-  <rect x="8" y="8" width="1184" height="544" rx="44" stroke="#EAD9AE" stroke-opacity=".62" stroke-width="12" vector-effect="non-scaling-stroke"/>
-  <rect x="24" y="24" width="1152" height="512" rx="34" stroke="#39787A" stroke-width="5" vector-effect="non-scaling-stroke"/>
-  <path d="M42 112h104l48-54h174M1158 112h-104l-48-54H832M42 448h104l48 54h174M1158 448h-104l-48 54H832" stroke="#B84F43" stroke-width="7" vector-effect="non-scaling-stroke"/>
-  <path d="M390 58h420M390 502h420" stroke="#D39A32" stroke-width="5" stroke-dasharray="34 18" vector-effect="non-scaling-stroke"/>
-</svg>

@@ -1043,9 +1043,9 @@
     },
     {
       "id": "turbo-circuit",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "title": "Turbo Circuit",
-      "description": "A polished 3D arcade circuit racer with forgiving steering, readable track landmarks, minimap, nitro, checkpoints, collisions and AI rivals.",
+      "description": "A hybrid 2.5D arcade circuit racer with verified directional car sprites, forgiving steering, readable track landmarks, minimap, nitro, checkpoints, collisions and AI rivals.",
       "modes": ["shared-screen", "handheld"],
       "capabilities": {
         "touch": true,

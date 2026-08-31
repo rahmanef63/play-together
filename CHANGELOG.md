@@ -4,6 +4,19 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+## [0.11.3] - 2026-08-31
+
+### Added
+
+- Added SHA-verified immutable static game assets to the game manifest/runtime contract so cartridges can publish sprite sheets, atlases, track art, props and future media without embedding them in JavaScript.
+- Turbo Circuit `0.4.0` introduces the first validated game-art runtime atlas: an 8-direction red racing car sheet derived from alpha-connected source components and rendered as a directional 2.5D billboard over the existing authoritative race simulation.
+
+### Changed
+
+- Racing remote controls now use responsive SVG steering, pedal and boost artwork only; the oversized decorative remote frame and raster WebP controller artwork were removed.
+- Mobile play-toolbar actions use compact labels on narrow screens and the controller surface no longer depends on purple/neon status styling.
+
+
 ## [0.11.2] - 2026-08-31
 
 ### Changed

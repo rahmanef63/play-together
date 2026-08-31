@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title">
+  <title id="title">Steering control base</title>
+  <circle cx="100" cy="100" r="92" fill="#14191a" stroke="#d9cfad" stroke-width="5"/>
+  <circle cx="100" cy="100" r="72" fill="#202728" stroke="#39787a" stroke-width="4"/>
+  <circle cx="100" cy="100" r="48" fill="#0f1314" stroke="#a9782e" stroke-width="3" stroke-dasharray="7 8"/>
+  <path d="M100 18v14M100 168v14M18 100h14M168 100h14" stroke="#b84f43" stroke-width="5" stroke-linecap="round"/>
+</svg>

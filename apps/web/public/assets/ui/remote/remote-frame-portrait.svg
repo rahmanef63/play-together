@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 900" fill="none">
-  <title>Decorative portrait arcade controller frame</title>
-  <rect x="8" y="8" width="544" height="884" rx="48" stroke="#EAD9AE" stroke-opacity=".62" stroke-width="12" vector-effect="non-scaling-stroke"/>
-  <rect x="24" y="24" width="512" height="852" rx="38" stroke="#39787A" stroke-width="5" vector-effect="non-scaling-stroke"/>
-  <path d="M54 132v-52h92l54-42M506 132v-52h-92l-54-42M54 768v52h92l54 42M506 768v52h-92l-54 42" stroke="#B84F43" stroke-width="7" vector-effect="non-scaling-stroke"/>
-  <path d="M204 38h152M204 862h152" stroke="#D39A32" stroke-width="5" stroke-dasharray="28 14" vector-effect="non-scaling-stroke"/>
-</svg>

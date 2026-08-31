@@ -1,9 +1,10 @@
 import {
+  fetchVerifiedAsset,
   fetchVerifiedManifest,
   importVerifiedModule,
   resolveModuleUrl,
 } from "@play-together/browser-runtime";
-import type { ControllerMode, SnapshotMessage } from "@play-together/contracts";
+import type { ControllerMode, GameManifest, SnapshotMessage } from "@play-together/contracts";
 import type {
   BrowserGameContext,
   ControllerGameModule,
@@ -54,6 +55,7 @@ let latestPresentation: FramePresentationMessage | null = null;
 let reconcilePresentation: ((message: FramePresentationMessage) => void) | null = null;
 let cleanupModule: undefined | (() => void);
 const snapshotListeners = new Set<(snapshot: SnapshotMessage) => void>();
+const verifiedAssetCache = new Map<string, Promise<Blob>>();
 
 window.addEventListener("message", (event: MessageEvent<unknown>) => {
   if (event.source !== parent || !isParentMessage(event.data)) return;
@@ -79,6 +81,7 @@ window.addEventListener("pagehide", () => cleanupModule?.(), { once: true });
 
 function createContext(
   message: FrameInitMessage,
+  manifest: GameManifest,
   playerRef: { current: string } = { current: message.playerId },
 ): BrowserGameContext {
   return {
@@ -97,6 +100,17 @@ function createContext(
     getLatestSnapshot() {
       return latestSnapshot;
     },
+    loadAsset(name) {
+      const entry = manifest.assets?.[name];
+      if (!entry) return Promise.reject(new Error(`Game asset is not declared: ${name}`));
+      const url = resolveModuleUrl(message.manifestUrl, entry.url);
+      const cacheKey = `${entry.sha256}:${url}`;
+      const cached = verifiedAssetCache.get(cacheKey);
+      if (cached) return cached;
+      const pending = fetchVerifiedAsset(url, entry.sha256, entry.contentType);
+      verifiedAssetCache.set(cacheKey, pending);
+      return pending;
+    },
     setStatus(status) {
       post({ type: "status", status });
     },
@@ -109,7 +123,7 @@ async function mount(message: FrameInitMessage): Promise<void> {
     if (manifest.game.id !== message.gameId || manifest.game.version !== message.gameVersion) {
       throw new Error("Pinned game version does not match its manifest");
     }
-    const context = createContext(message);
+    const context = createContext(message, manifest);
     const preset = resolveConsoleShellPreset(manifest);
 
     const builtinConsole =
@@ -187,7 +201,7 @@ async function mount(message: FrameInitMessage): Promise<void> {
       if (!("mountDisplay" in module)) {
         throw new Error("Game bundle does not implement the display surface");
       }
-      const displayManager = mountDisplayManager(gameRoot, module, message);
+      const displayManager = mountDisplayManager(gameRoot, module, message, manifest);
       reconcilePresentation = displayManager.reconcile;
       displayManager.reconcile(
         latestPresentation ?? {
@@ -216,6 +230,7 @@ function mountDisplayManager(
   root: HTMLElement,
   module: DisplayGameModule,
   init: FrameInitMessage,
+  manifest: GameManifest,
 ): {
   reconcile(message: FramePresentationMessage): void;
   dispose(): void;
@@ -247,7 +262,7 @@ function mountDisplayManager(
     label.textContent = labelText;
     viewport.append(surface, label);
     const playerRef = { current: playerId };
-    const dispose = module.mountDisplay(surface, createContext(init, playerRef));
+    const dispose = module.mountDisplay(surface, createContext(init, manifest, playerRef));
     return { key, playerRef, viewport, label, dispose };
   };
 
