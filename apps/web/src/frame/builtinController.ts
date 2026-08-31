@@ -86,7 +86,9 @@ function mountButton(
   button.className = "console-control console-control--button";
   button.dataset.controlId = control.id;
   if (control.face) button.dataset.face = control.face;
-  button.textContent = control.label;
+  const visibleLabel = control.displayLabel ?? legacySemanticButtonLabel(control) ?? control.label;
+  button.textContent = visibleLabel;
+  if (visibleLabel !== control.label) button.dataset.semanticLabel = "true";
   button.setAttribute("aria-label", control.ariaLabel);
 
   const down = (event?: PointerEvent) => {
@@ -110,6 +112,33 @@ function mountButton(
     button.removeEventListener("pointerup", up);
     button.removeEventListener("pointercancel", up);
   };
+}
+
+function legacySemanticButtonLabel(
+  control: Extract<ConsoleControl, { kind: "button" }>,
+): string | null {
+  if (!/^(A|B|X|Y)$/i.test(control.label.trim())) return null;
+  const ariaLabel = control.ariaLabel.trim();
+  const exact = new Map<string, string>([
+    ["Reaction button", "REACT"],
+    ["Tap on beat", "TAP"],
+    ["Tap to race", "TAP"],
+    ["Drop block", "DROP"],
+    ["Pull rope", "PULL"],
+    ["Fire cannon", "CANNON"],
+    ["Fire missile", "MISSILE"],
+    ["Toggle flaps", "FLAPS"],
+    ["Toggle landing gear", "GEAR"],
+    ["Throttle up", "THR +"],
+    ["Throttle down", "THR −"],
+    ["Increase throttle", "THR +"],
+    ["Decrease throttle", "THR −"],
+    ["Nitro boost", "BOOST"],
+  ]);
+  const mapped = exact.get(ariaLabel);
+  if (mapped) return mapped;
+  const memoryPad = ariaLabel.match(/^(Red|Green|Blue|Yellow) memory pad$/i);
+  return memoryPad?.[1]?.toUpperCase() ?? null;
 }
 
 function mountDpad(
@@ -304,7 +333,7 @@ function runAction(
       context.sendInput({ ...state });
       break;
     case "toggle":
-      state[action.field] = !Boolean(state[action.field]);
+      state[action.field] = !state[action.field];
       context.sendInput({ ...state });
       break;
     case "increment": {

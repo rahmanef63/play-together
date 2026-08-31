@@ -23,6 +23,12 @@ export const issue = action({
     });
     if (member?.status !== "active")
       throw new ConvexError({ code: "NOT_A_MEMBER", message: "Join the room before connecting" });
+    if ((room.playState ?? "lobby") !== "playing") {
+      throw new ConvexError({
+        code: "GAME_NOT_STARTED",
+        message: "The host has not started the game yet",
+      });
+    }
     const game = await ctx.runQuery(internal.games.getPublishedInternal, {
       gameId: room.gameId,
       version: room.gameVersion,

@@ -7,13 +7,17 @@ const realtimeHealthUrl = process.env.E2E_REALTIME_HEALTH_URL ?? "http://127.0.0
 
 async function signUp(page: Page, name: string, email: string): Promise<void> {
   await page.goto("/");
+  await signUpAtCurrentLocation(page, name, email);
+  await expect(page.locator(".app-shell--lobby")).toBeVisible();
+}
+
+async function signUpAtCurrentLocation(page: Page, name: string, email: string): Promise<void> {
   await expect(page.getByRole("heading", { name: "Your phone is the console." })).toBeVisible();
   const form = page.locator(".auth-card form");
   await form.locator('input[name="name"]').fill(name);
   await form.locator('input[name="email"]').fill(email);
   await form.locator('input[name="password"]').fill(accountPassword);
   await form.getByRole("button", { name: "Create account" }).click();
-  await expect(page.locator(".app-shell--lobby")).toBeVisible();
 }
 
 async function createRoom(
@@ -57,6 +61,18 @@ async function expectGameFrame(page: Page): Promise<void> {
   await expect(page.locator("iframe.game-frame")).toBeVisible();
 }
 
+async function expectPregame(page: Page): Promise<void> {
+  await expect(page.locator(".pregame-menu")).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator("iframe.game-frame")).toHaveCount(0);
+  await expect(page.locator(".connection")).toHaveText("idle");
+}
+
+async function startGame(page: Page): Promise<void> {
+  await expectPregame(page);
+  await page.getByRole("button", { name: "Start Game" }).click();
+  await expectGameFrame(page);
+}
+
 async function closeContext(context: BrowserContext): Promise<void> {
   try {
     await context.close();
@@ -65,7 +81,7 @@ async function closeContext(context: BrowserContext): Promise<void> {
   }
 }
 
-test("public and password-protected rooms work across shared display and mobile modes", async ({
+test("QR join, password rooms, shared display and mobile modes respect the pre-game lobby", async ({
   browser,
   request,
 }, testInfo) => {
@@ -78,9 +94,6 @@ test("public and password-protected rooms work across shared display and mobile 
   try {
     await signUp(host, `Host ${runId}`, `host-${runId}@example.test`);
     await expect(host.locator(".console-registry-card")).toContainText("Console");
-    await expect(host.locator(".console-control-chips")).toContainText(
-      /Analog stick|D-pad|A|Touchpad/,
-    );
     const publicRoomName = `Public ${runId}`;
     const publicCode = await createRoom(host, {
       name: publicRoomName,
@@ -89,16 +102,36 @@ test("public and password-protected rooms work across shared display and mobile 
       visibility: "public",
     });
 
-    await signUp(guest, `Guest ${runId}`, `guest-${runId}@example.test`);
-    const publicCard = guest.locator(".room-card").filter({ hasText: publicRoomName });
-    await expect(publicCard).toContainText("1/2 spots");
-    await joinFromPublicCard(guest, publicRoomName, publicCode);
-
     await host.getByRole("button", { name: /^Remote/ }).click();
+    await expectPregame(host);
+    await expect(host.getByRole("heading", { name: "Pong Together" })).toBeVisible();
+    await expect(host.locator(".pregame-menu__settings")).toContainText(
+      "Remote party · auto shared/split",
+    );
+    const qr = host.locator(".room-invite-qr").first();
+    await expect(qr.locator("img")).toBeVisible({ timeout: 10_000 });
+    const inviteUrl = await qr.getAttribute("data-invite-url");
+    const hostOrigin = new URL(host.url()).origin;
+    expect(inviteUrl).toBe(`${hostOrigin}/room/${publicCode}?join=remote`);
+
+    if (!inviteUrl) throw new Error("QR invite URL missing");
+    await guest.goto(inviteUrl);
+    await expect(guest).toHaveURL(inviteUrl);
+    await signUpAtCurrentLocation(guest, `Guest ${runId}`, `guest-${runId}@example.test`);
+    await expect(guest).toHaveURL(`${hostOrigin}/play/${publicCode}/controller?mode=remote`);
+    await expectPregame(guest);
+    await expect(guest.locator(".pregame-waiting")).toContainText("Waiting for host");
+    await expect(host.locator(".pregame-menu__settings")).toContainText("2/2");
+
+    await host.getByRole("button", { name: "Start Game" }).click();
     await expectGameFrame(host);
+    await expectGameFrame(guest);
     const displayFrame = host.frameLocator("iframe.game-frame");
     await expect(displayFrame.locator("canvas")).toBeVisible();
-    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-remote-count", "0");
+    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-remote-count", "1", {
+      timeout: 20_000,
+    });
+    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-layout", "shared");
     const viewportFit = await host.evaluate(() => {
       const device = document.querySelector<HTMLElement>(".device-frame");
       const frame = document.querySelector<HTMLIFrameElement>("iframe.game-frame");
@@ -124,12 +157,6 @@ test("public and password-protected rooms work across shared display and mobile 
     expect(viewportFit.frame.width).toBeCloseTo(viewportFit.innerWidth, 0);
     expect(viewportFit.frame.height).toBeCloseTo(viewportFit.innerHeight, 0);
 
-    await guest.getByRole("button", { name: /^Remote/ }).click();
-    await expectGameFrame(guest);
-    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-remote-count", "1", {
-      timeout: 20_000,
-    });
-    await expect(host.locator(".remote-discovery")).toHaveAttribute("data-layout", "shared");
     const remoteFrame = guest.frameLocator("iframe.game-frame");
     await expect(
       remoteFrame.locator(".console-shell--remote.console-shell--classic"),
@@ -137,7 +164,6 @@ test("public and password-protected rooms work across shared display and mobile 
     await expect(remoteFrame.locator(".console-shell__screen")).toHaveCount(0);
     await expect(remoteFrame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible();
     await useStick(guest, remoteFrame, "move", 0, -0.85, 250);
-
     await expect
       .poll(async () => {
         const response = await request.get(realtimeHealthUrl);
@@ -159,12 +185,6 @@ test("public and password-protected rooms work across shared display and mobile 
       roomPassword: "RoomPass42",
     });
 
-    await guest.goto("/");
-    await expect(
-      guest.getByRole("heading", { name: "Find a spot to play together." }),
-    ).toBeVisible();
-    await expect(guest.locator(".room-card").filter({ hasText: privateRoomName })).toHaveCount(0);
-
     await guest.goto(`/room/${privateCode}`);
     await expect(guest.getByRole("heading", { name: privateRoomName })).toBeVisible();
     const inviteForm = guest.locator(".invite-card form");
@@ -176,6 +196,10 @@ test("public and password-protected rooms work across shared display and mobile 
     await expect(guest.getByRole("heading", { name: "How are you playing?" })).toBeVisible();
 
     await guest.getByRole("button", { name: /Handheld/ }).click();
+    await expectPregame(guest);
+    await expect(guest.locator(".pregame-waiting")).toContainText("Waiting for host");
+    await host.getByRole("button", { name: /^Remote/ }).click();
+    await startGame(host);
     await expectGameFrame(guest);
     const handheldFrame = guest.frameLocator("iframe.game-frame");
     await expect(handheldFrame.locator(".console-shell--handheld")).toBeVisible();
@@ -188,6 +212,7 @@ test("public and password-protected rooms work across shared display and mobile 
     await guest.setViewportSize({ width: 844, height: 390 });
     await expect(controller).toBeVisible();
     await guest.screenshot({ path: testInfo.outputPath("handheld-landscape.png"), fullPage: true });
+    await host.getByRole("button", { name: /Room/ }).click();
     await host.getByRole("button", { name: "Close room" }).click();
   } finally {
     await closeContext(guestContext);
@@ -217,7 +242,7 @@ test("each game supplies its own independently loaded controller and shared disp
     await joinFromPublicCard(guest, roomName, roomCode);
 
     await host.getByRole("button", { name: /^Remote/ }).click();
-    await expectGameFrame(host);
+    await startGame(host);
     await expect(
       host.frameLocator("iframe.game-frame").getByText("TAP RACE", { exact: true }),
     ).toBeVisible();
@@ -329,7 +354,7 @@ test("all ten additional games are playable handheld cartridges with screen and 
         });
 
         await page.getByRole("button", { name: /Handheld console/ }).click();
-        await expectGameFrame(page);
+        await startGame(page);
         await expect(page.locator(".play-toolbar strong")).toContainText(game.title, {
           timeout: 20_000,
         });
@@ -373,9 +398,9 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
 }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const cases = [
-    { key: "turbo-circuit@0.2.1", title: "Turbo Circuit", control: "Accelerate", delay: 900 },
-    { key: "sky-strike@0.2.1", title: "Sky Strike", control: "Fire cannon", delay: 180 },
-    { key: "flight-trainer@0.2.1", title: "Flight Trainer", control: "Throttle up", delay: 0 },
+    { key: "turbo-circuit@0.2.3", title: "Turbo Circuit", control: "Accelerate", delay: 900 },
+    { key: "sky-strike@0.2.3", title: "Sky Strike", control: "Fire cannon", delay: 180 },
+    { key: "flight-trainer@0.2.3", title: "Flight Trainer", control: "Throttle up", delay: 0 },
   ];
   const context = await browser.newContext({ viewport: { width: 844, height: 390 } });
   const page = await context.newPage();
@@ -389,7 +414,7 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
         visibility: "private",
       });
       await page.getByRole("button", { name: /Handheld console/ }).click();
-      await expectGameFrame(page);
+      await startGame(page);
       await expect(page.locator(".play-toolbar strong")).toContainText(game.title, {
         timeout: 20_000,
       });
@@ -425,20 +450,31 @@ test("screenless landscape remotes select classic, racing, and flight console sh
       title: "Pong Together",
       preset: "classic",
       control: "move",
+      visibleAction: null,
       maxPlayers: 2,
     },
     {
-      key: "turbo-circuit@0.2.1",
+      key: "turbo-circuit@0.2.3",
       title: "Turbo Circuit",
       preset: "racing",
       control: "Accelerate",
+      visibleAction: "BOOST",
       maxPlayers: 1,
     },
     {
-      key: "sky-strike@0.2.1",
+      key: "sky-strike@0.2.3",
       title: "Sky Strike",
       preset: "flight",
       control: "Fire cannon",
+      visibleAction: "CANNON",
+      maxPlayers: 1,
+    },
+    {
+      key: "flight-trainer@0.2.3",
+      title: "Flight Trainer",
+      preset: "flight",
+      control: "Throttle up",
+      visibleAction: "FLAPS",
       maxPlayers: 1,
     },
   ] as const;
@@ -454,7 +490,7 @@ test("screenless landscape remotes select classic, racing, and flight console sh
         visibility: "private",
       });
       await page.goto(`/play/${code}/controller?mode=remote`);
-      await expectGameFrame(page);
+      await startGame(page);
 
       const frame = page.frameLocator("iframe.game-frame");
       await expect(
@@ -466,6 +502,36 @@ test("screenless landscape remotes select classic, racing, and flight console sh
       await expect(frame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible({
         timeout: 20_000,
       });
+      const remoteGeometry = await frame.locator("body").evaluate(() => {
+        const chassis = document.querySelector<HTMLElement>(".console-shell__chassis");
+        const controls = document.querySelector<HTMLElement>(".builtin-controller");
+        if (!chassis || !controls) throw new Error("Remote controller geometry missing");
+        const chassisRect = chassis.getBoundingClientRect();
+        const controlsRect = controls.getBoundingClientRect();
+        return {
+          viewportWidth: innerWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+          chassisLeft: chassisRect.left,
+          chassisRight: chassisRect.right,
+          chassisWidth: chassisRect.width,
+          controlsLeft: controlsRect.left,
+          controlsRight: controlsRect.right,
+          controlsWidth: controlsRect.width,
+        };
+      });
+      expect(remoteGeometry.scrollWidth).toBeLessThanOrEqual(remoteGeometry.viewportWidth + 1);
+      expect(remoteGeometry.chassisLeft).toBeGreaterThanOrEqual(-1);
+      expect(remoteGeometry.chassisRight).toBeLessThanOrEqual(remoteGeometry.viewportWidth + 1);
+      expect(remoteGeometry.controlsLeft).toBeGreaterThanOrEqual(-1);
+      expect(remoteGeometry.controlsRight).toBeLessThanOrEqual(remoteGeometry.viewportWidth + 1);
+      if (game.preset === "racing" || game.preset === "flight") {
+        expect(remoteGeometry.chassisWidth).toBeLessThanOrEqual(762);
+        expect(remoteGeometry.controlsWidth).toBeLessThanOrEqual(682);
+        expect(remoteGeometry.chassisWidth).toBeLessThan(remoteGeometry.viewportWidth * 0.96);
+      }
+      if (game.visibleAction) {
+        await expect(frame.getByText(game.visibleAction, { exact: true })).toBeVisible();
+      }
       if (game.preset === "classic") {
         await useStick(page, frame, game.control, 0, -0.8, 120);
       } else {
@@ -486,7 +552,7 @@ test("screenless landscape remotes select classic, racing, and flight console sh
   }
 });
 
-test("remote discovery automatically moves per-player games between shared and split screen", async ({
+test("remote controllers automatically move per-player games between shared and split screen", async ({
   browser,
 }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -502,7 +568,7 @@ test("remote discovery automatically moves per-player games between shared and s
     const roomName = `Split Circuit ${runId}`;
     const code = await createRoom(host, {
       name: roomName,
-      gameKey: "turbo-circuit@0.2.1",
+      gameKey: "turbo-circuit@0.2.3",
       maxPlayers: 3,
       visibility: "public",
     });
@@ -513,7 +579,7 @@ test("remote discovery automatically moves per-player games between shared and s
     await joinFromPublicCard(guestB, roomName, code);
 
     await host.getByRole("button", { name: /^Remote/ }).click();
-    await expectGameFrame(host);
+    await startGame(host);
     const hostFrame = host.frameLocator("iframe.game-frame");
     await expect(host.locator(".remote-discovery")).toHaveAttribute("data-remote-count", "0");
     await expect(hostFrame.locator(".display-grid")).toHaveAttribute("data-layout", "shared");

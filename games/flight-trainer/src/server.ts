@@ -131,7 +131,7 @@ class FlightTrainer implements ServerGame {
       a.throttle += (a.input.throttle - a.throttle) * 2.2 * dt;
       a.pitch = clamp(a.pitch + a.input.pitch * 0.6 * dt - a.pitch * 0.09 * dt, -0.52, 0.58);
       a.roll = clamp(a.roll + a.input.roll * 0.95 * dt - a.roll * 0.16 * dt, -1.05, 1.05);
-      a.heading += (Math.sin(a.roll) * 0.34 + a.input.yaw * 0.42) * dt;
+      a.heading -= (Math.sin(a.roll) * 0.34 + a.input.yaw * 0.42) * dt;
       const drag = (a.flaps ? 7 : 0) + (a.gearDown && a.y > 2 ? 4 : 0);
       const targetSpeed = 5 + a.throttle * 82 - drag;
       a.airspeed += (targetSpeed - a.airspeed) * (a.y <= 1.21 ? 1.2 : 0.72) * dt;

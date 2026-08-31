@@ -4,6 +4,27 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-31
+
+### Added
+
+- A real **scan-to-join** Remote lobby: TV/laptop displays render an on-device QR code for the exact room, public rooms auto-join after scanning, password rooms keep their password gate, and scanned phones continue directly into the Remote controller flow.
+- Authoritative room lifecycle state (`lobby` → `playing`) with host-only **Start Game** and **Menu** transitions. Realtime tickets are refused while a room is still in the lobby, so games do not run behind the menu.
+- Pre-game setup UI for every play surface with game, mode, player count, version, QR/invite state, and host-controlled Start.
+- Direction regressions for Turbo Circuit, Sky Strike, and Flight Trainer that verify left input actually turns to local vehicle/aircraft left.
+
+### Changed
+
+- Remote controller shells are bounded to handset-safe dimensions instead of stretching edge-to-edge on landscape phones; racing/flight layouts no longer depend on desktop minimum column widths.
+- Built-in face controls read the optional manifest `displayLabel` (for example **BOOST**, **CANNON**, **MISSILE**, **FLAPS**, or **GEAR**) while `face` remains the physical A/B/X/Y placement. No game-name/action mapping is hardcoded in the renderer.
+- Live display status now reports connected controllers; “scan” is reserved for the QR join action.
+
+### Fixed
+
+- Corrected reversed steering/yaw conventions in Turbo Circuit, Sky Strike, and Flight Trainer, including AI steering compensation where required.
+- Replaced 20 Hz transform snapping in the three 3D displays with frame-time pose interpolation, angle-aware rotation smoothing, and damped camera targets to remove visible vehicle/aircraft camera jitter.
+- Preserved immutable `0.2.2` intermediate releases and published final `0.2.3` releases for Turbo Circuit, Sky Strike, and Flight Trainer after moving semantic controller labels into cartridge SSOT; all earlier releases remain unchanged.
+
 ## [0.10.0] - 2026-08-31
 
 ### Added

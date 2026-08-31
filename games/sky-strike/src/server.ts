@@ -150,8 +150,8 @@ class SkyStrike implements ServerGame {
       p.gunCd = Math.max(0, p.gunCd - ms);
       p.missileCd = Math.max(0, p.missileCd - ms);
       p.lockId = this.#findLock(p)?.id ?? null;
-      const turn = 0.5 + Math.abs(p.roll) * 1.1 + p.input.yaw * 0.55;
-      p.heading = wrapAngle(p.heading + (p.input.roll * turn + p.input.yaw * 0.65) * dt);
+      const turn = 0.5 + Math.abs(p.roll) * 1.1;
+      p.heading = wrapAngle(p.heading - (p.input.roll * turn + p.input.yaw * 0.65) * dt);
       p.pitch = clamp(p.pitch + p.input.pitch * 1.05 * dt, -0.72, 0.72);
       p.roll += (p.input.roll * 0.95 - p.roll) * 3.4 * dt;
       p.speed += (24 + p.input.throttle * 48 - p.speed) * 1.7 * dt;
@@ -210,8 +210,8 @@ class SkyStrike implements ServerGame {
       err = wrapAngle(desired - p.heading),
       pitchErr = Math.atan2(t.y - p.y, Math.hypot(t.x - p.x, t.z - p.z)) - p.pitch;
     p.input = {
-      roll: clamp(err * 1.35, -1, 1),
-      yaw: clamp(err * 0.45, -1, 1),
+      roll: clamp(-err * 1.35, -1, 1),
+      yaw: clamp(-err * 0.45, -1, 1),
       pitch: clamp(pitchErr * 1.8, -1, 1),
       throttle: 0.72,
       gun: Math.abs(err) < 0.11 && Math.abs(pitchErr) < 0.09 && d3(p, t) < 115,

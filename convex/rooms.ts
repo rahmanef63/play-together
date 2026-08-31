@@ -170,6 +170,7 @@ export const createInternal = internalMutation({
       ...args,
       hostName: user.name ?? "Player",
       status: "open",
+      playState: "lobby",
       createdAt: now,
       updatedAt: now,
     });
@@ -483,8 +484,57 @@ export const getByCode = query({
       requiresPassword: Boolean(room.passwordHash),
       maxPlayers: room.maxPlayers,
       status: room.status,
+      playState: room.playState ?? "lobby",
+      sessionStartedAt: room.sessionStartedAt,
       activeMembers,
     };
+  },
+});
+
+export const startGame = mutation({
+  args: { code: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await requireMutationUser(ctx);
+    const room = await ctx.db
+      .query("rooms")
+      .withIndex("by_code", (q) => q.eq("code", args.code.trim().toUpperCase()))
+      .unique();
+    if (!room || room.hostUserId !== userId) {
+      throw new ConvexError({ code: "FORBIDDEN", message: "Only the host can start this game" });
+    }
+    if (room.status !== "open") {
+      throw new ConvexError({ code: "ROOM_CLOSED", message: "Closed rooms cannot start a game" });
+    }
+    if ((room.playState ?? "lobby") === "playing") return true;
+    const now = Date.now();
+    await ctx.db.patch(room._id, { playState: "playing", sessionStartedAt: now, updatedAt: now });
+    return true;
+  },
+});
+
+export const returnToLobby = mutation({
+  args: { code: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await requireMutationUser(ctx);
+    const room = await ctx.db
+      .query("rooms")
+      .withIndex("by_code", (q) => q.eq("code", args.code.trim().toUpperCase()))
+      .unique();
+    if (!room || room.hostUserId !== userId) {
+      throw new ConvexError({ code: "FORBIDDEN", message: "Only the host can return to the menu" });
+    }
+    if (room.status !== "open") {
+      throw new ConvexError({
+        code: "ROOM_CLOSED",
+        message: "Closed rooms cannot return to the menu",
+      });
+    }
+    await ctx.db.patch(room._id, {
+      playState: "lobby",
+      sessionStartedAt: undefined,
+      updatedAt: Date.now(),
+    });
+    return true;
   },
 });
 

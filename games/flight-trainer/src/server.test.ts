@@ -20,4 +20,16 @@ describe("Flight Trainer", () => {
     await g.tick(0, 50);
     expect((g.snapshot() as any).aircraft[0].throttle).toBe(0);
   });
+  it("turns left when the yoke is pushed left", async () => {
+    const g = await createServerGame({ ...ctx, seed: 5, gameVersion: "0.2.3" });
+    await g.onJoin({ id: "left", connectedAt: 0 });
+    await g.onInput(
+      "left",
+      { throttle: 0.8, pitch: 0, roll: -1, yaw: 0, gear: true, flaps: false },
+      1,
+    );
+    for (let i = 0; i < 30; i++) await g.tick(i * 50, 50);
+    const after = (g.snapshot() as any).aircraft.find((a: any) => a.id === "left");
+    expect(after.heading).toBeGreaterThan(0);
+  });
 });

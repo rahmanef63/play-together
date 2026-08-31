@@ -1,5 +1,5 @@
 import { useAction, useMutation, useQuery } from "convex/react";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { api } from "../../shared/convexApi";
 import { navigate } from "../../shared/navigation";
 import { ScrollArea } from "../../shared/ScrollArea";
@@ -15,6 +15,8 @@ export function RoomPage({ code, user }: { code: string; user: CurrentUser }) {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const joinIntent = new URLSearchParams(location.search).get("join") === "remote";
+  const autoJoinAttempted = useRef(false);
   const isMember = room?.activeMembers.some((member) => member.userId === user.id) ?? false;
 
   useEffect(() => {
@@ -23,6 +25,27 @@ export function RoomPage({ code, user }: { code: string; user: CurrentUser }) {
     const timer = setInterval(() => void heartbeat({ code }), 20_000);
     return () => clearInterval(timer);
   }, [code, heartbeat, isMember]);
+
+  useEffect(() => {
+    if (!room || !joinIntent || autoJoinAttempted.current) return;
+    const alreadyMember = room.activeMembers.some((member) => member.userId === user.id);
+    if (alreadyMember) {
+      autoJoinAttempted.current = true;
+      navigate(`/play/${code}/controller?mode=remote`);
+      return;
+    }
+    if (room.status !== "open" || room.requiresPassword) return;
+    autoJoinAttempted.current = true;
+    setBusy(true);
+    setError("");
+    void joinRoom({ code })
+      .then((result) => {
+        if (!result.ok) throw new Error(result.message);
+        navigate(`/play/${code}/controller?mode=remote`);
+      })
+      .catch((reason: unknown) => setError(readError(reason)))
+      .finally(() => setBusy(false));
+  }, [code, joinIntent, joinRoom, room, user.id]);
 
   if (room === undefined) return <RoomState label="Loading room…" />;
   if (!room) return <RoomState label="Room not found" action={() => navigate("/")} />;
@@ -54,6 +77,7 @@ export function RoomPage({ code, user }: { code: string; user: CurrentUser }) {
       const args = password ? { code, password } : { code };
       const result = await joinRoom(args);
       if (!result.ok) throw new Error(result.message);
+      if (joinIntent) navigate(`/play/${code}/controller?mode=remote`);
     } catch (reason) {
       setError(readError(reason));
     } finally {

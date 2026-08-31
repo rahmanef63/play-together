@@ -20,7 +20,7 @@ describe("display resize discipline", () => {
       const source = await readFile(`games/${game}/src/display.ts`, "utf8");
       expect(source, game).toContain("new ResizeObserver(resize)");
       expect(source, game).toContain("resizeObserver.disconnect()");
-      const loopStart = source.indexOf("const loop = () => {");
+      const loopStart = source.indexOf("const loop = (");
       const renderCall = source.indexOf("renderer.render", loopStart);
       expect(loopStart, game).toBeGreaterThan(-1);
       expect(renderCall, game).toBeGreaterThan(loopStart);

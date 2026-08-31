@@ -26,7 +26,15 @@ interface S {
   winnerId: string | null;
 }
 const ok = (v: unknown): v is S =>
-  typeof v === "object" && v !== null && (v as any).kind === "turbo-circuit";
+  typeof v === "object" && v !== null && (v as S).kind === "turbo-circuit";
+interface RacerPose {
+  x: number;
+  z: number;
+  heading: number;
+}
+const smoothing = (rate: number, dt: number) => 1 - Math.exp(-rate * dt);
+const smoothAngle = (current: number, target: number, alpha: number) =>
+  current + Math.atan2(Math.sin(target - current), Math.cos(target - current)) * alpha;
 function carMesh(color: number) {
   const g = new THREE.Group();
   const body = new THREE.Mesh(
@@ -135,6 +143,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
     scene.add(ring);
   }
   const cars = new Map<string, THREE.Group>();
+  const poses = new Map<string, RacerPose>();
   const colors = [0xef4444, 0x3b82f6, 0xf59e0b, 0x8b5cf6, 0x22c55e, 0x06b6d4, 0xf97316];
   let state: S | null = null;
   const unsub = ctx.subscribe((m) => {
@@ -145,18 +154,21 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
       if (!mesh) {
         mesh = carMesh(r.bot ? 0xd1d5db : (colors[i % colors.length] ?? 0xffffff));
         cars.set(r.id, mesh);
+        poses.set(r.id, { x: r.x, z: r.z, heading: r.heading });
         scene.add(mesh);
       }
-      mesh.position.set(r.x, 0, r.z);
-      mesh.rotation.y = r.heading;
     }
     for (const [id, mesh] of cars)
       if (!state.racers.some((r) => r.id === id)) {
         scene.remove(mesh);
         cars.delete(id);
+        poses.delete(id);
       }
   });
   let raf = 0;
+  let previousFrame = performance.now();
+  const cameraTarget = new THREE.Vector3();
+  let cameraReady = false;
   let viewWidth = 0;
   let viewHeight = 0;
   const resize = () => {
@@ -172,36 +184,48 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(host);
   resize();
-  const loop = () => {
+  const loop = (now = performance.now()) => {
     raf = requestAnimationFrame(loop);
+    const dt = Math.min(0.05, Math.max(0.001, (now - previousFrame) / 1000));
+    previousFrame = now;
     if (state) {
+      const poseAlpha = smoothing(14, dt);
+      for (const r of state.racers) {
+        const mesh = cars.get(r.id);
+        const pose = poses.get(r.id);
+        if (!mesh || !pose) continue;
+        const teleported = Math.hypot(r.x - pose.x, r.z - pose.z) > 30;
+        pose.x = teleported ? r.x : THREE.MathUtils.lerp(pose.x, r.x, poseAlpha);
+        pose.z = teleported ? r.z : THREE.MathUtils.lerp(pose.z, r.z, poseAlpha);
+        pose.heading = teleported ? r.heading : smoothAngle(pose.heading, r.heading, poseAlpha);
+        mesh.position.set(pose.x, 0, pose.z);
+        mesh.rotation.y = pose.heading;
+      }
       const humans = state.racers.filter((r) => !r.bot);
       const me =
         state.racers.find((r) => r.id === ctx.playerId && !r.bot) ?? humans[0] ?? state.racers[0];
-      if (me) {
-        if (ctx.mode === "handheld") {
-          const back = 11 + Math.min(7, Math.abs(me.speed) * 0.12);
-          camera.position.lerp(
-            new THREE.Vector3(
-              me.x - Math.sin(me.heading) * back,
-              5.6,
-              me.z - Math.cos(me.heading) * back,
-            ),
-            0.15,
-          );
-          camera.lookAt(me.x, 1.2, me.z);
+      const mePose = me ? poses.get(me.id) : undefined;
+      if (me && mePose) {
+        const back = ctx.mode === "handheld" ? 11 + Math.min(7, Math.abs(me.speed) * 0.12) : 19;
+        const desiredCamera = new THREE.Vector3(
+          mePose.x - Math.sin(mePose.heading) * back,
+          ctx.mode === "handheld" ? 5.6 : 10.5,
+          mePose.z - Math.cos(mePose.heading) * back,
+        );
+        const desiredTarget = new THREE.Vector3(
+          mePose.x,
+          ctx.mode === "handheld" ? 1.2 : 1,
+          mePose.z,
+        );
+        if (!cameraReady) {
+          camera.position.copy(desiredCamera);
+          cameraTarget.copy(desiredTarget);
+          cameraReady = true;
         } else {
-          const back = 19;
-          camera.position.lerp(
-            new THREE.Vector3(
-              me.x - Math.sin(me.heading) * back,
-              10.5,
-              me.z - Math.cos(me.heading) * back,
-            ),
-            0.08,
-          );
-          camera.lookAt(me.x, 1, me.z);
+          camera.position.lerp(desiredCamera, smoothing(ctx.mode === "handheld" ? 9 : 6, dt));
+          cameraTarget.lerp(desiredTarget, smoothing(11, dt));
         }
+        camera.lookAt(cameraTarget);
         const order = [...state.racers].sort(
           (a, b) => b.lap * 4 + b.nextCheckpoint - (a.lap * 4 + a.nextCheckpoint),
         );

@@ -76,6 +76,7 @@ describe("public contracts", () => {
               id: "action",
               kind: "button",
               label: "A",
+              displayLabel: "BOOST",
               ariaLabel: "Action",
               face: "a",
               zone: "right",

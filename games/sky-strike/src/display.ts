@@ -37,7 +37,18 @@ interface S {
   shots: Shot[];
 }
 const ok = (v: unknown): v is S =>
-  typeof v === "object" && v !== null && (v as any).kind === "sky-strike";
+  typeof v === "object" && v !== null && (v as S).kind === "sky-strike";
+interface PlanePose {
+  x: number;
+  y: number;
+  z: number;
+  heading: number;
+  pitch: number;
+  roll: number;
+}
+const smoothing = (rate: number, dt: number) => 1 - Math.exp(-rate * dt);
+const smoothAngle = (current: number, target: number, alpha: number) =>
+  current + Math.atan2(Math.sin(target - current), Math.cos(target - current)) * alpha;
 function jet(color: number) {
   const g = new THREE.Group(),
     mat = new THREE.MeshStandardMaterial({ color, metalness: 0.55, roughness: 0.35 }),
@@ -128,30 +139,36 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   }
   const meshes = new Map<string, THREE.Group>(),
     shots = new Map<number, THREE.Mesh>();
+  const poses = new Map<string, PlanePose>();
+  const shotPoses = new Map<number, THREE.Vector3>();
   let state: S | null = null;
   const humanColors = [0x2dd4bf, 0x60a5fa, 0xf59e0b, 0xc084fc];
   const unsub = ctx.subscribe((m) => {
     if (!ok(m.state)) return;
     state = m.state;
-    let hi = 0;
+    const humans = state.planes.filter((plane) => !plane.bot);
     for (const p of state.planes) {
       let mesh = meshes.get(p.id);
       if (!mesh) {
-        mesh = jet(p.bot ? 0xd94646 : (humanColors[hi++ % humanColors.length] ?? 0xffffff));
+        const humanIndex = p.bot ? -1 : humans.findIndex((plane) => plane.id === p.id);
+        mesh = jet(p.bot ? 0xd94646 : (humanColors[humanIndex % humanColors.length] ?? 0xffffff));
         meshes.set(p.id, mesh);
+        poses.set(p.id, {
+          x: p.x,
+          y: p.y,
+          z: p.z,
+          heading: p.heading,
+          pitch: p.pitch,
+          roll: p.roll,
+        });
         scene.add(mesh);
       }
-      mesh.visible = p.respawnMs <= 0;
-      mesh.position.set(p.x, p.y, p.z);
-      mesh.rotation.order = "YXZ";
-      mesh.rotation.y = p.heading;
-      mesh.rotation.x = -p.pitch;
-      mesh.rotation.z = -p.roll;
     }
     for (const [id, msh] of meshes)
       if (!state.planes.some((p) => p.id === id)) {
         scene.remove(msh);
         meshes.delete(id);
+        poses.delete(id);
       }
     for (const s of state.shots) {
       let mesh = shots.get(s.id);
@@ -161,17 +178,21 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
           new THREE.MeshBasicMaterial({ color: s.kind === "missile" ? 0xff5630 : 0xfff38a }),
         );
         shots.set(s.id, mesh);
+        shotPoses.set(s.id, new THREE.Vector3(s.x, s.y, s.z));
         scene.add(mesh);
       }
-      mesh.position.set(s.x, s.y, s.z);
     }
     for (const [id, msh] of shots)
       if (!state.shots.some((s) => s.id === id)) {
         scene.remove(msh);
         shots.delete(id);
+        shotPoses.delete(id);
       }
   });
   let raf = 0;
+  let previousFrame = performance.now();
+  const cameraTarget = new THREE.Vector3();
+  let cameraReady = false;
   let viewWidth = 0;
   let viewHeight = 0;
   const resize = () => {
@@ -187,29 +208,69 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(host);
   resize();
-  const loop = () => {
+  const loop = (now = performance.now()) => {
     raf = requestAnimationFrame(loop);
+    const dt = Math.min(0.05, Math.max(0.001, (now - previousFrame) / 1000));
+    previousFrame = now;
     if (state) {
+      const poseAlpha = smoothing(13, dt);
+      for (const p of state.planes) {
+        const mesh = meshes.get(p.id);
+        const pose = poses.get(p.id);
+        if (!mesh || !pose) continue;
+        const teleported = Math.hypot(p.x - pose.x, p.y - pose.y, p.z - pose.z) > 80;
+        pose.x = teleported ? p.x : THREE.MathUtils.lerp(pose.x, p.x, poseAlpha);
+        pose.y = teleported ? p.y : THREE.MathUtils.lerp(pose.y, p.y, poseAlpha);
+        pose.z = teleported ? p.z : THREE.MathUtils.lerp(pose.z, p.z, poseAlpha);
+        pose.heading = teleported ? p.heading : smoothAngle(pose.heading, p.heading, poseAlpha);
+        pose.pitch = THREE.MathUtils.lerp(pose.pitch, p.pitch, poseAlpha);
+        pose.roll = THREE.MathUtils.lerp(pose.roll, p.roll, poseAlpha);
+        mesh.visible = p.respawnMs <= 0;
+        mesh.position.set(pose.x, pose.y, pose.z);
+        mesh.rotation.order = "YXZ";
+        mesh.rotation.y = pose.heading;
+        mesh.rotation.x = -pose.pitch;
+        mesh.rotation.z = -pose.roll;
+      }
+      const shotAlpha = smoothing(18, dt);
+      for (const shot of state.shots) {
+        const mesh = shots.get(shot.id);
+        const pose = shotPoses.get(shot.id);
+        if (!mesh || !pose) continue;
+        pose.lerp(new THREE.Vector3(shot.x, shot.y, shot.z), shotAlpha);
+        mesh.position.copy(pose);
+      }
       const humans = state.planes.filter((p) => !p.bot),
         me =
           state.planes.find((p) => p.id === ctx.playerId && !p.bot) ?? humans[0] ?? state.planes[0];
-      if (me && me.respawnMs <= 0) {
+      const mePose = me ? poses.get(me.id) : undefined;
+      if (me && mePose && me.respawnMs <= 0) {
         const f = {
-            x: Math.sin(me.heading) * Math.cos(me.pitch),
-            y: Math.sin(me.pitch),
-            z: Math.cos(me.heading) * Math.cos(me.pitch),
+            x: Math.sin(mePose.heading) * Math.cos(mePose.pitch),
+            y: Math.sin(mePose.pitch),
+            z: Math.cos(mePose.heading) * Math.cos(mePose.pitch),
           },
-          right = { x: Math.cos(me.heading), z: -Math.sin(me.heading) };
+          right = { x: -Math.cos(mePose.heading), z: Math.sin(mePose.heading) };
         const chase = ctx.mode === "handheld" ? 13 : 19;
-        camera.position.lerp(
-          new THREE.Vector3(
-            me.x - f.x * chase + right.x * me.roll * 2,
-            me.y + 5 - f.y * 5,
-            me.z - f.z * chase + right.z * me.roll * 2,
-          ),
-          0.13,
+        const desiredCamera = new THREE.Vector3(
+          mePose.x - f.x * chase + right.x * mePose.roll * 2,
+          mePose.y + 5 - f.y * 5,
+          mePose.z - f.z * chase + right.z * mePose.roll * 2,
         );
-        camera.lookAt(me.x + f.x * 12, me.y + f.y * 10, me.z + f.z * 12);
+        const desiredTarget = new THREE.Vector3(
+          mePose.x + f.x * 12,
+          mePose.y + f.y * 10,
+          mePose.z + f.z * 12,
+        );
+        if (!cameraReady) {
+          camera.position.copy(desiredCamera);
+          cameraTarget.copy(desiredTarget);
+          cameraReady = true;
+        } else {
+          camera.position.lerp(desiredCamera, smoothing(8, dt));
+          cameraTarget.lerp(desiredTarget, smoothing(11, dt));
+        }
+        camera.lookAt(cameraTarget);
         const target = state.planes.find((p) => p.id === me.lockId);
         top.textContent = `SKY STRIKE · ROUND ${state.round} · KILLS ${me.kills} · HP ${Math.round(me.hp)}%`;
         center.innerHTML = target

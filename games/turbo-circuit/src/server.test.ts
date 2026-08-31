@@ -22,4 +22,17 @@ describe("Turbo Circuit", () => {
     const me = (g.snapshot() as any).racers.find((r: any) => r.id === "p");
     expect(me.nitro).toBeLessThan(100);
   });
+  it("maps left steering to the vehicle's local left side", async () => {
+    const g = await createServerGame({ ...ctx, seed: 3, gameVersion: "0.2.3" });
+    await g.onJoin({ id: "left", connectedAt: 0 });
+    for (let i = 0; i < 70; i++) await g.tick(i * 50, 50);
+    const before = (g.snapshot() as any).racers.find((r: any) => r.id === "left");
+    await g.onInput("left", { throttle: 1, steer: -1, brake: 0, boost: false }, 1);
+    for (let i = 0; i < 30; i++) await g.tick(4000 + i * 50, 50);
+    const after = (g.snapshot() as any).racers.find((r: any) => r.id === "left");
+    const rightX = -Math.cos(before.heading);
+    const rightZ = Math.sin(before.heading);
+    const lateral = (after.x - before.x) * rightX + (after.z - before.z) * rightZ;
+    expect(lateral).toBeLessThan(0);
+  });
 });

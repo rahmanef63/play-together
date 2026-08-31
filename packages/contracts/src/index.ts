@@ -63,6 +63,7 @@ const consoleButtonControlSchema = z.object({
   id: z.string().regex(/^[a-z0-9][a-z0-9-]{0,31}$/),
   kind: z.literal("button"),
   label: z.string().min(1).max(16),
+  displayLabel: z.string().min(1).max(16).optional(),
   ariaLabel: z.string().min(1).max(80),
   face: z.enum(["a", "b", "x", "y", "start", "select", "l1", "r1", "l2", "r2"]).optional(),
   zone: consoleZoneSchema,

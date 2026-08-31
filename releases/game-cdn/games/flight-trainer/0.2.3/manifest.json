@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "flight-trainer",
+    "version": "0.2.3",
+    "title": "Flight Trainer",
+    "description": "A 3D flight-training simulator with throttle, pitch, roll, yaw, flaps, landing gear, stall/crash physics, instruments and checkpoint navigation.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "landscape",
+    "console": {
+      "renderer": "builtin",
+      "layout": "flight",
+      "controls": [
+        {
+          "id": "yoke",
+          "kind": "stick",
+          "ariaLabel": "Flight yoke",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "roll": "$x",
+              "pitch": "$y"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "roll": 0,
+              "pitch": 0
+            }
+          },
+          "keys": {
+            "up": [
+              "ArrowUp",
+              "KeyW"
+            ],
+            "down": [
+              "ArrowDown",
+              "KeyS"
+            ],
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ]
+          }
+        },
+        {
+          "id": "yaw-left",
+          "kind": "button",
+          "label": "L1",
+          "ariaLabel": "Yaw left",
+          "face": "l1",
+          "zone": "top-left",
+          "press": {
+            "type": "patch",
+            "values": {
+              "yaw": -1
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "yaw": 0
+            }
+          },
+          "keys": [
+            "KeyQ"
+          ],
+          "displayLabel": "YAW L"
+        },
+        {
+          "id": "yaw-right",
+          "kind": "button",
+          "label": "R1",
+          "ariaLabel": "Yaw right",
+          "face": "r1",
+          "zone": "top-right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "yaw": 1
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "yaw": 0
+            }
+          },
+          "keys": [
+            "KeyE"
+          ],
+          "displayLabel": "YAW R"
+        },
+        {
+          "id": "flaps",
+          "kind": "button",
+          "label": "A",
+          "ariaLabel": "Toggle flaps",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "toggle",
+            "field": "flaps"
+          },
+          "displayLabel": "FLAPS"
+        },
+        {
+          "id": "gear",
+          "kind": "button",
+          "label": "B",
+          "ariaLabel": "Toggle landing gear",
+          "face": "b",
+          "zone": "right",
+          "press": {
+            "type": "toggle",
+            "field": "gear"
+          },
+          "displayLabel": "GEAR"
+        },
+        {
+          "id": "throttle-up",
+          "kind": "button",
+          "label": "Y",
+          "ariaLabel": "Throttle up",
+          "face": "y",
+          "zone": "right",
+          "press": {
+            "type": "increment",
+            "field": "throttle",
+            "delta": 0.12,
+            "min": 0,
+            "max": 1
+          },
+          "keys": [
+            "Equal"
+          ],
+          "displayLabel": "THR +"
+        },
+        {
+          "id": "throttle-down",
+          "kind": "button",
+          "label": "X",
+          "ariaLabel": "Throttle down",
+          "face": "x",
+          "zone": "right",
+          "press": {
+            "type": "increment",
+            "field": "throttle",
+            "delta": -0.12,
+            "min": 0,
+            "max": 1
+          },
+          "keys": [
+            "Minus"
+          ],
+          "displayLabel": "THR −"
+        },
+        {
+          "id": "restart",
+          "kind": "button",
+          "label": "START",
+          "ariaLabel": "Restart flight",
+          "face": "start",
+          "zone": "bottom",
+          "press": {
+            "type": "pulse",
+            "values": {
+              "restart": true
+            },
+            "releaseValues": {
+              "restart": false
+            },
+            "durationMs": 80
+          },
+          "displayLabel": "RESTART"
+        }
+      ],
+      "initialState": {
+        "pitch": 0,
+        "roll": 0,
+        "yaw": 0,
+        "throttle": 0,
+        "flaps": false,
+        "gear": true,
+        "restart": false
+      }
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "40e417722af390e57448b0cd467f55f8b2e642f7dc65326e0a5179723ad1f7fc"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "631408116f57c2ebff32b9d1687469a353939cfe931aba218b92de2a1cae2748"
+    }
+  }
+}

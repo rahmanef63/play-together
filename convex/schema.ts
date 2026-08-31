@@ -44,6 +44,8 @@ export default defineSchema({
     passwordHash: v.optional(v.string()),
     maxPlayers: v.number(),
     status: v.union(v.literal("open"), v.literal("closed")),
+    playState: v.optional(v.union(v.literal("lobby"), v.literal("playing"))),
+    sessionStartedAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

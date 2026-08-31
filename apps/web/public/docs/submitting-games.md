@@ -27,7 +27,7 @@ Choose the smallest control surface the game actually needs. Available primitive
 
 - `stick` for analog X/Y input.
 - `dpad` for digital directions.
-- `button` for A/B/X/Y, shoulders, triggers, start/select, or game-specific actions.
+- `button` for A/B/X/Y, shoulders, triggers, start/select, or game-specific actions. Keep `face` for physical placement and set optional `displayLabel` when the player should see a semantic action such as `BOOST`, `CANNON`, `FLAPS`, or `GEAR`.
 - `touchpad` for normalized pointer/touch coordinates.
 
 The console layout can be `gamepad`, `arcade`, `racing`, `flight`, or `touch`. Layout is presentation metadata; the `controls` array is authoritative for which inputs exist.
@@ -73,7 +73,7 @@ Example: analog movement + A/B only.
 }
 ```
 
-If the game needs A/B/X/Y, add four `button` entries. If it needs racing controls, declare the steering stick/buttons/triggers and set `layout` to `racing`; do not make the portal infer racing from the title.
+If the game needs A/B/X/Y, add four `button` entries. If an A/B/X/Y position represents a named action, keep the face but give it `displayLabel`; do not add renderer-side action-name maps. If it needs racing controls, declare the steering stick/buttons/triggers and set `layout` to `racing`; do not make the portal infer racing from the title.
 
 ## Remote display presentation
 
@@ -105,7 +105,7 @@ Use per-player views when each remote needs its own camera, vehicle, cockpit, or
 }
 ```
 
-The platform owns device-role detection, live remote discovery, split-grid composition, join/leave transitions, and the one-to-four viewport layout. **Do not implement split-screen orchestration inside the game.** A per-player `src/display.ts` must instead use `ctx.playerId` as the player/camera/focus for the surface it is given. The platform may mount the same verified display module multiple times in one sandboxed frame, all subscribed to the same authoritative snapshot stream.
+The platform owns the QR scan-to-join flow, device-role detection after joining, connected-controller presence, split-grid composition, join/leave transitions, and the one-to-four viewport layout. **Do not implement split-screen orchestration inside the game.** A per-player `src/display.ts` must instead use `ctx.playerId` as the player/camera/focus for the surface it is given. The platform may mount the same verified display module multiple times in one sandboxed frame, all subscribed to the same authoritative snapshot stream.
 
 A display must therefore scope DOM/canvas work to its supplied root, avoid document-global IDs/selectors for game state, and fully dispose its own renderer/listeners/resources. With one remote, a per-player game stays as one shared-size viewport; with two or more remotes it automatically splits up to `maxViewports`, and it collapses again when remotes leave.
 
@@ -198,7 +198,7 @@ Implementation requirements:
 3. Do not add any game-specific switch, if/else, title heuristic, registry entry, or import to the main portal. The generated game registry must discover the slice automatically.
 4. Keep gameplay server-authoritative. The controller sends player intent; the server decides trusted state; the display renders snapshots.
 5. Make the display fill the provided surface at 100% width and height with no fixed/minimum viewport height. Resize Canvas/WebGL buffers only when dimensions change, never every animation frame.
-6. Choose the smallest controller topology that matches the game. It must support only the buttons/sticks/touch surfaces the game needs. If it needs A/B only, do not expose X/Y. If it needs A/B/X/Y or shoulders/triggers, declare them explicitly.
+6. Choose the smallest controller topology that matches the game. It must support only the buttons/sticks/touch surfaces the game needs. If it needs A/B only, do not expose X/Y. If a face position has a semantic action, set `displayLabel` in `game.config.json` rather than hardcoding that label in platform code. If it needs A/B/X/Y or shoulders/triggers, declare them explicitly.
 7. Declare `presentation.remoteDisplay` explicitly. Use `shared` + `maxViewports: 1` for a communal board/arena. Use `per-player` (maximum 4) only when each remote needs its own camera/focus. For per-player presentation, render the supplied surface from `ctx.playerId`; do not implement split-grid/device discovery in the game.
 8. Add meaningful server unit tests for core mechanics and at least one browser assertion for the unique gameplay/control surface.
 9. Do not modify or overwrite any historical release. Start at version 0.1.0 for a new game; after any published byte change, bump semantic version before publishing again.

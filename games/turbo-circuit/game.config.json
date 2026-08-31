@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "turbo-circuit",
-    "version": "0.2.1",
+    "version": "0.2.3",
     "title": "Turbo Circuit",
     "description": "A 3D arcade circuit racer with steering, throttle, braking, nitro, checkpoints, laps, collision and AI rivals.",
     "minPlayers": 1,
@@ -109,7 +109,8 @@
               "boost": false
             }
           },
-          "keys": ["Space"]
+          "keys": ["Space"],
+          "displayLabel": "BOOST"
         }
       ],
       "initialState": {

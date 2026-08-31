@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "sky-strike",
+    "version": "0.2.3",
+    "title": "Sky Strike",
+    "description": "A 3D arcade fighter dogfight with flight controls, cannon fire, homing missiles, lock-on, health, respawns and AI bandits.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "landscape",
+    "console": {
+      "renderer": "builtin",
+      "layout": "flight",
+      "controls": [
+        {
+          "id": "flight-stick",
+          "kind": "stick",
+          "ariaLabel": "Flight stick",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "roll": "$x",
+              "pitch": "$y"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "roll": 0,
+              "pitch": 0
+            }
+          },
+          "keys": {
+            "up": [
+              "ArrowUp",
+              "KeyW"
+            ],
+            "down": [
+              "ArrowDown",
+              "KeyS"
+            ],
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ]
+          }
+        },
+        {
+          "id": "gun",
+          "kind": "button",
+          "label": "A",
+          "ariaLabel": "Fire cannon",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "gun": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "gun": false
+            }
+          },
+          "keys": [
+            "Space"
+          ],
+          "displayLabel": "CANNON"
+        },
+        {
+          "id": "missile",
+          "kind": "button",
+          "label": "B",
+          "ariaLabel": "Fire missile",
+          "face": "b",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "missile": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "missile": false
+            }
+          },
+          "keys": [
+            "ShiftLeft",
+            "ShiftRight"
+          ],
+          "displayLabel": "MISSILE"
+        },
+        {
+          "id": "throttle-up",
+          "kind": "button",
+          "label": "Y",
+          "ariaLabel": "Increase throttle",
+          "face": "y",
+          "zone": "top-right",
+          "press": {
+            "type": "increment",
+            "field": "throttle",
+            "delta": 0.1,
+            "min": 0,
+            "max": 1
+          },
+          "keys": [
+            "Equal"
+          ],
+          "displayLabel": "THR +"
+        },
+        {
+          "id": "throttle-down",
+          "kind": "button",
+          "label": "X",
+          "ariaLabel": "Decrease throttle",
+          "face": "x",
+          "zone": "bottom-right",
+          "press": {
+            "type": "increment",
+            "field": "throttle",
+            "delta": -0.1,
+            "min": 0,
+            "max": 1
+          },
+          "keys": [
+            "Minus"
+          ],
+          "displayLabel": "THR −"
+        }
+      ],
+      "initialState": {
+        "pitch": 0,
+        "roll": 0,
+        "yaw": 0,
+        "throttle": 0.65,
+        "gun": false,
+        "missile": false
+      }
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "5925cb27583ed82edad8ff7cfb82b7d8d5da0a336cc90d70e51c13ab2c359f29"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "ac9068ef3f9457f4d5b02ec3536c98d80e2902edab14f546c77e6930ea3ed647"
+    }
+  }
+}

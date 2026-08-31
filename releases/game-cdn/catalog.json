@@ -58,6 +58,20 @@
       "manifestSha256": "23cdddce017c1c221f1a024c1f928da3a5c7825d8935351b0ece006c4fb518ad"
     },
     {
+      "gameId": "flight-trainer",
+      "version": "0.2.2",
+      "title": "Flight Trainer",
+      "manifestPath": "/games/flight-trainer/0.2.2/manifest.json",
+      "manifestSha256": "85eda62124506e6ad841f0c2372e8fe94c209f475d32f6235ecb2d4db9e27b6f"
+    },
+    {
+      "gameId": "flight-trainer",
+      "version": "0.2.3",
+      "title": "Flight Trainer",
+      "manifestPath": "/games/flight-trainer/0.2.3/manifest.json",
+      "manifestSha256": "f319755354169b1a6aafe9e67096b6f32492ec98770b1aa10b8cedd2dcc08f8c"
+    },
+    {
       "gameId": "maze-run",
       "version": "0.1.0",
       "title": "Maze Run",
@@ -233,6 +247,20 @@
       "manifestSha256": "a0d9609325d1fe7c4f96dfd10049b66807c9d3bf5cd155f1516af689496df7c9"
     },
     {
+      "gameId": "sky-strike",
+      "version": "0.2.2",
+      "title": "Sky Strike",
+      "manifestPath": "/games/sky-strike/0.2.2/manifest.json",
+      "manifestSha256": "e9639d8c65cedab49fe685c49140c64bbf48adeb4c6462869eecb22e80c892cd"
+    },
+    {
+      "gameId": "sky-strike",
+      "version": "0.2.3",
+      "title": "Sky Strike",
+      "manifestPath": "/games/sky-strike/0.2.3/manifest.json",
+      "manifestSha256": "180f50cff1f7031f0c663e10e0e6937b89c819899be48d9e681243a72078f341"
+    },
+    {
       "gameId": "snake-arena",
       "version": "0.1.0",
       "title": "Snake Arena",
@@ -378,6 +406,20 @@
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.2.1/manifest.json",
       "manifestSha256": "2596be57b7a358547a0e99482921bc80a57fc8bd0a18b52b9142ce8ac094cd4a"
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.2.2",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.2.2/manifest.json",
+      "manifestSha256": "ac64532c5ff61f4cb08e441d6082bc0ce98272acdd786eaf4b799dbfee18faab"
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.2.3",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.2.3/manifest.json",
+      "manifestSha256": "ba84735442c8372a6627e155389fa0262666d401c15f45108332f5ca8618f68d"
     }
   ]
 }

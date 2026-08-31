@@ -1,10 +1,17 @@
 import { RealtimeClient } from "@play-together/browser-runtime";
 import type { ControllerMode } from "@play-together/contracts";
-import { useAction, useMutation } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../../shared/convexApi";
 import { navigate } from "../../shared/navigation";
-import type { GameRegistryDocument, GameRegistryEntry, TicketResponse } from "../../shared/types";
+import { RoomInviteQr } from "../../shared/RoomInviteQr";
+import type {
+  CurrentUser,
+  GameRegistryDocument,
+  GameRegistryEntry,
+  RoomDetails,
+  TicketResponse,
+} from "../../shared/types";
 import {
   createRemoteDisplayPlan,
   inferRemoteRole,
@@ -26,12 +33,17 @@ function defaultRealtimeUrl(): string {
 export function PlayPage({
   code,
   role,
+  user,
 }: {
   code: string;
   role: "controller" | "display" | "auto";
+  user: CurrentUser;
 }) {
+  const room = useQuery(api.rooms.getByCode, { code }) as RoomDetails | null | undefined;
   const issueTicket = useAction(api.tickets.issue);
   const heartbeat = useMutation(api.rooms.heartbeat);
+  const startGame = useMutation(api.rooms.startGame);
+  const returnToLobby = useMutation(api.rooms.returnToLobby);
   const mountRef = useRef<HTMLDivElement>(null);
   const [resolvedRole, setResolvedRole] = useState<RemoteRole>(() => resolveRole(role));
   const mode: ControllerMode =
@@ -40,11 +52,15 @@ export function PlayPage({
       : new URLSearchParams(location.search).get("mode") === "handheld"
         ? "handheld"
         : "remote";
-  const [status, setStatus] = useState("Preparing secure session…");
+  const [status, setStatus] = useState("Preparing room…");
   const [connection, setConnection] = useState("idle");
   const [error, setError] = useState("");
+  const [menuError, setMenuError] = useState("");
   const [remoteCount, setRemoteCount] = useState(0);
   const [displayLayout, setDisplayLayout] = useState<RemoteDisplayLayout>("shared");
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const isHost = room?.hostUserId === user.id;
+  const isPlaying = room?.playState === "playing";
 
   useEffect(() => setResolvedRole(resolveRole(role)), [role]);
 
@@ -55,11 +71,21 @@ export function PlayPage({
   }, [code, heartbeat]);
 
   useEffect(() => {
+    if (isPlaying) return;
+    setConnection("idle");
+    setRemoteCount(0);
+    setDisplayLayout("shared");
+    setStatus(room ? `${room.gameTitle} · game lobby` : "Loading room…");
+    mountRef.current?.replaceChildren();
+  }, [isPlaying, room]);
+
+  useEffect(() => {
+    if (!isPlaying) return;
     let disposed = false;
     let client: RealtimeClient | null = null;
     let unsubscribeSnapshot: (() => void) | null = null;
     let unsubscribeMessages: (() => void) | null = null;
-    let gameTitle = "Game";
+    let gameTitle = room?.gameTitle ?? "Game";
     let latestPresence: PresencePlayer[] = [];
     let presentationPolicy: GameRegistryEntry["presentation"]["remoteDisplay"] = {
       mode: "shared",
@@ -80,12 +106,8 @@ export function PlayPage({
 
     const displayStatus = (count: number, layout: RemoteDisplayLayout) => {
       if (resolvedRole !== "display") return;
-      if (count === 0) {
-        setStatus(`${gameTitle} · scanning for remotes…`);
-        return;
-      }
       setStatus(
-        `${gameTitle} · ${count} remote${count === 1 ? "" : "s"} · ${
+        `${gameTitle} · ${count} controller${count === 1 ? "" : "s"} · ${
           layout === "split" ? `${count}-way split` : "shared view"
         }`,
       );
@@ -116,6 +138,7 @@ export function PlayPage({
       );
     };
 
+    let currentPlayerId = "";
     const onFrameMessage = (event: MessageEvent<unknown>) => {
       if (event.source !== frame.contentWindow || !isFrameMessage(event.data, channel)) return;
       const message = event.data;
@@ -123,10 +146,9 @@ export function PlayPage({
       else if (message.type === "status" && typeof message.status === "string") {
         if (resolvedRole !== "display") setStatus(message.status);
       } else if (message.type === "ready") {
-        gameTitle = typeof message.title === "string" ? message.title : "Game";
-        if (resolvedRole === "display") {
-          pushPresentation(currentPlayerId);
-        } else {
+        gameTitle = typeof message.title === "string" ? message.title : gameTitle;
+        if (resolvedRole === "display") pushPresentation(currentPlayerId);
+        else {
           setStatus(`${gameTitle} · ${mode === "handheld" ? "handheld console" : "phone remote"}`);
         }
         if (client?.latestSnapshot) {
@@ -141,9 +163,10 @@ export function PlayPage({
     };
     window.addEventListener("message", onFrameMessage);
 
-    let currentPlayerId = "";
     const run = async () => {
       try {
+        setError("");
+        setStatus(`${gameTitle} · connecting…`);
         const initial = (await issueTicket({ code, role: resolvedRole, mode })) as TicketResponse;
         currentPlayerId = initial.playerId;
         if (disposed || !mountRef.current) return;
@@ -207,9 +230,7 @@ export function PlayPage({
         mountRef.current.replaceChildren(frame);
         client.start();
       } catch (reason) {
-        if (!disposed) {
-          setError(reason instanceof Error ? reason.message : "Game could not start");
-        }
+        if (!disposed) setError(reason instanceof Error ? reason.message : "Game could not start");
       }
     };
     void run();
@@ -220,8 +241,9 @@ export function PlayPage({
       client?.stop();
       window.removeEventListener("message", onFrameMessage);
       frame.remove();
+      setConnection("idle");
     };
-  }, [code, issueTicket, mode, resolvedRole]);
+  }, [code, isPlaying, issueTicket, mode, resolvedRole, room?.gameTitle]);
 
   const fullscreen = async () => {
     try {
@@ -243,6 +265,36 @@ export function PlayPage({
     );
   };
 
+  const start = async () => {
+    setMenuError("");
+    try {
+      await startGame({ code });
+    } catch (reason) {
+      setMenuError(reason instanceof Error ? reason.message : "Game could not start");
+    }
+  };
+
+  const openMenu = async () => {
+    setMenuError("");
+    try {
+      await returnToLobby({ code });
+      setInviteOpen(false);
+    } catch (reason) {
+      setMenuError(reason instanceof Error ? reason.message : "Could not return to the game menu");
+    }
+  };
+
+  if (room === null) {
+    return (
+      <main className="centered-state">
+        <p>Room not found</p>
+        <button className="primary-button" type="button" onClick={() => navigate("/")}>
+          Back to lobby
+        </button>
+      </main>
+    );
+  }
+
   return (
     <main className={`play-page play-page--${resolvedRole} play-page--${mode}`}>
       <header className="play-toolbar">
@@ -254,53 +306,188 @@ export function PlayPage({
           <span className={`connection connection--${connection}`}>{connection}</span>
         </div>
         <div className="play-toolbar__actions">
+          {isPlaying && isHost && (
+            <button className="ghost-button" type="button" onClick={() => void openMenu()}>
+              Menu
+            </button>
+          )}
+          {resolvedRole === "display" && mode === "remote" && (
+            <button
+              className="ghost-button"
+              type="button"
+              onClick={() => setInviteOpen((value) => !value)}
+            >
+              Invite
+            </button>
+          )}
           {mode === "remote" && (
             <button className="ghost-button" type="button" onClick={switchRemoteRole}>
               {resolvedRole === "display" ? "Use as remote" : "Use as display"}
             </button>
           )}
-          <button className="ghost-button" type="button" onClick={() => void fullscreen()}>
-            Fullscreen
-          </button>
+          {isPlaying && (
+            <button className="ghost-button" type="button" onClick={() => void fullscreen()}>
+              Fullscreen
+            </button>
+          )}
         </div>
       </header>
-      {resolvedRole === "display" && mode === "remote" && (
-        <aside
-          className={`remote-discovery remote-discovery--${remoteCount ? "found" : "scanning"}`}
-          data-layout={displayLayout}
-          data-remote-count={remoteCount}
-          aria-live="polite"
-        >
-          <span className="remote-discovery__radar" aria-hidden="true" />
-          <div>
-            <strong>
-              {remoteCount
-                ? `${remoteCount} remote${remoteCount === 1 ? "" : "s"} connected`
-                : "Scanning for remotes"}
-            </strong>
-            <span>
-              {remoteCount
-                ? displayLayout === "split"
-                  ? `${remoteCount}-way split screen selected automatically`
-                  : "One shared screen selected automatically"
-                : "Open this room on a phone and tap Remote"}
-            </span>
-          </div>
-        </aside>
+
+      {!isPlaying ? (
+        <PregameMenu
+          code={code}
+          room={room}
+          role={resolvedRole}
+          mode={mode}
+          isHost={Boolean(isHost)}
+          error={menuError}
+          onStart={() => void start()}
+        />
+      ) : (
+        <>
+          {resolvedRole === "display" && mode === "remote" && (
+            <aside
+              className="remote-discovery remote-discovery--found"
+              data-layout={displayLayout}
+              data-remote-count={remoteCount}
+              aria-live="polite"
+            >
+              <span className="remote-discovery__radar" aria-hidden="true" />
+              <div>
+                <strong>
+                  {remoteCount} controller{remoteCount === 1 ? "" : "s"} connected
+                </strong>
+                <span>
+                  {displayLayout === "split"
+                    ? `${remoteCount}-way split screen selected automatically`
+                    : "One shared screen selected automatically"}
+                </span>
+              </div>
+            </aside>
+          )}
+          {resolvedRole === "display" && mode === "remote" && (inviteOpen || remoteCount === 0) && (
+            <aside className="live-invite" aria-label="Join this game">
+              <RoomInviteQr code={code} compact />
+              {inviteOpen && remoteCount > 0 && (
+                <button className="ghost-button" type="button" onClick={() => setInviteOpen(false)}>
+                  Hide invite
+                </button>
+              )}
+            </aside>
+          )}
+          {error && (
+            <div className="play-error" role="alert">
+              <strong>Connection issue</strong>
+              <span>{error}</span>
+              <button type="button" onClick={() => location.reload()}>
+                Retry
+              </button>
+            </div>
+          )}
+          <section className="device-frame">
+            <div className="game-mount" ref={mountRef} />
+          </section>
+        </>
       )}
-      {error && (
-        <div className="play-error" role="alert">
-          <strong>Connection issue</strong>
-          <span>{error}</span>
-          <button type="button" onClick={() => location.reload()}>
-            Retry
+    </main>
+  );
+}
+
+function PregameMenu({
+  code,
+  room,
+  role,
+  mode,
+  isHost,
+  error,
+  onStart,
+}: {
+  code: string;
+  room: RoomDetails | undefined;
+  role: RemoteRole;
+  mode: ControllerMode;
+  isHost: boolean;
+  error: string;
+  onStart: () => void;
+}) {
+  if (!room) {
+    return (
+      <section className="pregame-menu pregame-menu--loading">
+        <span className="pulse-dot" />
+        <p>Loading game lobby…</p>
+      </section>
+    );
+  }
+  const modeLabel =
+    role === "display"
+      ? "Remote party · auto shared/split"
+      : mode === "handheld"
+        ? "Handheld console"
+        : "Phone remote controller";
+  return (
+    <section className={`pregame-menu pregame-menu--${role}`} data-play-state={room.playState}>
+      <div className="pregame-menu__panel">
+        <div className="pregame-menu__heading">
+          <p className="eyebrow">GAME LOBBY</p>
+          <h1>{room.gameTitle}</h1>
+          <p>{room.name}</p>
+        </div>
+        <div className="pregame-menu__settings">
+          <div>
+            <span>MODE</span>
+            <strong>{modeLabel}</strong>
+          </div>
+          <div>
+            <span>PLAYERS</span>
+            <strong>
+              {room.activeMembers.length}/{room.maxPlayers}
+            </strong>
+          </div>
+          <div>
+            <span>VERSION</span>
+            <strong>{room.gameVersion}</strong>
+          </div>
+        </div>
+        {role === "display" ? (
+          <RoomInviteQr code={code} />
+        ) : (
+          <div className="pregame-waiting">
+            <span className="pregame-waiting__icon" aria-hidden="true">
+              ◉
+            </span>
+            <div>
+              <strong>{isHost ? "Ready when you are" : "Waiting for host"}</strong>
+              <span>
+                {isHost
+                  ? "Start when everyone has joined. The game has not started yet."
+                  : "Stay on this screen. Your controller will open automatically when the host starts."}
+              </span>
+            </div>
+          </div>
+        )}
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
+        <div className="pregame-menu__actions">
+          {isHost ? (
+            <button className="primary-button" type="button" onClick={onStart}>
+              Start Game
+            </button>
+          ) : (
+            <span className="pregame-menu__host-note">Host controls Start Game</span>
+          )}
+          <button
+            className="secondary-button"
+            type="button"
+            onClick={() => navigate(`/room/${code}`)}
+          >
+            Room settings
           </button>
         </div>
-      )}
-      <section className="device-frame">
-        <div className="game-mount" ref={mountRef} />
-      </section>
-    </main>
+      </div>
+    </section>
   );
 }
 

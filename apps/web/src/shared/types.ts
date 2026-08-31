@@ -32,6 +32,8 @@ export interface RoomDetails {
   requiresPassword: boolean;
   maxPlayers: number;
   status: "open" | "closed";
+  playState: "lobby" | "playing";
+  sessionStartedAt?: number;
   activeMembers: Array<{ userId: string; displayName: string }>;
 }
 

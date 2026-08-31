@@ -59,7 +59,7 @@ export function App() {
   if (playCode && (playRole === "controller" || playRole === "display" || playRole === "auto")) {
     return (
       <Suspense fallback={<RouteSkeleton />}>
-        <PlayPage code={playCode.toUpperCase()} role={playRole} />
+        <PlayPage code={playCode.toUpperCase()} role={playRole} user={user} />
         <PwaUpdateToast quiet />
       </Suspense>
     );

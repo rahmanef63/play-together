@@ -161,7 +161,7 @@ class TurboCircuit implements ServerGame {
       if (boosting) r.nitro = Math.max(0, r.nitro - 27 * dt);
       else r.nitro = Math.min(100, r.nitro + 8 * dt);
       const steerGrip = clamp(Math.abs(r.speed) / 18, 0.18, 1.2);
-      r.heading += input.steer * 1.85 * steerGrip * dt * (r.speed < 0 ? -1 : 1);
+      r.heading -= input.steer * 1.85 * steerGrip * dt * (r.speed < 0 ? -1 : 1);
       r.x += Math.sin(r.heading) * r.speed * dt;
       r.z += Math.cos(r.heading) * r.speed * dt;
       const dev = trackDeviation(r.x, r.z);

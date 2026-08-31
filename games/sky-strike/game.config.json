@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "sky-strike",
-    "version": "0.2.1",
+    "version": "0.2.3",
     "title": "Sky Strike",
     "description": "A 3D arcade fighter dogfight with flight controls, cannon fire, homing missiles, lock-on, health, respawns and AI bandits.",
     "minPlayers": 1,
@@ -71,7 +71,8 @@
               "gun": false
             }
           },
-          "keys": ["Space"]
+          "keys": ["Space"],
+          "displayLabel": "CANNON"
         },
         {
           "id": "missile",
@@ -92,7 +93,8 @@
               "missile": false
             }
           },
-          "keys": ["ShiftLeft", "ShiftRight"]
+          "keys": ["ShiftLeft", "ShiftRight"],
+          "displayLabel": "MISSILE"
         },
         {
           "id": "throttle-up",
@@ -108,7 +110,8 @@
             "min": 0,
             "max": 1
           },
-          "keys": ["Equal"]
+          "keys": ["Equal"],
+          "displayLabel": "THR +"
         },
         {
           "id": "throttle-down",
@@ -124,7 +127,8 @@
             "min": 0,
             "max": 1
           },
-          "keys": ["Minus"]
+          "keys": ["Minus"],
+          "displayLabel": "THR −"
         }
       ],
       "initialState": {

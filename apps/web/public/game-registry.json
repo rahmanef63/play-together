@@ -59,7 +59,7 @@
     },
     {
       "id": "flight-trainer",
-      "version": "0.2.1",
+      "version": "0.2.3",
       "title": "Flight Trainer",
       "description": "A 3D flight-training simulator with throttle, pitch, roll, yaw, flaps, landing gear, stall/crash physics, instruments and checkpoint navigation.",
       "modes": ["shared-screen", "handheld"],
@@ -128,7 +128,8 @@
                   "yaw": 0
                 }
               },
-              "keys": ["KeyQ"]
+              "keys": ["KeyQ"],
+              "displayLabel": "YAW L"
             },
             {
               "id": "yaw-right",
@@ -149,7 +150,8 @@
                   "yaw": 0
                 }
               },
-              "keys": ["KeyE"]
+              "keys": ["KeyE"],
+              "displayLabel": "YAW R"
             },
             {
               "id": "flaps",
@@ -161,7 +163,8 @@
               "press": {
                 "type": "toggle",
                 "field": "flaps"
-              }
+              },
+              "displayLabel": "FLAPS"
             },
             {
               "id": "gear",
@@ -173,7 +176,8 @@
               "press": {
                 "type": "toggle",
                 "field": "gear"
-              }
+              },
+              "displayLabel": "GEAR"
             },
             {
               "id": "throttle-up",
@@ -189,7 +193,8 @@
                 "min": 0,
                 "max": 1
               },
-              "keys": ["Equal"]
+              "keys": ["Equal"],
+              "displayLabel": "THR +"
             },
             {
               "id": "throttle-down",
@@ -205,7 +210,8 @@
                 "min": 0,
                 "max": 1
               },
-              "keys": ["Minus"]
+              "keys": ["Minus"],
+              "displayLabel": "THR −"
             },
             {
               "id": "restart",
@@ -223,7 +229,8 @@
                   "restart": false
                 },
                 "durationMs": 80
-              }
+              },
+              "displayLabel": "RESTART"
             }
           ],
           "initialState": {
@@ -623,7 +630,7 @@
     },
     {
       "id": "sky-strike",
-      "version": "0.2.1",
+      "version": "0.2.3",
       "title": "Sky Strike",
       "description": "A 3D arcade fighter dogfight with flight controls, cannon fire, homing missiles, lock-on, health, respawns and AI bandits.",
       "modes": ["shared-screen", "handheld"],
@@ -692,7 +699,8 @@
                   "gun": false
                 }
               },
-              "keys": ["Space"]
+              "keys": ["Space"],
+              "displayLabel": "CANNON"
             },
             {
               "id": "missile",
@@ -713,7 +721,8 @@
                   "missile": false
                 }
               },
-              "keys": ["ShiftLeft", "ShiftRight"]
+              "keys": ["ShiftLeft", "ShiftRight"],
+              "displayLabel": "MISSILE"
             },
             {
               "id": "throttle-up",
@@ -729,7 +738,8 @@
                 "min": 0,
                 "max": 1
               },
-              "keys": ["Equal"]
+              "keys": ["Equal"],
+              "displayLabel": "THR +"
             },
             {
               "id": "throttle-down",
@@ -745,7 +755,8 @@
                 "min": 0,
                 "max": 1
               },
-              "keys": ["Minus"]
+              "keys": ["Minus"],
+              "displayLabel": "THR −"
             }
           ],
           "initialState": {
@@ -1032,7 +1043,7 @@
     },
     {
       "id": "turbo-circuit",
-      "version": "0.2.1",
+      "version": "0.2.3",
       "title": "Turbo Circuit",
       "description": "A 3D arcade circuit racer with steering, throttle, braking, nitro, checkpoints, laps, collision and AI rivals.",
       "modes": ["shared-screen", "handheld"],
@@ -1139,7 +1150,8 @@
                   "boost": false
                 }
               },
-              "keys": ["Space"]
+              "keys": ["Space"],
+              "displayLabel": "BOOST"
             }
           ],
           "initialState": {

@@ -28,10 +28,10 @@ One multiplayer session can expose different surfaces to different devices:
 
 | Mode | What the player sees | Typical use |
 |---|---|---|
-| **Remote** | TV/laptop display hub + phone controls; display auto-selects one shared view or per-player split views | Couch multiplayer, projector, desktop, TV |
+| **Remote** | TV/laptop shows a QR join lobby; scanned phones become controllers, then display auto-selects shared or per-player split views after Start | Couch multiplayer, projector, desktop, TV |
 | **Handheld console** | Live game screen + controls in one device | Game Boy-style portrait or PSP-style landscape play |
 
-Remote is one device-adaptive experience: phone-sized devices become controllers, while TV/laptop-sized devices become the display hub. Realtime presence discovers connected remote players and the host registry decides whether that game stays on one communal screen or automatically splits into up to four player-focused views. The display uses one authoritative realtime connection and one verified display module, not one connection/worker per viewport. Handheld mode still loads the exact pinned release's `display` and controller topology together over one realtime connection.
+Remote is one device-adaptive experience: TV/laptop-sized devices open a pre-game lobby with a QR code for the exact room, while phones that scan it join as controllers. The host starts the game only after players are ready; no realtime ticket, game worker, or game iframe is created while the room is still in the lobby. Once playing, authoritative realtime presence counts connected Remote controllers and the host registry decides whether the display stays on one communal screen or automatically splits into up to four player-focused views. The display uses one authoritative realtime connection and one verified display module, not one connection/worker per viewport. Handheld mode uses the same Start-gated room lifecycle and then loads the exact pinned release's `display` and controller topology together.
 
 <table>
 <tr>
@@ -48,7 +48,7 @@ Remote is one device-adaptive experience: phone-sized devices become controllers
 
 ## Mobile console shell
 
-The phone console chassis is a platform concern; each cartridge still owns its actual buttons, sticks, gestures, and input semantics. Remote mode is **screenless** and landscape-first, while handheld mode mounts the pinned display and controller together. The verified manifest may set `controller.shellPreset` to `classic`, `racing`, or `flight`; older immutable releases remain compatible through a deterministic metadata fallback. The shell uses `100dvh`, safe-area insets, disabled accidental zoom/scroll, and touch-first sizing for iOS and Android.
+The phone console chassis is a platform concern; each cartridge still owns its actual buttons, sticks, gestures, and input semantics. Remote mode is **screenless** and landscape-first, while handheld mode mounts the pinned display and controller together after Start. Face-button `face` metadata may still use A/B/X/Y for physical placement, while an optional per-control `displayLabel` in the immutable game manifest provides semantic text such as BOOST, CANNON, FLAPS, or GEAR. The renderer does not hardcode game/action names. The verified manifest may set `controller.shellPreset` to `classic`, `racing`, or `flight`; older immutable releases remain compatible through a deterministic metadata fallback. The remote chassis is handset-bounded rather than stretched across wide screens and uses `100dvh`, safe-area insets, disabled accidental zoom/scroll, and touch-first sizing for iOS and Android.
 
 ### Native PWA shell
 
@@ -322,7 +322,7 @@ The E2E suite covers:
 - public/private rooms;
 - optional room passwords;
 - public available-slot discovery;
-- adaptive Remote launch, authoritative remote discovery, and automatic shared/split display transitions;
+- QR Remote join, Start-gated room lifecycle, authoritative connected-controller presence, and automatic shared/split display transitions;
 - playable handheld screen + controls in portrait and landscape layouts;
 - independently loaded games/controllers;
 - authoritative WebSocket state;

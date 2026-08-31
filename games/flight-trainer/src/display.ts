@@ -30,7 +30,18 @@ interface S {
   aircraft: A[];
 }
 const ok = (v: unknown): v is S =>
-  typeof v === "object" && v !== null && (v as any).kind === "flight-trainer";
+  typeof v === "object" && v !== null && (v as S).kind === "flight-trainer";
+interface AircraftPose {
+  x: number;
+  y: number;
+  z: number;
+  heading: number;
+  pitch: number;
+  roll: number;
+}
+const smoothing = (rate: number, dt: number) => 1 - Math.exp(-rate * dt);
+const smoothAngle = (current: number, target: number, alpha: number) =>
+  current + Math.atan2(Math.sin(target - current), Math.cos(target - current)) * alpha;
 function planeMesh(color: number) {
   const g = new THREE.Group(),
     mat = new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0.15 }),
@@ -156,6 +167,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
     return r;
   });
   const planes = new Map<string, THREE.Group>();
+  const poses = new Map<string, AircraftPose>();
   let state: S | null = null;
   const colors = [0xf97316, 0x38bdf8, 0xa78bfa, 0x22c55e];
   const unsub = ctx.subscribe((m) => {
@@ -166,19 +178,22 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
       if (!mesh) {
         mesh = planeMesh(colors[i % colors.length] ?? 0xffffff);
         planes.set(a.id, mesh);
+        poses.set(a.id, {
+          x: a.x,
+          y: a.y,
+          z: a.z,
+          heading: a.heading,
+          pitch: a.pitch,
+          roll: a.roll,
+        });
         scene.add(mesh);
       }
-      mesh.visible = !a.crashed;
-      mesh.position.set(a.x, a.y, a.z);
-      mesh.rotation.order = "YXZ";
-      mesh.rotation.y = a.heading;
-      mesh.rotation.x = -a.pitch;
-      mesh.rotation.z = -a.roll;
     }
     for (const [id, mesh] of planes)
       if (!state.aircraft.some((a) => a.id === id)) {
         scene.remove(mesh);
         planes.delete(id);
+        poses.delete(id);
       }
     rings.forEach((r, i) => {
       const active = state?.aircraft.some((a) => a.nextCheckpoint === i && !a.missionComplete);
@@ -186,6 +201,10 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
     });
   });
   let raf = 0;
+  let previousFrame = performance.now();
+  const cameraTarget = new THREE.Vector3();
+  const cameraUp = new THREE.Vector3(0, 1, 0);
+  let cameraReady = false;
   let viewWidth = 0;
   let viewHeight = 0;
   const resize = () => {
@@ -201,40 +220,74 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(host);
   resize();
-  const loop = () => {
+  const loop = (now = performance.now()) => {
     raf = requestAnimationFrame(loop);
+    const dt = Math.min(0.05, Math.max(0.001, (now - previousFrame) / 1000));
+    previousFrame = now;
     if (state) {
+      const poseAlpha = smoothing(13, dt);
+      for (const a of state.aircraft) {
+        const mesh = planes.get(a.id);
+        const pose = poses.get(a.id);
+        if (!mesh || !pose) continue;
+        const teleported = Math.hypot(a.x - pose.x, a.y - pose.y, a.z - pose.z) > 80;
+        pose.x = teleported ? a.x : THREE.MathUtils.lerp(pose.x, a.x, poseAlpha);
+        pose.y = teleported ? a.y : THREE.MathUtils.lerp(pose.y, a.y, poseAlpha);
+        pose.z = teleported ? a.z : THREE.MathUtils.lerp(pose.z, a.z, poseAlpha);
+        pose.heading = teleported ? a.heading : smoothAngle(pose.heading, a.heading, poseAlpha);
+        pose.pitch = THREE.MathUtils.lerp(pose.pitch, a.pitch, poseAlpha);
+        pose.roll = THREE.MathUtils.lerp(pose.roll, a.roll, poseAlpha);
+        mesh.visible = !a.crashed;
+        mesh.position.set(pose.x, pose.y, pose.z);
+        mesh.rotation.order = "YXZ";
+        mesh.rotation.y = pose.heading;
+        mesh.rotation.x = -pose.pitch;
+        mesh.rotation.z = -pose.roll;
+      }
       const me = state.aircraft.find((a) => a.id === ctx.playerId) ?? state.aircraft[0];
-      if (me) {
+      const mePose = me ? poses.get(me.id) : undefined;
+      if (me && mePose) {
         const f = {
-            x: Math.sin(me.heading) * Math.cos(me.pitch),
-            y: Math.sin(me.pitch),
-            z: Math.cos(me.heading) * Math.cos(me.pitch),
+            x: Math.sin(mePose.heading) * Math.cos(mePose.pitch),
+            y: Math.sin(mePose.pitch),
+            z: Math.cos(mePose.heading) * Math.cos(mePose.pitch),
           },
-          right = { x: Math.cos(me.heading), y: 0, z: -Math.sin(me.heading) };
-        if (ctx.mode === "handheld") {
-          camera.position.lerp(new THREE.Vector3(me.x, me.y + 1.05, me.z), 0.32);
-          camera.up.set(
-            right.x * Math.sin(me.roll),
-            Math.cos(me.roll),
-            right.z * Math.sin(me.roll),
-          );
-          camera.lookAt(me.x + f.x * 45, me.y + 1 + f.y * 45, me.z + f.z * 45);
+          right = { x: -Math.cos(mePose.heading), y: 0, z: Math.sin(mePose.heading) };
+        const desiredCamera =
+          ctx.mode === "handheld"
+            ? new THREE.Vector3(mePose.x, mePose.y + 1.05, mePose.z)
+            : new THREE.Vector3(mePose.x - f.x * 18, mePose.y + 7 - f.y * 4, mePose.z - f.z * 18);
+        const desiredTarget =
+          ctx.mode === "handheld"
+            ? new THREE.Vector3(mePose.x + f.x * 45, mePose.y + 1 + f.y * 45, mePose.z + f.z * 45)
+            : new THREE.Vector3(mePose.x + f.x * 10, mePose.y + f.y * 8, mePose.z + f.z * 10);
+        const desiredUp =
+          ctx.mode === "handheld"
+            ? new THREE.Vector3(
+                right.x * Math.sin(mePose.roll),
+                Math.cos(mePose.roll),
+                right.z * Math.sin(mePose.roll),
+              )
+            : new THREE.Vector3(0, 1, 0);
+        if (!cameraReady) {
+          camera.position.copy(desiredCamera);
+          cameraTarget.copy(desiredTarget);
+          cameraUp.copy(desiredUp);
+          cameraReady = true;
         } else {
-          camera.position.lerp(
-            new THREE.Vector3(me.x - f.x * 18, me.y + 7 - f.y * 4, me.z - f.z * 18),
-            0.12,
-          );
-          camera.up.set(0, 1, 0);
-          camera.lookAt(me.x + f.x * 10, me.y + f.y * 8, me.z + f.z * 10);
+          camera.position.lerp(desiredCamera, smoothing(ctx.mode === "handheld" ? 11 : 8, dt));
+          cameraTarget.lerp(desiredTarget, smoothing(12, dt));
+          cameraUp.lerp(desiredUp, smoothing(10, dt)).normalize();
         }
+        camera.up.copy(cameraUp);
+        camera.lookAt(cameraTarget);
         const cp = state.checkpoints[me.nextCheckpoint];
         top.textContent = me.crashed
           ? "AIRCRAFT DOWN · RESTART FROM CONTROLLER"
           : me.missionComplete
             ? `MISSION COMPLETE · SCORE ${me.score}`
             : `FLIGHT TRAINER · NEXT ${cp?.label ?? "LAND"} · SCORE ${me.score}`;
-        line.style.transform = `translateY(${Math.round(me.pitch * 85)}px) rotate(${Math.round(me.roll * 57.3)}deg)`;
+        line.style.transform = `translateY(${Math.round(mePose.pitch * 85)}px) rotate(${Math.round(mePose.roll * 57.3)}deg)`;
         bottom.innerHTML = `<strong>${Math.round(me.airspeed * 1.94)} kt<br><small>AIRSPEED</small></strong><strong style="text-align:center;color:${me.stall ? "#ff6b6b" : "white"}">${me.stall ? "STALL" : "HDG " + String(Math.round(((me.heading * 180) / Math.PI + 360) % 360)).padStart(3, "0")}<br><small>${me.gearDown ? "GEAR DOWN" : "GEAR UP"} · ${me.flaps ? "FLAPS" : "CLEAN"}</small></strong><strong style="text-align:right">${Math.round(me.y)} m<br><small>ALT · VSI ${me.verticalSpeed.toFixed(1)}</small></strong>`;
       }
     }
