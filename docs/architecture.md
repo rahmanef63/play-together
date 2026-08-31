@@ -23,6 +23,8 @@ Capacity admission happens in one Convex mutation, so concurrent join attempts o
 
 ### Transient realtime plane — WebSocket gateway
 
+Managed Vercel uses a Redis room bus between WebSocket Function replicas. A connection lease registry provides global presence, validated controller input is fanned to each deterministic room replica, and a deterministic authority election selects the one display/handheld replica allowed to publish snapshots. This keeps cross-instance transport transient while Convex remains durable SSOT.
+
 The gateway stores no durable product record. It:
 
 - validates the exact browser origin;

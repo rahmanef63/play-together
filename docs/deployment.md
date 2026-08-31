@@ -11,7 +11,7 @@ The primary production target is **Vercel + Convex Cloud**. The VPS/Dokploy Comp
 | Immutable game releases | Vercel CDN static output | game release changes |
 | Auth / rooms / catalog / entitlements | Convex Cloud | schema/function changes |
 | Paid template source | Vercel Private Blob | template-source releases |
-| Cross-instance room coordination | optional Redis coordinator | horizontal realtime scale |
+| Cross-instance room coordination | Vercel Redis (`sin1`) | required for managed realtime |
 
 A game release remains immutable and version-pinned. Updating `game-a@2.0.0` never replaces `game-a@1.0.0`, and active rooms retain their stored manifest digest.
 
@@ -50,9 +50,24 @@ The realtime Function uses the standard Node HTTP/WebSocket server boundary and 
 
 ### Horizontal realtime scale
 
-The authoritative room process is currently in-memory inside one Function instance. This is appropriate for the managed preview/small-scale phase but is **not** sufficient to guarantee that multiple Function instances share one authoritative room. The intended next step is a transient Redis coordinator/room lease in Singapore; durable room/auth/catalog data stays in Convex.
+Vercel may place separate WebSocket connections for one room on different Function instances. Managed production therefore **requires Redis coordination**; a local-only in-memory room is supported only for development and single-process tests.
 
-Do not treat Redis as a second database. It owns only transient routing/leases/pub-sub. Convex remains the durable control plane.
+The distributed path is intentionally transient:
+
+- Convex remains the durable control plane for users, rooms, membership, play state, tickets, and immutable game metadata.
+- Redis stores short-lived connection leases and carries validated room presence, controller input, and authority snapshots between Function replicas.
+- Every replica runs the same deterministic server game worker, but authority election prefers a display/handheld replica and only that replica publishes snapshots. Other replicas consume that snapshot stream for their locally connected sockets.
+- Browser heartbeats refresh Redis connection leases. Stale entries expire automatically and coordinator failure is fatal to the affected room instead of silently falling back to divergent local state.
+
+Production requirements:
+
+```text
+REDIS_URL=<injected by the connected Vercel Redis resource>
+```
+
+The Vercel Function forces `REQUIRE_DISTRIBUTED_COORDINATION=true`. CI checks for `REDIS_URL` before building the production artifact and then requires `/api/realtime` to report `coordination: "distributed"` before game registration and browser E2E.
+
+Recommended Vercel Marketplace resource for this deployment: Redis Free, region `sin1`, RAM only. Marketplace terms must be accepted by the account owner.
 
 ## Convex Cloud
 

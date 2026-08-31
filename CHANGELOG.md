@@ -4,6 +4,22 @@ All notable changes to Play Together are documented here. The project follows se
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-08-31
+
+### Fixed
+
+- Reworked phone remotes into bounded, safe-area-aware controller layouts for both portrait and landscape, including compact racing pedals/actions and no clipped `BOOST` control or forced rotate overlay.
+- Pre-game hosts now always receive a scannable room QR (compact on phone, full-size on display) before `Start Game`, with a visible room-code fallback if QR generation fails.
+- Turbo Circuit `0.3.0` improves steering deadzone/smoothing, high-speed steering authority, off-track and collision recovery, camera look-ahead, and adds a more readable circuit environment with curbs, start grid, stands, trees, billboards, minimap, and wrong-way feedback.
+- Added distributed Vercel room coordination so display and controller WebSockets that land on different Function instances still share one global controller presence, validated input stream, and authority snapshot stream.
+- Added deterministic room-replica authority election: shared displays/handheld replicas are preferred over remote-only replicas, and only the elected replica publishes gameplay snapshots.
+- Managed Vercel realtime now fails fast without `REDIS_URL`; CI also verifies `coordination: distributed` before production browser tests, preventing local-only room state from being silently deployed.
+
+### Infrastructure
+
+- Added a Redis pub/sub + presence lease adapter with 45-second stale-connection expiry, bounded 256 KiB room events, and explicit coordinator failure containment.
+- Added cross-instance coordinator tests and a two-replica RoomSession regression proving a controller input received by replica B updates the authoritative display snapshot on replica A.
+
 ## [0.11.0] - 2026-08-31
 
 ### Added

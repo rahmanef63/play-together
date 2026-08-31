@@ -106,6 +106,15 @@ jobs:
       - name: Build exact Vercel production artifact
         run: |
           pnpm dlx vercel@50.22.1 pull --yes --environment=production
+          node <<'NODE'
+          const fs = require('fs');
+          const path = '.vercel/.env.production.local';
+          const env = fs.existsSync(path) ? fs.readFileSync(path, 'utf8') : '';
+          if (!/^REDIS_URL=(?:"[^"]+"|'[^']+'|[^\s]+)$/m.test(env)) {
+            throw new Error('Managed realtime requires a connected Redis resource with REDIS_URL');
+          }
+          console.log('Managed Redis environment detected');
+          NODE
           pnpm dlx vercel@50.22.1 build --prod
       - name: Deploy exact Vercel artifact
         run: pnpm dlx vercel@50.22.1 deploy --prebuilt --prod
@@ -119,6 +128,11 @@ jobs:
             sleep 5
           done
           exit 1
+      - name: Verify distributed realtime coordination
+        shell: bash
+        run: |
+          payload=$(curl -fsS --max-time 10 "$MANAGED_PRODUCTION_URL/api/realtime")
+          node -e 'const payload=JSON.parse(process.argv[1]); if (payload.coordination !== "distributed") { throw new Error(`Expected distributed realtime coordination, got ${payload.coordination ?? "missing"}`); }' "$payload"
       - name: Register immutable games against managed CDN
         env:
           GAME_CDN_PUBLIC_ORIGIN: ${{ vars.MANAGED_PRODUCTION_URL }}

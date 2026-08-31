@@ -14,6 +14,8 @@ export interface GatewayConfig {
   allowMissingOrigin: boolean;
   roomIdleTimeoutMs: number;
   maxPayloadBytes: number;
+  redisUrl: string | undefined;
+  requireDistributedCoordination: boolean;
 }
 
 function originMap(value: string | undefined): Map<string, string> {
@@ -56,6 +58,11 @@ export function loadConfig(environment: NodeJS.ProcessEnv = process.env): Gatewa
   const moduleOriginMap = originMap(environment.GAME_MODULE_FETCH_ORIGIN_MAP);
   if (allowedOrigins.size === 0) throw new Error("ALLOWED_ORIGINS must not be empty");
   if (moduleOrigins.size === 0) throw new Error("GAME_MODULE_ORIGINS must not be empty");
+  const redisUrl = environment.REDIS_URL?.trim() || undefined;
+  const requireDistributedCoordination = environment.REQUIRE_DISTRIBUTED_COORDINATION === "true";
+  if (requireDistributedCoordination && !redisUrl) {
+    throw new Error("REDIS_URL is required when distributed room coordination is enabled");
+  }
   return {
     host: environment.HOST ?? "0.0.0.0",
     port: Number(environment.PORT ?? 8787),
@@ -72,5 +79,7 @@ export function loadConfig(environment: NodeJS.ProcessEnv = process.env): Gatewa
     allowMissingOrigin: environment.ALLOW_MISSING_ORIGIN === "true",
     roomIdleTimeoutMs: Number(environment.ROOM_IDLE_TIMEOUT_MS ?? 30_000),
     maxPayloadBytes: Number(environment.MAX_PAYLOAD_BYTES ?? 65_536),
+    redisUrl,
+    requireDistributedCoordination,
   };
 }

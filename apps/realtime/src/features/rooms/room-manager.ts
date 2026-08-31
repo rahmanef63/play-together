@@ -1,20 +1,28 @@
 import type { TicketClaims } from "@play-together/contracts";
 import type { WebSocket } from "ws";
 import type { GameModuleStore } from "../modules/module-store.js";
+import type { RoomCoordinator } from "./room-coordinator.js";
 import { RoomSession } from "./room-session.js";
 
 export class RoomManager {
   readonly #moduleStore: GameModuleStore;
   readonly #idleTimeoutMs: number;
   readonly #workerScriptPath: string | undefined;
+  readonly #coordinator: RoomCoordinator | null;
   readonly #sessions = new Map<string, RoomSession>();
   readonly #startingSessions = new Map<string, Promise<RoomSession>>();
   readonly #idleTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
-  constructor(moduleStore: GameModuleStore, idleTimeoutMs: number, workerScriptPath?: string) {
+  constructor(
+    moduleStore: GameModuleStore,
+    idleTimeoutMs: number,
+    workerScriptPath?: string,
+    coordinator: RoomCoordinator | null = null,
+  ) {
     this.#moduleStore = moduleStore;
     this.#idleTimeoutMs = idleTimeoutMs;
     this.#workerScriptPath = workerScriptPath;
+    this.#coordinator = coordinator;
   }
 
   get size(): number {
@@ -69,6 +77,20 @@ export class RoomManager {
       () => this.#scheduleClose(key),
       this.#workerScriptPath,
     );
+    if (this.#coordinator) {
+      try {
+        const handle = await this.#coordinator.attach(key, {
+          onPresence: (players) => session.syncDistributedPresence(players),
+          onInput: (input) => session.handleDistributedInput(input),
+          onSnapshot: (snapshot) => session.handleDistributedSnapshot(snapshot),
+        });
+        session.attachCoordinator(handle);
+        await handle.start();
+      } catch (error) {
+        session.close();
+        throw error;
+      }
+    }
     this.#sessions.set(key, session);
     return session;
   }

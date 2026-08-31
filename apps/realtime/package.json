@@ -14,6 +14,7 @@
     "@play-together/contracts": "workspace:*",
     "@play-together/game-sdk": "workspace:*",
     "@play-together/security": "workspace:*",
+    "ioredis": "6.0.0",
     "ws": "8.21.3"
   },
   "devDependencies": {
