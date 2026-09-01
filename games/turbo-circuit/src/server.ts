@@ -27,6 +27,7 @@ class TurboCircuit implements ServerGame {
       phase: "setup",
       countdownMs: 3000,
       raceMs: 0,
+      paused: false,
       lapsToWin: circuit.laps,
       circuitId: circuit.id,
       track: {
@@ -63,12 +64,18 @@ class TurboCircuit implements ServerGame {
       brake: clamp(Number(patch.brake ?? racer.input.brake), 0, 1),
       boost: Boolean(patch.boost ?? racer.input.boost),
       cockpit: Boolean(patch.cockpit ?? racer.input.cockpit),
+      rearView: Boolean(patch.rearView ?? racer.input.rearView),
+      pause: Boolean(patch.pause ?? false),
     };
     racer.cockpit = racer.input.cockpit;
+    racer.rearView = racer.input.rearView;
+    if (patch.pause === true && this.#s.phase !== "setup" && this.#s.phase !== "finished")
+      this.#s.paused = !this.#s.paused;
     if (this.#s.phase === "setup") applySetupInput(this.#s, racer, patch);
   }
   tick(_now: number, delta: number) {
     const ms = clamp(delta, 0, 50);
+    if (this.#s.paused) return;
     const dt = ms / 1000;
     if (this.#s.phase === "setup") return this.#tickSetup(ms);
     this.#clock += ms;
@@ -124,6 +131,7 @@ class TurboCircuit implements ServerGame {
       ready: false,
       autoDrive: false,
       cockpit: false,
+      rearView: false,
       x: 0,
       z: 0,
       heading: 0,
@@ -136,12 +144,21 @@ class TurboCircuit implements ServerGame {
       steering: 0,
       menuXActive: false,
       menuYActive: false,
-      input: { steer: 0, menuY: 0, drive: false, brake: 0, boost: false, cockpit: false },
+      input: {
+        steer: 0,
+        menuY: 0,
+        drive: false,
+        brake: 0,
+        boost: false,
+        cockpit: false,
+        rearView: false,
+        pause: false,
+      },
     };
   }
   snapshot() {
     const racers = this.#s.racers.map(
-      ({ input, steering, menuXActive, menuYActive, brain, ...racer }) => racer,
+      ({ input, menuXActive, menuYActive, brain, ...racer }) => racer,
     );
     return structuredClone({ ...this.#s, racers });
   }
@@ -154,7 +171,9 @@ function validInput(input: Partial<InputState>) {
     (input.drive === undefined || typeof input.drive === "boolean") &&
     (input.brake === undefined || typeof input.brake === "number") &&
     (input.boost === undefined || typeof input.boost === "boolean") &&
-    (input.cockpit === undefined || typeof input.cockpit === "boolean")
+    (input.cockpit === undefined || typeof input.cockpit === "boolean") &&
+    (input.rearView === undefined || typeof input.rearView === "boolean") &&
+    (input.pause === undefined || typeof input.pause === "boolean")
   );
 }
 export const createServerGame: CreateServerGame = (ctx) => new TurboCircuit(ctx);

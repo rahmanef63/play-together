@@ -16,9 +16,24 @@ export function mountButton(
   button.className = "console-control console-control--button";
   button.dataset.controlId = control.id;
   if (control.face) button.dataset.face = control.face;
-  const visibleLabel = control.displayLabel ?? semanticButtonLabel(control);
-  button.textContent = visibleLabel;
-  if (visibleLabel !== control.label) button.dataset.semanticLabel = "true";
+  const faceGlyph = canonicalFaceGlyph(control.face);
+  const canonicalFace = faceGlyph !== null;
+  const visibleLabel = canonicalFace
+    ? faceGlyph
+    : (control.displayLabel ?? semanticButtonLabel(control));
+  if (canonicalFace) {
+    const glyph = document.createElement("span");
+    glyph.className = "console-control__face-glyph";
+    glyph.textContent = visibleLabel;
+    const action = document.createElement("small");
+    action.className = "console-control__action-label";
+    action.textContent = control.displayLabel ?? semanticButtonLabel(control);
+    button.append(glyph, action);
+    button.dataset.canonicalFace = "true";
+  } else {
+    button.textContent = visibleLabel;
+    if (visibleLabel !== control.label) button.dataset.semanticLabel = "true";
+  }
   button.setAttribute("aria-label", control.ariaLabel);
 
   const down = (event?: PointerEvent) => {
@@ -41,6 +56,14 @@ export function mountButton(
     button.removeEventListener("pointerup", up);
     button.removeEventListener("pointercancel", up);
   };
+}
+
+function canonicalFaceGlyph(face: ButtonControl["face"]): string | null {
+  if (face === "a") return "A";
+  if (face === "b") return "B";
+  if (face === "c" || face === "x") return "C";
+  if (face === "d" || face === "y") return "D";
+  return null;
 }
 
 export function semanticButtonLabel(control: ButtonControl): string {

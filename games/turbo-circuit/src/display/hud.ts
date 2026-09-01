@@ -1,3 +1,4 @@
+import { COCKPIT_CSS, type CockpitHud, createCockpitHud } from "./cockpitHud.js";
 import { cardKicker, createTrackSvg, layer } from "./hudElements.js";
 import { TURBO_HUD_CSS } from "./hudStyles.js";
 
@@ -29,13 +30,16 @@ export interface TurboHud {
   results: HTMLElement;
   resultsBody: HTMLElement;
   wrongWay: HTMLElement;
+  pause: HTMLElement;
+  cockpit: CockpitHud;
 }
 
 export function createTurboHud(root: HTMLElement): TurboHud {
   const host = document.createElement("section");
   host.className = "turbo-circuit";
   const style = document.createElement("style");
-  style.textContent = TURBO_HUD_CSS;
+  style.textContent = `${TURBO_HUD_CSS}
+${COCKPIT_CSS}`;
 
   const canvas = document.createElement("canvas");
   canvas.className = "turbo-circuit__canvas";
@@ -44,6 +48,9 @@ export function createTurboHud(root: HTMLElement): TurboHud {
   const cameraBadge = layer("turbo-camera");
   const wrongWay = layer("turbo-wrong-way");
   wrongWay.textContent = "WRONG WAY";
+  const pause = layer("turbo-pause");
+  pause.textContent = "PAUSED";
+  const cockpit = createCockpitHud();
 
   const speed = document.createElement("div");
   speed.className = "turbo-speedometer";
@@ -56,7 +63,6 @@ export function createTurboHud(root: HTMLElement): TurboHud {
   speed.append(speedNeedle, speedValue, kmh);
 
   const nitro = layer("turbo-nitro");
-
   const minimap = document.createElement("div");
   minimap.className = "turbo-minimap";
   const mapSvg = createTrackSvg();
@@ -144,7 +150,20 @@ export function createTurboHud(root: HTMLElement): TurboHud {
   resultsHelp.textContent = "ROOM → MENU TO RACE AGAIN";
   results.append(resultsTitle, resultsBody, resultsHelp);
 
-  host.append(style, canvas, top, cameraBadge, wrongWay, speed, nitro, minimap, setup, results);
+  host.append(
+    style,
+    canvas,
+    cockpit.root,
+    top,
+    cameraBadge,
+    wrongWay,
+    pause,
+    speed,
+    nitro,
+    minimap,
+    setup,
+    results,
+  );
   root.append(host);
 
   return {
@@ -175,5 +194,7 @@ export function createTurboHud(root: HTMLElement): TurboHud {
     results,
     resultsBody,
     wrongWay,
+    pause,
+    cockpit,
   };
 }

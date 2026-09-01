@@ -8,6 +8,8 @@ export interface InputState {
   brake: number;
   boost: boolean;
   cockpit: boolean;
+  rearView: boolean;
+  pause: boolean;
 }
 export interface BotBrain {
   chaos: number;
@@ -25,6 +27,7 @@ export interface Racer {
   ready: boolean;
   autoDrive: boolean;
   cockpit: boolean;
+  rearView: boolean;
   x: number;
   z: number;
   heading: number;
@@ -45,6 +48,7 @@ export interface RaceState {
   phase: Phase;
   countdownMs: number;
   raceMs: number;
+  paused: boolean;
   lapsToWin: number;
   circuitId: CircuitId;
   track: {

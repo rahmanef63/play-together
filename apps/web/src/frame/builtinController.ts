@@ -35,6 +35,16 @@ export function mountBuiltinController(
     zones.set(zone, element);
     wrapper.append(element);
   }
+  const faceButtons = config.controls.filter(
+    (control) =>
+      control.kind === "button" &&
+      control.zone === "right" &&
+      control.face !== undefined &&
+      ["a", "b", "c", "d", "x", "y"].includes(control.face),
+  );
+  if (faceButtons.length === 4)
+    zones.get("right")?.classList.add("builtin-controller__zone--face-cluster");
+
   const cleanups = config.controls.flatMap((control) => {
     const zone = zones.get(control.zone);
     return zone ? [mountControl(zone, control, state, context)] : [];

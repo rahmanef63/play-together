@@ -3,9 +3,9 @@ import type { CircuitSpec } from "../shared/catalog.js";
 import { sampleCircuit } from "../shared/catalog.js";
 
 export function addCircuitEnvironment(group: THREE.Group, circuit: CircuitSpec) {
-  if (circuit.id === "harbor-bend") addHarbor(group);
-  else if (circuit.id === "alpine-run") addAlpine(group, circuit);
-  else addSunset(group);
+  if (circuit.id === "monza") addAlpine(group, circuit);
+  else if (circuit.id === "interlagos") addSunset(group);
+  else addSepang(group);
 }
 
 function addSunset(group: THREE.Group) {
@@ -34,14 +34,7 @@ function addSunset(group: THREE.Group) {
   }
 }
 
-function addHarbor(group: THREE.Group) {
-  const water = new THREE.Mesh(
-    new THREE.PlaneGeometry(360, 360),
-    new THREE.MeshStandardMaterial({ color: 0x286879, roughness: 0.4, metalness: 0.08 }),
-  );
-  water.rotation.x = -Math.PI / 2;
-  water.position.y = -0.07;
-  group.add(water);
+function addSepang(group: THREE.Group) {
   const colors = [0xc84e42, 0x34748a, 0xd49b3b, 0x55606e];
   for (let i = 0; i < 18; i++) {
     const box = new THREE.Mesh(

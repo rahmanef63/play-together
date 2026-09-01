@@ -7,9 +7,9 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const cases = [
     {
-      key: "turbo-circuit@0.6.1",
+      key: "turbo-circuit@0.7.0",
       title: "Turbo Circuit",
-      control: "Ready and start auto drive",
+      control: "Ready and start race",
       delay: 80,
     },
     { key: "sky-strike@0.2.6", title: "Sky Strike", control: "Fire cannon", delay: 180 },
@@ -40,22 +40,29 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
         const circuitName = frame.locator(".turbo-setup__card--circuit .turbo-setup__name");
         await expect(frame.locator('[data-asset-state="ready"]')).toBeVisible({ timeout: 20_000 });
         await expect(garage).toContainText("SELECT & READY");
-        await expect(circuitName).toContainText("Sunset Ring");
+        await expect(circuitName).toContainText("Sepang International Circuit");
         await expect(carName).toContainText("Falcon R");
         await expect(frame.locator(".turbo-setup__map svg")).toBeVisible();
         await expect(frame.locator(".turbo-setup__stats")).toContainText("ACC");
         await expect(frame.locator(".turbo-setup__stats")).toContainText("GRIP");
         await expect(frame.locator(".turbo-setup__stats")).toContainText("BRAKE");
         await expect(frame.locator(".turbo-setup__mode")).toContainText("AUTO-THROTTLE");
-        await expect(frame.locator(".turbo-setup__cta")).toHaveText("GO · READY UP");
+        await expect(frame.locator(".turbo-setup__cta")).toHaveText("START · READY UP");
         await expect(frame.locator(".turbo-speedometer")).toHaveCSS("opacity", "0");
         await expect(frame.getByRole("button", { name: "Accelerate" })).toHaveCount(0);
+        await expect(frame.getByRole("button", { name: "Nitro boost" })).toContainText("A");
+        await expect(frame.getByRole("button", { name: "Brake" })).toContainText("B");
+        await expect(
+          frame.getByRole("button", { name: "Toggle chase or driver camera" }),
+        ).toContainText("C");
+        await expect(frame.getByRole("button", { name: "Hold rear view" })).toContainText("D");
+        await expect(frame.getByRole("button", { name: "Pause or resume race" })).toBeVisible();
         await useStick(page, frame, "steer", 0.9, 0, 120);
         await expect(turbo).toHaveAttribute("data-car", "comet-gt");
         await expect(carName).toContainText("Comet GT");
         await useStick(page, frame, "steer", 0, 0.9, 120);
-        await expect(turbo).toHaveAttribute("data-circuit", "harbor-bend");
-        await expect(circuitName).toContainText("Harbor Bend");
+        await expect(turbo).toHaveAttribute("data-circuit", "monza");
+        await expect(circuitName).toContainText("Autodromo Nazionale Monza");
         await frame.getByRole("button", { name: "Toggle chase or driver camera" }).click();
         await expect(turbo).toHaveAttribute("data-camera", "driver");
       }
@@ -77,6 +84,17 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
             { timeout: 5_000 },
           )
           .toBeGreaterThan(20);
+        await expect(frame.locator(".turbo-cockpit")).toHaveAttribute("data-visible", "true");
+        const wheel = frame.locator('.turbo-cockpit [data-part="wheel"]');
+        const wheelBefore = await wheel.getAttribute("style");
+        await useStick(page, frame, "steer", -0.85, 0, 180);
+        await expect.poll(async () => wheel.getAttribute("style")).not.toBe(wheelBefore);
+        const pause = frame.getByRole("button", { name: "Pause or resume race" });
+        await pause.click();
+        await expect(turbo).toHaveAttribute("data-paused", "true");
+        await expect(frame.locator(".turbo-pause")).toHaveCSS("opacity", "1");
+        await pause.click();
+        await expect(turbo).toHaveAttribute("data-paused", "false");
         const nitro = frame.getByRole("button", { name: "Nitro boost" });
         await expect(nitro).toBeVisible();
         await nitro.click({ delay: 420 });

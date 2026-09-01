@@ -12,7 +12,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   root.replaceChildren();
   const hud = createTurboHud(root);
   const { renderer, scene, camera } = createTrackScene(hud.canvas);
-  let circuitId = circuitById("sunset-ring").id;
+  let circuitId = circuitById("sepang").id;
   let world = createCircuitWorld(scene, renderer, circuitId);
   drawCircuitMaps(hud.mapSvg, hud.setupMapSvg, circuitId);
   const vehicles = new VehicleRenderer(scene, hud.mapSvg, hud.mapDots, hud.host, ctx);

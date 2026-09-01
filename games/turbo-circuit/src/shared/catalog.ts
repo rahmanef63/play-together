@@ -1,13 +1,21 @@
-export type CircuitId = "sunset-ring" | "harbor-bend" | "alpine-run";
+import { REAL_CIRCUITS } from "./realCircuits.js";
+
+export type CircuitId = "sepang" | "monza" | "interlagos";
 export type CarId = "falcon-r" | "comet-gt" | "manta-rs";
 
 export interface CircuitSpec {
   id: CircuitId;
   name: string;
+  shortName: string;
+  location: string;
   tagline: string;
+  lengthKm: number;
+  corners: number;
+  direction: "clockwise" | "anti-clockwise";
   width: number;
   laps: number;
   palette: { sky: number; ground: number; road: number; accent: number };
+  controlPoints: Array<readonly [number, number]>;
 }
 export interface CarSpec {
   id: CarId;
@@ -27,33 +35,8 @@ export interface TrackPoint {
   index: number;
 }
 
-export const DEFAULT_CIRCUIT: CircuitSpec = {
-  id: "sunset-ring",
-  name: "Sunset Ring",
-  tagline: "Wide, fast, forgiving",
-  width: 18,
-  laps: 3,
-  palette: { sky: 0xf3a36a, ground: 0x496a35, road: 0x303237, accent: 0xf3d05c },
-};
-export const CIRCUITS: CircuitSpec[] = [
-  DEFAULT_CIRCUIT,
-  {
-    id: "harbor-bend",
-    name: "Harbor Bend",
-    tagline: "Technical dockside rhythm",
-    width: 16,
-    laps: 3,
-    palette: { sky: 0x8fc8db, ground: 0x315861, road: 0x2a3035, accent: 0x59d3c7 },
-  },
-  {
-    id: "alpine-run",
-    name: "Alpine Run",
-    tagline: "Long sweepers and elevation feel",
-    width: 17,
-    laps: 2,
-    palette: { sky: 0xbad8ef, ground: 0x496643, road: 0x34363a, accent: 0xe7ede8 },
-  },
-];
+export const CIRCUITS = REAL_CIRCUITS;
+export const DEFAULT_CIRCUIT = required(REAL_CIRCUITS[0], "Default circuit missing");
 export const DEFAULT_CAR: CarSpec = {
   id: "falcon-r",
   name: "Falcon R",
@@ -99,19 +82,19 @@ export const clamp = (value: number, min: number, max: number) =>
 export const wrapIndex = (value: number, length: number) => ((value % length) + length) % length;
 
 export function centerAt(circuit: CircuitSpec, t: number): { x: number; z: number } {
-  const c = Math.cos(t);
-  const s = Math.sin(t);
-  if (circuit.id === "harbor-bend") {
-    return { x: 62 * c + 8 * Math.cos(2 * t), z: 36 * s + 5 * Math.sin(2 * t) };
-  }
-  if (circuit.id === "alpine-run") {
-    return { x: 70 * c + 7 * Math.sin(3 * t), z: 42 * s + 5 * Math.sin(2 * t) };
-  }
-  return { x: 66 * c, z: 40 * s };
+  const points = circuit.controlPoints;
+  const scaled = ((((t / (Math.PI * 2)) % 1) + 1) % 1) * points.length;
+  const index = Math.floor(scaled);
+  const u = scaled - index;
+  const p0 = pointAt(points, index - 1);
+  const p1 = pointAt(points, index);
+  const p2 = pointAt(points, index + 1);
+  const p3 = pointAt(points, index + 2);
+  return { x: catmull(p0[0], p1[0], p2[0], p3[0], u), z: catmull(p0[1], p1[1], p2[1], p3[1], u) };
 }
 
 const cache = new Map<string, TrackPoint[]>();
-export function sampleCircuit(circuit: CircuitSpec, count = 160): TrackPoint[] {
+export function sampleCircuit(circuit: CircuitSpec, count = 180): TrackPoint[] {
   const key = `${circuit.id}:${count}`;
   const existing = cache.get(key);
   if (existing) return existing;
@@ -145,7 +128,7 @@ export function nearestTrackPoint(
   return { ...best, distance: bestDistance };
 }
 
-export function circuitCheckpoints(circuit: CircuitSpec, count = 8) {
+export function circuitCheckpoints(circuit: CircuitSpec, count = 10) {
   const points = sampleCircuit(circuit);
   return Array.from({ length: count }, (_, index) => {
     const point = pointAt(points, Math.floor((index / count) * points.length));
@@ -157,10 +140,10 @@ export function gridPose(circuit: CircuitSpec, slot: number) {
   const start = pointAt(sampleCircuit(circuit), 0);
   const row = Math.floor(slot / 2);
   const lane = slot % 2 === 0 ? -2.6 : 2.6;
-  const forwardX = Math.sin(start.heading);
-  const forwardZ = Math.cos(start.heading);
-  const rightX = Math.cos(start.heading);
-  const rightZ = -Math.sin(start.heading);
+  const forwardX = Math.sin(start.heading),
+    forwardZ = Math.cos(start.heading);
+  const rightX = Math.cos(start.heading),
+    rightZ = -Math.sin(start.heading);
   const back = 4 + row * 5.2;
   return {
     x: start.x - forwardX * back + rightX * lane,
@@ -169,8 +152,19 @@ export function gridPose(circuit: CircuitSpec, slot: number) {
   };
 }
 
+function catmull(a: number, b: number, c: number, d: number, t: number) {
+  const t2 = t * t,
+    t3 = t2 * t;
+  return (
+    0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3)
+  );
+}
 function pointAt<T>(items: T[], index: number): T {
   const item = items[wrapIndex(index, items.length)];
   if (item === undefined) throw new Error("Circuit sample is empty");
   return item;
+}
+function required<T>(value: T | undefined, message: string): T {
+  if (value === undefined) throw new Error(message);
+  return value;
 }

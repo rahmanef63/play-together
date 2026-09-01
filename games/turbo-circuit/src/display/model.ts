@@ -8,6 +8,8 @@ export interface Racer {
   ready: boolean;
   autoDrive: boolean;
   cockpit: boolean;
+  rearView: boolean;
+  steering: number;
   x: number;
   z: number;
   heading: number;
@@ -23,6 +25,7 @@ export interface TurboState {
   phase: "setup" | "countdown" | "racing" | "finished";
   countdownMs: number;
   raceMs: number;
+  paused: boolean;
   lapsToWin: number;
   circuitId: CircuitId;
   track: {

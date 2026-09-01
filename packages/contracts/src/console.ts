@@ -54,7 +54,9 @@ const consoleButtonControlSchema = z.object({
   label: z.string().min(1).max(16),
   displayLabel: z.string().min(1).max(16).optional(),
   ariaLabel,
-  face: z.enum(["a", "b", "x", "y", "start", "select", "l1", "r1", "l2", "r2"]).optional(),
+  face: z
+    .enum(["a", "b", "c", "d", "x", "y", "start", "pause", "select", "l1", "r1", "l2", "r2"])
+    .optional(),
   zone: consoleZoneSchema,
   press: consoleActionSchema,
   release: consoleActionSchema.optional(),

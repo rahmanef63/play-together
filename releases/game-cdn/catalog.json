@@ -651,6 +651,19 @@
           "maxViewports": 4
         }
       }
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.7.0",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.7.0/manifest.json",
+      "manifestSha256": "4de9605490030f374615bc6a365fc1fb10517e6c07e316ccb34e05be3b3017a9",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
     }
   ]
 }

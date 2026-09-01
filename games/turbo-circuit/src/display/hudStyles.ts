@@ -1,10 +1,11 @@
 export const TURBO_HUD_CSS = `
 .turbo-circuit{position:relative;width:100%;height:100%;min-height:320px;overflow:hidden;background:#111;color:#fff;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
 .turbo-circuit__canvas{display:block;width:100%;height:100%}
-.turbo-race-status,.turbo-camera,.turbo-wrong-way,.turbo-nitro{position:absolute;z-index:8;pointer-events:none;color:#fff;text-shadow:0 2px 4px #000}
+.turbo-race-status,.turbo-camera,.turbo-wrong-way,.turbo-pause,.turbo-nitro{position:absolute;z-index:8;pointer-events:none;color:#fff;text-shadow:0 2px 4px #000}
 .turbo-race-status{left:14px;top:14px;font:900 clamp(12px,2vw,18px)/1.2 system-ui}
 .turbo-camera{left:50%;top:14px;transform:translateX(-50%);padding:6px 10px;border:1px solid #ffffff33;background:#101318bb;font:800 11px/1 system-ui;letter-spacing:.08em}
 .turbo-wrong-way{left:50%;top:16%;transform:translateX(-50%);padding:8px 14px;background:#a9142ddd;font:900 15px/1 system-ui;letter-spacing:.1em;opacity:0;transition:opacity .12s}
+.turbo-pause{left:50%;top:50%;transform:translate(-50%,-50%);padding:12px 18px;border:2px solid #f0c85f;background:#090b0ee8;font:1000 20px/1 system-ui;letter-spacing:.14em;opacity:0;transition:opacity .12s}
 .turbo-speedometer{position:absolute;z-index:8;left:12px;bottom:12px;width:clamp(108px,18vw,152px);aspect-ratio:1;border-radius:50%;background:#0b0d10dd;border:3px solid #e9e3d4;box-shadow:0 4px 18px #0008;pointer-events:none;transition:opacity .18s}
 .turbo-speedometer__needle{position:absolute;left:49%;top:21%;width:3px;height:38%;background:#e2473f;transform-origin:50% 78%;transform:rotate(-125deg);border-radius:3px}
 .turbo-speedometer__value{position:absolute;left:50%;bottom:20%;transform:translateX(-50%);font:900 clamp(20px,4vw,32px)/1 system-ui;color:white;white-space:nowrap}

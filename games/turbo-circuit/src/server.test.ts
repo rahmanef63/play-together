@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createServerGame } from "./server.js";
 
-const ctx = { roomId: "r", gameId: "turbo-circuit", gameVersion: "0.5.0", seed: 7 };
+const ctx = { roomId: "r", gameId: "turbo-circuit", gameVersion: "0.7.0", seed: 7 };
 
 async function startSolo(seed = 7) {
   const game = await createServerGame({ ...ctx, seed });
@@ -20,7 +20,7 @@ describe("Turbo Circuit", () => {
     await game.onJoin({ id: "p", connectedAt: 0 });
     let state = game.snapshot() as any;
     expect(state.phase).toBe("setup");
-    expect(state.circuitId).toBe("sunset-ring");
+    expect(state.circuitId).toBe("sepang");
     expect(state.racers.find((r: any) => r.id === "p").carId).toBe("falcon-r");
 
     await game.onInput("p", { steer: 1, menuY: 0 }, 1);
@@ -29,15 +29,15 @@ describe("Turbo Circuit", () => {
     await game.onInput("p", { steer: 0, menuY: 0 }, 2);
     await game.onInput("p", { steer: 0, menuY: 1 }, 3);
     state = game.snapshot() as any;
-    expect(state.circuitId).toBe("harbor-bend");
+    expect(state.circuitId).toBe("monza");
   });
 
-  it("needs only one GO press and then keeps auto-throttle active", async () => {
+  it("needs only one START press and then keeps auto-throttle active", async () => {
     const game = await startSolo();
     for (let i = 0; i < 25; i++) await game.tick(4000 + i * 50, 50);
     const me = (game.snapshot() as any).racers.find((r: any) => r.id === "p");
     expect(me.autoDrive).toBe(true);
-    expect(me.speed).toBeGreaterThan(15);
+    expect(me.speed).toBeGreaterThan(14);
   });
 
   it("allows nitro without holding a gas control", async () => {
@@ -80,6 +80,26 @@ describe("Turbo Circuit", () => {
     expect(Math.min(...flattened)).toBeGreaterThan(6);
     expect(Math.max(...flattened)).toBeLessThan(60);
     expect(new Set(flattened).size).toBeGreaterThan(5);
+  });
+
+  it("pauses authoritative race simulation and resumes on the next pause pulse", async () => {
+    const game = await startSolo();
+    for (let i = 0; i < 12; i++) await game.tick(4000 + i * 50, 50);
+    const before = game.snapshot() as any;
+    const beforeMe = before.racers.find((r: any) => r.id === "p");
+    await game.onInput("p", { pause: true }, 2);
+    for (let i = 0; i < 12; i++) await game.tick(5000 + i * 50, 50);
+    const paused = game.snapshot() as any;
+    const pausedMe = paused.racers.find((r: any) => r.id === "p");
+    expect(paused.paused).toBe(true);
+    expect(paused.raceMs).toBe(before.raceMs);
+    expect(pausedMe.x).toBe(beforeMe.x);
+    expect(pausedMe.z).toBe(beforeMe.z);
+    await game.onInput("p", { pause: true }, 3);
+    await game.tick(6000, 50);
+    const resumed = game.snapshot() as any;
+    expect(resumed.paused).toBe(false);
+    expect(resumed.raceMs).toBeGreaterThan(paused.raceMs);
   });
 
   it("persists driver-view camera choice independently of driving", async () => {

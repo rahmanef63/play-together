@@ -18,7 +18,7 @@ export function updateGarageHud(state: TurboState, me: Racer, hud: TurboHud) {
   );
 
   hud.setupCircuit.textContent = `${circuitIndex + 1}/${CIRCUITS.length} · ${circuit.name}`;
-  hud.setupCircuitMeta.textContent = `↑↓ SELECT · ${circuit.laps} LAPS · ${circuit.tagline}`;
+  hud.setupCircuitMeta.textContent = `↑↓ SELECT · ${circuit.lengthKm.toFixed(3)} KM · ${circuit.corners} TURNS · ${circuit.location}`;
   hud.setupCar.textContent = `${carIndex + 1}/${CARS.length} · ${car.name}`;
   hud.setup.style.setProperty("--car-color", colorHex(car.color));
   hud.setupTrait.textContent = `←→ SELECT · ${car.trait.toUpperCase()} · TOP ${Math.round(car.topSpeed * 4.2)} KM/H`;
@@ -36,12 +36,12 @@ export function updateGarageHud(state: TurboState, me: Racer, hud: TurboHud) {
   hud.setupRoster.textContent = humans
     .map((racer, index) => `P${index + 1} ${racer.ready ? "READY" : "PICKING"}`)
     .join("  /  ");
-  hud.setupCta.textContent = me.ready ? "READY ✓" : "GO · READY UP";
+  hud.setupCta.textContent = me.ready ? "READY ✓" : "START · READY UP";
   hud.setupCta.dataset.ready = me.ready ? "true" : "false";
   hud.setupHelp.textContent =
     humans[0]?.id === me.id
-      ? "STICK ← → CAR  ·  STICK ↑ ↓ CIRCUIT  ·  GO READY  ·  RACE AUTO-DRIVES  ·  BRAKE / BOOST / VIEW"
-      : "STICK ← → CAR  ·  P1 SELECTS CIRCUIT  ·  GO READY  ·  RACE AUTO-DRIVES  ·  BRAKE / BOOST / VIEW";
+      ? "STICK ← → CAR  ·  STICK ↑ ↓ CIRCUIT  ·  START READY  ·  A BOOST · B BRAKE · C VIEW · D REAR · PAUSE"
+      : "STICK ← → CAR  ·  P1 SELECTS CIRCUIT  ·  START READY  ·  A BOOST · B BRAKE · C VIEW · D REAR · PAUSE";
 }
 
 function stat(value: number, min: number, max: number) {

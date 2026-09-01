@@ -23,7 +23,7 @@
   grid-template-rows: minmax(0, 1fr) auto;
   grid-template-areas:
     "left right"
-    "left bottom-right";
+    "bottom bottom";
   column-gap: clamp(18px, 6vw, 64px);
   row-gap: var(--console-space-md);
 }
@@ -115,7 +115,7 @@
     grid-template-rows: minmax(0, 1fr) auto;
     grid-template-areas:
       "left right"
-      "left bottom-right";
+      "bottom bottom";
     column-gap: clamp(10px, 3vw, 18px);
     row-gap: 10px;
     padding: 10px 8px;
@@ -164,4 +164,20 @@
     grid-template-columns: repeat(2, minmax(54px, 68px));
     gap: 6px;
   }
+}
+
+.console-shell--remote .builtin-controller--racing .builtin-controller__zone--bottom {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+.console-shell--remote
+  .builtin-controller--racing
+  .builtin-controller__zone--bottom
+  .console-control--button {
+  width: clamp(68px, 14vmin, 96px);
+  min-height: 34px;
+  aspect-ratio: 2.4 / 1;
+  border-radius: 999px;
+  font-size: clamp(8px, 1.8vmin, 12px);
 }

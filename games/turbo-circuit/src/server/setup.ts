@@ -11,9 +11,9 @@ import {
 import type { InputState, Racer, RaceState } from "./raceModel.js";
 
 export function applySetupInput(state: RaceState, racer: Racer, patch: Partial<InputState>) {
-  if (Math.abs(racer.input.steer) < 0.32) racer.menuXActive = false;
-  if (Math.abs(racer.input.menuY) < 0.32) racer.menuYActive = false;
-  if (Math.abs(racer.input.steer) > 0.68 && !racer.menuXActive) {
+  if (Math.abs(racer.input.steer) < 0.3) racer.menuXActive = false;
+  if (Math.abs(racer.input.menuY) < 0.3) racer.menuYActive = false;
+  if (Math.abs(racer.input.steer) > 0.52 && !racer.menuXActive) {
     racer.menuXActive = true;
     const index = CARS.findIndex((car) => car.id === racer.carId);
     racer.carId =
@@ -22,7 +22,7 @@ export function applySetupInput(state: RaceState, racer: Racer, patch: Partial<I
   }
   const humans = state.racers.filter((item) => !item.bot);
   const leader = humans[0];
-  if (leader?.id === racer.id && Math.abs(racer.input.menuY) > 0.68 && !racer.menuYActive) {
+  if (leader?.id === racer.id && Math.abs(racer.input.menuY) > 0.52 && !racer.menuYActive) {
     racer.menuYActive = true;
     const index = CIRCUITS.findIndex((circuit) => circuit.id === state.circuitId);
     const next =

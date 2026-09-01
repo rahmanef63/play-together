@@ -1,6 +1,7 @@
 import type { ControllerMode } from "@play-together/contracts";
 import * as THREE from "three";
 import { circuitById, nearestTrackPoint } from "../shared/catalog.js";
+import { updateCockpitHud } from "./cockpitHud.js";
 import { updateGarageHud } from "./garagePresenter.js";
 import type { TurboHud } from "./hud.js";
 import { clamp, smoothing } from "./math.js";
@@ -22,6 +23,7 @@ export function updateCameraAndHud(
   hud: TurboHud,
 ) {
   if (state.phase === "setup") updateSetupCamera(state, camera, cameraState, dt);
+  else if (me.rearView) updateRearCamera(pose, camera, cameraState, dt);
   else if (me.cockpit) updateDriverCamera(me, pose, camera, cameraState, dt);
   else updateChaseCamera(me, pose, camera, cameraState, dt, mode);
   updateHud(state, me, pose, hud);
@@ -68,6 +70,24 @@ function updateDriverCamera(
   cameraState.ready = true;
 }
 
+function updateRearCamera(
+  pose: RacerPose,
+  camera: THREE.PerspectiveCamera,
+  cameraState: CameraState,
+  dt: number,
+) {
+  const forwardX = Math.sin(pose.heading);
+  const forwardZ = Math.cos(pose.heading);
+  const desired = new THREE.Vector3(pose.x - forwardX * 0.45, 1.55, pose.z - forwardZ * 0.45);
+  const target = new THREE.Vector3(pose.x - forwardX * 18, 1.3, pose.z - forwardZ * 18);
+  camera.fov = THREE.MathUtils.lerp(camera.fov, 68, smoothing(8, dt));
+  camera.updateProjectionMatrix();
+  camera.position.lerp(desired, cameraState.ready ? smoothing(18, dt) : 1);
+  cameraState.target.lerp(target, cameraState.ready ? smoothing(20, dt) : 1);
+  camera.lookAt(cameraState.target);
+  cameraState.ready = true;
+}
+
 function updateChaseCamera(
   me: Racer,
   pose: RacerPose,
@@ -104,7 +124,8 @@ function updateHud(state: TurboState, me: Racer, pose: RacerPose, hud: TurboHud)
   hud.host.dataset.phase = state.phase;
   hud.host.dataset.circuit = state.circuitId;
   hud.host.dataset.car = me.carId;
-  hud.host.dataset.camera = me.cockpit ? "driver" : "chase";
+  hud.host.dataset.camera = me.rearView ? "rear" : me.cockpit ? "driver" : "chase";
+  hud.host.dataset.paused = state.paused ? "true" : "false";
   hud.setup.style.display = inSetup ? "grid" : "none";
   hud.speed.style.opacity = inSetup ? "0" : "1";
   hud.nitro.style.opacity = inSetup ? "0" : "1";
@@ -113,7 +134,12 @@ function updateHud(state: TurboState, me: Racer, pose: RacerPose, hud: TurboHud)
   hud.top.style.opacity = inSetup ? "0" : "1";
   updateGarageHud(state, me, hud);
 
-  hud.cameraBadge.textContent = me.cockpit ? "DRIVER VIEW" : "CHASE VIEW";
+  hud.cameraBadge.textContent = me.rearView
+    ? "REAR VIEW"
+    : me.cockpit
+      ? "DRIVER VIEW"
+      : "CHASE VIEW";
+  hud.pause.style.opacity = state.paused ? "1" : "0";
   hud.results.style.display = state.phase === "finished" ? "block" : "none";
   if (state.phase === "finished") {
     const result = [...state.racers]
@@ -131,6 +157,12 @@ function updateHud(state: TurboState, me: Racer, pose: RacerPose, hud: TurboHud)
   }
 
   const kmh = Math.round(Math.max(0, me.speed) * 4.2);
+  updateCockpitHud(hud.cockpit, {
+    visible: !inSetup && me.cockpit,
+    steering: me.steering,
+    speedKmh: kmh,
+    rearView: me.rearView,
+  });
   hud.speedValue.textContent = String(kmh);
   hud.speedNeedle.style.transform = `rotate(${-125 + clamp(kmh / 235, 0, 1) * 250}deg)`;
   hud.nitro.textContent = `N₂O ${Math.round(me.nitro)}%`;

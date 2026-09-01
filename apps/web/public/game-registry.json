@@ -1043,9 +1043,9 @@
     },
     {
       "id": "turbo-circuit",
-      "version": "0.6.1",
+      "version": "0.7.0",
       "title": "Turbo Circuit",
-      "description": "A PS1-inspired couple racer with a visual garage, car and circuit previews, auto-throttle, chase/driver cameras, analog speedometer, nitro, collisions, and chaotic CPU rivals.",
+      "description": "A mobile-first real-circuit racer with PS1-style garage flow, auto-throttle, A/B/C/D console controls, server-authoritative pause, chase/driver/rear cameras, a dynamic SVG cockpit, nitro, collisions, and chaotic CPU rivals.",
       "modes": ["shared-screen", "handheld"],
       "capabilities": {
         "touch": true,
@@ -1094,28 +1094,34 @@
               }
             },
             {
-              "id": "drive",
+              "id": "boost",
               "kind": "button",
-              "label": "GO",
-              "displayLabel": "GO",
-              "ariaLabel": "Ready and start auto drive",
-              "face": "r2",
+              "label": "A",
+              "displayLabel": "BOOST",
+              "ariaLabel": "Nitro boost",
+              "face": "a",
               "zone": "right",
               "press": {
-                "type": "send",
-                "payload": {
-                  "drive": true
+                "type": "patch",
+                "values": {
+                  "boost": true
                 }
               },
-              "keys": ["Enter", "KeyG"]
+              "release": {
+                "type": "patch",
+                "values": {
+                  "boost": false
+                }
+              },
+              "keys": ["Space"]
             },
             {
               "id": "brake",
               "kind": "button",
-              "label": "BRAKE",
+              "label": "B",
               "displayLabel": "BRAKE",
               "ariaLabel": "Brake",
-              "face": "l2",
+              "face": "b",
               "zone": "right",
               "press": {
                 "type": "patch",
@@ -1132,40 +1138,74 @@
               "keys": ["ArrowDown"]
             },
             {
-              "id": "boost",
-              "kind": "button",
-              "label": "BOOST",
-              "displayLabel": "BOOST",
-              "ariaLabel": "Nitro boost",
-              "face": "a",
-              "zone": "bottom-right",
-              "press": {
-                "type": "patch",
-                "values": {
-                  "boost": true
-                }
-              },
-              "release": {
-                "type": "patch",
-                "values": {
-                  "boost": false
-                }
-              },
-              "keys": ["Space"]
-            },
-            {
               "id": "camera",
               "kind": "button",
-              "label": "VIEW",
+              "label": "C",
               "displayLabel": "VIEW",
               "ariaLabel": "Toggle chase or driver camera",
-              "face": "y",
-              "zone": "bottom-right",
+              "face": "c",
+              "zone": "right",
               "press": {
                 "type": "toggle",
                 "field": "cockpit"
               },
               "keys": ["KeyV"]
+            },
+            {
+              "id": "rear-view",
+              "kind": "button",
+              "label": "D",
+              "displayLabel": "REAR",
+              "ariaLabel": "Hold rear view",
+              "face": "d",
+              "zone": "right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "rearView": true
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "rearView": false
+                }
+              },
+              "keys": ["KeyR"]
+            },
+            {
+              "id": "start",
+              "kind": "button",
+              "label": "START",
+              "ariaLabel": "Ready and start race",
+              "face": "start",
+              "zone": "bottom",
+              "press": {
+                "type": "send",
+                "payload": {
+                  "drive": true
+                }
+              },
+              "keys": ["Enter", "KeyG"]
+            },
+            {
+              "id": "pause",
+              "kind": "button",
+              "label": "PAUSE",
+              "ariaLabel": "Pause or resume race",
+              "face": "pause",
+              "zone": "bottom",
+              "press": {
+                "type": "pulse",
+                "values": {
+                  "pause": true
+                },
+                "releaseValues": {
+                  "pause": false
+                },
+                "durationMs": 80
+              },
+              "keys": ["Escape", "KeyP"]
             }
           ],
           "initialState": {
@@ -1173,7 +1213,9 @@
             "menuY": 0,
             "brake": 0,
             "boost": false,
-            "cockpit": false
+            "cockpit": false,
+            "rearView": false,
+            "pause": false
           }
         }
       },
