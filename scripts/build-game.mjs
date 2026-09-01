@@ -29,10 +29,13 @@ const common = {
   logLevel: "warning",
 };
 const builtinController = config?.controller?.console?.renderer === "builtin";
+const runtimeDependencies = normalizeRuntimeDependencies(config?.runtimeDependencies);
+const runtimePlugin = createRuntimeDependencyPlugin(runtimeDependencies);
 const buildTasks = [
   build({
     ...common,
     platform: "browser",
+    plugins: [runtimePlugin],
     entryPoints: [resolve(gameRoot, "src/display.ts")],
     outfile: resolve(outdir, "display.js"),
   }),
@@ -48,6 +51,7 @@ if (!builtinController) {
     build({
       ...common,
       platform: "browser",
+      plugins: [runtimePlugin],
       entryPoints: [resolve(gameRoot, "src/controller.ts")],
       outfile: resolve(outdir, "controller.js"),
     }),
@@ -119,3 +123,31 @@ const { presentation: _hostPresentation, ...releaseConfig } = config;
 const manifest = { ...releaseConfig, entries, ...(assets ? { assets } : {}) };
 await writeFile(resolve(outdir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`${manifest.game.id}@${manifest.game.version}`);
+
+function normalizeRuntimeDependencies(value) {
+  if (value === undefined) return {};
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("runtimeDependencies must be an object");
+  }
+  const normalized = {};
+  for (const [name, version] of Object.entries(value)) {
+    if (!/^[a-z0-9@][a-z0-9@/._-]{0,79}$/.test(name) || typeof version !== "string") {
+      throw new Error(`Invalid runtime dependency: ${name}`);
+    }
+    normalized[name] = version;
+  }
+  return normalized;
+}
+
+function createRuntimeDependencyPlugin(dependencies) {
+  return {
+    name: "play-together-runtime-dependencies",
+    setup(buildContext) {
+      buildContext.onResolve({ filter: /^[^./]/ }, (args) => {
+        const version = dependencies[args.path];
+        if (!version) return undefined;
+        return { path: `@play-together/runtime/${args.path}@${version}`, external: true };
+      });
+    },
+  };
+}

@@ -43,11 +43,14 @@ for (const release of releases) {
   if (digest !== release.manifestSha256) {
     throw new Error(`Catalog digest mismatch for ${release.gameId}@${release.version}`);
   }
+  const presentation = await presentationForRelease(release);
   await retryManifestFetch(() =>
     client.action(makeFunctionReference("games:publish"), {
       manifestUrl: new URL(release.manifestPath, `${cdnOrigin.replace(/\/$/, "")}/`).toString(),
       manifestSha256: digest,
       publishToken,
+      remoteDisplayMode: presentation.mode,
+      maxViewports: presentation.maxViewports,
     }),
   );
   console.log(`Published ${release.gameId}@${release.version} to Convex`);
@@ -73,4 +76,30 @@ async function loadEnvironment(path) {
     }
   } catch {}
   return values;
+}
+
+async function presentationForRelease(release) {
+  const catalogPolicy = normalizePresentation(release.presentation?.remoteDisplay);
+  if (catalogPolicy) return catalogPolicy;
+  try {
+    const config = JSON.parse(
+      await readFile(resolve(`games/${release.gameId}/game.config.json`), "utf8"),
+    );
+    if (config?.game?.version === release.version) {
+      return (
+        normalizePresentation(config.presentation?.remoteDisplay) ?? {
+          mode: "shared",
+          maxViewports: 1,
+        }
+      );
+    }
+  } catch {}
+  return { mode: "shared", maxViewports: 1 };
+}
+
+function normalizePresentation(value) {
+  if (!value || typeof value !== "object") return null;
+  if (value.mode !== "per-player") return { mode: "shared", maxViewports: 1 };
+  const count = Number.isInteger(value.maxViewports) ? value.maxViewports : 1;
+  return { mode: "per-player", maxViewports: Math.max(1, Math.min(4, count)) };
 }

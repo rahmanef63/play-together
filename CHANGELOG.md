@@ -14,6 +14,20 @@ All notable changes to Play Together are documented here. The project follows se
 - Turbo Circuit mobile input is now two-thumb friendly: `GO` is pressed once to latch auto-throttle, `BRAKE` and `BOOST` remain direct controls, `VIEW` toggles the camera, and continuous `GAS`/throttle input has been removed. Boost works whenever the car is already moving and no longer depends on holding gas.
 - Turbo Circuit `0.5.0` is retained as an immutable intermediate release; `0.5.1` is the refined release with smoothed CPU chaos, garage stat bars, race timer, and results board.
 
+## [0.11.6] - 2026-09-01
+
+### Changed
+
+- Consolidated live game discovery and display presentation around the Convex catalog plus SHA-pinned immutable manifests; `game-registry.json` is now tooling-only at runtime.
+- Removed game/action-ID knowledge from the controller engine. Racing/flight remain reusable semantic shell presets rather than game-specific branches.
+- Added fixed, SHA-pinned engine-vendor ABI surfaces. Turbo Circuit `0.5.3`, Sky Strike `0.2.6`, and Flight Trainer `0.2.6` share `three@0.185.1+pt1` instead of bundling Three.js independently.
+- Made gameplay preview capture discovery-driven so game/version/player requirements come from game slices instead of hardcoded action scripts.
+
+### Performance
+
+- Reduced the combined raw display payload for the three current 3D cartridges from about 1.63 MB to about 573 KB; combined gzip payload drops from about 415 KB to about 150 KB while keeping SHA verification.
+- Verified manifests, modules, assets, and shared runtime vendors now reuse immutable browser caching by URL + SHA instead of forcing repeated `no-store` downloads.
+
 ## [0.11.5] - 2026-09-01
 
 ### Fixed

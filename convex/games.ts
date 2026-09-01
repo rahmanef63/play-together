@@ -3,13 +3,16 @@ import { ConvexError, v } from "convex/values";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { action, internalMutation, internalQuery, query } from "./_generated/server";
-import { selectLatestPublishedByGame } from "./_shared/gameCatalog";
+import { selectLatestPublishedByGame, toPublicGameSummary } from "./_shared/gameCatalog";
+import { normalizeRemoteDisplay } from "./_shared/gamePresentation";
 import { requireQueryUser } from "./_shared/guards";
 
 const publicationArgs = {
   manifestUrl: v.string(),
   manifestSha256: v.string(),
   publishToken: v.string(),
+  remoteDisplayMode: v.optional(v.union(v.literal("shared"), v.literal("per-player"))),
+  maxViewports: v.optional(v.number()),
 };
 
 export const listPublished = query({
@@ -92,6 +95,7 @@ export const publish = action({
       });
     }
     const manifest = gameManifestSchema.parse(JSON.parse(new TextDecoder().decode(bytes)));
+    const presentation = normalizeRemoteDisplay(args.remoteDisplayMode, args.maxViewports);
     return await ctx.runMutation(internal.games.upsertPublishedInternal, {
       gameId: manifest.game.id,
       version: manifest.game.version,
@@ -105,6 +109,8 @@ export const publish = action({
       supportsRemote: manifest.controller.supportsRemote,
       supportsHandheld: manifest.controller.supportsHandheld,
       preferredOrientation: manifest.controller.preferredOrientation,
+      remoteDisplayMode: presentation.mode,
+      maxViewports: presentation.maxViewports,
     });
   },
 });
@@ -127,6 +133,8 @@ export const upsertPublishedInternal = internalMutation({
       v.literal("landscape"),
       v.literal("adaptive"),
     ),
+    remoteDisplayMode: v.union(v.literal("shared"), v.literal("per-player")),
+    maxViewports: v.number(),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db
@@ -162,34 +170,4 @@ function mapFetchUrl(publicUrl: string, encodedMap: string | undefined): string 
   internalAddress.pathname = publicAddress.pathname;
   internalAddress.search = publicAddress.search;
   return internalAddress.toString();
-}
-
-function toPublicGameSummary(game: {
-  gameId: string;
-  version: string;
-  title: string;
-  description: string;
-  minPlayers: number;
-  maxPlayers: number;
-  modes: Array<"shared-screen" | "handheld">;
-  supportsRemote: boolean;
-  supportsHandheld: boolean;
-  preferredOrientation?: "portrait" | "landscape" | "adaptive";
-  manifestUrl: string;
-  manifestSha256: string;
-}) {
-  return {
-    gameId: game.gameId,
-    version: game.version,
-    title: game.title,
-    description: game.description,
-    minPlayers: game.minPlayers,
-    maxPlayers: game.maxPlayers,
-    modes: game.modes,
-    supportsRemote: game.supportsRemote,
-    supportsHandheld: game.supportsHandheld,
-    preferredOrientation: game.preferredOrientation ?? "adaptive",
-    manifestUrl: game.manifestUrl,
-    manifestSha256: game.manifestSha256,
-  };
 }

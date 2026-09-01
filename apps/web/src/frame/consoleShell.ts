@@ -1,6 +1,4 @@
-import type { GameManifest } from "@play-together/contracts";
-
-export type ConsoleShellPreset = "classic" | "racing" | "flight";
+import type { ConsoleShellPreset, GameManifest } from "@play-together/contracts";
 export type ConsoleShellMode = "handheld" | "remote";
 
 export interface ConsoleShellSurface {
@@ -10,10 +8,11 @@ export interface ConsoleShellSurface {
 }
 
 export function resolveConsoleShellPreset(manifest: GameManifest): ConsoleShellPreset {
+  if (manifest.controller.shellPreset) return manifest.controller.shellPreset;
   const layout = manifest.controller.console?.layout;
   if (layout === "racing") return "racing";
   if (layout === "flight") return "flight";
-  return manifest.controller.shellPreset ?? "classic";
+  return "classic";
 }
 
 export function mountConsoleShell(

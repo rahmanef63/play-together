@@ -1,6 +1,6 @@
 {
   "name": "play-together",
-  "version": "0.11.5",
+  "version": "0.11.6",
   "private": true,
   "description": "Version-isolated multiplayer game platform with mobile controllers and shared browser displays.",
   "packageManager": "pnpm@10.32.1",
@@ -47,9 +47,10 @@
     "game:tools:sync": "node scripts/sync-game-tools.mjs",
     "mcp:game": "node scripts/game-mcp-server.mjs",
     "game:tool": "node scripts/game-tool.mjs",
-    "prepare:web": "pnpm pwa:stamp && pnpm docs:sync",
+    "prepare:web": "pnpm engine:vendors && pnpm pwa:stamp && pnpm docs:sync",
     "web:build:check": "node scripts/check-web-build.mjs",
-    "workspace:build": "node scripts/run-workspace-build.mjs"
+    "workspace:build": "node scripts/run-workspace-build.mjs",
+    "engine:vendors": "node scripts/build-engine-vendors.mjs"
   },
   "dependencies": {
     "@auth/core": "0.41.3",

@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "flight-trainer",
-    "version": "0.2.4",
+    "version": "0.2.6",
     "title": "Flight Trainer",
     "description": "A 3D flight-training simulator with throttle, pitch, roll, yaw, flaps, landing gear, stall/crash physics, instruments and checkpoint navigation.",
     "minPlayers": 1,
@@ -12,6 +12,9 @@
     "snapshotRate": 20
   },
   "modes": ["shared-screen", "handheld"],
+  "runtimeDependencies": {
+    "three": "0.185.1+pt1"
+  },
   "presentation": {
     "remoteDisplay": {
       "mode": "per-player",
@@ -154,7 +157,7 @@
             "max": 1
           },
           "keys": ["Minus"],
-          "displayLabel": "THR −"
+          "displayLabel": "THR \u2212"
         },
         {
           "id": "restart",

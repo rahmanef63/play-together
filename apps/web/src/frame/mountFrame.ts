@@ -10,6 +10,7 @@ import { mountConsoleShell, resolveConsoleShellPreset } from "./consoleShell";
 import { mountDisplayManager } from "./displayManager";
 import { createGameContext } from "./gameContext";
 import type { FrameInitMessage, FramePresentationMessage } from "./protocol";
+import { type RuntimeImportSource, resolveRuntimeImports } from "./runtimeDependencies";
 
 export interface FrameRuntimeState {
   assetCache: Map<string, Promise<Blob>>;
@@ -28,6 +29,7 @@ export async function mountFrame(
   const manifest = await fetchVerifiedManifest(message.manifestUrl, message.manifestSha256);
   if (manifest.game.id !== message.gameId || manifest.game.version !== message.gameVersion)
     throw new Error("Pinned game version does not match its manifest");
+  const runtimeImports = resolveRuntimeImports(manifest);
   const contextState = {
     assetCache: state.assetCache,
     getLatestSnapshot: state.getLatestSnapshot,
@@ -46,7 +48,7 @@ export async function mountFrame(
     manifest.controller.console?.renderer === "builtin" ? manifest.controller.console : undefined;
 
   if (message.role === "controller" && message.mode === "handheld") {
-    const displayModule = await loadDisplay(message, manifest.entries.display);
+    const displayModule = await loadDisplay(message, manifest.entries.display, runtimeImports);
     const surface = mountConsoleShell(root, {
       mode: "handheld",
       preset,
@@ -61,6 +63,7 @@ export async function mountFrame(
           message,
           manifest.entries.controller,
           createContext(),
+          runtimeImports,
         );
     state.post({ type: "ready", title: manifest.game.title });
     return () => {
@@ -80,6 +83,7 @@ export async function mountFrame(
           message,
           manifest.entries.controller,
           createContext(),
+          runtimeImports,
         );
     state.post({ type: "ready", title: manifest.game.title });
     return () => {
@@ -89,7 +93,7 @@ export async function mountFrame(
     };
   }
 
-  const displayModule = await loadDisplay(message, manifest.entries.display);
+  const displayModule = await loadDisplay(message, manifest.entries.display, runtimeImports);
   const manager = mountDisplayManager(root, displayModule, message, (playerRef) =>
     createContext(playerRef),
   );
@@ -113,10 +117,12 @@ export async function mountFrame(
 async function loadDisplay(
   message: FrameInitMessage,
   entry: { url: string; sha256: string },
+  runtimeImports: Readonly<Record<string, RuntimeImportSource>>,
 ): Promise<DisplayGameModule> {
   const module = await importVerifiedModule<DisplayGameModule>(
     resolveModuleUrl(message.manifestUrl, entry.url),
     entry.sha256,
+    runtimeImports,
   );
   if (!("mountDisplay" in module))
     throw new Error("Game bundle does not implement the display surface");
@@ -128,11 +134,13 @@ async function mountLegacyController(
   message: FrameInitMessage,
   entry: { url: string; sha256: string } | undefined,
   context: ReturnType<typeof createGameContext>,
+  runtimeImports: Readonly<Record<string, RuntimeImportSource>>,
 ) {
   if (!entry) throw new Error("Legacy controller entry is missing");
   const module = await importVerifiedModule<ControllerGameModule>(
     resolveModuleUrl(message.manifestUrl, entry.url),
     entry.sha256,
+    runtimeImports,
   );
   if (!("mountController" in module))
     throw new Error("Game bundle does not implement the controller surface");

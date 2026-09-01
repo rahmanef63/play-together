@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vite build",
-    "dev": "vite --host 0.0.0.0",
+    "build": "node ../../scripts/build-engine-vendors.mjs && vite build",
+    "dev": "node ../../scripts/build-engine-vendors.mjs && vite --host 0.0.0.0",
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests"
@@ -18,7 +18,8 @@
     "convex": "1.45.0",
     "qrcode": "1.5.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "three": "0.185.1"
   },
   "devDependencies": {
     "@types/qrcode": "1.5.6",

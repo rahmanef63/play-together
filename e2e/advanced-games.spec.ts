@@ -7,13 +7,13 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const cases = [
     {
-      key: "turbo-circuit@0.5.1",
+      key: "turbo-circuit@0.5.3",
       title: "Turbo Circuit",
       control: "Ready and start auto drive",
       delay: 80,
     },
-    { key: "sky-strike@0.2.4", title: "Sky Strike", control: "Fire cannon", delay: 180 },
-    { key: "flight-trainer@0.2.4", title: "Flight Trainer", control: "Throttle up", delay: 0 },
+    { key: "sky-strike@0.2.6", title: "Sky Strike", control: "Fire cannon", delay: 180 },
+    { key: "flight-trainer@0.2.6", title: "Flight Trainer", control: "Throttle up", delay: 0 },
   ];
   const context = await browser.newContext({ viewport: { width: 844, height: 390 } });
   const page = await context.newPage();

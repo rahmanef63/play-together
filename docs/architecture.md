@@ -63,7 +63,7 @@ The shell verifies the manifest and browser bundle bytes before import. It mount
 
 The game does not receive Convex credentials, room password, publish token, or raw ticket secret.
 
-A browser game slice may bundle its own third-party renderer (for example Three.js) when the dependency is declared in that game package. The platform does not import that renderer, and server authority must never depend on it. This keeps richer 3D cartridges isolated: renderer upgrades change only that game's next immutable release.
+Browser game modules may declare engine-provided browser dependencies through `runtimeDependencies`. The engine resolves only explicitly supported ABI surfaces, SHA-verifies their bytes, and imports them inside the sandbox as verified Blob modules. Current 3D games share `three@0.185.1+pt1`; `+pt1` is a fixed Play Together export surface, not a floating npm alias. If a future game needs another Three export, create `+pt2` rather than changing the bytes behind `+pt1`. Server authority never depends on browser renderer vendors.
 
 ## Server isolation
 
@@ -89,6 +89,16 @@ Maintained implementation files have a 200-line budget enforced by `scripts/chec
 
 Visual SSOT follows the same ownership: app tokens live under `apps/web/src/styles`, game-frame tokens under `apps/web/src/frame/styles`, feature rules are colocated, and legacy compatibility overrides are isolated explicitly.
 
+## Runtime metadata SSOT
+
+Runtime metadata has three owners and must not be duplicated:
+
+1. **Convex published catalog** — playable release identity plus mutable host presentation policy such as shared/per-player display. Rooms copy this policy when created.
+2. **Immutable game manifest** — controller definition, capabilities, module/assets digests, and declared browser runtime dependencies.
+3. **Engine runtime** — generic manifest interpreter, sandbox, verified loader, and reusable shell presets. It must not branch on game IDs, control IDs, or mechanic labels.
+
+`apps/web/public/game-registry.json` is a generated tooling/developer snapshot only. Lobby/play runtime must use Convex plus the SHA-pinned manifest, so a stale static registry cannot change live behavior. Engine resources and cartridge resources use immutable HTTP caching but are still SHA-verified before execution.
+
 ## Vertical slices
 
 ### Identity
@@ -97,7 +107,7 @@ Visual SSOT follows the same ownership: app tokens live under `apps/web/src/styl
 
 ### Game publication
 
-`games/<id>/game.config.json` → discovery/registry generator → shared build script → immutable manifest/CDN files → `convex/games` registry. Each game folder is one vertical slice and the portal derives discovery metadata from the generated registry rather than a hardcoded list.
+`games/<id>/game.config.json` → discovery → shared build script → immutable manifest/CDN files → `convex/games` catalog. Each game folder is one vertical slice. The generated static registry is for tooling/previews; user-facing runtime discovery comes from Convex and each selected manifest is SHA-verified.
 
 ### Room admission
 

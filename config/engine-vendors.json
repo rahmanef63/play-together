@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "vendors": {
+    "three": {
+      "0.185.1+pt1": {
+        "packageVersion": "0.185.1",
+        "url": "/engine-vendors/three@0.185.1+pt1.js",
+        "sha256": "8be77be296a8884470e08c9de0de76fcde59bb4c1a04b3b44eb29ea1639eeab3",
+        "exports": [
+          "BoxGeometry",
+          "BufferGeometry",
+          "ConeGeometry",
+          "CylinderGeometry",
+          "DirectionalLight",
+          "DoubleSide",
+          "Float32BufferAttribute",
+          "Fog",
+          "Group",
+          "HemisphereLight",
+          "LinearFilter",
+          "MathUtils",
+          "Mesh",
+          "MeshBasicMaterial",
+          "MeshStandardMaterial",
+          "PerspectiveCamera",
+          "PlaneGeometry",
+          "SRGBColorSpace",
+          "Scene",
+          "SphereGeometry",
+          "Sprite",
+          "SpriteMaterial",
+          "Texture",
+          "TextureLoader",
+          "TorusGeometry",
+          "Vector3",
+          "WebGLRenderer"
+        ]
+      }
+    }
+  }
+}

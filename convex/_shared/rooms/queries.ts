@@ -101,6 +101,15 @@ export async function getRoomByCode(ctx: QueryCtx, args: { code: string }) {
     supportsRemote: room.supportsRemote ?? true,
     supportsHandheld: room.supportsHandheld ?? true,
     preferredOrientation: room.preferredOrientation ?? "adaptive",
+    presentation: {
+      remoteDisplay: {
+        mode: room.remoteDisplayMode ?? "shared",
+        maxViewports:
+          room.remoteDisplayMode === "per-player"
+            ? Math.max(1, Math.min(4, room.maxViewports ?? 1))
+            : 1,
+      },
+    },
     visibility: room.visibility,
     requiresPassword: Boolean(room.passwordHash),
     maxPlayers: room.maxPlayers,

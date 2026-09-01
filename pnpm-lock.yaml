@@ -115,6 +115,9 @@ importers:
       react-dom:
         specifier: 19.2.8
         version: 19.2.8(react@19.2.8)
+      three:
+        specifier: 0.185.1
+        version: 0.185.1
     devDependencies:
       '@types/qrcode':
         specifier: 1.5.6

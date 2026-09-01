@@ -15,7 +15,7 @@ test("screenless remotes stay bounded in landscape and portrait across console s
       maxPlayers: 2,
     },
     {
-      key: "turbo-circuit@0.5.1",
+      key: "turbo-circuit@0.5.3",
       title: "Turbo Circuit",
       preset: "racing",
       control: "Ready and start auto drive",
@@ -23,7 +23,7 @@ test("screenless remotes stay bounded in landscape and portrait across console s
       maxPlayers: 1,
     },
     {
-      key: "sky-strike@0.2.4",
+      key: "sky-strike@0.2.6",
       title: "Sky Strike",
       preset: "flight",
       control: "Fire cannon",
@@ -31,7 +31,7 @@ test("screenless remotes stay bounded in landscape and portrait across console s
       maxPlayers: 1,
     },
     {
-      key: "flight-trainer@0.2.4",
+      key: "flight-trainer@0.2.6",
       title: "Flight Trainer",
       preset: "flight",
       control: "Throttle up",

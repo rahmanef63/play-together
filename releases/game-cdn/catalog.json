@@ -27,7 +27,13 @@
       "version": "0.3.1",
       "title": "Dodge Dash",
       "manifestPath": "/games/dodge-dash/0.3.1/manifest.json",
-      "manifestSha256": "4f1fe49b61db40b42b7a7a2d6fc909181284518b549850d7623f92ec0063870b"
+      "manifestSha256": "4f1fe49b61db40b42b7a7a2d6fc909181284518b549850d7623f92ec0063870b",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
     },
     {
       "gameId": "flight-trainer",
@@ -79,6 +85,32 @@
       "manifestSha256": "7019a9796f1a6a3adc5701aa524c9299cdf611a54095fe115d62e58b519a08b6"
     },
     {
+      "gameId": "flight-trainer",
+      "version": "0.2.5",
+      "title": "Flight Trainer",
+      "manifestPath": "/games/flight-trainer/0.2.5/manifest.json",
+      "manifestSha256": "a35f706b27d7cc7cec68a47df4a6bc4e68d4e6a9c613fd7d0846dedfcf292fc2",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
+    },
+    {
+      "gameId": "flight-trainer",
+      "version": "0.2.6",
+      "title": "Flight Trainer",
+      "manifestPath": "/games/flight-trainer/0.2.6/manifest.json",
+      "manifestSha256": "79ab0848784b928327eaf64d83327196a4341356b1c4c3e3c269c3dccdc3d847",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
+    },
+    {
       "gameId": "maze-run",
       "version": "0.1.0",
       "title": "Maze Run",
@@ -104,7 +136,13 @@
       "version": "0.3.1",
       "title": "Maze Run",
       "manifestPath": "/games/maze-run/0.3.1/manifest.json",
-      "manifestSha256": "bd4f4b353e39cd65e536af0a77cb9f966b07bb0b79bd9d0a29327c410a8b0f16"
+      "manifestSha256": "bd4f4b353e39cd65e536af0a77cb9f966b07bb0b79bd9d0a29327c410a8b0f16",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
     },
     {
       "gameId": "memory-lights",
@@ -125,7 +163,13 @@
       "version": "0.3.0",
       "title": "Memory Lights",
       "manifestPath": "/games/memory-lights/0.3.0/manifest.json",
-      "manifestSha256": "b3fec8a030e52449df1ea69897fded85c6112250791cc1d35c42aef71848ff88"
+      "manifestSha256": "b3fec8a030e52449df1ea69897fded85c6112250791cc1d35c42aef71848ff88",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
     },
     {
       "gameId": "orbit-dodge",
@@ -153,7 +197,13 @@
       "version": "0.3.1",
       "title": "Orbit Dodge",
       "manifestPath": "/games/orbit-dodge/0.3.1/manifest.json",
-      "manifestSha256": "d73c3d8a75819c6ddb9181231c54f4a896dcac709d332477fd04296a780abe65"
+      "manifestSha256": "d73c3d8a75819c6ddb9181231c54f4a896dcac709d332477fd04296a780abe65",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
     },
     {
       "gameId": "pong",
@@ -181,7 +231,13 @@
       "version": "0.4.0",
       "title": "Pong Together",
       "manifestPath": "/games/pong/0.4.0/manifest.json",
-      "manifestSha256": "dd5f6f24df63373eb80e6122b12333ef2d940d4e0817d6a767bfbf03c708291b"
+      "manifestSha256": "dd5f6f24df63373eb80e6122b12333ef2d940d4e0817d6a767bfbf03c708291b",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
     },
     {
       "gameId": "reaction-rush",
@@ -202,7 +258,13 @@
       "version": "0.3.0",
       "title": "Reaction Rush",
       "manifestPath": "/games/reaction-rush/0.3.0/manifest.json",
-      "manifestSha256": "5c87f95c4f76256956a2420d91aadf0c5b88d9e62376bad85ce2f428bd8ec4db"
+      "manifestSha256": "5c87f95c4f76256956a2420d91aadf0c5b88d9e62376bad85ce2f428bd8ec4db",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
     },
     {
       "gameId": "rhythm-pulse",
@@ -223,7 +285,13 @@
       "version": "0.3.0",
       "title": "Rhythm Pulse",
       "manifestPath": "/games/rhythm-pulse/0.3.0/manifest.json",
-      "manifestSha256": "aa5dc3ec489da25bedd3c1817be56b29907647f8ca45a00c598384fc936dbc35"
+      "manifestSha256": "aa5dc3ec489da25bedd3c1817be56b29907647f8ca45a00c598384fc936dbc35",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
     },
     {
       "gameId": "sky-strike",
@@ -275,6 +343,32 @@
       "manifestSha256": "27b6c1c06279109123a47755f9c32b0c4b7fdad249aa1ef64b294ba77751bfc8"
     },
     {
+      "gameId": "sky-strike",
+      "version": "0.2.5",
+      "title": "Sky Strike",
+      "manifestPath": "/games/sky-strike/0.2.5/manifest.json",
+      "manifestSha256": "5a88c95ecaab6f6eee5f96690206ce58298fde6ec6a16fdda2fde32a4803a699",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
+    },
+    {
+      "gameId": "sky-strike",
+      "version": "0.2.6",
+      "title": "Sky Strike",
+      "manifestPath": "/games/sky-strike/0.2.6/manifest.json",
+      "manifestSha256": "62743b42a58c1b1fa788ae27eed0acde60bb7f52232b234be476b3054fa607f4",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
+    },
+    {
       "gameId": "snake-arena",
       "version": "0.1.0",
       "title": "Snake Arena",
@@ -300,7 +394,13 @@
       "version": "0.3.1",
       "title": "Snake Arena",
       "manifestPath": "/games/snake-arena/0.3.1/manifest.json",
-      "manifestSha256": "87093ea640a715614fd3fde18823b3242a458cb506791272272c0816634e12e5"
+      "manifestSha256": "87093ea640a715614fd3fde18823b3242a458cb506791272272c0816634e12e5",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
     },
     {
       "gameId": "stack-tower",
@@ -321,7 +421,13 @@
       "version": "0.3.0",
       "title": "Stack Tower",
       "manifestPath": "/games/stack-tower/0.3.0/manifest.json",
-      "manifestSha256": "151d690af5c2feeb6a3aac9b92b5c04f388d54c87519d845c5f2f809947011c4"
+      "manifestSha256": "151d690af5c2feeb6a3aac9b92b5c04f388d54c87519d845c5f2f809947011c4",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
     },
     {
       "gameId": "tap-race",
@@ -349,7 +455,13 @@
       "version": "0.4.0",
       "title": "Tap Race",
       "manifestPath": "/games/tap-race/0.4.0/manifest.json",
-      "manifestSha256": "402280b2f425fb3f55727916f850a86210dd0776a3f741c6b392083831ac03bf"
+      "manifestSha256": "402280b2f425fb3f55727916f850a86210dd0776a3f741c6b392083831ac03bf",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
     },
     {
       "gameId": "target-blast",
@@ -370,7 +482,13 @@
       "version": "0.3.0",
       "title": "Target Blast",
       "manifestPath": "/games/target-blast/0.3.0/manifest.json",
-      "manifestSha256": "eeaa41c641af35ea5c554fd781af9376caf9551e401e1373c78ce34d2946b21f"
+      "manifestSha256": "eeaa41c641af35ea5c554fd781af9376caf9551e401e1373c78ce34d2946b21f",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
     },
     {
       "gameId": "tug-war",
@@ -391,7 +509,13 @@
       "version": "0.3.0",
       "title": "Tug War",
       "manifestPath": "/games/tug-war/0.3.0/manifest.json",
-      "manifestSha256": "c0ad638206889b5ffcd1581cb66758138ddc5801c739c43412e4f00516ee942a"
+      "manifestSha256": "c0ad638206889b5ffcd1581cb66758138ddc5801c739c43412e4f00516ee942a",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
     },
     {
       "gameId": "turbo-circuit",
@@ -469,6 +593,32 @@
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.5.1/manifest.json",
       "manifestSha256": "486b17c9267c4dda6bd1bdfc2a4b389bbc2d11bc978561f2e79ef578ecbbb8a9"
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.5.2",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.5.2/manifest.json",
+      "manifestSha256": "f63d0e9b9527296177ab75269f1e01803f635ede2ac9403220fc7f14126b47b2",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.5.3",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.5.3/manifest.json",
+      "manifestSha256": "9f9c4c76b325fee0804b2ece784da73585cdb21e04e7fe30a70d3498a121eb4a",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
     }
   ]
 }

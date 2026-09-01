@@ -39,6 +39,8 @@ export interface CreateRoomInternalArgs {
   supportsRemote: boolean;
   supportsHandheld: boolean;
   preferredOrientation: "portrait" | "landscape" | "adaptive";
+  remoteDisplayMode: "shared" | "per-player";
+  maxViewports: number;
   visibility: "public" | "private";
   passwordHash?: string;
   maxPlayers: number;
