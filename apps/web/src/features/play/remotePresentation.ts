@@ -1,5 +1,4 @@
-import type { ServerMessage } from "@play-together/contracts";
-import type { GameRegistryEntry } from "../../shared/types";
+import type { RemoteDisplayPolicy, ServerMessage } from "@play-together/contracts";
 
 export type RemoteRole = "controller" | "display";
 export type RemoteDisplayLayout = "shared" | "split";
@@ -37,9 +36,9 @@ export function remoteControllers(players: PresencePlayer[]): PresencePlayer[] {
 }
 
 export function resolveRemoteDisplayPolicy(
-  entry: GameRegistryEntry | undefined,
-): GameRegistryEntry["presentation"]["remoteDisplay"] {
-  return entry?.presentation.remoteDisplay ?? { mode: "shared", maxViewports: 1 };
+  policy: RemoteDisplayPolicy | undefined,
+): RemoteDisplayPolicy {
+  return policy ?? { mode: "shared", maxViewports: 1 };
 }
 
 export function createRemoteDisplayPlan({
@@ -49,7 +48,7 @@ export function createRemoteDisplayPlan({
 }: {
   players: PresencePlayer[];
   fallbackPlayerId: string;
-  policy: GameRegistryEntry["presentation"]["remoteDisplay"];
+  policy: RemoteDisplayPolicy;
 }): RemoteDisplayPlan {
   const controllers = remoteControllers(players);
   if (policy.mode === "shared") {

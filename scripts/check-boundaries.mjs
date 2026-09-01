@@ -34,6 +34,7 @@ async function inspect(path) {
   const rel = toRelative(path);
   const text = await readFile(path, "utf8");
   enforceLineBudget(rel, text);
+  enforceDynamicEngineBoundary(rel, text);
   if (!importExtensions.has(extname(path))) return;
 
   for (const specifier of extractImports(text)) {
@@ -70,6 +71,22 @@ function isMaintainedSource(rel) {
   if (rel.startsWith("apps/web/public/")) return false;
   if (rel.includes("/assets/")) return false;
   return true;
+}
+
+function enforceDynamicEngineBoundary(rel, text) {
+  if (rel.startsWith("apps/web/src/features/") && text.includes("/game-registry.json")) {
+    violations.push(
+      `${rel}: runtime feature reads the generated registry; use the published Convex catalog or pinned manifest`,
+    );
+  }
+  if (rel.startsWith("apps/web/src/frame/styles/") && text.includes("[data-control-id")) {
+    violations.push(
+      `${rel}: frame styling targets a game action id; style semantic kind/face/zone contracts instead`,
+    );
+  }
+  if (rel.startsWith("apps/web/src/frame/") && text.includes("legacySemanticButtonLabel")) {
+    violations.push(`${rel}: frame runtime contains a legacy game-action label map`);
+  }
 }
 
 function extractImports(text) {

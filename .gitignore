@@ -17,3 +17,6 @@ convex/.convex/
 template-sources/
 .vercel/
 .vercel
+
+# Generated engine vendor bundles
+apps/web/public/engine-vendors/

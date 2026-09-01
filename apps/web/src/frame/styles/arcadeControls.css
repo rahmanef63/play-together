@@ -1,59 +1,54 @@
 .console-control--stick {
+  border: 1px solid var(--console-border-strong);
+  border-radius: 50%;
+  background: #171c1d;
+  box-shadow: inset 0 0 0 8px #202627;
+}
+
+.console-stick__knob {
+  width: 48%;
+  border: 1px solid var(--console-border-strong);
+  border-radius: 50%;
+  background: #343b3c;
+  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.26);
+}
+
+.console-shell--racing .console-control--stick {
   border: 0;
   background: transparent url("/assets/ui/remote/steering-base.svg") center / contain no-repeat;
   box-shadow: none;
 }
 
-.console-stick__knob {
-  width: 48%;
+.console-shell--racing .console-stick__knob {
+  border: 0;
   background: transparent url("/assets/ui/remote/steering-knob.svg") center / contain no-repeat;
   box-shadow: none;
 }
 
+/* Shell presets style physical roles, never game action ids. */
 .console-shell--racing
   .builtin-controller--racing
-  .builtin-controller__zone--right
-  .console-control--button[data-control-id="throttle"],
-.console-shell--racing
-  .builtin-controller--racing
-  .builtin-controller__zone--right
-  .console-control--button[data-control-id="brake"] {
+  .console-control--button:is([data-face="l2"], [data-face="r2"]) {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   color: var(--console-text);
-  background-color: transparent;
-  background-position: center 32%;
-  background-size: auto 78%;
-  background-repeat: no-repeat;
-  border: 0;
-  box-shadow: none;
-  padding: 0 4px 6px;
+  border: 1px solid var(--console-border-strong);
+  border-radius: var(--console-radius-md);
+  background: #202526;
+  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.28);
   font-size: clamp(10px, 2vmin, 14px);
   font-weight: 800;
 }
 
 .console-shell--racing
   .builtin-controller--racing
-  .builtin-controller__zone--right
-  .console-control--button[data-control-id="throttle"] {
-  background-image: url("/assets/ui/remote/pedal-gas.svg");
-}
-
-.console-shell--racing
-  .builtin-controller--racing
-  .builtin-controller__zone--right
-  .console-control--button[data-control-id="brake"] {
-  background-image: url("/assets/ui/remote/pedal-brake.svg");
-}
-
-.console-shell--racing
-  .builtin-controller--racing
-  .console-control--button[data-control-id="boost"] {
+  .builtin-controller__zone--bottom-right
+  .console-control--button {
   color: var(--console-text);
-  background: transparent url("/assets/ui/remote/boost-button.svg") center / 100% 100% no-repeat;
-  border: 0;
-  box-shadow: none;
+  border: 1px solid var(--console-border-strong);
+  background: #242a2b;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.3);
 }
 
 .console-control--touchpad {

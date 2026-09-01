@@ -24,7 +24,7 @@ test("remote controllers automatically move per-player games between shared and 
     const roomName = `Split Circuit ${runId}`;
     const code = await createRoom(host, {
       name: roomName,
-      gameKey: "turbo-circuit@0.5.1",
+      gameKey: "turbo-circuit@0.5.3",
       maxPlayers: 3,
       visibility: "public",
     });

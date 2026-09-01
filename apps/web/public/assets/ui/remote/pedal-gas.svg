@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 180" role="img" aria-labelledby="title">
-  <title id="title">Gas pedal</title>
-  <rect x="14" y="8" width="92" height="164" rx="28" fill="#171c1d" stroke="#d39a32" stroke-width="5"/>
-  <rect x="31" y="28" width="58" height="112" rx="18" fill="#252c2d" stroke="#ead9ae" stroke-width="3"/>
-  <path d="M43 48h34M43 65h34M43 82h34M43 99h34M43 116h34" stroke="#39787a" stroke-width="5" stroke-linecap="round"/>
-  <path d="M45 151h30" stroke="#b84f43" stroke-width="7" stroke-linecap="round"/>
-</svg>

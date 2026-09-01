@@ -16,7 +16,7 @@ export function mountButton(
   button.className = "console-control console-control--button";
   button.dataset.controlId = control.id;
   if (control.face) button.dataset.face = control.face;
-  const visibleLabel = control.displayLabel ?? legacySemanticButtonLabel(control) ?? control.label;
+  const visibleLabel = control.displayLabel ?? semanticButtonLabel(control);
   button.textContent = visibleLabel;
   if (visibleLabel !== control.label) button.dataset.semanticLabel = "true";
   button.setAttribute("aria-label", control.ariaLabel);
@@ -43,27 +43,22 @@ export function mountButton(
   };
 }
 
-function legacySemanticButtonLabel(control: ButtonControl): string | null {
-  if (!/^(A|B|X|Y)$/i.test(control.label.trim())) return null;
-  const exact: Record<string, string> = {
-    "Reaction button": "REACT",
-    "Tap on beat": "TAP",
-    "Tap to race": "TAP",
-    "Drop block": "DROP",
-    "Pull rope": "PULL",
-    "Fire cannon": "CANNON",
-    "Fire missile": "MISSILE",
-    "Toggle flaps": "FLAPS",
-    "Toggle landing gear": "GEAR",
-    "Throttle up": "THR +",
-    "Throttle down": "THR −",
-    "Increase throttle": "THR +",
-    "Decrease throttle": "THR −",
-    "Nitro boost": "BOOST",
-  };
-  const mapped = exact[control.ariaLabel.trim()];
-  if (mapped) return mapped;
-  return (
-    control.ariaLabel.match(/^(Red|Green|Blue|Yellow) memory pad$/i)?.[1]?.toUpperCase() ?? null
-  );
+export function semanticButtonLabel(control: ButtonControl): string {
+  const label = control.label.trim();
+  if (!/^(A|B|X|Y)$/i.test(label)) return label;
+  const semantic = control.ariaLabel
+    .replace(/\b(button|control|pad)\b/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+  if (!semantic) return label;
+  if (semantic.length <= 16) return semantic;
+  const words = semantic.split(" ");
+  let compact = "";
+  for (const word of words) {
+    const candidate = compact ? `${compact} ${word}` : word;
+    if (candidate.length > 16) break;
+    compact = candidate;
+  }
+  return compact || semantic.slice(0, 16).trim();
 }

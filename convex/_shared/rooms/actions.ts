@@ -75,6 +75,11 @@ export async function createRoom(ctx: ActionCtx, args: CreateRoomArgs): Promise<
       supportsRemote: game.supportsRemote,
       supportsHandheld: game.supportsHandheld,
       preferredOrientation: game.preferredOrientation ?? "adaptive",
+      remoteDisplayMode: game.remoteDisplayMode ?? "shared",
+      maxViewports:
+        game.remoteDisplayMode === "per-player"
+          ? Math.max(1, Math.min(4, game.maxViewports ?? 1))
+          : 1,
       visibility: args.visibility,
       maxPlayers: args.maxPlayers,
     };

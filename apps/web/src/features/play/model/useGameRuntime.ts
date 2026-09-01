@@ -1,5 +1,5 @@
 import type { ConnectionStatus } from "@play-together/browser-runtime";
-import type { ControllerMode } from "@play-together/contracts";
+import { type ControllerMode, DEFAULT_REMOTE_DISPLAY_POLICY } from "@play-together/contracts";
 import { useAction } from "convex/react";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../../../shared/convexApi";
@@ -27,6 +27,7 @@ export function useGameRuntime({
   const [error, setError] = useState("");
   const [remoteCount, setRemoteCount] = useState(0);
   const [displayLayout, setDisplayLayout] = useState<RemoteDisplayLayout>("shared");
+  const presentationPolicy = room?.presentation.remoteDisplay ?? DEFAULT_REMOTE_DISPLAY_POLICY;
 
   useEffect(() => {
     if (isPlaying) return;
@@ -44,6 +45,7 @@ export function useGameRuntime({
       role,
       mode,
       roomTitle: room?.gameTitle ?? "Game",
+      presentationPolicy,
       mount: mountRef.current,
       issueTicket,
       onConnection: setConnection,
@@ -54,7 +56,7 @@ export function useGameRuntime({
       },
       onStatus: setStatus,
     });
-  }, [code, isPlaying, issueTicket, mode, role, room?.gameTitle]);
+  }, [code, isPlaying, issueTicket, mode, role, room?.gameTitle, presentationPolicy]);
 
   return { connection, displayLayout, error, mountRef, remoteCount, status };
 }

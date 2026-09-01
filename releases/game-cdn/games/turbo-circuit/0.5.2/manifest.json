@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "turbo-circuit",
+    "version": "0.5.2",
+    "title": "Turbo Circuit",
+    "description": "A PS1-inspired couple circuit racer with car and circuit selection, auto-throttle, chase/driver cameras, analog speedometer, dynamic tracks, nitro, checkpoints, collisions, and racing-line CPU rivals driven by bounded chaotic variation.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "runtimeDependencies": {
+    "three": "0.185.1"
+  },
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "landscape",
+    "console": {
+      "renderer": "builtin",
+      "layout": "racing",
+      "controls": [
+        {
+          "id": "steer",
+          "kind": "stick",
+          "ariaLabel": "Steering and garage selection stick",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "steer": "$x",
+              "menuY": "$y"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "steer": 0,
+              "menuY": 0
+            }
+          },
+          "keys": {
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ],
+            "up": [
+              "KeyW"
+            ],
+            "down": [
+              "KeyS"
+            ]
+          }
+        },
+        {
+          "id": "drive",
+          "kind": "button",
+          "label": "GO",
+          "displayLabel": "GO",
+          "ariaLabel": "Ready and start auto drive",
+          "face": "r2",
+          "zone": "right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "drive": true
+            }
+          },
+          "keys": [
+            "Enter",
+            "KeyG"
+          ]
+        },
+        {
+          "id": "brake",
+          "kind": "button",
+          "label": "BRAKE",
+          "displayLabel": "BRAKE",
+          "ariaLabel": "Brake",
+          "face": "l2",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "brake": 1
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "brake": 0
+            }
+          },
+          "keys": [
+            "ArrowDown"
+          ]
+        },
+        {
+          "id": "boost",
+          "kind": "button",
+          "label": "BOOST",
+          "displayLabel": "BOOST",
+          "ariaLabel": "Nitro boost",
+          "face": "a",
+          "zone": "bottom-right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "boost": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "boost": false
+            }
+          },
+          "keys": [
+            "Space"
+          ]
+        },
+        {
+          "id": "camera",
+          "kind": "button",
+          "label": "VIEW",
+          "displayLabel": "VIEW",
+          "ariaLabel": "Toggle chase or driver camera",
+          "face": "y",
+          "zone": "bottom-right",
+          "press": {
+            "type": "toggle",
+            "field": "cockpit"
+          },
+          "keys": [
+            "KeyV"
+          ]
+        }
+      ],
+      "initialState": {
+        "steer": 0,
+        "menuY": 0,
+        "brake": 0,
+        "boost": false,
+        "cockpit": false
+      }
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": false,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "c5a99c7d8e2ffdee3a1d33ddc9832a01f5c12d791c698b03a9c2aa92fa5b7cd9"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "c0b89fe2bbd765273da26f125957ba8903f3917bdaf3e3fe7c62a54a030db6ed"
+    }
+  },
+  "assets": {
+    "vehicle.red.atlas": {
+      "url": "./assets/vehicle-red-atlas.png",
+      "sha256": "77d2033c3baeeff4ef6b3c1220fd7e4458da316b97206f65519da9ea0dfc3373",
+      "contentType": "image/png",
+      "bytes": 648252
+    },
+    "vehicle.red.frames": {
+      "url": "./assets/vehicle-red-atlas.json",
+      "sha256": "69cef2480d2c8cef5e8a59786f74b31fe7867667b3a8140d20ec15a8adedb4df",
+      "contentType": "application/json",
+      "bytes": 1830
+    }
+  }
+}

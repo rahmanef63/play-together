@@ -19,6 +19,8 @@ export default defineSchema({
     preferredOrientation: v.optional(
       v.union(v.literal("portrait"), v.literal("landscape"), v.literal("adaptive")),
     ),
+    remoteDisplayMode: v.optional(v.union(v.literal("shared"), v.literal("per-player"))),
+    maxViewports: v.optional(v.number()),
     status: v.union(v.literal("published"), v.literal("retired")),
     publishedAt: v.number(),
   })
@@ -40,6 +42,8 @@ export default defineSchema({
     preferredOrientation: v.optional(
       v.union(v.literal("portrait"), v.literal("landscape"), v.literal("adaptive")),
     ),
+    remoteDisplayMode: v.optional(v.union(v.literal("shared"), v.literal("per-player"))),
+    maxViewports: v.optional(v.number()),
     visibility: v.union(v.literal("public"), v.literal("private")),
     passwordHash: v.optional(v.string()),
     maxPlayers: v.number(),

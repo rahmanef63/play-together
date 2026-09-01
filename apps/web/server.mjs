@@ -93,19 +93,20 @@ async function handleRequest(request, response, context) {
     }
   }
 
+  const isEngineVendor = candidate.includes(`${sep}engine-vendors${sep}`);
   const cache =
     candidate.endsWith("index.html") ||
     candidate.endsWith("sw.js") ||
     candidate.endsWith("manifest.webmanifest")
       ? "no-cache"
-      : candidate.includes(`${sep}assets${sep}`)
+      : candidate.includes(`${sep}assets${sep}`) || isEngineVendor
         ? "public, max-age=31536000, immutable"
         : "public, max-age=3600";
   const isGameFrame = candidate.endsWith("game-frame.html");
   const isPublicAsset = candidate.includes(`${sep}assets${sep}`);
   sendHeaders(response, types[extname(candidate)] || "application/octet-stream", cache, {
     isGameFrame,
-    isPublicAsset,
+    isPublicAsset: isPublicAsset || isEngineVendor,
     shellCsp: context.shellCsp,
   });
   response.writeHead(200);

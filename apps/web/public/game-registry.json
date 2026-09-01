@@ -59,7 +59,7 @@
     },
     {
       "id": "flight-trainer",
-      "version": "0.2.4",
+      "version": "0.2.6",
       "title": "Flight Trainer",
       "description": "A 3D flight-training simulator with throttle, pitch, roll, yaw, flaps, landing gear, stall/crash physics, instruments and checkpoint navigation.",
       "modes": ["shared-screen", "handheld"],
@@ -630,7 +630,7 @@
     },
     {
       "id": "sky-strike",
-      "version": "0.2.4",
+      "version": "0.2.6",
       "title": "Sky Strike",
       "description": "A 3D arcade fighter dogfight with flight controls, cannon fire, homing missiles, lock-on, health, respawns and AI bandits.",
       "modes": ["shared-screen", "handheld"],
@@ -1043,7 +1043,7 @@
     },
     {
       "id": "turbo-circuit",
-      "version": "0.5.1",
+      "version": "0.5.3",
       "title": "Turbo Circuit",
       "description": "A PS1-inspired couple circuit racer with car and circuit selection, auto-throttle, chase/driver cameras, analog speedometer, dynamic tracks, nitro, checkpoints, collisions, and racing-line CPU rivals driven by bounded chaotic variation.",
       "modes": ["shared-screen", "handheld"],

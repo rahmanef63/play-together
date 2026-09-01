@@ -30,6 +30,10 @@ A version-isolated multiplayer platform for phone remotes, handheld play, and sh
 
 The platform never decides how a concrete game works. A game never owns QR pairing, split-screen orchestration, Convex auth, or platform navigation.
 
+## Runtime metadata
+
+The live engine has no hardcoded game list or mechanic map. Convex is the playable release/presentation catalog, each immutable manifest owns controller/modules/assets/runtime dependencies, and the frame is a generic verified interpreter. `game-registry.json` exists for tooling/previews only. Large shared browser libraries use versioned engine ABI surfaces such as `three@0.185.1+pt1`, so 3D cartridges stay small without weakening SHA verification.
+
 ## Architecture at a glance
 
 ```text

@@ -19,7 +19,9 @@ Do not start by editing generated registry/release files or by searching for a c
 - The platform knows contracts and presentation metadata, never concrete game mechanics.
 - A concrete game imports only its own files plus stable game SDK/contracts boundaries.
 - Browser game code runs in the sandboxed game frame; server games run in per-room workers.
-- Standard controller behavior is declarative in `game.config.json`.
+- Standard controller behavior is declarative in `game.config.json`; engine code must not target game/control IDs or mechanic labels.
+- Runtime discovery uses Convex + the pinned immutable manifest; `game-registry.json` is tooling-only.
+- Shared browser vendors use fixed ABI surfaces from `config/engine-vendors.json`. Never mutate an existing `+ptN` surface; create the next revision.
 - Remote QR/device-role/split-screen orchestration belongs to the platform, not games.
 - Maintained implementation files are limited to 200 lines by `architecture:check`.
 - New styles use existing CSS custom properties first; add a token only when it represents a reusable semantic value.
@@ -104,7 +106,7 @@ games/example/
   src/display/<renderer>.ts   # asset/vehicle/entity renderer
 ```
 
-Never solve a game-specific problem by adding an identity switch to the host. `displayLabel`, layout, shell preset, presentation mode, assets, and controls are metadata/contract concerns.
+Never solve a game-specific problem by adding an identity switch to the host. `displayLabel`, layout, shell preset, presentation mode, assets, and controls are metadata/contract concerns. If several games share a large browser dependency, declare a supported `runtimeDependencies` ABI; if that ABI lacks an export, revise the engine vendor surface instead of silently expanding an immutable one.
 
 ## 8. CSS/WYSIWYG rules
 

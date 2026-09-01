@@ -1,4 +1,5 @@
 import type { GameMode } from "./common.js";
+import type { RemoteDisplayPolicy } from "./presentation.js";
 
 export interface PublicGameSummary {
   gameId: string;
@@ -13,6 +14,7 @@ export interface PublicGameSummary {
   preferredOrientation: "portrait" | "landscape" | "adaptive";
   manifestUrl: string;
   manifestSha256: string;
+  presentation: { remoteDisplay: RemoteDisplayPolicy };
 }
 
 export interface PublicRoomSummary {

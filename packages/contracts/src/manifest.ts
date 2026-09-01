@@ -30,6 +30,12 @@ export const gameManifestSchema = z.object({
     snapshotRate: z.number().int().min(1).max(60),
   }),
   modes: z.array(gameModeSchema).min(1),
+  runtimeDependencies: z
+    .record(
+      z.string().regex(/^[a-z0-9@][a-z0-9@/._-]{0,79}$/),
+      z.string().regex(/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/),
+    )
+    .optional(),
   controller: z.object({
     supportsRemote: z.boolean(),
     supportsHandheld: z.boolean(),

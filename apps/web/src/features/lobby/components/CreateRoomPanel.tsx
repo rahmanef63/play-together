@@ -1,7 +1,8 @@
+import type { GameManifest } from "@play-together/contracts";
 import type { FormEvent } from "react";
 import { ScrollArea } from "../../../shared/ScrollArea";
 import { PreviewCardSkeleton, SkeletonBlock } from "../../../shared/Skeleton";
-import type { CurrentUser, GameRegistryEntry, GameSummary } from "../../../shared/types";
+import type { CurrentUser, GameSummary } from "../../../shared/types";
 import { consoleControlLabels, consoleLayoutLabel } from "../model/useGameCatalog";
 
 export function CreateRoomPanel({
@@ -9,7 +10,7 @@ export function CreateRoomPanel({
   games,
   loadingGames,
   selectedGame,
-  selectedRegistry,
+  selectedManifest,
   effectiveGameKey,
   busy,
   onGameChange,
@@ -19,7 +20,7 @@ export function CreateRoomPanel({
   games: GameSummary[];
   loadingGames: boolean;
   selectedGame: GameSummary | undefined;
-  selectedRegistry: GameRegistryEntry | undefined;
+  selectedManifest: GameManifest | null;
   effectiveGameKey: string;
   busy: boolean;
   onGameChange: (key: string) => void;
@@ -95,14 +96,14 @@ export function CreateRoomPanel({
                   })}
                 </div>
               )}
-              {selectedRegistry?.controller.console && (
+              {selectedManifest?.controller.console && (
                 <div className="console-registry-card">
                   <div>
                     <span>Console</span>
-                    <strong>{consoleLayoutLabel(selectedRegistry)}</strong>
+                    <strong>{consoleLayoutLabel(selectedManifest)}</strong>
                   </div>
                   <div className="console-control-chips">
-                    {consoleControlLabels(selectedRegistry).map((label) => (
+                    {consoleControlLabels(selectedManifest).map((label) => (
                       <span key={label}>{label}</span>
                     ))}
                   </div>

@@ -1,6 +1,6 @@
 import { type ConnectionStatus, RealtimeClient } from "@play-together/browser-runtime";
-import type { ControllerMode } from "@play-together/contracts";
-import type { GameRegistryEntry, TicketResponse } from "../../../shared/types";
+import type { ControllerMode, RemoteDisplayPolicy } from "@play-together/contracts";
+import type { TicketResponse } from "../../../shared/types";
 import {
   createRemoteDisplayPlan,
   type PresencePlayer,
@@ -9,7 +9,6 @@ import {
   remoteControllers,
 } from "../remotePresentation";
 import { createGameFrame, isFrameMessage } from "./frameProtocol";
-import { readPresentationPolicy } from "./gameRegistry";
 import { realtimeUrl } from "./realtimeEndpoint";
 
 interface RuntimeCallbacks {
@@ -25,6 +24,7 @@ interface RuntimeOptions extends RuntimeCallbacks {
   mount: HTMLElement;
   role: RemoteRole;
   roomTitle: string;
+  presentationPolicy: RemoteDisplayPolicy;
   issueTicket: (args: { code: string; role: RemoteRole; mode: ControllerMode }) => Promise<unknown>;
 }
 
@@ -36,10 +36,7 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
   let gameTitle = options.roomTitle || "Game";
   let latestPresence: PresencePlayer[] = [];
   let currentPlayerId = "";
-  let presentationPolicy: GameRegistryEntry["presentation"]["remoteDisplay"] = {
-    mode: "shared",
-    maxViewports: 1,
-  };
+  const presentationPolicy = options.presentationPolicy;
   const channel = crypto.randomUUID();
   const frame = createGameFrame(options.role, options.mode, channel);
 
@@ -119,8 +116,6 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
         mode: options.mode,
       })) as TicketResponse;
       currentPlayerId = initial.playerId;
-      if (disposed) return;
-      presentationPolicy = await readPresentationPolicy(initial.gameId, initial.gameVersion);
       if (disposed) return;
       const refreshTicket = async () => {
         const refreshed = (await options.issueTicket({

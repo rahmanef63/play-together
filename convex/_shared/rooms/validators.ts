@@ -25,6 +25,8 @@ export const createRoomInternalArgs = {
     v.literal("landscape"),
     v.literal("adaptive"),
   ),
+  remoteDisplayMode: v.union(v.literal("shared"), v.literal("per-player")),
+  maxViewports: v.number(),
   visibility: v.union(v.literal("public"), v.literal("private")),
   passwordHash: v.optional(v.string()),
   maxPlayers: v.number(),

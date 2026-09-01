@@ -1,5 +1,4 @@
 import type {
-  BuiltinConsoleConfig,
   GameMode,
   HostedRoomSummary,
   PublicGameSummary,
@@ -28,6 +27,9 @@ export interface RoomDetails {
   supportsRemote: boolean;
   supportsHandheld: boolean;
   preferredOrientation: "portrait" | "landscape" | "adaptive";
+  presentation: {
+    remoteDisplay: { mode: "shared" | "per-player"; maxViewports: number };
+  };
   visibility: "public" | "private";
   requiresPassword: boolean;
   maxPlayers: number;
@@ -48,28 +50,3 @@ export interface TicketResponse {
 }
 
 export type { GameMode };
-
-export interface GameRegistryEntry {
-  id: string;
-  version: string;
-  title: string;
-  description: string;
-  previewUrl: string;
-  presentation: {
-    remoteDisplay: {
-      mode: "shared" | "per-player";
-      maxViewports: number;
-    };
-  };
-  controller: {
-    supportsRemote: boolean;
-    supportsHandheld: boolean;
-    preferredOrientation: "portrait" | "landscape" | "adaptive";
-    console?: BuiltinConsoleConfig;
-  };
-}
-
-export interface GameRegistryDocument {
-  schemaVersion: 1;
-  games: GameRegistryEntry[];
-}

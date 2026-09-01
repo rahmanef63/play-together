@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchVerifiedAsset } from "./index.js";
+import { fetchVerifiedAsset, rewriteRuntimeImports } from "./index.js";
 
 describe("verified game assets", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -28,5 +28,27 @@ describe("verified game assets", () => {
     await expect(
       fetchVerifiedAsset("https://games.test/vehicle.png", "0".repeat(64), "image/png"),
     ).rejects.toThrow("integrity");
+  });
+  it("reuses SHA-verified immutable bytes and requests browser cache", async () => {
+    const bytes = new TextEncoder().encode("cached-sprite-bytes");
+    const sha = createHash("sha256").update(bytes).digest("hex");
+    const fetchMock = vi.fn(
+      async () => new Response(bytes, { status: 200, headers: { "content-type": "image/png" } }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const url = "https://games.test/cache-proof-unique.png";
+    await fetchVerifiedAsset(url, sha, "image/png");
+    await fetchVerifiedAsset(url, sha, "image/png");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledWith(url, { cache: "force-cache", credentials: "omit" });
+  });
+  it("rewrites only engine-declared runtime module specifiers after verification", () => {
+    const source = 'import*as T from"@play-together/runtime/three@0.185.1+pt1";export{T};';
+    expect(
+      rewriteRuntimeImports(source, {
+        "@play-together/runtime/three@0.185.1+pt1":
+          "https://game.test/engine-vendors/three@0.185.1+pt1.js",
+      }),
+    ).toContain('from"https://game.test/engine-vendors/three@0.185.1+pt1.js"');
   });
 });
