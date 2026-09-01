@@ -18,6 +18,14 @@ describe("managed Vercel runtime configuration", () => {
     for (const route of ["/rooms", "/developers"]) {
       expect(vercel.rewrites).toContainEqual({ source: route, destination: "/index.html" });
     }
+    expect(vercel.headers).toContainEqual({
+      source: "/engine-vendors/:path*",
+      headers: [
+        { key: "Access-Control-Allow-Origin", value: "*" },
+        { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
+        { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+      ],
+    });
     for (const source of ["/version.json", "/sw.js", "/manifest.webmanifest"]) {
       expect(vercel.headers).toContainEqual({
         source,

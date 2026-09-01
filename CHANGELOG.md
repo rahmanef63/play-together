@@ -14,6 +14,12 @@ All notable changes to Play Together are documented here. The project follows se
 - Turbo Circuit mobile input is now two-thumb friendly: `GO` is pressed once to latch auto-throttle, `BRAKE` and `BOOST` remain direct controls, `VIEW` toggles the camera, and continuous `GAS`/throttle input has been removed. Boost works whenever the car is already moving and no longer depends on holding gas.
 - Turbo Circuit `0.5.0` is retained as an immutable intermediate release; `0.5.1` is the refined release with smoothed CPU chaos, garage stat bars, race timer, and results board.
 
+## [0.11.7] - 2026-09-01
+
+### Fixed
+
+- Added explicit managed Vercel CORS/CORP and one-year immutable cache headers for versioned `/engine-vendors/*` assets, matching the local server and allowing the SHA-pinned shared runtime to stay hot in browser/CDN cache.
+
 ## [0.11.6] - 2026-09-01
 
 ### Changed
