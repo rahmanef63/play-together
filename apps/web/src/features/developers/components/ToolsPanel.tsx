@@ -1,23 +1,4 @@
-const TOOLS = [
-  ["game_list", "Discover every game slice and its immutable release state."],
-  ["game_get", "Read one game config, package metadata, controls, and release history."],
-  ["game_create", "Create a validated games/<id>/ vertical slice from structured input."],
-  [
-    "game_update",
-    "Patch one game safely; cartridge byte changes need a new version, host display policy does not.",
-  ],
-  [
-    "game_delete",
-    "Delete only an unpublished draft. Published releases can never be removed by this tool.",
-  ],
-  ["game_validate", "Run discovery, typecheck, unit tests, and a game build without publishing."],
-  [
-    "game_publish",
-    "Create the local immutable release; production registration remains CI-controlled.",
-  ],
-  ["game_registry", "Regenerate the portal registry from game configs."],
-  ["game_prompt", "Return the same full submission prompt shown on this page."],
-] as const;
+import gameToolCatalog from "../../../generated/gameTools.json";
 
 export function ToolsPanel() {
   return (
@@ -27,7 +8,7 @@ export function ToolsPanel() {
           <p className="eyebrow">MCP + TOOL CALLING</p>
           <h2>Game CRUD without shell interpolation</h2>
         </div>
-        <span>{TOOLS.length} tools</span>
+        <span>{gameToolCatalog.tools.length} tools</span>
       </div>
       <p className="developer-tools-intro">
         The repository ships a stdio MCP server in <code>.mcp.json</code> and the same bounded
@@ -35,7 +16,7 @@ export function ToolsPanel() {
         intentionally not exposed to either surface.
       </p>
       <div className="developer-tool-list">
-        {TOOLS.map(([name, description]) => (
+        {gameToolCatalog.tools.map(({ name, description }) => (
           <article key={name}>
             <code>{name}</code>
             <p>{description}</p>

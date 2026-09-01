@@ -5,6 +5,7 @@ import type { Id } from "./_generated/dataModel";
 import { action, internalMutation, internalQuery, query } from "./_generated/server";
 import { selectLatestPublishedByGame, toPublicGameSummary } from "./_shared/gameCatalog";
 import { normalizeRemoteDisplay } from "./_shared/gamePresentation";
+import { normalizeReleasePolicy } from "./_shared/gameRelease";
 import { requireQueryUser } from "./_shared/guards";
 
 const publicationArgs = {
@@ -13,6 +14,10 @@ const publicationArgs = {
   publishToken: v.string(),
   remoteDisplayMode: v.optional(v.union(v.literal("shared"), v.literal("per-player"))),
   maxViewports: v.optional(v.number()),
+  releaseStatus: v.optional(
+    v.union(v.literal("active"), v.literal("retired"), v.literal("blocked")),
+  ),
+  retirementReason: v.optional(v.string()),
 };
 
 export const listPublished = query({
@@ -50,6 +55,15 @@ export const getPublishedInternal = internalQuery({
       .unique();
     return game?.status === "published" ? game : null;
   },
+});
+
+export const getReleaseInternal = internalQuery({
+  args: { gameId: v.string(), version: v.string() },
+  handler: (ctx, args) =>
+    ctx.db
+      .query("games")
+      .withIndex("by_game_version", (q) => q.eq("gameId", args.gameId).eq("version", args.version))
+      .unique(),
 });
 
 export const publish = action({
@@ -96,6 +110,7 @@ export const publish = action({
     }
     const manifest = gameManifestSchema.parse(JSON.parse(new TextDecoder().decode(bytes)));
     const presentation = normalizeRemoteDisplay(args.remoteDisplayMode, args.maxViewports);
+    const releasePolicy = normalizeReleasePolicy(args.releaseStatus, args.retirementReason);
     return await ctx.runMutation(internal.games.upsertPublishedInternal, {
       gameId: manifest.game.id,
       version: manifest.game.version,
@@ -111,6 +126,10 @@ export const publish = action({
       preferredOrientation: manifest.controller.preferredOrientation,
       remoteDisplayMode: presentation.mode,
       maxViewports: presentation.maxViewports,
+      status: releasePolicy.status,
+      ...(releasePolicy.retirementReason
+        ? { retirementReason: releasePolicy.retirementReason }
+        : {}),
     });
   },
 });
@@ -135,6 +154,8 @@ export const upsertPublishedInternal = internalMutation({
     ),
     remoteDisplayMode: v.union(v.literal("shared"), v.literal("per-player")),
     maxViewports: v.number(),
+    status: v.union(v.literal("published"), v.literal("retired"), v.literal("blocked")),
+    retirementReason: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db
@@ -147,10 +168,12 @@ export const upsertPublishedInternal = internalMutation({
         message: "A published game version cannot be replaced; publish a new version",
       });
     }
+    const now = Date.now();
+    const statusChangedAt = existing?.status === args.status ? existing.statusChangedAt : now;
     const record = {
       ...args,
-      status: "published" as const,
-      publishedAt: existing?.publishedAt ?? Date.now(),
+      ...(statusChangedAt !== undefined ? { statusChangedAt } : {}),
+      publishedAt: existing?.publishedAt ?? now,
     };
     if (existing) {
       await ctx.db.patch(existing._id, record);

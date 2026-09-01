@@ -95,7 +95,9 @@
           "mode": "per-player",
           "maxViewports": 4
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Intermediate shared-runtime migration release; superseded by the verified +pt1 compatibility release."
     },
     {
       "gameId": "flight-trainer",
@@ -353,7 +355,9 @@
           "mode": "per-player",
           "maxViewports": 4
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Intermediate shared-runtime migration release; superseded by the verified +pt1 compatibility release."
     },
     {
       "gameId": "sky-strike",
@@ -605,7 +609,9 @@
           "mode": "per-player",
           "maxViewports": 4
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Intermediate shared-runtime migration release; superseded by the verified +pt1 compatibility release."
     },
     {
       "gameId": "turbo-circuit",

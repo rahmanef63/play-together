@@ -2,6 +2,7 @@ import type { TicketClaims } from "@play-together/contracts";
 import { ConvexError, v } from "convex/values";
 import { internal } from "./_generated/api";
 import { action } from "./_generated/server";
+import { pinnedReleaseAccess } from "./_shared/gameRelease";
 import { requireActionUser } from "./_shared/guards";
 import { signTicket } from "./_shared/ticketCrypto";
 
@@ -29,14 +30,25 @@ export const issue = action({
         message: "The host has not started the game yet",
       });
     }
-    const game = await ctx.runQuery(internal.games.getPublishedInternal, {
+    const game = await ctx.runQuery(internal.games.getReleaseInternal, {
       gameId: room.gameId,
       version: room.gameVersion,
     });
     if (!game)
       throw new ConvexError({
-        code: "GAME_RETIRED",
-        message: "This game version is no longer available for new connections",
+        code: "PINNED_RELEASE_UNAVAILABLE",
+        message: "The pinned game release no longer exists",
+      });
+    const releaseAccess = pinnedReleaseAccess(game, room.manifestSha256);
+    if (releaseAccess === "mismatch")
+      throw new ConvexError({
+        code: "PINNED_RELEASE_UNAVAILABLE",
+        message: "The pinned game release no longer matches this room",
+      });
+    if (releaseAccess === "blocked")
+      throw new ConvexError({
+        code: "GAME_BLOCKED",
+        message: game.retirementReason ?? "This game release is blocked",
       });
     if (args.role === "display" && args.mode !== "remote") {
       throw new ConvexError({

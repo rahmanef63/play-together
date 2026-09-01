@@ -78,6 +78,7 @@ The repository exposes the same bounded lifecycle through `.mcp.json` and `.mso/
 | `game_delete` / `game.delete` | delete unpublished drafts only |
 | `game_validate` / `game.validate` | discovery + typecheck + tests + build |
 | `game_publish` / `game.publish` | create a local immutable release |
+| `game_release_status` / `game.release_status` | set active/retired/blocked host policy without rewriting release bytes |
 | `game_registry` / `game.registry` | regenerate portal discovery |
 | `game_prompt` / `game.prompt` | return the canonical agent prompt |
 

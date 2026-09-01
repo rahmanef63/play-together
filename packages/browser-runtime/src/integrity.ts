@@ -3,6 +3,8 @@ import { type GameManifest, gameManifestSchema } from "@play-together/contracts"
 const verifiedBytesCache = new Map<string, Promise<ArrayBuffer>>();
 const verifiedModuleCache = new Map<string, Promise<unknown>>();
 const verifiedRuntimeBlobCache = new Map<string, Promise<string>>();
+const MAX_VERIFIED_BYTE_ENTRIES = 64;
+const MAX_VERIFIED_MODULE_ENTRIES = 24;
 
 export interface VerifiedRuntimeImport {
   url: string;
@@ -22,13 +24,13 @@ function verifiedKey(url: string, sha256: string): string {
 
 async function fetchVerifiedBytes(url: string, expectedSha256: string): Promise<ArrayBuffer> {
   const key = verifiedKey(url, expectedSha256);
-  const existing = verifiedBytesCache.get(key);
+  const existing = getRecent(verifiedBytesCache, key);
   if (existing) return existing;
   const pending = fetchAndVerify(url, expectedSha256).catch((reason) => {
     verifiedBytesCache.delete(key);
     throw reason;
   });
-  verifiedBytesCache.set(key, pending);
+  storeRecent(verifiedBytesCache, key, pending, MAX_VERIFIED_BYTE_ENTRIES);
   return pending;
 }
 
@@ -39,6 +41,10 @@ async function fetchAndVerify(url: string, expectedSha256: string): Promise<Arra
   if ((await sha256Hex(bytes)) !== expectedSha256.toLowerCase())
     throw new Error("Game resource integrity check failed");
   return bytes;
+}
+
+export async function prefetchVerifiedResource(url: string, expectedSha256: string): Promise<void> {
+  await fetchVerifiedBytes(url, expectedSha256);
 }
 
 export async function fetchVerifiedManifest(
@@ -82,7 +88,7 @@ export async function importVerifiedModule<T>(
     Object.entries(runtimeImports).sort(([left], [right]) => left.localeCompare(right)),
   );
   const key = `${verifiedKey(moduleUrl, expectedSha256)}:${importsKey}`;
-  const existing = verifiedModuleCache.get(key);
+  const existing = getRecent(verifiedModuleCache, key);
   if (existing) return existing as Promise<T>;
   const pending = loadVerifiedModule<T>(moduleUrl, expectedSha256, runtimeImports).catch(
     (reason) => {
@@ -90,7 +96,7 @@ export async function importVerifiedModule<T>(
       throw reason;
     },
   );
-  verifiedModuleCache.set(key, pending);
+  storeRecent(verifiedModuleCache, key, pending, MAX_VERIFIED_MODULE_ENTRIES);
   return pending;
 }
 
@@ -138,6 +144,23 @@ async function resolveVerifiedRuntimeBlobs(
     resolved[specifier] = await pending;
   }
   return resolved;
+}
+
+function getRecent<T>(cache: Map<string, T>, key: string): T | undefined {
+  const value = cache.get(key);
+  if (value === undefined) return undefined;
+  cache.delete(key);
+  cache.set(key, value);
+  return value;
+}
+
+function storeRecent<T>(cache: Map<string, T>, key: string, value: T, maxEntries: number) {
+  cache.set(key, value);
+  while (cache.size > maxEntries) {
+    const oldest = cache.keys().next().value;
+    if (oldest === undefined) break;
+    cache.delete(oldest);
+  }
 }
 
 export function rewriteRuntimeImports(

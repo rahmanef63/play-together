@@ -14,6 +14,20 @@ All notable changes to Play Together are documented here. The project follows se
 - Turbo Circuit mobile input is now two-thumb friendly: `GO` is pressed once to latch auto-throttle, `BRAKE` and `BOOST` remain direct controls, `VIEW` toggles the camera, and continuous `GAS`/throttle input has been removed. Boost works whenever the car is already moving and no longer depends on holding gas.
 - Turbo Circuit `0.5.0` is retained as an immutable intermediate release; `0.5.1` is the refined release with smoothed CPU chaos, garage stat bars, race timer, and results board.
 
+## [0.11.8] - 2026-09-01
+
+### Added
+
+- Added immutable release lifecycle policy with `active`, `retired`, and emergency `blocked` states plus the bounded `game.release_status` / `game_release_status` tool. Retired releases stop new room creation while existing exact-SHA pinned rooms remain playable; blocked releases deny new tickets too.
+- Added selected-game runtime preflight and SHA-verified prefetch for display/controller bundles and shared engine vendors.
+
+### Changed
+
+- Latest playable release selection now follows semantic-version precedence instead of publication timestamp/lexicographic ordering.
+- Verified resource caches are bounded and the web initial chunk now has both raw and gzip performance budgets.
+- Developer tool documentation is generated from the same tool-definition SSOT instead of a handwritten UI list.
+- Retired the intermediate Turbo Circuit `0.5.2`, Sky Strike `0.2.5`, and Flight Trainer `0.2.5` host policies while preserving their immutable bytes.
+
 ## [0.11.7] - 2026-09-01
 
 ### Fixed

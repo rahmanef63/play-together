@@ -1,4 +1,4 @@
-const VERSION = "0.11.7";
+const VERSION = "0.11.8";
 const SHELL_CACHE = `play-together-shell-${VERSION}`;
 const RUNTIME_CACHE = `play-together-runtime-${VERSION}`;
 const OWNED_PREFIX = "play-together-";

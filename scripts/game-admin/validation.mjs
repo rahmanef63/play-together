@@ -19,6 +19,7 @@ export const LAYOUTS = new Set(["gamepad", "arcade", "racing", "flight", "touch"
 export const ORIENTATIONS = new Set(["portrait", "landscape", "adaptive"]);
 export const MODES = new Set(["shared-screen", "handheld"]);
 export const REMOTE_DISPLAY_MODES = new Set(["shared", "per-player"]);
+export const RELEASE_STATUSES = new Set(["active", "retired", "blocked"]);
 
 export function requireId(value) {
   if (typeof value !== "string" || !GAME_ID.test(value))

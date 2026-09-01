@@ -153,6 +153,24 @@ export const GAME_TOOL_DEFINITIONS = [
     },
   },
   {
+    action: "release-status",
+    mcpName: "game_release_status",
+    msoName: "game.release_status",
+    description:
+      "Set host publication policy for one immutable release. retired blocks new rooms but preserves pinned rooms; blocked is an emergency kill-switch. Production applies only through verified main CI.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: idSchema,
+        version: versionSchema,
+        status: { type: "string", enum: ["active", "retired", "blocked"] },
+        reason: { type: "string", description: "Required for retired or blocked releases." },
+      },
+      required: ["id", "version", "status"],
+      additionalProperties: false,
+    },
+  },
+  {
     action: "registry",
     mcpName: "game_registry",
     msoName: "game.registry",

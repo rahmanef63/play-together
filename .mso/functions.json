@@ -245,6 +245,36 @@
       "timeoutMs": 30000
     },
     {
+      "name": "game.release_status",
+      "description": "Set host publication policy for one immutable release. retired blocks new rooms but preserves pinned rooms; blocked is an emergency kill-switch. Production applies only through verified main CI.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Kebab-case game id under games/<id>.",
+            "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+          },
+          "version": {
+            "type": "string",
+            "description": "Semantic game version x.y.z."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "retired", "blocked"]
+          },
+          "reason": {
+            "type": "string",
+            "description": "Required for retired or blocked releases."
+          }
+        },
+        "required": ["id", "version", "status"],
+        "additionalProperties": false
+      },
+      "command": ["node", "scripts/game-tool.mjs", "release-status"],
+      "timeoutMs": 10000
+    },
+    {
       "name": "game.registry",
       "description": "Regenerate the dynamic portal game registry from all game.config.json slices.",
       "inputSchema": {

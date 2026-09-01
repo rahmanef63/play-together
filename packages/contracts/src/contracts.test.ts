@@ -139,4 +139,33 @@ describe("public contracts", () => {
     });
     expect(result.success).toBe(true);
   });
+  it("rejects non-semantic game versions", () => {
+    expect(() =>
+      gameManifestSchema.parse({
+        schemaVersion: 1,
+        protocolVersion: GAME_PROTOCOL_VERSION,
+        game: {
+          id: "demo-game",
+          version: "release-latest",
+          title: "Demo",
+          description: "Demo game",
+          minPlayers: 1,
+          maxPlayers: 2,
+          tickRate: 30,
+          snapshotRate: 15,
+        },
+        modes: ["shared-screen"],
+        controller: {
+          supportsRemote: true,
+          supportsHandheld: false,
+          preferredOrientation: "adaptive",
+        },
+        entries: {
+          display: { url: "./display.js", sha256: "a".repeat(64) },
+          server: { url: "./server.js", sha256: "b".repeat(64) },
+        },
+        capabilities: { touch: true, keyboard: true, gamepad: false, motion: false },
+      }),
+    ).toThrow();
+  });
 });

@@ -21,7 +21,9 @@ export default defineSchema({
     ),
     remoteDisplayMode: v.optional(v.union(v.literal("shared"), v.literal("per-player"))),
     maxViewports: v.optional(v.number()),
-    status: v.union(v.literal("published"), v.literal("retired")),
+    status: v.union(v.literal("published"), v.literal("retired"), v.literal("blocked")),
+    retirementReason: v.optional(v.string()),
+    statusChangedAt: v.optional(v.number()),
     publishedAt: v.number(),
   })
     .index("by_game_version", ["gameId", "version"])

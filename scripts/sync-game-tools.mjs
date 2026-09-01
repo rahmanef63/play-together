@@ -19,7 +19,12 @@ const manifest = {
   })),
 };
 await mkdir(resolve(root, ".mso"), { recursive: true });
+await mkdir(resolve(root, "apps/web/src/generated"), { recursive: true });
 await writeFile(resolve(root, ".mso/functions.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+await writeFile(
+  resolve(root, "apps/web/src/generated/gameTools.json"),
+  `${JSON.stringify({ schemaVersion: 1, tools: GAME_TOOL_DEFINITIONS.map(({ mcpName, description }) => ({ name: mcpName, description })) }, null, 2)}\n`,
+);
 await writeFile(
   resolve(root, ".mcp.json"),
   `${JSON.stringify(
@@ -37,7 +42,15 @@ await writeFile(
 );
 const format = spawnSync(
   "pnpm",
-  ["exec", "biome", "format", "--write", ".mso/functions.json", ".mcp.json"],
+  [
+    "exec",
+    "biome",
+    "format",
+    "--write",
+    ".mso/functions.json",
+    ".mcp.json",
+    "apps/web/src/generated/gameTools.json",
+  ],
   {
     cwd: root,
     encoding: "utf8",

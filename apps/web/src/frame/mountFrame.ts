@@ -5,12 +5,12 @@ import {
 } from "@play-together/browser-runtime";
 import type { SnapshotMessage } from "@play-together/contracts";
 import type { ControllerGameModule, DisplayGameModule } from "@play-together/game-sdk";
+import { type RuntimeImportSource, resolveRuntimeImports } from "../shared/runtimeDependencies";
 import { mountBuiltinController } from "./builtinController";
 import { mountConsoleShell, resolveConsoleShellPreset } from "./consoleShell";
 import { mountDisplayManager } from "./displayManager";
 import { createGameContext } from "./gameContext";
 import type { FrameInitMessage, FramePresentationMessage } from "./protocol";
-import { type RuntimeImportSource, resolveRuntimeImports } from "./runtimeDependencies";
 
 export interface FrameRuntimeState {
   assetCache: Map<string, Promise<Blob>>;

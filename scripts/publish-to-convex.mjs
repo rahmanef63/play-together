@@ -51,9 +51,17 @@ for (const release of releases) {
       publishToken,
       remoteDisplayMode: presentation.mode,
       maxViewports: presentation.maxViewports,
+      releaseStatus: release.status ?? "active",
+      retirementReason: release.retirementReason,
     }),
   );
-  console.log(`Published ${release.gameId}@${release.version} to Convex`);
+  const verb =
+    release.status === "blocked"
+      ? "Blocked"
+      : release.status === "retired"
+        ? "Retired"
+        : "Published";
+  console.log(`${verb} ${release.gameId}@${release.version} in Convex`);
 }
 
 async function loadEnvironment(path) {
