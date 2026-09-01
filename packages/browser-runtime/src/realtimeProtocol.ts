@@ -22,6 +22,15 @@ export const CONNECT_TIMEOUT_MS = 8_000;
 export const TICKET_PROTOCOL_PREFIX = "ptt.";
 export const REFRESH_SKEW_MS = 15_000;
 
+export function createHeartbeatMessage(
+  telemetry: RealtimeClientOptions["telemetry"],
+  rttMs: number | null,
+  includeTelemetry = true,
+): ClientMessage {
+  const sample = includeTelemetry ? telemetry?.(rttMs) : undefined;
+  return { type: "heartbeat", sentAt: Date.now(), ...(sample ? { telemetry: sample } : {}) };
+}
+
 export function createInputMessage(sequence: number, payload: unknown): ClientMessage {
   return { type: "input", seq: sequence, sentAt: Date.now(), payload };
 }

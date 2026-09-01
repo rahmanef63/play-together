@@ -6,6 +6,7 @@ class MockWebSocket extends EventTarget {
   static instances: MockWebSocket[] = [];
   readyState = 0;
   closed = false;
+  sent: string[] = [];
 
   constructor() {
     super();
@@ -18,7 +19,13 @@ class MockWebSocket extends EventTarget {
     this.dispatchEvent(new Event("close"));
   }
 
-  send() {}
+  send(data: string) {
+    this.sent.push(data);
+  }
+
+  receive(data: unknown) {
+    this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify(data) }));
+  }
 
   open() {
     this.readyState = 1;
@@ -36,6 +43,51 @@ describe("RealtimeClient connection watchdog", () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
+  });
+
+  it("warms telemetry after the first pong instead of waiting 15 seconds", () => {
+    const telemetry = vi.fn((rttMs: number | null) => ({
+      frameP95Ms: 17,
+      frameMaxMs: 22,
+      frameSamples: 12,
+      ...(rttMs === null ? {} : { rttMs }),
+    }));
+    const client = new RealtimeClient({
+      baseUrl: "wss://realtime.test/v1/connect",
+      initialTicket: { token: "ticket-1", expiresAt: Date.now() + 60_000 },
+      reconnect: false,
+      telemetry,
+      WebSocketImpl: MockWebSocket as unknown as typeof WebSocket,
+    });
+
+    client.start();
+    const socket = MockWebSocket.instances[0];
+    socket?.open();
+    expect(socket?.sent).toHaveLength(0);
+    socket?.receive({
+      type: "welcome",
+      connectionId: "c1",
+      playerId: "p1",
+      roomId: "r1",
+      roomCode: "ROOM01",
+      role: "display",
+      mode: "remote",
+      gameId: "pong",
+      gameVersion: "0.4.0",
+      protocolVersion: 1,
+    });
+    const ping = JSON.parse(socket?.sent[0] ?? "{}");
+    expect(ping).toMatchObject({ type: "heartbeat" });
+    expect(ping.telemetry).toBeUndefined();
+
+    socket?.receive({ type: "pong", sentAt: ping.sentAt, serverTime: Date.now() });
+    vi.advanceTimersByTime(1_000);
+    const warmSample = JSON.parse(socket?.sent[1] ?? "{}");
+    expect(warmSample.type).toBe("heartbeat");
+    expect(warmSample.telemetry).toMatchObject({ frameP95Ms: 17, frameSamples: 12 });
+    expect(typeof warmSample.telemetry.rttMs).toBe("number");
+    expect(telemetry).toHaveBeenCalledTimes(1);
+    client.stop();
   });
 
   it("retries a websocket handshake that never opens", async () => {

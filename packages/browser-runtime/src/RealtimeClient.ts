@@ -4,6 +4,7 @@ import {
   type SnapshotMessage,
   serverMessageSchema,
 } from "@play-together/contracts";
+import { RealtimeHeartbeat } from "./realtimeHeartbeat.js";
 import {
   BASE_PROTOCOL,
   CONNECT_TIMEOUT_MS,
@@ -28,14 +29,14 @@ export class RealtimeClient {
   #stopped = false;
   #connecting = false;
   #ticket: ConnectionTicket;
-  #heartbeat: ReturnType<typeof setInterval> | null = null;
+  readonly #heartbeat: RealtimeHeartbeat;
   #socketTimer: ReturnType<typeof setTimeout> | null = null;
   #reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-  #roundTripMs: number | null = null;
 
   constructor(options: RealtimeClientOptions) {
     this.#options = options;
     this.#ticket = options.initialTicket;
+    this.#heartbeat = new RealtimeHeartbeat((message) => this.#send(message), options.telemetry);
   }
 
   get status(): ConnectionStatus {
@@ -107,14 +108,6 @@ export class RealtimeClient {
         this.#socketTimer = null;
         this.#attempt = 0;
         this.#setStatus("connected");
-        this.#heartbeat = setInterval(() => {
-          const telemetry = this.#options.telemetry?.(this.#roundTripMs);
-          this.#send({
-            type: "heartbeat",
-            sentAt: Date.now(),
-            ...(telemetry ? { telemetry } : {}),
-          });
-        }, 15_000);
         const refreshIn = Math.max(1_000, this.#ticket.expiresAt - Date.now() - REFRESH_SKEW_MS);
         this.#socketTimer = setTimeout(() => {
           if (this.#socket === socket) socket.close(4000, "refresh ticket");
@@ -124,11 +117,13 @@ export class RealtimeClient {
       socket.addEventListener("message", (event) => {
         try {
           const parsed = serverMessageSchema.parse(JSON.parse(String(event.data)));
-          if (parsed.type === "snapshot") {
+          if (parsed.type === "welcome") {
+            this.#heartbeat.start();
+          } else if (parsed.type === "snapshot") {
             this.#latest = parsed;
             this.#subscriptions.emitSnapshot(parsed);
           } else if (parsed.type === "pong") {
-            this.#roundTripMs = Math.max(0, Math.min(60_000, Date.now() - parsed.sentAt));
+            this.#heartbeat.pong(parsed.sentAt);
           }
           this.#subscriptions.emitMessage(parsed);
         } catch {
@@ -184,9 +179,8 @@ export class RealtimeClient {
   }
 
   #clearConnectionTimers(): void {
-    if (this.#heartbeat) clearInterval(this.#heartbeat);
+    this.#heartbeat.stop();
     if (this.#socketTimer) clearTimeout(this.#socketTimer);
-    this.#heartbeat = null;
     this.#socketTimer = null;
   }
 
