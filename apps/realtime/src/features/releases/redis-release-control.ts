@@ -5,15 +5,14 @@ import {
   type ReleaseControlEvent,
   releaseControlEventSchema,
 } from "@play-together/contracts";
-import type Redis from "ioredis";
-import { createRedis } from "../../shared/redis.js";
+import { createRedis, type RedisClient } from "../../shared/redis.js";
 import type { ReleaseControl, ReleaseControlListener } from "./release-control.js";
 
 const MAX_CONTROL_EVENT_BYTES = 2_048;
 
 export class RedisReleaseControl implements ReleaseControl {
-  readonly #commands: Redis;
-  readonly #subscriber: Redis;
+  readonly #commands: RedisClient;
+  readonly #subscriber: RedisClient;
   #started = false;
   #closed = false;
 
@@ -64,7 +63,7 @@ function parseEvent(encoded: string): ReleaseControlEvent | null {
   }
 }
 
-async function closeRedis(client: Redis): Promise<void> {
+async function closeRedis(client: RedisClient): Promise<void> {
   if (client.status === "wait" || client.status === "end") return;
   await client.quit().catch(() => client.disconnect());
 }

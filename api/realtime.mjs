@@ -1,8 +1,12 @@
+import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { loadConfig } from "../apps/realtime/src/config.js";
-import { createGateway } from "../apps/realtime/src/index.js";
 
-const environment: NodeJS.ProcessEnv = {
+const runtimeManifest = JSON.parse(
+  await readFile(new URL("./realtime-runtime.json", import.meta.url), "utf8"),
+);
+const { createGateway, loadConfig } = await import(runtimeManifest.entry);
+
+const environment = {
   ...process.env,
   HOST: "0.0.0.0",
   PORT: process.env.PORT ?? "3000",

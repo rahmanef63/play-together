@@ -1,6 +1,8 @@
-import Redis from "ioredis";
+import { Redis } from "ioredis";
 
-export function createRedis(url: string): Redis {
+export type RedisClient = Redis;
+
+export function createRedis(url: string): RedisClient {
   return new Redis(url, {
     lazyConnect: true,
     maxRetriesPerRequest: null,

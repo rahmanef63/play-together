@@ -1,11 +1,7 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
-import { verifyTemplateDownloadTicket } from "@play-together/security";
 import { issueSignedToken, presignUrl } from "@vercel/blob";
+import { verifyTemplateDownloadTicket } from "../packages/security/dist/index.js";
 
-export default async function templateDownload(
-  request: IncomingMessage,
-  response: ServerResponse,
-): Promise<void> {
+export default async function templateDownload(request, response) {
   if (request.method !== "GET") {
     response.statusCode = 405;
     response.setHeader("allow", "GET");
@@ -49,6 +45,6 @@ export default async function templateDownload(
   }
 }
 
-function safeFileName(value: string): string {
+function safeFileName(value) {
   return value.replace(/[^A-Za-z0-9._-]/g, "-").slice(0, 160) || "template.tar.gz";
 }

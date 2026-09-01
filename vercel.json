@@ -5,11 +5,11 @@
   "buildCommand": "pnpm vercel:build",
   "outputDirectory": "apps/web/dist",
   "functions": {
-    "api/realtime.ts": {
+    "api/realtime.mjs": {
       "maxDuration": 300,
-      "includeFiles": "apps/realtime/dist/game-worker.js"
+      "includeFiles": "apps/realtime/dist/*.js"
     },
-    "api/template-download.ts": {
+    "api/template-download.mjs": {
       "maxDuration": 30
     }
   },

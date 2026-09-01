@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
 describe("managed Vercel runtime configuration", () => {
@@ -7,10 +7,18 @@ describe("managed Vercel runtime configuration", () => {
     const turbo = JSON.parse(await readFile("turbo.json", "utf8"));
 
     expect(vercel.regions).toEqual(["sin1"]);
-    expect(vercel.functions["api/realtime.ts"].maxDuration).toBe(300);
-    expect(vercel.functions["api/realtime.ts"].includeFiles).toContain(
-      "apps/realtime/dist/game-worker.js",
-    );
+    expect(vercel.functions["api/realtime.mjs"].maxDuration).toBe(300);
+    expect(vercel.functions["api/realtime.mjs"].includeFiles).toBe("apps/realtime/dist/*.js");
+    expect(vercel.functions["api/template-download.mjs"].maxDuration).toBe(30);
+    const apiFiles = await readdir("api");
+    expect(apiFiles.filter((name) => name.endsWith(".ts"))).toEqual([]);
+    const realtimeAdapter = await readFile("api/realtime.mjs", "utf8");
+    const runtimeManifest = JSON.parse(await readFile("api/realtime-runtime.json", "utf8"));
+    expect(runtimeManifest.entry).toBe("../apps/realtime/dist/index.js");
+    expect(realtimeAdapter).toContain("./realtime-runtime.json");
+    expect(realtimeAdapter).toContain("await import(runtimeManifest.entry)");
+    expect(realtimeAdapter).not.toContain("apps/realtime/src/");
+    expect(realtimeAdapter).not.toContain("../apps/realtime/dist/index.js");
     expect(vercel.rewrites).toContainEqual({
       source: "/api/templates/download",
       destination: "/api/template-download",

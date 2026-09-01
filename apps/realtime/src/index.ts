@@ -12,6 +12,8 @@ import { TicketReplayGuard } from "./features/tickets/replay-guard.js";
 import { createRealtimeHttpHandler } from "./gateway/http-handler.js";
 import { attachWebSocketGateway } from "./gateway/websocket-gateway.js";
 
+export { loadConfig };
+
 export interface GatewayOptions {
   roomCoordinator?: RoomCoordinator | null;
   releaseControl?: ReleaseControl | null;

@@ -1,7 +1,6 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
 import packageJson from "../package.json" with { type: "json" };
 
-export default function health(_request: IncomingMessage, response: ServerResponse): void {
+export default function health(_request, response) {
   response.statusCode = 200;
   response.setHeader("content-type", "application/json; charset=utf-8");
   response.setHeader("cache-control", "no-store");

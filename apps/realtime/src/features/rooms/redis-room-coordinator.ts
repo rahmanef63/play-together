@@ -1,6 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import type Redis from "ioredis";
-import { createRedis } from "../../shared/redis.js";
+import { createRedis, type RedisClient } from "../../shared/redis.js";
 import {
   KEY_TTL_SECONDS,
   MAX_EVENT_BYTES,
@@ -21,7 +20,7 @@ import type {
 
 export class RedisRoomCoordinator implements RoomCoordinator {
   readonly #url: string;
-  readonly #publisher: Redis;
+  readonly #publisher: RedisClient;
   readonly #instanceId = randomUUID();
   #connectPromise: Promise<void> | null = null;
 
@@ -51,9 +50,9 @@ export class RedisRoomCoordinator implements RoomCoordinator {
 
 class RedisRoomHandle implements RoomCoordinatorHandle {
   readonly instanceId: string;
-  readonly #publisher: Redis;
+  readonly #publisher: RedisClient;
   readonly #callbacks: RoomCoordinatorCallbacks;
-  readonly #subscriber: Redis;
+  readonly #subscriber: RedisClient;
   readonly #connectionsKey: string;
   readonly #presenceKey: string;
   readonly #channel: string;
@@ -64,7 +63,7 @@ class RedisRoomHandle implements RoomCoordinatorHandle {
 
   constructor(
     url: string,
-    publisher: Redis,
+    publisher: RedisClient,
     instanceId: string,
     roomKey: string,
     callbacks: RoomCoordinatorCallbacks,

@@ -12,6 +12,7 @@ const common = {
   format: "esm",
   target: "node22",
   sourcemap: true,
+  minify: true,
   legalComments: "none",
   banner: {
     js: "import { createRequire as __createRequire } from 'node:module'; const require = __createRequire(import.meta.url);",
