@@ -22,4 +22,19 @@ describe("latest game catalog", () => {
     ]);
     expect(selected?.version).toBe("1.1.0");
   });
+  it("uses semantic version precedence instead of publish order", () => {
+    const [selected] = selectLatestPublishedByGame([
+      { gameId: "demo", version: "0.10.0", publishedAt: 10 },
+      { gameId: "demo", version: "0.9.0", publishedAt: 999 },
+    ]);
+    expect(selected?.version).toBe("0.10.0");
+  });
+
+  it("prefers a stable release over its prerelease", () => {
+    const [selected] = selectLatestPublishedByGame([
+      { gameId: "demo", version: "1.0.0-beta.2", publishedAt: 999 },
+      { gameId: "demo", version: "1.0.0", publishedAt: 10 },
+    ]);
+    expect(selected?.version).toBe("1.0.0");
+  });
 });

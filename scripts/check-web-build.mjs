@@ -1,5 +1,6 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { resolve } from "node:path";
+import { gzipSync } from "node:zlib";
 
 const root = process.cwd();
 const assets = resolve(root, "apps/web/dist/assets");
@@ -27,8 +28,11 @@ for (const prefix of lazyPrefixes) {
   }
 }
 const mainBytes = (await stat(resolve(assets, mainJs))).size;
-if (mainBytes > 420_000)
-  throw new Error(`Initial app chunk grew beyond the 420 KB raw budget: ${mainBytes}`);
+if (mainBytes > 340_000)
+  throw new Error(`Initial app chunk grew beyond the 340 KB raw budget: ${mainBytes}`);
+const mainGzipBytes = gzipSync(await readFile(resolve(assets, mainJs))).byteLength;
+if (mainGzipBytes > 105_000)
+  throw new Error(`Initial app chunk grew beyond the 105 KB gzip budget: ${mainGzipBytes}`);
 console.log(
-  `Web build completeness: OK (${mainBytes} byte main chunk, ${lazyPrefixes.length} lazy routes)`,
+  `Web build completeness: OK (${mainBytes} raw / ${mainGzipBytes} gzip main chunk, ${lazyPrefixes.length} lazy routes)`,
 );

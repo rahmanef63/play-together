@@ -55,6 +55,8 @@ const entry = {
   manifestPath: `/games/${id}/${config.game.version}/manifest.json`,
   manifestSha256,
   presentation: config.presentation ?? { remoteDisplay: { mode: "shared", maxViewports: 1 } },
+  ...(existing?.status ? { status: existing.status } : {}),
+  ...(existing?.retirementReason ? { retirementReason: existing.retirementReason } : {}),
 };
 catalog.games = catalog.games.filter(
   (item) => !(item.gameId === id && item.version === config.game.version),

@@ -93,7 +93,7 @@ Visual SSOT follows the same ownership: app tokens live under `apps/web/src/styl
 
 Runtime metadata has three owners and must not be duplicated:
 
-1. **Convex published catalog** — playable release identity plus mutable host presentation policy such as shared/per-player display. Rooms copy this policy when created.
+1. **Convex published catalog** — playable release identity plus mutable host policy: presentation and release state. `active` is selectable, `retired` is excluded from new rooms while existing pinned rooms remain valid, and `blocked` denies existing ticket issuance too. Rooms copy immutable identity/presentation when created.
 2. **Immutable game manifest** — controller definition, capabilities, module/assets digests, and declared browser runtime dependencies.
 3. **Engine runtime** — generic manifest interpreter, sandbox, verified loader, and reusable shell presets. It must not branch on game IDs, control IDs, or mechanic labels.
 
@@ -133,7 +133,7 @@ A room copies release identity at creation. Ticket claims repeat that identity, 
 roomId + gameId + gameVersion + manifestSha256
 ```
 
-Publishing `game-c@2.0.0` cannot alter `game-c@1.0.0`, a room using `1.0.0`, or any other game. Rollback means selecting an already-published immutable version for new rooms; it never rewrites history.
+Publishing `game-c@2.0.0` cannot alter `game-c@1.0.0`, a room using `1.0.0`, or any other game. Rollback means selecting an already-published immutable version for new rooms; it never rewrites history. Retirement changes host eligibility only. Blocking is reserved for incidents where even already-pinned connections must stop.
 
 ## Scaling path
 

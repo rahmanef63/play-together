@@ -10,6 +10,7 @@
 
 import type * as _shared_gameCatalog from "../_shared/gameCatalog.js";
 import type * as _shared_gamePresentation from "../_shared/gamePresentation.js";
+import type * as _shared_gameRelease from "../_shared/gameRelease.js";
 import type * as _shared_guards from "../_shared/guards.js";
 import type * as _shared_passwordCrypto from "../_shared/passwordCrypto.js";
 import type * as _shared_passwordPolicy from "../_shared/passwordPolicy.js";
@@ -50,6 +51,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   "_shared/gameCatalog": typeof _shared_gameCatalog;
   "_shared/gamePresentation": typeof _shared_gamePresentation;
+  "_shared/gameRelease": typeof _shared_gameRelease;
   "_shared/guards": typeof _shared_guards;
   "_shared/passwordCrypto": typeof _shared_passwordCrypto;
   "_shared/passwordPolicy": typeof _shared_passwordPolicy;

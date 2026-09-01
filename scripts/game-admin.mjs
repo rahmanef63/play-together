@@ -1,6 +1,6 @@
 import { createGame } from "./game-admin/create-action.mjs";
 import { getGame, listGames, refreshRegistry, validateGame } from "./game-admin/read-actions.mjs";
-import { deleteGame, publishGame } from "./game-admin/release-actions.mjs";
+import { deleteGame, publishGame, setReleaseStatus } from "./game-admin/release-actions.mjs";
 import { readSubmissionPrompt } from "./game-admin/repository.mjs";
 import { updateGame } from "./game-admin/update-action.mjs";
 import { requireId } from "./game-admin/validation.mjs";
@@ -15,6 +15,7 @@ export async function runGameTool(action, input = {}) {
   if (action === "delete") return deleteGame(requireId(input.id));
   if (action === "validate") return validateGame(requireId(input.id));
   if (action === "publish") return publishGame(requireId(input.id));
+  if (action === "release-status") return setReleaseStatus(input);
   if (action === "registry") return refreshRegistry();
   if (action === "prompt") return { prompt: await readSubmissionPrompt() };
   throw new Error(`Unknown game tool action: ${String(action)}`);

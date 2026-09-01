@@ -11,6 +11,7 @@ export function CreateRoomPanel({
   loadingGames,
   selectedGame,
   selectedManifest,
+  selectedManifestError,
   effectiveGameKey,
   busy,
   onGameChange,
@@ -21,6 +22,7 @@ export function CreateRoomPanel({
   loadingGames: boolean;
   selectedGame: GameSummary | undefined;
   selectedManifest: GameManifest | null;
+  selectedManifestError: string;
   effectiveGameKey: string;
   busy: boolean;
   onGameChange: (key: string) => void;
@@ -96,6 +98,11 @@ export function CreateRoomPanel({
                   })}
                 </div>
               )}
+              {selectedManifestError && (
+                <p className="form-error" role="alert">
+                  {selectedManifestError}
+                </p>
+              )}
               {selectedManifest?.controller.console && (
                 <div className="console-registry-card">
                   <div>
@@ -135,7 +142,11 @@ export function CreateRoomPanel({
                 </span>
                 <input name="password" type="password" minLength={4} maxLength={64} />
               </label>
-              <button className="primary-button full" type="submit" disabled={busy}>
+              <button
+                className="primary-button full"
+                type="submit"
+                disabled={busy || !selectedManifest || Boolean(selectedManifestError)}
+              >
                 Create room
               </button>
             </form>

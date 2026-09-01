@@ -5,7 +5,7 @@
 1. Games may import only `@play-together/game-sdk`, `@play-together/contracts`, and their own files.
 2. Platform packages and apps must never statically import a concrete `games/*` package.
 3. A game release is immutable and addressed by `gameId`, `version`, manifest URL, and SHA-256 digest.
-4. Existing rooms stay pinned to their original release. Never mutate or auto-upgrade an active room.
+4. Existing rooms stay pinned to their original release. Never mutate or auto-upgrade an active room. `retired` blocks new rooms but preserves pinned rooms; `blocked` is the emergency deny path for existing connections too.
 5. Convex is the durable control plane. Never write controller frames or snapshots to Convex at tick rate.
 6. The realtime gateway is transient and authoritative. One game crash must not stop another room.
 7. Browser game code runs only inside the sandboxed frame and communicates through validated messages.
@@ -42,7 +42,7 @@ A slice may span UI, Convex, contracts, gateway, game SDK, and tests. Keep its p
 - Convex generated API: `convex/_generated/api`.
 - Wire and manifest schemas: `packages/contracts`.
 - Game runtime interfaces: `packages/game-sdk`.
-- Published release catalog: immutable manifests in the game CDN plus registered digest in Convex.
+- Published release catalog: immutable manifests in the game CDN plus registered digest/status in Convex. Change host playability policy through `game.release_status`, never by rewriting release bytes.
 - Environment names and deployment rules: `.env.example` and `docs/deployment.md`.
 - Commands and verification gates: root `package.json`.
 - Agent task routing: `docs/agent-onboarding.md`.

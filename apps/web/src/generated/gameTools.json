@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "tools": [
+    {
+      "name": "game_list",
+      "description": "List every discovered game slice, current version, controller topology, and immutable release state."
+    },
+    {
+      "name": "game_get",
+      "description": "Read one game config, package metadata, controller topology, and historical release records."
+    },
+    {
+      "name": "game_create",
+      "description": "Create one validated draft game vertical slice. This never publishes to production."
+    },
+    {
+      "name": "game_update",
+      "description": "Update one game slice with optimistic version protection. Published cartridge byte changes require a greater newVersion; host-only remote display policy can change without rewriting immutable releases."
+    },
+    {
+      "name": "game_delete",
+      "description": "Delete an unpublished draft game slice. Refuses any game that already has an immutable release."
+    },
+    {
+      "name": "game_validate",
+      "description": "Validate one game with discovery, TypeScript, unit tests, and bundle build without publishing."
+    },
+    {
+      "name": "game_publish",
+      "description": "Create one local immutable game release after validation. Production Convex registration remains main-branch CI only."
+    },
+    {
+      "name": "game_release_status",
+      "description": "Set host publication policy for one immutable release. retired blocks new rooms but preserves pinned rooms; blocked is an emergency kill-switch. Production applies only through verified main CI."
+    },
+    {
+      "name": "game_registry",
+      "description": "Regenerate the dynamic portal game registry from all game.config.json slices."
+    },
+    {
+      "name": "game_prompt",
+      "description": "Return the canonical full game-submission prompt from docs/game-submission-prompt.txt."
+    }
+  ]
+}

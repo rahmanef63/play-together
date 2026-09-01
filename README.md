@@ -26,13 +26,13 @@ A version-isolated multiplayer platform for phone remotes, handheld play, and sh
 3. **Handheld** mode mounts the pinned game display and controls on the same device.
 4. The host starts the room. Only then are realtime tickets, game workers, and game frames created.
 5. Realtime presence automatically keeps communal games shared or composes per-player games into up to four display viewports.
-6. Existing rooms stay pinned to their exact immutable game version and manifest digest.
+6. Existing rooms stay pinned to their exact immutable game version and manifest digest. Release policy can retire a version for new rooms or block it during an incident without rewriting bytes.
 
 The platform never decides how a concrete game works. A game never owns QR pairing, split-screen orchestration, Convex auth, or platform navigation.
 
 ## Runtime metadata
 
-The live engine has no hardcoded game list or mechanic map. Convex is the playable release/presentation catalog, each immutable manifest owns controller/modules/assets/runtime dependencies, and the frame is a generic verified interpreter. `game-registry.json` exists for tooling/previews only. Large shared browser libraries use versioned engine ABI surfaces such as `three@0.185.1+pt1`, so 3D cartridges stay small without weakening SHA verification.
+The live engine has no hardcoded game list or mechanic map. Convex is the playable release/presentation catalog, host release policy distinguishes active/retired/blocked versions, each immutable manifest owns controller/modules/assets/runtime dependencies, and the frame is a generic verified interpreter. `game-registry.json` exists for tooling/previews only. Large shared browser libraries use versioned engine ABI surfaces such as `three@0.185.1+pt1`, so 3D cartridges stay small without weakening SHA verification.
 
 ## Architecture at a glance
 
@@ -67,7 +67,8 @@ Each `games/<id>` folder owns its authoritative server, display renderer, declar
 
 | Concern | Source of truth |
 | --- | --- |
-| game identity/controller/presentation | `games/<id>/game.config.json` |
+| game identity/controller/current presentation | `games/<id>/game.config.json` |
+| immutable release history + host release policy | `releases/game-cdn/catalog.json` → Convex |
 | wire + manifest schemas | `packages/contracts` |
 | runtime game interfaces | `packages/game-sdk` |
 | durable room/auth/template data | Convex |
@@ -103,7 +104,7 @@ Do not use `docker compose down -v` unless local data should be destroyed intent
 
 ## Add or update a game
 
-Read [docs/submitting-games.md](docs/submitting-games.md) and [docs/game-sdk.md](docs/game-sdk.md). The repository exposes bounded MCP/MSO operations (`game.list`, `game.get`, `game.create`, `game.update`, `game.validate`, `game.publish`, `game.registry`, `game.prompt`). Published cartridge bytes are immutable: any byte-changing update requires a greater semantic version.
+Read [docs/submitting-games.md](docs/submitting-games.md) and [docs/game-sdk.md](docs/game-sdk.md). The repository exposes bounded MCP/MSO operations (`game.list`, `game.get`, `game.create`, `game.update`, `game.validate`, `game.publish`, `game.release_status`, `game.registry`, `game.prompt`). Published cartridge bytes are immutable: any byte-changing update requires a greater semantic version.
 
 ```bash
 pnpm game:publish:one <game-id>

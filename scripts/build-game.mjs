@@ -3,6 +3,7 @@ import { copyFile, mkdir, readFile, rm, stat, writeFile } from "node:fs/promises
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
+import { assertSupportedRuntimeDependencies } from "./engine-runtime-policy.mjs";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const argument = process.argv[2];
@@ -30,6 +31,10 @@ const common = {
 };
 const builtinController = config?.controller?.console?.renderer === "builtin";
 const runtimeDependencies = normalizeRuntimeDependencies(config?.runtimeDependencies);
+const engineVendorCatalog = JSON.parse(
+  await readFile(resolve(repositoryRoot, "config/engine-vendors.json"), "utf8"),
+);
+assertSupportedRuntimeDependencies(runtimeDependencies, engineVendorCatalog);
 const runtimePlugin = createRuntimeDependencyPlugin(runtimeDependencies);
 const buildTasks = [
   build({

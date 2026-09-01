@@ -42,6 +42,7 @@ export function LobbyPage({
           loadingGames={catalog.loadingGames}
           selectedGame={catalog.selectedGame}
           selectedManifest={catalog.selectedManifest}
+          selectedManifestError={catalog.selectedManifestError}
           effectiveGameKey={catalog.effectiveGameKey}
           busy={directory.busy}
           onGameChange={catalog.setSelectedGameKey}

@@ -1,8 +1,13 @@
-import { fetchVerifiedManifest } from "@play-together/browser-runtime";
+import {
+  fetchVerifiedManifest,
+  prefetchVerifiedResource,
+  resolveModuleUrl,
+} from "@play-together/browser-runtime";
 import type { GameManifest } from "@play-together/contracts";
 import { useQuery } from "convex/react";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../../../shared/convexApi";
+import { resolveRuntimeImports } from "../../../shared/runtimeDependencies";
 import type { GameSummary } from "../../../shared/types";
 
 export function useGameCatalog() {
@@ -11,6 +16,7 @@ export function useGameCatalog() {
   const loadingGames = gamesResult === undefined;
   const [selectedGameKey, setSelectedGameKey] = useState("");
   const [selectedManifest, setSelectedManifest] = useState<GameManifest | null>(null);
+  const [selectedManifestError, setSelectedManifestError] = useState("");
   const defaultGame = games[0];
   const gameById = useMemo(
     () => new Map(games.map((game) => [`${game.gameId}@${game.version}`, game])),
@@ -23,13 +29,21 @@ export function useGameCatalog() {
   useEffect(() => {
     let current = true;
     setSelectedManifest(null);
+    setSelectedManifestError("");
     if (!selectedGame) return () => void 0;
     void fetchVerifiedManifest(selectedGame.manifestUrl, selectedGame.manifestSha256)
       .then((manifest) => {
-        if (current) setSelectedManifest(manifest);
+        const runtimeImports = resolveRuntimeImports(manifest);
+        if (!current) return;
+        setSelectedManifest(manifest);
+        void warmSelectedRuntime(manifest, selectedGame.manifestUrl, runtimeImports);
       })
-      .catch(() => {
-        if (current) setSelectedManifest(null);
+      .catch((reason) => {
+        if (!current) return;
+        setSelectedManifest(null);
+        setSelectedManifestError(
+          reason instanceof Error ? reason.message : "Selected game runtime is unavailable",
+        );
       });
     return () => {
       current = false;
@@ -44,8 +58,27 @@ export function useGameCatalog() {
     selectedGame,
     selectedGameKey,
     selectedManifest,
+    selectedManifestError,
     setSelectedGameKey,
   };
+}
+
+async function warmSelectedRuntime(
+  manifest: GameManifest,
+  manifestUrl: string,
+  runtimeImports: ReturnType<typeof resolveRuntimeImports>,
+) {
+  const entries = [manifest.entries.display, manifest.entries.controller].filter(
+    (entry): entry is { url: string; sha256: string } => Boolean(entry),
+  );
+  await Promise.allSettled([
+    ...entries.map((entry) =>
+      prefetchVerifiedResource(resolveModuleUrl(manifestUrl, entry.url), entry.sha256),
+    ),
+    ...Object.values(runtimeImports).map((entry) =>
+      prefetchVerifiedResource(entry.url, entry.sha256),
+    ),
+  ]);
 }
 
 export function consoleLayoutLabel(manifest: GameManifest): string {

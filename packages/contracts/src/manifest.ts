@@ -21,7 +21,7 @@ export const gameManifestSchema = z.object({
   protocolVersion: z.literal(GAME_PROTOCOL_VERSION),
   game: z.object({
     id: z.string().regex(/^[a-z0-9][a-z0-9-]{1,63}$/),
-    version: z.string().min(1).max(64),
+    version: z.string().regex(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?$/),
     title: z.string().min(1).max(80),
     description: z.string().min(1).max(500),
     minPlayers: z.number().int().min(1).max(32),
