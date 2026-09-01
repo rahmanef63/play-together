@@ -1043,9 +1043,9 @@
     },
     {
       "id": "turbo-circuit",
-      "version": "0.5.3",
+      "version": "0.6.1",
       "title": "Turbo Circuit",
-      "description": "A PS1-inspired couple circuit racer with car and circuit selection, auto-throttle, chase/driver cameras, analog speedometer, dynamic tracks, nitro, checkpoints, collisions, and racing-line CPU rivals driven by bounded chaotic variation.",
+      "description": "A PS1-inspired couple racer with a visual garage, car and circuit previews, auto-throttle, chase/driver cameras, analog speedometer, nitro, collisions, and chaotic CPU rivals.",
       "modes": ["shared-screen", "handheld"],
       "capabilities": {
         "touch": true,

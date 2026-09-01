@@ -11,15 +11,12 @@
     "tickRate": 60,
     "snapshotRate": 20
   },
-  "modes": ["shared-screen", "handheld"],
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
   "runtimeDependencies": {
     "three": "0.185.1+pt1"
-  },
-  "presentation": {
-    "remoteDisplay": {
-      "mode": "per-player",
-      "maxViewports": 4
-    }
   },
   "controller": {
     "supportsRemote": true,
@@ -49,10 +46,20 @@
             }
           },
           "keys": {
-            "left": ["ArrowLeft", "KeyA"],
-            "right": ["ArrowRight", "KeyD"],
-            "up": ["KeyW"],
-            "down": ["KeyS"]
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ],
+            "up": [
+              "KeyW"
+            ],
+            "down": [
+              "KeyS"
+            ]
           }
         },
         {
@@ -69,7 +76,10 @@
               "drive": true
             }
           },
-          "keys": ["Enter", "KeyG"]
+          "keys": [
+            "Enter",
+            "KeyG"
+          ]
         },
         {
           "id": "brake",
@@ -91,7 +101,9 @@
               "brake": 0
             }
           },
-          "keys": ["ArrowDown"]
+          "keys": [
+            "ArrowDown"
+          ]
         },
         {
           "id": "boost",
@@ -113,7 +125,9 @@
               "boost": false
             }
           },
-          "keys": ["Space"]
+          "keys": [
+            "Space"
+          ]
         },
         {
           "id": "camera",
@@ -127,7 +141,9 @@
             "type": "toggle",
             "field": "cockpit"
           },
-          "keys": ["KeyV"]
+          "keys": [
+            "KeyV"
+          ]
         }
       ],
       "initialState": {
@@ -144,5 +160,29 @@
     "keyboard": true,
     "gamepad": false,
     "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "0c7d52010b78cca7674bd08a2fe516b32214ae3827e834a82140ca8e990400b8"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "c0b89fe2bbd765273da26f125957ba8903f3917bdaf3e3fe7c62a54a030db6ed"
+    }
+  },
+  "assets": {
+    "vehicle.red.atlas": {
+      "url": "./assets/vehicle-red-atlas.png",
+      "sha256": "77d2033c3baeeff4ef6b3c1220fd7e4458da316b97206f65519da9ea0dfc3373",
+      "contentType": "image/png",
+      "bytes": 648252
+    },
+    "vehicle.red.frames": {
+      "url": "./assets/vehicle-red-atlas.json",
+      "sha256": "69cef2480d2c8cef5e8a59786f74b31fe7867667b3a8140d20ec15a8adedb4df",
+      "contentType": "application/json",
+      "bytes": 1830
+    }
   }
 }

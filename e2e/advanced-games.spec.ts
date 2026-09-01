@@ -7,7 +7,7 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const cases = [
     {
-      key: "turbo-circuit@0.5.3",
+      key: "turbo-circuit@0.6.1",
       title: "Turbo Circuit",
       control: "Ready and start auto drive",
       delay: 80,
@@ -35,15 +35,27 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
       await expect(frame.locator(".handheld-screen canvas")).toBeVisible({ timeout: 20_000 });
       if (game.title === "Turbo Circuit") {
         const turbo = frame.locator(".turbo-circuit");
+        const garage = frame.locator(".turbo-setup");
+        const carName = frame.locator(".turbo-setup__card--car .turbo-setup__name");
+        const circuitName = frame.locator(".turbo-setup__card--circuit .turbo-setup__name");
         await expect(frame.locator('[data-asset-state="ready"]')).toBeVisible({ timeout: 20_000 });
-        await expect(frame.locator(".turbo-setup")).toContainText("Sunset Ring");
-        await expect(frame.locator(".turbo-setup")).toContainText("Falcon R");
-        await expect(frame.locator(".turbo-speedometer")).toBeVisible();
+        await expect(garage).toContainText("SELECT & READY");
+        await expect(circuitName).toContainText("Sunset Ring");
+        await expect(carName).toContainText("Falcon R");
+        await expect(frame.locator(".turbo-setup__map svg")).toBeVisible();
+        await expect(frame.locator(".turbo-setup__stats")).toContainText("ACC");
+        await expect(frame.locator(".turbo-setup__stats")).toContainText("GRIP");
+        await expect(frame.locator(".turbo-setup__stats")).toContainText("BRAKE");
+        await expect(frame.locator(".turbo-setup__mode")).toContainText("AUTO-THROTTLE");
+        await expect(frame.locator(".turbo-setup__cta")).toHaveText("GO · READY UP");
+        await expect(frame.locator(".turbo-speedometer")).toHaveCSS("opacity", "0");
         await expect(frame.getByRole("button", { name: "Accelerate" })).toHaveCount(0);
         await useStick(page, frame, "steer", 0.9, 0, 120);
         await expect(turbo).toHaveAttribute("data-car", "comet-gt");
+        await expect(carName).toContainText("Comet GT");
         await useStick(page, frame, "steer", 0, 0.9, 120);
         await expect(turbo).toHaveAttribute("data-circuit", "harbor-bend");
+        await expect(circuitName).toContainText("Harbor Bend");
         await frame.getByRole("button", { name: "Toggle chase or driver camera" }).click();
         await expect(turbo).toHaveAttribute("data-camera", "driver");
       }
@@ -56,7 +68,9 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
       await control.click({ delay: game.delay });
       if (game.title === "Turbo Circuit") {
         const turbo = frame.locator(".turbo-circuit");
+        await expect(frame.locator(".turbo-setup__cta")).toHaveText("READY ✓");
         await expect(turbo).toHaveAttribute("data-phase", "racing", { timeout: 6_000 });
+        await expect(frame.locator(".turbo-speedometer")).toHaveCSS("opacity", "1");
         await expect
           .poll(
             async () => Number(await frame.locator(".turbo-speedometer__value").textContent()),

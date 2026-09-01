@@ -1,6 +1,7 @@
 import type { ControllerMode } from "@play-together/contracts";
 import * as THREE from "three";
-import { carById, circuitById, nearestTrackPoint } from "../shared/catalog.js";
+import { circuitById, nearestTrackPoint } from "../shared/catalog.js";
+import { updateGarageHud } from "./garagePresenter.js";
 import type { TurboHud } from "./hud.js";
 import { clamp, smoothing } from "./math.js";
 import type { Racer, RacerPose, TurboState } from "./model.js";
@@ -97,26 +98,21 @@ function updateChaseCamera(
 }
 
 function updateHud(state: TurboState, me: Racer, pose: RacerPose, hud: TurboHud) {
-  const car = carById(me.carId);
   const circuit = circuitById(state.circuitId);
+  const inSetup = state.phase === "setup";
+
   hud.host.dataset.phase = state.phase;
   hud.host.dataset.circuit = state.circuitId;
   hud.host.dataset.car = me.carId;
   hud.host.dataset.camera = me.cockpit ? "driver" : "chase";
-  hud.setup.style.display = state.phase === "setup" ? "block" : "none";
-  hud.setupCircuit.textContent = `${circuit.name} · ${circuit.tagline}`;
-  hud.setupCar.textContent = car.name;
-  hud.setupTrait.textContent = `${car.trait} · ${Math.round(car.topSpeed * 4.2)} KM/H`;
-  hud.setupStats.textContent = `ACC ${stat(car.accel, 22, 28)} · GRIP ${stat(car.handling, 0.88, 1.16)} · BRAKE ${stat(car.braking, 34, 41)}`;
-  const humans = state.racers.filter((racer) => !racer.bot);
-  const ready = humans.filter((racer) => racer.ready).length;
-  hud.setupReady.textContent = me.ready
-    ? `READY · ${ready}/${humans.length}`
-    : `CHOOSE · ${ready}/${humans.length} READY`;
-  hud.setupHelp.textContent =
-    humans[0]?.id === me.id
-      ? "STICK ↔ CAR · STICK ↑↓ CIRCUIT · GO READY"
-      : "STICK ↔ CAR · P1 CHOOSES CIRCUIT · GO READY";
+  hud.setup.style.display = inSetup ? "grid" : "none";
+  hud.speed.style.opacity = inSetup ? "0" : "1";
+  hud.nitro.style.opacity = inSetup ? "0" : "1";
+  hud.minimap.style.opacity = inSetup ? "0" : "1";
+  hud.cameraBadge.style.opacity = inSetup ? "0" : "1";
+  hud.top.style.opacity = inSetup ? "0" : "1";
+  updateGarageHud(state, me, hud);
+
   hud.cameraBadge.textContent = me.cockpit ? "DRIVER VIEW" : "CHASE VIEW";
   hud.results.style.display = state.phase === "finished" ? "block" : "none";
   if (state.phase === "finished") {
@@ -161,8 +157,4 @@ function formatTime(ms: number) {
   const minutes = Math.floor(total / 60);
   const seconds = total - minutes * 60;
   return `${minutes}:${seconds.toFixed(1).padStart(4, "0")}`;
-}
-function stat(value: number, min: number, max: number) {
-  const score = Math.round(1 + clamp((value - min) / Math.max(0.001, max - min), 0, 1) * 4);
-  return "■".repeat(score) + "□".repeat(5 - score);
 }

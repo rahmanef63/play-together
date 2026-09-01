@@ -7,13 +7,20 @@ const baseUrl = process.env.E2E_BASE_URL ?? "http://localhost:4173";
 const outputDir = path.resolve("apps/web/public/game-previews");
 const password = "PreviewPass123!";
 const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-const games = (await discoverGames()).map(({ id, config }) => ({
+const requestedGameId = process.env.PREVIEW_GAME_ID?.trim();
+const discoveredGames = (await discoverGames()).map(({ id, config }) => ({
   id,
   key: `${id}@${config.game.version}`,
   title: config.game.title,
   minPlayers: config.game.minPlayers,
   maxPlayers: config.game.maxPlayers,
 }));
+const games = requestedGameId
+  ? discoveredGames.filter((game) => game.id === requestedGameId)
+  : discoveredGames;
+if (requestedGameId && games.length === 0) {
+  throw new Error(`Unknown PREVIEW_GAME_ID: ${requestedGameId}`);
+}
 
 await mkdir(outputDir, { recursive: true });
 const browser = await chromium.launch({ headless: true });
@@ -41,9 +48,9 @@ async function capture(host, game) {
   const guests = await joinRequiredGuests(code, game.minPlayers - 1);
   try {
     await host.getByRole("button", { name: /Handheld console/ }).click();
+    await expectPregame(host);
+    await host.getByRole("button", { name: "Start Game" }).click();
     await expectConnected(host);
-    const start = host.getByRole("button", { name: "Start Game" });
-    if (await start.isVisible().catch(() => false)) await start.click();
     const screen = host.frameLocator("iframe.game-frame").locator(".handheld-screen");
     await screen.waitFor({ state: "visible", timeout: 20_000 });
     await host.waitForTimeout(1_200);
@@ -51,7 +58,7 @@ async function capture(host, game) {
     console.log(`Captured ${game.id}@${game.key.split("@")[1]}`);
   } finally {
     for (const guest of guests) await guest.context.close();
-    await host.getByRole("button", { name: /Room/ }).click();
+    await host.getByRole("button", { name: "← Room", exact: true }).click();
     await host.getByRole("button", { name: "Close room" }).click();
     await host.waitForURL(`${baseUrl}/`);
   }
@@ -73,7 +80,7 @@ async function joinRequiredGuests(code, count) {
     await join.click();
     await page.getByRole("heading", { name: "How are you playing?" }).waitFor({ timeout: 20_000 });
     await page.getByRole("button", { name: /Handheld console/ }).click();
-    await expectConnected(page);
+    await expectPregame(page);
     guests.push({ context, page });
   }
   return guests;
@@ -100,6 +107,11 @@ async function createRoom(page, game) {
   await form.getByRole("button", { name: "Create room" }).click();
   await page.waitForURL(/\/room\/[A-Z0-9]+$/, { timeout: 20_000 });
   return new URL(page.url()).pathname.split("/").at(-1);
+}
+
+async function expectPregame(page) {
+  await page.locator(".pregame-menu").waitFor({ state: "visible", timeout: 20_000 });
+  await page.locator(".connection").filter({ hasText: "idle" }).waitFor({ timeout: 20_000 });
 }
 
 async function expectConnected(page) {

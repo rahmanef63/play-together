@@ -14,7 +14,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   const { renderer, scene, camera } = createTrackScene(hud.canvas);
   let circuitId = circuitById("sunset-ring").id;
   let world = createCircuitWorld(scene, renderer, circuitId);
-  drawMinimapTrack(hud.mapSvg, circuitId);
+  drawCircuitMaps(hud.mapSvg, hud.setupMapSvg, circuitId);
   const vehicles = new VehicleRenderer(scene, hud.mapSvg, hud.mapDots, hud.host, ctx);
   let state: TurboState | null = null;
   const unsubscribe = ctx.subscribe((message) => {
@@ -24,7 +24,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
       disposeCircuitWorld(scene, world);
       circuitId = state.circuitId;
       world = createCircuitWorld(scene, renderer, circuitId);
-      drawMinimapTrack(hud.mapSvg, circuitId);
+      drawCircuitMaps(hud.mapSvg, hud.setupMapSvg, circuitId);
       vehicles.resetMapDots();
     }
     vehicles.sync(state.racers);
@@ -80,3 +80,8 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
     root.replaceChildren();
   };
 };
+
+function drawCircuitMaps(raceMap: SVGSVGElement, setupMap: SVGSVGElement, circuitId: string) {
+  drawMinimapTrack(raceMap, circuitId);
+  drawMinimapTrack(setupMap, circuitId);
+}
