@@ -1,6 +1,8 @@
 import { pathToFileURL } from "node:url";
 import { parentPort, workerData } from "node:worker_threads";
 import type { CreateServerGame, ServerGame } from "@play-together/game-sdk";
+import { FixedHistogram } from "../features/observability/fixed-histogram.js";
+import { WORKER_TICK_MS_BOUNDS } from "../features/observability/realtime-metrics.js";
 
 interface WorkerConfiguration {
   modulePath: string;
@@ -31,6 +33,7 @@ let timer: ReturnType<typeof setTimeout> | null = null;
 let disposed = false;
 let consecutiveTickErrors = 0;
 const MAX_CONSECUTIVE_TICK_ERRORS = 8;
+const PERFORMANCE_REPORT_MS = 5_000;
 
 async function main(): Promise<void> {
   const imported = (await import(pathToFileURL(configuration.modulePath).href)) as {
@@ -44,6 +47,8 @@ async function main(): Promise<void> {
   let lastSnapshot = previous;
   const tickInterval = 1000 / configuration.tickRate;
   const snapshotInterval = 1000 / configuration.snapshotRate;
+  const tickPerformance = new FixedHistogram(WORKER_TICK_MS_BOUNDS);
+  let lastPerformanceReport = previous;
 
   const runTick = async (): Promise<void> => {
     if (!game || disposed) return;
@@ -75,7 +80,23 @@ async function main(): Promise<void> {
       if (fatal) await dispose();
     } finally {
       if (!disposed) {
-        const elapsed = performance.now() - startedAt;
+        const completedAt = performance.now();
+        const elapsed = completedAt - startedAt;
+        tickPerformance.observe(elapsed);
+        if (completedAt - lastPerformanceReport >= PERFORMANCE_REPORT_MS) {
+          const summary = tickPerformance.summary();
+          workerPort.postMessage({
+            type: "performance",
+            performance: {
+              ticks: summary.count,
+              tickP50Ms: summary.p50,
+              tickP95Ms: summary.p95,
+              tickMaxMs: summary.max,
+            },
+          });
+          tickPerformance.reset();
+          lastPerformanceReport = completedAt;
+        }
         timer = setTimeout(() => void runTick(), Math.max(0, tickInterval - elapsed));
         timer.unref();
       }

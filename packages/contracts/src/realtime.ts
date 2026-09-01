@@ -7,9 +7,18 @@ export const clientInputMessageSchema = z.object({
   sentAt: z.number().int().nonnegative(),
   payload: z.unknown(),
 });
+export const runtimeTelemetrySchema = z.object({
+  frameP95Ms: z.number().nonnegative().max(5_000),
+  frameMaxMs: z.number().nonnegative().max(5_000),
+  frameSamples: z.number().int().min(1).max(5_000),
+  rttMs: z.number().nonnegative().max(60_000).optional(),
+});
+export type RuntimeTelemetry = z.infer<typeof runtimeTelemetrySchema>;
+
 export const clientHeartbeatMessageSchema = z.object({
   type: z.literal("heartbeat"),
   sentAt: z.number().int().nonnegative(),
+  telemetry: runtimeTelemetrySchema.optional(),
 });
 export const clientMessageSchema = z.discriminatedUnion("type", [
   clientInputMessageSchema,

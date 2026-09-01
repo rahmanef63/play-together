@@ -1,4 +1,3 @@
-import Redis from "ioredis";
 import type {
   CoordinatedInput,
   CoordinatedPresencePlayer,
@@ -14,15 +13,6 @@ export type RedisRoomEvent =
   | { type: "presence" }
   | { type: "input"; input: CoordinatedInput }
   | { type: "snapshot"; snapshot: CoordinatedSnapshot };
-
-export function createRedis(url: string): Redis {
-  return new Redis(url, {
-    lazyConnect: true,
-    maxRetriesPerRequest: null,
-    enableReadyCheck: true,
-    retryStrategy: (attempt) => Math.min(200 * attempt, 5_000),
-  });
-}
 
 export function parsePresence(encoded: string): CoordinatedPresencePlayer | null {
   try {

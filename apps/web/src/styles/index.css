@@ -33,6 +33,7 @@
 @import "./theme.css";
 @import "../features/ops/opsLayout.css";
 @import "../features/ops/ops.css";
+@import "../features/ops/opsTelemetry.css";
 @import "../features/ops/opsEmptyState.css";
 @import "../features/ops/opsResponsive.css";
 @import "../features/lobby/lobbyTheme.css";

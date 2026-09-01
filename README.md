@@ -26,13 +26,13 @@ A version-isolated multiplayer platform for phone remotes, handheld play, and sh
 3. **Handheld** mode mounts the pinned game display and controls on the same device.
 4. The host starts the room. Only then are realtime tickets, game workers, and game frames created.
 5. Realtime presence automatically keeps communal games shared or composes per-player games into up to four display viewports.
-6. Existing rooms stay pinned to their exact immutable game version and manifest digest. Release policy can retire a version for new rooms or block it during an incident without rewriting bytes.
+6. Existing rooms stay pinned to their exact immutable game version and manifest digest. `retired` stops new rooms but preserves already-pinned rooms; emergency `blocked` immediately revokes live exact-release sessions and prevents new tickets/reconnects without rewriting bytes.
 
 The platform never decides how a concrete game works. A game never owns QR pairing, split-screen orchestration, Convex auth, or platform navigation.
 
 ## Runtime metadata
 
-The live engine has no hardcoded game list or mechanic map. Convex is the playable release/presentation catalog, host release policy distinguishes active/retired/blocked versions, each immutable manifest owns controller/modules/assets/runtime dependencies, and the frame is a generic verified interpreter. `game-registry.json` exists for tooling/previews only. Large shared browser libraries use versioned engine ABI surfaces such as `three@0.185.1+pt1`, so 3D cartridges stay small without weakening SHA verification.
+The live engine has no hardcoded game list or mechanic map. Convex is the durable playable release/presentation catalog; host release policy distinguishes active/retired/blocked versions, while Redis only mirrors blocked identities transiently for immediate cross-instance revocation. Each immutable manifest owns controller/modules/assets/runtime dependencies, and the frame is a generic verified interpreter. `game-registry.json` exists for tooling/previews only. Large shared browser libraries use versioned engine ABI surfaces such as `three@0.185.1+pt1`, so 3D cartridges stay small without weakening SHA verification.
 
 ## Architecture at a glance
 
@@ -57,7 +57,7 @@ Dependency direction is enforced by `pnpm architecture:check`. Maintained implem
 
 ### Backend ownership
 
-Public Convex paths stay stable in files such as `convex/rooms.ts` and `convex/templates.ts`; business logic lives in private domain modules. Realtime room state is split into worker lifecycle, client registry/backpressure, and distributed coordination. Public packages export small domain modules through explicit facades.
+Public Convex paths stay stable in files such as `convex/rooms.ts` and `convex/templates.ts`; business logic lives in private domain modules. Realtime room state is split into worker lifecycle, validated client protocol routing, client registry/backpressure, distributed coordination, release control, and bounded observability. Public packages export small domain modules through explicit facades.
 
 ### Game ownership
 
@@ -127,7 +127,7 @@ E2E covers QR join, Start-gated lifecycle, public/private/password admission, re
 ## Production
 
 - Player app + game CDN: Vercel, `https://game.rahmanef.com`
-- Realtime: same-origin `/api/realtime`, coordinated across instances through Redis
+- Realtime: same-origin `/api/realtime`, coordinated across instances through Redis with hydrated live release revocation and fixed-cardinality instance telemetry
 - Durable control plane/auth: Convex Cloud
 - Private commercial template source: private Blob + Convex entitlement
 

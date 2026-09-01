@@ -120,6 +120,22 @@ describe("public contracts", () => {
     expect(clientMessageSchema.safeParse({ type: "execute", command: "rm" }).success).toBe(false);
   });
 
+  it("bounds anonymous runtime telemetry on heartbeats", () => {
+    const valid = clientMessageSchema.safeParse({
+      type: "heartbeat",
+      sentAt: 123,
+      telemetry: { frameP95Ms: 24, frameMaxMs: 51, frameSamples: 180, rttMs: 82 },
+    });
+    expect(valid.success).toBe(true);
+    expect(
+      clientMessageSchema.safeParse({
+        type: "heartbeat",
+        sentAt: 123,
+        telemetry: { frameP95Ms: 99_999, frameMaxMs: 99_999, frameSamples: 99_999 },
+      }).success,
+    ).toBe(false);
+  });
+
   it("requires short-lived ticket metadata", () => {
     const result = ticketClaimsSchema.safeParse({
       iss: "play-together",

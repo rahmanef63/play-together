@@ -1,5 +1,6 @@
 import { type ConnectionStatus, RealtimeClient } from "@play-together/browser-runtime";
 import type { ControllerMode, RemoteDisplayPolicy } from "@play-together/contracts";
+import { realtimeUrl } from "../../../shared/realtimeEndpoint";
 import type { TicketResponse } from "../../../shared/types";
 import {
   createRemoteDisplayPlan,
@@ -8,8 +9,8 @@ import {
   type RemoteRole,
   remoteControllers,
 } from "../remotePresentation";
+import { FramePerformanceSampler } from "./framePerformanceSampler";
 import { createGameFrame, isFrameMessage } from "./frameProtocol";
-import { realtimeUrl } from "./realtimeEndpoint";
 
 interface RuntimeCallbacks {
   onConnection: (status: ConnectionStatus) => void;
@@ -39,6 +40,10 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
   const presentationPolicy = options.presentationPolicy;
   const channel = crypto.randomUUID();
   const frame = createGameFrame(options.role, options.mode, channel);
+  const performanceSampler =
+    options.role === "display" || options.mode === "handheld"
+      ? new FramePerformanceSampler()
+      : null;
 
   const pushPresentation = () => {
     if (options.role !== "display") return;
@@ -101,6 +106,7 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
     unsubscribeSnapshot?.();
     unsubscribeMessages?.();
     client?.stop();
+    performanceSampler?.stop();
     window.removeEventListener("message", onFrameMessage);
     frame.remove();
     options.onConnection("idle");
@@ -136,6 +142,7 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
         initialTicket: { token: initial.ticket, expiresAt: initial.expiresAt },
         refreshTicket,
         reconnect: true,
+        telemetry: (rttMs) => performanceSampler?.snapshot(rttMs),
       });
       client.onStatus(options.onConnection);
       unsubscribeMessages = client.onMessage((message) => {

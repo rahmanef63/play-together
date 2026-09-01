@@ -14,6 +14,23 @@ All notable changes to Play Together are documented here. The project follows se
 - Turbo Circuit mobile input is now two-thumb friendly: `GO` is pressed once to latch auto-throttle, `BRAKE` and `BOOST` remain direct controls, `VIEW` toggles the camera, and continuous `GAS`/throttle input has been removed. Boost works whenever the car is already moving and no longer depends on holding gas.
 - Turbo Circuit `0.5.0` is retained as an immutable intermediate release; `0.5.1` is the refined release with smoothed CPU chaos, garage stat bars, race timer, and results board.
 
+## [0.11.9] - 2026-09-01
+
+### Added
+
+- Added an immediate live-session emergency kill-switch for exact `blocked` game releases. Realtime instances hydrate a Redis blocked-release mirror, subscribe to release-control events, send a fatal `RELEASE_BLOCKED` message, and close already-open affected sockets with code `4003`; unrelated releases and `retired` pinned rooms continue normally.
+- Added bounded, fixed-cardinality runtime observability for active sessions/connections, worker tick timing, generated snapshots, worker/game/coordination failures, browser frame timing, WebSocket RTT, and release-revocation counts. Instance samples are exposed through realtime health, surfaced in `/ops`, and emitted as structured `realtime_metrics` logs while rooms are active.
+
+### Changed
+
+- Managed game registration now reconciles the Redis release-control mirror after the durable Convex policy update and fails closed when production release control is required but unavailable. Redis set mutation plus Pub/Sub notification is atomic, and realtime session creation re-checks blocked policy across asynchronous module/coordinator startup boundaries.
+- Managed deployment now waits for `coordination: distributed`, `releaseControl: ready`, and observability schema v1 before registering games or running production browser scenarios.
+- Split validated heartbeat/input routing into the dedicated `RoomSessionProtocol` owner so `RoomSession` remains a thin orchestrator under the architecture budget.
+
+### Privacy
+
+- Runtime performance telemetry is aggregate and bounded; it does not store player IDs, room IDs, or game IDs. Browser samples piggyback on existing heartbeats, are throttled per connection, and do not add a separate telemetry request stream.
+
 ## [0.11.8] - 2026-09-01
 
 ### Added

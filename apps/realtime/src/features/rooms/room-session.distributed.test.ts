@@ -3,6 +3,7 @@ import type { TicketClaims } from "@play-together/contracts";
 import { describe, expect, it } from "vitest";
 import type { WebSocket } from "ws";
 import type { ResolvedGameModule } from "../modules/module-store.js";
+import { RealtimeMetrics } from "../observability/realtime-metrics.js";
 import { InMemoryRoomCoordinator } from "./in-memory-room-coordinator.js";
 import { RoomSession } from "./room-session.js";
 
@@ -96,12 +97,14 @@ describe("RoomSession distributed coordination", () => {
       claims("host", "display"),
       moduleFixture,
       () => {},
+      new RealtimeMetrics(),
       workerPath,
     );
     const controllerSession = new RoomSession(
       claims("guest", "controller"),
       moduleFixture,
       () => {},
+      new RealtimeMetrics(),
       workerPath,
     );
     const displayHandle = await coordinator.attach(displaySession.key, {

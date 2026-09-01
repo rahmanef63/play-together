@@ -9,17 +9,17 @@ import {
   CONNECT_TIMEOUT_MS,
   type ConnectionStatus,
   type ConnectionTicket,
+  createInputMessage,
   type Listener,
   REFRESH_SKEW_MS,
   type RealtimeClientOptions,
   TICKET_PROTOCOL_PREFIX,
 } from "./realtimeProtocol.js";
+import { RealtimeSubscriptions } from "./realtimeSubscriptions.js";
 
 export class RealtimeClient {
   readonly #options: RealtimeClientOptions;
-  readonly #snapshots = new Set<Listener<SnapshotMessage>>();
-  readonly #messages = new Set<Listener<ServerMessage>>();
-  readonly #statuses = new Set<Listener<ConnectionStatus>>();
+  readonly #subscriptions = new RealtimeSubscriptions();
   #socket: WebSocket | null = null;
   #latest: SnapshotMessage | null = null;
   #status: ConnectionStatus = "idle";
@@ -31,6 +31,7 @@ export class RealtimeClient {
   #heartbeat: ReturnType<typeof setInterval> | null = null;
   #socketTimer: ReturnType<typeof setTimeout> | null = null;
   #reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  #roundTripMs: number | null = null;
 
   constructor(options: RealtimeClientOptions) {
     this.#options = options;
@@ -58,29 +59,19 @@ export class RealtimeClient {
   }
 
   sendInput(payload: unknown): void {
-    this.#send({
-      type: "input",
-      seq: this.#sequence++,
-      sentAt: Date.now(),
-      payload,
-    });
+    this.#send(createInputMessage(this.#sequence++, payload));
   }
 
   subscribe(listener: Listener<SnapshotMessage>): () => void {
-    this.#snapshots.add(listener);
-    if (this.#latest) listener(this.#latest);
-    return () => this.#snapshots.delete(listener);
+    return this.#subscriptions.snapshot(listener, this.#latest);
   }
 
   onMessage(listener: Listener<ServerMessage>): () => void {
-    this.#messages.add(listener);
-    return () => this.#messages.delete(listener);
+    return this.#subscriptions.message(listener);
   }
 
   onStatus(listener: Listener<ConnectionStatus>): () => void {
-    this.#statuses.add(listener);
-    listener(this.#status);
-    return () => this.#statuses.delete(listener);
+    return this.#subscriptions.status(listener, this.#status);
   }
 
   async #connect(): Promise<void> {
@@ -117,7 +108,12 @@ export class RealtimeClient {
         this.#attempt = 0;
         this.#setStatus("connected");
         this.#heartbeat = setInterval(() => {
-          this.#send({ type: "heartbeat", sentAt: Date.now() });
+          const telemetry = this.#options.telemetry?.(this.#roundTripMs);
+          this.#send({
+            type: "heartbeat",
+            sentAt: Date.now(),
+            ...(telemetry ? { telemetry } : {}),
+          });
         }, 15_000);
         const refreshIn = Math.max(1_000, this.#ticket.expiresAt - Date.now() - REFRESH_SKEW_MS);
         this.#socketTimer = setTimeout(() => {
@@ -130,9 +126,11 @@ export class RealtimeClient {
           const parsed = serverMessageSchema.parse(JSON.parse(String(event.data)));
           if (parsed.type === "snapshot") {
             this.#latest = parsed;
-            for (const listener of this.#snapshots) listener(parsed);
+            this.#subscriptions.emitSnapshot(parsed);
+          } else if (parsed.type === "pong") {
+            this.#roundTripMs = Math.max(0, Math.min(60_000, Date.now() - parsed.sentAt));
           }
-          for (const listener of this.#messages) listener(parsed);
+          this.#subscriptions.emitMessage(parsed);
         } catch {
           // Invalid server data is ignored; it must never reach a game bundle.
         }
@@ -182,7 +180,7 @@ export class RealtimeClient {
   #setStatus(status: ConnectionStatus): void {
     if (status === this.#status) return;
     this.#status = status;
-    for (const listener of this.#statuses) listener(status);
+    this.#subscriptions.emitStatus(status);
   }
 
   #clearConnectionTimers(): void {

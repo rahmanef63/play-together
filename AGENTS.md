@@ -5,7 +5,7 @@
 1. Games may import only `@play-together/game-sdk`, `@play-together/contracts`, and their own files.
 2. Platform packages and apps must never statically import a concrete `games/*` package.
 3. A game release is immutable and addressed by `gameId`, `version`, manifest URL, and SHA-256 digest.
-4. Existing rooms stay pinned to their original release. Never mutate or auto-upgrade an active room. `retired` blocks new rooms but preserves pinned rooms; `blocked` is the emergency deny path for existing connections too.
+4. Existing rooms stay pinned to their original release. Never mutate or auto-upgrade an active room. `retired` blocks new rooms but preserves pinned rooms; `blocked` is the emergency path that immediately closes already-live exact-release sessions and denies new tickets/reconnects too.
 5. Convex is the durable control plane. Never write controller frames or snapshots to Convex at tick rate.
 6. The realtime gateway is transient and authoritative. One game crash must not stop another room.
 7. Browser game code runs only inside the sandboxed frame and communicates through validated messages.

@@ -5,6 +5,12 @@ import { resolve } from "node:path";
 import WebSocket from "ws";
 import { createGateway } from "../apps/realtime/dist/index.js";
 import { signTicket } from "../packages/security/dist/index.js";
+import {
+  expectClosed,
+  expectUnauthorized,
+  waitForType,
+  waitForUrl,
+} from "./smoke-realtime/helpers.mjs";
 
 const cdnPort = 18_081 + Math.floor(Math.random() * 500);
 const cdn = spawn(process.execPath, ["scripts/serve-game-cdn.mjs"], {
@@ -22,20 +28,32 @@ const gameVersion = pongConfig.game.version;
 const manifestUrl = `http://127.0.0.1:${cdnPort}/games/pong/${gameVersion}/manifest.json`;
 await waitForUrl(manifestUrl);
 const secret = "smoke-test-secret-with-more-than-thirty-two-bytes";
-const gateway = createGateway({
-  host: "127.0.0.1",
-  port: 0,
-  connectPath: "/v1/connect",
-  ticketSecret: secret,
-  allowedOrigins: new Set(["http://localhost:4173"]),
-  moduleOrigins: new Set([`http://127.0.0.1:${cdnPort}`]),
-  moduleOriginMap: new Map(),
-  allowInsecureModuleOrigins: true,
-  moduleCacheDirectory: resolve(".cache/smoke-game-modules"),
-  allowMissingOrigin: false,
-  roomIdleTimeoutMs: 50,
-  maxPayloadBytes: 65_536,
-});
+let releaseListener = null;
+const releaseControl = {
+  async start(listener) {
+    releaseListener = listener;
+  },
+  async close() {},
+};
+const gateway = createGateway(
+  {
+    host: "127.0.0.1",
+    port: 0,
+    connectPath: "/v1/connect",
+    ticketSecret: secret,
+    allowedOrigins: new Set(["http://localhost:4173"]),
+    moduleOrigins: new Set([`http://127.0.0.1:${cdnPort}`]),
+    moduleOriginMap: new Map(),
+    allowInsecureModuleOrigins: true,
+    moduleCacheDirectory: resolve(".cache/smoke-game-modules"),
+    allowMissingOrigin: false,
+    roomIdleTimeoutMs: 50,
+    maxPayloadBytes: 65_536,
+    redisUrl: undefined,
+    requireDistributedCoordination: false,
+  },
+  { releaseControl },
+);
 const address = await gateway.listen();
 const now = Math.floor(Date.now() / 1000);
 const base = {
@@ -58,6 +76,18 @@ const controllerTicket = signTicket(
   { ...base, sub: "player-1", role: "controller", mode: "handheld", jti: randomUUID() },
   secret,
 );
+const lateTicket = signTicket(
+  {
+    ...base,
+    roomId: "late-block-room",
+    roomCode: "LATEBK",
+    sub: "late-display",
+    role: "display",
+    mode: "remote",
+    jti: randomUUID(),
+  },
+  secret,
+);
 const endpoint = `ws://127.0.0.1:${address.port}/v1/connect`;
 const display = new WebSocket(endpoint, ["play-together.v1", `ptt.${displayTicket}`], {
   origin: "http://localhost:4173",
@@ -67,6 +97,16 @@ const controller = new WebSocket(endpoint, ["play-together.v1", `ptt.${controlle
 });
 try {
   await Promise.all([waitForType(display, "welcome"), waitForType(controller, "welcome")]);
+  const workerMetricsWindow = new Promise((resolve) => setTimeout(resolve, 5_200));
+  const telemetryPong = waitForType(controller, "pong");
+  controller.send(
+    JSON.stringify({
+      type: "heartbeat",
+      sentAt: Date.now(),
+      telemetry: { frameP95Ms: 23, frameMaxMs: 49, frameSamples: 120, rttMs: 75 },
+    }),
+  );
+  await telemetryPong;
   await expectUnauthorized(
     new WebSocket(endpoint, ["play-together.v1", `ptt.${controllerTicket}`], {
       origin: "http://localhost:4173",
@@ -106,87 +146,49 @@ try {
   });
   await waitForType(expiring, "welcome");
   await expectClosed(expiring, 4001);
-  console.log(
-    "Realtime smoke: controller → isolated game worker → shared display + ticket expiry OK",
+
+  await workerMetricsWindow;
+  if (!releaseListener) throw new Error("Release control listener was not attached");
+  const displayError = waitForType(display, "error");
+  const displayClosed = expectClosed(display, 4003);
+  const controllerClosed = expectClosed(controller, 4003);
+  releaseListener({
+    type: "release-status",
+    gameId: "pong",
+    version: gameVersion,
+    manifestSha256,
+    status: "blocked",
+    changedAt: Date.now(),
+  });
+  const blockedError = await displayError;
+  if (blockedError.code !== "RELEASE_BLOCKED")
+    throw new Error("Live block did not emit RELEASE_BLOCKED");
+  await Promise.all([displayClosed, controllerClosed]);
+
+  const late = new WebSocket(endpoint, ["play-together.v1", `ptt.${lateTicket}`], {
+    origin: "http://localhost:4173",
+  });
+  const lateError = waitForType(late, "error");
+  const lateClosed = expectClosed(late, 4003);
+  if ((await lateError).code !== "RELEASE_BLOCKED")
+    throw new Error("Pre-block ticket connected after the release was blocked");
+  await lateClosed;
+
+  const health = await fetch(`http://127.0.0.1:${address.port}/`).then((response) =>
+    response.json(),
   );
+  const observability = health.observability;
+  if (observability?.counters?.browserSamples < 1)
+    throw new Error("Browser telemetry was not recorded");
+  if (observability?.worker?.tickP95Ms?.count < 1)
+    throw new Error("Worker tick telemetry was not recorded");
+  if (observability?.counters?.releaseDisconnectedConnections < 2)
+    throw new Error("Release revocation telemetry did not record disconnected clients");
+
+  console.log("Realtime smoke: authoritative play + ticket expiry + live release kill-switch OK");
 } finally {
   display.close();
   controller.close();
   await gateway.close();
   cdn.kill("SIGTERM");
-}
-
-async function waitForUrl(url) {
-  for (let attempt = 0; attempt < 40; attempt += 1) {
-    try {
-      const response = await fetch(url);
-      if (response.ok) return;
-    } catch {}
-    await new Promise((resolve) => setTimeout(resolve, 50));
-  }
-  throw new Error("Game CDN did not start");
-}
-
-function waitForType(socket, type) {
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      cleanup();
-      reject(new Error(`Timed out waiting for ${type}`));
-    }, 5_000);
-    const onMessage = (data) => {
-      const message = JSON.parse(data.toString());
-      if (message.type !== type) return;
-      cleanup();
-      resolve(message);
-    };
-    const onError = (error) => {
-      cleanup();
-      reject(error);
-    };
-    const cleanup = () => {
-      clearTimeout(timeout);
-      socket.off("message", onMessage);
-      socket.off("error", onError);
-    };
-    socket.on("message", onMessage);
-    socket.on("error", onError);
-  });
-}
-
-function expectUnauthorized(socket) {
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => reject(new Error("Replayed ticket was not rejected")), 5_000);
-    socket.once("unexpected-response", (_request, response) => {
-      clearTimeout(timeout);
-      response.resume();
-      if (response.statusCode !== 401)
-        reject(new Error(`Expected 401, received ${response.statusCode}`));
-      else resolve();
-    });
-    socket.once("open", () => {
-      clearTimeout(timeout);
-      socket.close();
-      reject(new Error("Replayed ticket opened a socket"));
-    });
-    socket.once("error", () => undefined);
-  });
-}
-
-function expectClosed(socket, expectedCode) {
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      socket.close();
-      reject(new Error(`Socket was not closed with ${expectedCode} after ticket expiry`));
-    }, 5_000);
-    socket.once("close", (code) => {
-      clearTimeout(timeout);
-      if (code !== expectedCode)
-        reject(new Error(`Expected close ${expectedCode}, received ${code}`));
-      else resolve();
-    });
-    socket.once("error", (error) => {
-      clearTimeout(timeout);
-      reject(error);
-    });
-  });
 }

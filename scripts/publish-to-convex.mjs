@@ -4,9 +4,13 @@ import { resolve } from "node:path";
 import { ConvexHttpClient } from "convex/browser";
 import { makeFunctionReference } from "convex/server";
 import { retryManifestFetch } from "./publish-to-convex/retry.mjs";
+import { ReleaseControlPublisher } from "./release-control-publisher.mjs";
 
 const requestedIds = new Set(process.argv.slice(2));
 const environment = await loadEnvironment(resolve(process.cwd(), ".env"));
+const vercelEnvironment = await loadEnvironment(
+  resolve(process.cwd(), ".vercel/.env.production.local"),
+);
 const deploymentUrl =
   process.env.CONVEX_URL ||
   process.env.VITE_CONVEX_URL ||
@@ -16,6 +20,11 @@ const deploymentUrl =
   environment.CONVEX_SELF_HOSTED_URL;
 const publishToken = process.env.GAME_PUBLISH_TOKEN || environment.GAME_PUBLISH_TOKEN;
 const cdnOrigin = process.env.GAME_CDN_PUBLIC_ORIGIN || environment.GAME_CDN_PUBLIC_ORIGIN;
+const redisUrl = process.env.REDIS_URL || environment.REDIS_URL || vercelEnvironment.REDIS_URL;
+const releaseControlRequired = process.env.RELEASE_CONTROL_REQUIRED === "true";
+if (releaseControlRequired && !redisUrl) {
+  throw new Error("Managed release control requires REDIS_URL");
+}
 if (!deploymentUrl || !publishToken || !cdnOrigin) {
   throw new Error(
     "CONVEX_URL (or VITE_CONVEX_URL), GAME_PUBLISH_TOKEN, and GAME_CDN_PUBLIC_ORIGIN are required",
@@ -36,32 +45,39 @@ const missing = [...requestedIds].filter(
 if (missing.length) throw new Error(`No built release found for: ${missing.join(", ")}`);
 
 const client = new ConvexHttpClient(deploymentUrl);
-for (const release of releases) {
-  const manifestPath = resolve(`releases/game-cdn${release.manifestPath}`);
-  const manifestBytes = await readFile(manifestPath);
-  const digest = createHash("sha256").update(manifestBytes).digest("hex");
-  if (digest !== release.manifestSha256) {
-    throw new Error(`Catalog digest mismatch for ${release.gameId}@${release.version}`);
+const releaseControl =
+  releaseControlRequired && redisUrl ? await ReleaseControlPublisher.connect(redisUrl) : null;
+try {
+  for (const release of releases) {
+    const manifestPath = resolve(`releases/game-cdn${release.manifestPath}`);
+    const manifestBytes = await readFile(manifestPath);
+    const digest = createHash("sha256").update(manifestBytes).digest("hex");
+    if (digest !== release.manifestSha256) {
+      throw new Error(`Catalog digest mismatch for ${release.gameId}@${release.version}`);
+    }
+    const presentation = await presentationForRelease(release);
+    await retryManifestFetch(() =>
+      client.action(makeFunctionReference("games:publish"), {
+        manifestUrl: new URL(release.manifestPath, `${cdnOrigin.replace(/\/$/, "")}/`).toString(),
+        manifestSha256: digest,
+        publishToken,
+        remoteDisplayMode: presentation.mode,
+        maxViewports: presentation.maxViewports,
+        releaseStatus: release.status ?? "active",
+        retirementReason: release.retirementReason,
+      }),
+    );
+    const verb =
+      release.status === "blocked"
+        ? "Blocked"
+        : release.status === "retired"
+          ? "Retired"
+          : "Published";
+    await releaseControl?.apply(release);
+    console.log(`${verb} ${release.gameId}@${release.version} in Convex`);
   }
-  const presentation = await presentationForRelease(release);
-  await retryManifestFetch(() =>
-    client.action(makeFunctionReference("games:publish"), {
-      manifestUrl: new URL(release.manifestPath, `${cdnOrigin.replace(/\/$/, "")}/`).toString(),
-      manifestSha256: digest,
-      publishToken,
-      remoteDisplayMode: presentation.mode,
-      maxViewports: presentation.maxViewports,
-      releaseStatus: release.status ?? "active",
-      retirementReason: release.retirementReason,
-    }),
-  );
-  const verb =
-    release.status === "blocked"
-      ? "Blocked"
-      : release.status === "retired"
-        ? "Retired"
-        : "Published";
-  console.log(`${verb} ${release.gameId}@${release.version} in Convex`);
+} finally {
+  await releaseControl?.close();
 }
 
 async function loadEnvironment(path) {

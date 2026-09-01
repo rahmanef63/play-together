@@ -1,6 +1,8 @@
-import type { TicketClaims } from "@play-together/contracts";
+import type { ClientMessage, TicketClaims } from "@play-together/contracts";
 import type { WebSocket } from "ws";
 import type { ResolvedGameModule } from "../modules/module-store.js";
+import type { RealtimeMetrics } from "../observability/realtime-metrics.js";
+import { RELEASE_BLOCK_RESPONSE } from "../releases/release-block-response.js";
 import type {
   CoordinatedInput,
   CoordinatedPresencePlayer,
@@ -10,6 +12,7 @@ import type {
 import { RoomGameWorker } from "./room-game-worker.js";
 import { RoomSessionClients } from "./room-session-clients.js";
 import { RoomSessionDistribution } from "./room-session-distribution.js";
+import { RoomSessionProtocol } from "./room-session-protocol.js";
 
 export class RoomSession {
   readonly key: string;
@@ -18,11 +21,13 @@ export class RoomSession {
   readonly #onEmpty: () => void;
   #closed = false;
   readonly #distribution: RoomSessionDistribution;
+  readonly #protocol: RoomSessionProtocol;
 
   constructor(
     claims: TicketClaims,
     module: ResolvedGameModule,
     onEmpty: () => void,
+    metrics: RealtimeMetrics,
     workerScriptPath?: string,
   ) {
     this.#onEmpty = onEmpty;
@@ -41,10 +46,18 @@ export class RoomSession {
           this.close();
         },
       },
+      metrics,
       workerScriptPath,
     );
-    this.#distribution = new RoomSessionDistribution(this.#worker, this.#clients, (reason) =>
-      this.#coordinationFailed(reason),
+    this.#distribution = new RoomSessionDistribution(this.#worker, this.#clients, (reason) => {
+      metrics.coordinationFailure();
+      this.#coordinationFailed(reason);
+    });
+    this.#protocol = new RoomSessionProtocol(
+      this.#worker,
+      this.#clients,
+      this.#distribution,
+      metrics,
     );
   }
 
@@ -101,42 +114,8 @@ export class RoomSession {
     return connection.id;
   }
 
-  handle(connectionId: string, message: { type: string; [key: string]: unknown }): void {
-    const connection = this.#clients.get(connectionId);
-    if (!connection || this.#closed) return;
-    if (!this.#clients.charge(connection)) {
-      this.#clients.send(connection.socket, {
-        type: "error",
-        code: "RATE_LIMIT",
-        message: "Input rate exceeded",
-        fatal: true,
-      });
-      connection.socket.close(1008, "rate limit");
-      return;
-    }
-    if (message.type === "heartbeat") {
-      this.#clients.send(connection.socket, {
-        type: "pong",
-        sentAt: Number(message.sentAt) || 0,
-        serverTime: Date.now(),
-      });
-      this.#distribution.heartbeat(connectionId);
-      return;
-    }
-    if (message.type !== "input" || connection.claims.role !== "controller") return;
-    const sequence = Number(message.seq);
-    if (!Number.isInteger(sequence) || sequence <= connection.lastSequence) return;
-    connection.lastSequence = sequence;
-    if (
-      !this.#distribution.publishInput({
-        playerId: connection.claims.sub,
-        connectedAt: connection.connectedAt,
-        payload: message.payload,
-        sequence,
-      })
-    ) {
-      this.#worker.input(connection.claims.sub, message.payload, sequence);
-    }
+  handle(connectionId: string, message: ClientMessage): void {
+    if (!this.#closed) this.#protocol.handle(connectionId, message);
   }
 
   remove(connectionId: string): void {
@@ -153,12 +132,19 @@ export class RoomSession {
     if (this.#clients.size === 0) this.#onEmpty();
   }
 
-  close(): void {
-    if (this.#closed) return;
+  blockRelease(): number {
+    if (this.#closed) return 0;
+    this.#clients.broadcast(RELEASE_BLOCK_RESPONSE.message);
+    return this.close(RELEASE_BLOCK_RESPONSE.closeCode, RELEASE_BLOCK_RESPONSE.closeReason);
+  }
+
+  close(code = 1012, reason = "room restarted"): number {
+    if (this.#closed) return 0;
     this.#closed = true;
-    this.#clients.closeAll();
+    const disconnected = this.#clients.closeAll(code, reason);
     this.#distribution.close();
     this.#worker.dispose();
+    return disconnected;
   }
 
   #onSnapshot(snapshot: CoordinatedSnapshot): void {

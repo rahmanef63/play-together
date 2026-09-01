@@ -15,7 +15,7 @@ Do not start by editing generated registry/release files or by searching for a c
 
 - Convex is durable control-plane SSOT; realtime is transient authoritative play state.
 - A room is pinned to `gameId + gameVersion + manifestSha256`.
-- Published game bytes are immutable. Byte changes require a new semantic version. Host policy is separate: `active` allows new rooms, `retired` preserves only already-pinned rooms, and `blocked` is an emergency connection kill-switch.
+- Published game bytes are immutable. Byte changes require a new semantic version. Host policy is separate: `active` allows new rooms, `retired` preserves only already-pinned rooms, and `blocked` immediately terminates already-live exact-release sessions while denying new tickets/reconnects.
 - The platform knows contracts and presentation metadata, never concrete game mechanics.
 - A concrete game imports only its own files plus stable game SDK/contracts boundaries.
 - Browser game code runs in the sandboxed game frame; server games run in per-room workers.
@@ -83,12 +83,16 @@ Templates follow the same facade/private-domain pattern with catalog, publicatio
 `RoomSession` is an orchestrator, not a god object:
 
 - `room-game-worker.ts` owns worker readiness/lifecycle and game messages;
-- `room-session-clients.ts` owns WebSocket clients, rate pressure, presence broadcast;
+- `room-session-protocol.ts` owns validated heartbeat/input routing and telemetry admission;
+- `room-session-clients.ts` owns WebSocket clients, rate pressure, presence broadcast, and per-connection telemetry throttling;
 - `room-session-distribution.ts` owns cross-instance coordinator state;
-- `redis-room-coordinator.ts` owns Redis handle behavior;
-- `redis-room-protocol.ts` owns event parsing/Redis construction constants.
+- `redis-room-coordinator.ts` owns distributed room handle behavior;
+- `redis-room-protocol.ts` owns room-event parsing/constants;
+- `features/releases/*` owns blocked-release hydration, Pub/Sub control, and fatal revocation semantics;
+- `features/observability/*` owns fixed-cardinality histograms/counters;
+- `shared/redis.ts` owns the generic Redis client construction policy.
 
-Do not move durable room state into Redis or snapshots into Convex.
+Do not move durable room/release policy SSOT into Redis or snapshots into Convex. Redis release state is only a transient blocked-release mirror derived from the catalog/Convex policy.
 
 ## 7. Game slice structure
 

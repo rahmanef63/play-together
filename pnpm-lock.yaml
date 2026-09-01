@@ -39,6 +39,9 @@ importers:
       esbuild:
         specifier: 0.28.2
         version: 0.28.2
+      ioredis:
+        specifier: 6.0.0
+        version: 6.0.0
       turbo:
         specifier: 2.10.12
         version: 2.10.12

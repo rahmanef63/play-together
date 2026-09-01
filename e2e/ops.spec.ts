@@ -10,6 +10,13 @@ test("ops console owns panel scroll areas and stays bounded on mobile", async ({
     await signUp(page, `Ops ${runId}`, `ops-${runId}@example.test`);
     await page.goto("/ops");
     await expect(page.getByRole("heading", { name: "Platform operations" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Live instance sample" })).toBeVisible();
+    await expect(page.getByText(/^(local · disabled|distributed · ready)$/)).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByText("Worker tick p95")).toBeVisible();
+    await expect(page.getByText("WebSocket RTT p95")).toBeVisible();
+    await expect(page.getByText("Revoked connections")).toBeVisible();
 
     const hero = page.locator(
       '.ops-console-overview__art img[src="/assets/ui/ops/ops-hero-control-room.webp"]',

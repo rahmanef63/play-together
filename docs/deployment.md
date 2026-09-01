@@ -55,7 +55,7 @@ Vercel may place separate WebSocket connections for one room on different Functi
 The distributed path is intentionally transient:
 
 - Convex remains the durable control plane for users, rooms, membership, play state, tickets, and immutable game metadata.
-- Redis stores short-lived connection leases and carries validated room presence, controller input, and authority snapshots between Function replicas.
+- Redis stores short-lived connection leases and carries validated room presence, controller input, and authority snapshots between Function replicas. It also holds a transient set of exact blocked-release identities and a release-control Pub/Sub channel so emergency policy propagates to already-live sessions; Convex/catalog policy remains durable SSOT.
 - Every replica runs the same deterministic server game worker, but authority election prefers a display/handheld replica and only that replica publishes snapshots. Other replicas consume that snapshot stream for their locally connected sockets.
 - Browser heartbeats refresh Redis connection leases. Stale entries expire automatically and coordinator failure is fatal to the affected room instead of silently falling back to divergent local state.
 
@@ -65,7 +65,7 @@ Production requirements:
 REDIS_URL=<injected by the connected Vercel Redis resource>
 ```
 
-The Vercel Function forces `REQUIRE_DISTRIBUTED_COORDINATION=true`. CI checks for `REDIS_URL` before building the production artifact and then requires `/api/realtime` to report `coordination: "distributed"` before game registration and browser E2E.
+The Vercel Function forces `REQUIRE_DISTRIBUTED_COORDINATION=true`. CI checks for `REDIS_URL` before building the production artifact and then waits until `/api/realtime` reports `coordination: "distributed"`, `releaseControl: "ready"`, and observability schema v1 before game registration and browser E2E. Managed registration sets `RELEASE_CONTROL_REQUIRED=true`, so a durable Convex policy update is not considered fully deployed unless its Redis blocked-set mirror/Pub/Sub control path can also be reconciled.
 
 Recommended Vercel Marketplace resource for this deployment: Redis Free, region `sin1`, RAM only. Marketplace terms must be accepted by the account owner.
 

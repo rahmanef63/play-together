@@ -10,6 +10,7 @@ export interface ClientConnection {
   connectedAt: number;
   messagesInWindow: number;
   lastSequence: number;
+  lastTelemetryAt: number;
   windowStartedAt: number;
   expiryTimer: ReturnType<typeof setTimeout>;
 }
@@ -38,6 +39,7 @@ export class RoomSessionClients {
       connectedAt,
       messagesInWindow: 0,
       lastSequence: -1,
+      lastTelemetryAt: 0,
       windowStartedAt: connectedAt,
       expiryTimer,
     };
@@ -64,6 +66,12 @@ export class RoomSessionClients {
         connection.claims.role === "controller" &&
         connection.claims.sub === playerId,
     );
+  }
+
+  canRecordTelemetry(connection: ClientConnection, now = Date.now()): boolean {
+    if (now - connection.lastTelemetryAt < 10_000) return false;
+    connection.lastTelemetryAt = now;
+    return true;
   }
 
   charge(connection: ClientConnection): boolean {
@@ -106,11 +114,13 @@ export class RoomSessionClients {
     });
   }
 
-  closeAll(): void {
+  closeAll(code = 1012, reason = "room restarted"): number {
+    const count = this.#clients.size;
     for (const connection of this.#clients.values()) {
       clearTimeout(connection.expiryTimer);
-      connection.socket.close(1012, "room restarted");
+      connection.socket.close(code, reason);
     }
     this.#clients.clear();
+    return count;
   }
 }

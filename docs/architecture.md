@@ -23,7 +23,7 @@ Capacity admission happens in one Convex mutation, so concurrent join attempts o
 
 ### Transient realtime plane — WebSocket gateway
 
-Managed Vercel uses a Redis room bus between WebSocket Function replicas. A connection lease registry provides global presence, validated controller input is fanned to each deterministic room replica, and a deterministic authority election selects the one display/handheld replica allowed to publish snapshots. This keeps cross-instance transport transient while Convex remains durable SSOT.
+Managed Vercel uses Redis between WebSocket Function replicas. A connection lease registry provides global presence, validated controller input is fanned to each deterministic room replica, and deterministic authority election selects the one display/handheld replica allowed to publish snapshots. A separate Redis blocked-release set plus Pub/Sub channel mirrors only emergency release policy so active instances can revoke exact releases immediately and cold-start instances hydrate the current blocked set. Convex/catalog policy remains the durable SSOT.
 
 The gateway stores no durable product record. It:
 
@@ -34,6 +34,8 @@ The gateway stores no durable product record. It:
 - starts one worker for the room's exact release;
 - validates and rate-limits client messages;
 - advances the authoritative game clock and broadcasts snapshots;
+- hydrates/subscribes to emergency blocked-release control before accepting realtime connections;
+- records bounded aggregate worker/browser/revocation telemetry without room/player identifiers;
 - expires idle rooms and connection tickets.
 
 If the gateway restarts, rooms reconnect with fresh tickets while durable lobby data remains in Convex.
@@ -93,7 +95,7 @@ Visual SSOT follows the same ownership: app tokens live under `apps/web/src/styl
 
 Runtime metadata has three owners and must not be duplicated:
 
-1. **Convex published catalog** — playable release identity plus mutable host policy: presentation and release state. `active` is selectable, `retired` is excluded from new rooms while existing pinned rooms remain valid, and `blocked` denies existing ticket issuance too. Rooms copy immutable identity/presentation when created.
+1. **Convex published catalog** — playable release identity plus mutable host policy: presentation and release state. `active` is selectable, `retired` is excluded from new rooms while existing pinned rooms remain valid, and `blocked` immediately revokes already-live exact-release sessions and denies new ticket issuance/reconnects. Redis mirrors only blocked identities for transient cross-instance delivery; it is not an additional policy SSOT. Rooms copy immutable identity/presentation when created.
 2. **Immutable game manifest** — controller definition, capabilities, module/assets digests, and declared browser runtime dependencies.
 3. **Engine runtime** — generic manifest interpreter, sandbox, verified loader, and reusable shell presets. It must not branch on game IDs, control IDs, or mechanic labels.
 
@@ -123,7 +125,8 @@ Manifest-declared console → validated input protocol → room worker → valid
 
 ### Operations
 
-`apps/web/features/ops`, health endpoints, local bootstrap, Compose, CI, and security checks.
+`apps/web/features/ops`, health endpoints, local bootstrap, Compose, CI, and security checks. `/ops` polls the realtime health surface only while open and labels performance data as an **instance sample**, not a cluster-global aggregate. Realtime also emits a structured `realtime_metrics` event every 30 seconds while at least one room is active plus `release_blocked_live` when an emergency block actually disconnects live sessions. Metric payloads use fixed histograms/counters and omit player IDs, room IDs, and game IDs.
+
 
 ## Version isolation
 
@@ -133,7 +136,7 @@ A room copies release identity at creation. Ticket claims repeat that identity, 
 roomId + gameId + gameVersion + manifestSha256
 ```
 
-Publishing `game-c@2.0.0` cannot alter `game-c@1.0.0`, a room using `1.0.0`, or any other game. Rollback means selecting an already-published immutable version for new rooms; it never rewrites history. Retirement changes host eligibility only. Blocking is reserved for incidents where even already-pinned connections must stop.
+Publishing `game-c@2.0.0` cannot alter `game-c@1.0.0`, a room using `1.0.0`, or any other game. Rollback means selecting an already-published immutable version for new rooms; it never rewrites history. Retirement changes host eligibility only. Blocking is reserved for incidents where even already-pinned connections must stop: each realtime instance closes only sessions whose `gameId + gameVersion + manifestSha256` exactly matches the blocked identity, while unrelated releases continue.
 
 ## Scaling path
 

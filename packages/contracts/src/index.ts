@@ -3,5 +3,6 @@ export * from "./console.js";
 export * from "./manifest.js";
 export * from "./presentation.js";
 export * from "./realtime.js";
+export * from "./release-control.js";
 export * from "./summaries.js";
 export * from "./tickets.js";

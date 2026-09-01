@@ -4,6 +4,7 @@ import { navigate } from "../../shared/navigation";
 import { ScrollArea } from "../../shared/ScrollArea";
 import { SkeletonBlock } from "../../shared/Skeleton";
 import type { CurrentUser, GameSummary } from "../../shared/types";
+import { RealtimeTelemetryPanel } from "./RealtimeTelemetryPanel";
 
 const GAME_SKELETON_KEYS = ["game-a", "game-b", "game-c", "game-d", "game-e"] as const;
 
@@ -41,6 +42,8 @@ export function OpsPage({ user }: { user: CurrentUser }) {
               <img src="/assets/ui/ops/ops-hero-control-room.webp" alt="" />
             </figure>
           </section>
+
+          <RealtimeTelemetryPanel />
 
           <div className="ops-grid ops-console-grid">
             <section className="panel panel-frame ops-catalog-panel">

@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import type Redis from "ioredis";
+import { createRedis } from "../../shared/redis.js";
 import {
-  createRedis,
   KEY_TTL_SECONDS,
   MAX_EVENT_BYTES,
   PRESENCE_REFRESH_MS,

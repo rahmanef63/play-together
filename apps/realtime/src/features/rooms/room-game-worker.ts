@@ -2,17 +2,22 @@ import { pathToFileURL } from "node:url";
 import { Worker } from "node:worker_threads";
 import type { TicketClaims } from "@play-together/contracts";
 import type { ResolvedGameModule } from "../modules/module-store.js";
+import type {
+  RealtimeMetrics,
+  WorkerPerformanceSample,
+} from "../observability/realtime-metrics.js";
 import type { CoordinatedSnapshot } from "./room-coordinator.js";
 
 const WORKER_READY_TIMEOUT_MS = 8_000;
 
 interface WorkerMessage {
-  type: "ready" | "snapshot" | "error" | "disposed";
+  type: "ready" | "snapshot" | "performance" | "error" | "disposed";
   tick?: number;
   serverTime?: number;
   state?: unknown;
   message?: string;
   fatal?: boolean;
+  performance?: WorkerPerformanceSample;
 }
 
 interface WorkerCallbacks {
@@ -28,6 +33,7 @@ export class RoomGameWorker {
   readonly ready: Promise<void>;
   readonly #worker: Worker;
   readonly #callbacks: WorkerCallbacks;
+  readonly #metrics: RealtimeMetrics;
   #resolveReady!: () => void;
   #rejectReady!: (error: Error) => void;
   #readyTimer: ReturnType<typeof setTimeout> | null = null;
@@ -37,9 +43,11 @@ export class RoomGameWorker {
     claims: TicketClaims,
     module: ResolvedGameModule,
     callbacks: WorkerCallbacks,
+    metrics: RealtimeMetrics,
     workerScriptPath?: string,
   ) {
     this.#callbacks = callbacks;
+    this.#metrics = metrics;
     this.ready = new Promise((resolve, reject) => {
       this.#resolveReady = resolve;
       this.#rejectReady = reject;
@@ -47,6 +55,7 @@ export class RoomGameWorker {
     this.#readyTimer = setTimeout(() => {
       const error = new Error("Game worker did not become ready in time");
       this.#rejectReady(error);
+      this.#metrics.workerFatal();
       this.#callbacks.onFatal(
         "GAME_WORKER_TIMEOUT",
         "This room's game process did not start in time",
@@ -75,12 +84,15 @@ export class RoomGameWorker {
     this.#worker.on("error", (error) => {
       this.#clearReadyTimer();
       this.#rejectReady(error instanceof Error ? error : new Error(String(error)));
+      this.#metrics.workerFatal();
       this.#callbacks.onFatal("GAME_WORKER_CRASH", "This room's game process stopped");
     });
     this.#worker.on("exit", (code) => {
       this.#clearReadyTimer();
-      if (!this.#closed && code !== 0)
+      if (!this.#closed && code !== 0) {
+        this.#metrics.workerFatal();
         this.#callbacks.onFatal("GAME_WORKER_EXIT", "This room's game process exited");
+      }
     });
   }
 
@@ -108,6 +120,7 @@ export class RoomGameWorker {
       return;
     }
     if (message.type === "snapshot") {
+      this.#metrics.snapshotGenerated();
       this.#callbacks.onSnapshot({
         tick: message.tick ?? 0,
         serverTime: message.serverTime ?? Date.now(),
@@ -115,8 +128,14 @@ export class RoomGameWorker {
       });
       return;
     }
-    if (message.type === "error")
+    if (message.type === "performance" && message.performance) {
+      this.#metrics.workerPerformance(message.performance);
+      return;
+    }
+    if (message.type === "error") {
+      this.#metrics.gameError();
       this.#callbacks.onGameError(message.message ?? "Game error", Boolean(message.fatal));
+    }
   }
 
   #clearReadyTimer(): void {
