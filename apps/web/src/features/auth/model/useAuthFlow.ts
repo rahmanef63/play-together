@@ -9,6 +9,7 @@ export type AuthMode = "signIn" | "signUp" | "forgot" | "reset";
 export function useAuthFlow() {
   const { signIn } = useAuthActions();
   const requestPasswordReset = useAction(api.passwordReset.request);
+  const authCapabilities = useQuery(api.auth.capabilities);
   const resetCapability = useQuery(api.passwordReset.capability);
   const [mode, setMode] = useState<AuthMode>("signUp");
   const [busy, setBusy] = useState(false);
@@ -39,6 +40,21 @@ export function useAuthFlow() {
     } catch (reason) {
       setError(authErrorMessage(reason));
     } finally {
+      setBusy(false);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    if (authCapabilities?.google !== true) {
+      setError("Google sign-in is not configured yet.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      await signIn("google", { redirectTo: "/" });
+    } catch (reason) {
+      setError(authErrorMessage(reason));
       setBusy(false);
     }
   };
@@ -99,8 +115,10 @@ export function useAuthFlow() {
     error,
     mode,
     notice,
+    authCapabilities,
     resetCapability,
     resetEmail,
+    signInWithGoogle,
     submitAccount,
     submitResetRequest,
     submitResetVerification,

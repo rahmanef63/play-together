@@ -88,6 +88,11 @@ RESEND_API_KEY=<server-only Resend key>
 EMAIL_FROM_ADDRESS=official@rahmanef.com
 EMAIL_PROJECT_NAME=Play Together
 EMAIL_PROJECT_TAG=play-together
+EMAIL_SITE_URL=https://game.rahmanef.com
+
+# Optional until a dedicated Play Together Google Cloud OAuth client exists.
+AUTH_GOOGLE_ID=<Google OAuth web client id>
+AUTH_GOOGLE_SECRET=<Google OAuth web client secret>
 
 TEMPLATE_DOWNLOAD_SECRET=<same value as Vercel download function>
 TEMPLATE_PUBLISH_TOKEN=<release-only secret>
@@ -95,6 +100,19 @@ TEMPLATE_SALES_WEBHOOK_SECRET=<checkout fulfillment HMAC secret>
 ```
 
 `RESEND_API_KEY` is consumed only by Convex server actions. It must never be exposed as a Vite variable or shipped to Vercel browser output.
+
+### Google sign-in
+
+Google sign-in is capability-gated. If either Google credential is absent, the backend registers only the password provider and the browser hides the Google button. This keeps production usable while OAuth is being configured and avoids fake credentials or broken redirects.
+
+Create a **dedicated Google OAuth Web application** for Play Together. Use:
+
+```text
+Application origin: https://game.rahmanef.com
+Authorized redirect URI: https://upbeat-dog-398.convex.site/api/auth/callback/google
+```
+
+Store `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` in the **production Convex deployment environment**, not in Vercel browser variables or the repository. Development should use a separate Google OAuth client and callback for its own Convex deployment.
 
 ## Vercel environment
 
@@ -119,7 +137,7 @@ Password reset uses one verified sender identity:
 Play Together <official@rahmanef.com>
 ```
 
-The display name and Resend `project` tag are dynamic environment values. Reset requests are enumeration-safe, rate-limited, and send an 8-digit code that expires after 10 minutes. A reset invalidates the user's other sessions through Convex Auth.
+The display name, site URL, and Resend `project` tag are dynamic environment values. Transactional mail uses a shared responsive shell with a reusable branded header and safety/footer section. Reset requests are enumeration-safe, rate-limited, and send an 8-digit code that expires after 10 minutes. A reset invalidates the user's other sessions through Convex Auth.
 
 ## Paid template source
 

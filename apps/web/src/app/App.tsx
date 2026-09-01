@@ -4,6 +4,7 @@ import { AuthPage } from "../features/auth/AuthPage";
 import { LobbyPage } from "../features/lobby/LobbyPage";
 import { AppDock } from "../shared/AppDock";
 import { api } from "../shared/convexApi";
+import { MobileAccountMenu } from "../shared/MobileAccountMenu";
 import { currentPath, navigate } from "../shared/navigation";
 import { PwaUpdateToast } from "../shared/PwaUpdateToast";
 import { RouteSkeleton } from "../shared/Skeleton";
@@ -67,21 +68,23 @@ export function App() {
 
   const roomMatch = path.match(/^\/room\/([A-Z0-9]+)$/i);
   const roomCode = roomMatch?.[1];
-  if (roomCode) return withAppChrome(<RoomPage code={roomCode.toUpperCase()} user={user} />, path);
-  if (path === "/ops") return withAppChrome(<OpsPage user={user} />, path);
-  if (path === "/templates") return withAppChrome(<TemplatesPage user={user} />, path);
-  if (path === "/developers") return withAppChrome(<DevelopersPage user={user} />, path);
-  if (path === "/rooms") return withAppChrome(<LobbyPage user={user} focus="rooms" />, path);
-  if (path === "/") return withAppChrome(<LobbyPage user={user} focus="home" />, path);
+  if (roomCode)
+    return withAppChrome(<RoomPage code={roomCode.toUpperCase()} user={user} />, path, user);
+  if (path === "/ops") return withAppChrome(<OpsPage user={user} />, path, user);
+  if (path === "/templates") return withAppChrome(<TemplatesPage user={user} />, path, user);
+  if (path === "/developers") return withAppChrome(<DevelopersPage user={user} />, path, user);
+  if (path === "/rooms") return withAppChrome(<LobbyPage user={user} focus="rooms" />, path, user);
+  if (path === "/") return withAppChrome(<LobbyPage user={user} focus="home" />, path, user);
 
   navigate("/");
   return <RouteSkeleton />;
 }
 
-function withAppChrome(page: ReactNode, path: string) {
+function withAppChrome(page: ReactNode, path: string, user: CurrentUser) {
   return (
     <>
       <Suspense fallback={<RouteSkeleton />}>{page}</Suspense>
+      <MobileAccountMenu user={user} />
       <AppDock path={path} />
       <PwaUpdateToast />
     </>

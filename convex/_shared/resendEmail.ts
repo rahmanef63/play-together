@@ -1,3 +1,5 @@
+import { renderTransactionalEmail } from "./emailShell";
+
 interface PasswordResetEmailInput {
   identifier: string;
   token: string;
@@ -10,6 +12,7 @@ interface ResendEnvironment {
   EMAIL_PROJECT_NAME?: string;
   EMAIL_PROJECT_TAG?: string;
   EMAIL_REPLY_TO?: string;
+  EMAIL_SITE_URL?: string;
 }
 
 export interface PasswordResetEmailMessage {
@@ -25,6 +28,7 @@ export interface PasswordResetEmailMessage {
 const DEFAULT_FROM = "official@rahmanef.com";
 const DEFAULT_PROJECT_NAME = "Play Together";
 const DEFAULT_PROJECT_TAG = "play-together";
+const DEFAULT_SITE_URL = "https://game.rahmanef.com";
 
 export function buildPasswordResetEmail(
   input: PasswordResetEmailInput,
@@ -35,21 +39,25 @@ export function buildPasswordResetEmail(
   const fromAddress = cleanEmail(environment.EMAIL_FROM_ADDRESS ?? DEFAULT_FROM);
   const minutes = Math.max(1, Math.ceil((input.expires.getTime() - Date.now()) / 60_000));
   const subject = `${projectName} password reset`;
-  const text = [
-    `Reset your ${projectName} password`,
-    "",
-    `Verification code: ${input.token}`,
-    `This code expires in about ${minutes} minutes.`,
-    "",
-    "If you did not request a password reset, you can ignore this email.",
-  ].join("\n");
-  const html = `<!doctype html><html><body style="font-family:system-ui,sans-serif;color:#17151f"><h2>${escapeHtml(projectName)} password reset</h2><p>Use this verification code:</p><p style="font:700 28px/1.2 ui-monospace,monospace;letter-spacing:.14em">${escapeHtml(input.token)}</p><p>This code expires in about ${minutes} minutes.</p><p>If you did not request a password reset, you can ignore this email.</p></body></html>`;
+  const siteUrl = cleanSiteUrl(environment.EMAIL_SITE_URL ?? DEFAULT_SITE_URL);
+  const content = renderTransactionalEmail({
+    projectName,
+    preheader: `Your ${projectName} password reset code`,
+    title: "Reset your password",
+    paragraphs: [
+      "Use the verification code below to set a new password.",
+      `This code expires in about ${minutes} minutes.`,
+    ],
+    code: input.token,
+    footerNote: "If you did not request this password reset, you can safely ignore this email.",
+    siteUrl,
+  });
   const message: PasswordResetEmailMessage = {
     from: `${projectName} <${fromAddress}>`,
     to: [cleanEmail(input.identifier)],
     subject,
-    text,
-    html,
+    text: content.text,
+    html: content.html,
     tags: [
       { name: "project", value: projectTag },
       { name: "purpose", value: "password-reset" },
@@ -105,11 +113,10 @@ function cleanTag(value: string): string {
   return tag.slice(0, 64) || DEFAULT_PROJECT_TAG;
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+function cleanSiteUrl(value: string): string {
+  const url = new URL(value);
+  if (url.protocol !== "https:" && url.hostname !== "localhost") {
+    throw new Error("Invalid email site URL");
+  }
+  return url.toString().replace(/\/$/, "");
 }

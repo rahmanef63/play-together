@@ -40,6 +40,20 @@
   --radius-3xl: 24px;
   --radius-pill: 999px;
 
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --control-height-sm: 36px;
+  --control-height-md: 44px;
+  --touch-target: 44px;
+  --content-max: 1500px;
+  --focus-ring: 0 0 0 3px rgba(211, 154, 50, 0.28);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --mobile-dock-clearance: calc(86px + var(--safe-bottom));
+
   /* Stable semantic aliases used by game-portal surfaces. */
   --arcade-ink: var(--color-bg);
   --arcade-surface: var(--color-surface);

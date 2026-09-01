@@ -13,6 +13,7 @@ describe("password reset email", () => {
       EMAIL_FROM_ADDRESS: "official@rahmanef.com",
       EMAIL_PROJECT_NAME: "Arcade Beta",
       EMAIL_PROJECT_TAG: "Arcade Beta / 2026",
+      EMAIL_SITE_URL: "https://arcade.example.com",
     });
     expect(message.from).toBe("Arcade Beta <official@rahmanef.com>");
     expect(message.to).toEqual(["player@example.com"]);
@@ -21,6 +22,11 @@ describe("password reset email", () => {
     expect(message.tags).toContainEqual({ name: "purpose", value: "password-reset" });
     expect(message.text).toContain("12345678");
     expect(message.html).toContain("12345678");
+    expect(message.html).toContain(">PT<");
+    expect(message.html).toContain("Arcade Beta");
+    expect(message.html).toContain("arcade.example.com");
+    expect(message.text).toContain("arcade.example.com");
+    expect(message.html).toContain("If you did not request this password reset");
   });
 
   it("sends through Resend without placing the API key in the payload", async () => {

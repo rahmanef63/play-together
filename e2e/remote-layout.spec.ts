@@ -15,10 +15,10 @@ test("screenless remotes stay bounded in landscape and portrait across console s
       maxPlayers: 2,
     },
     {
-      key: "turbo-circuit@0.5.3",
+      key: "turbo-circuit@0.7.0",
       title: "Turbo Circuit",
       preset: "racing",
-      control: "Ready and start auto drive",
+      control: "Ready and start race",
       visibleAction: "BOOST",
       maxPlayers: 1,
     },
@@ -96,9 +96,7 @@ test("screenless remotes stay bounded in landscape and portrait across console s
       if (game.preset === "racing") {
         await page.screenshot({ path: testInfo.outputPath("turbo-remote-landscape.png") });
         await page.setViewportSize({ width: 390, height: 844 });
-        await expect(
-          frame.getByRole("button", { name: "Ready and start auto drive" }),
-        ).toBeVisible();
+        await expect(frame.getByRole("button", { name: "Ready and start race" })).toBeVisible();
         await expect(frame.getByRole("button", { name: "Brake" })).toBeVisible();
         await expect(frame.getByRole("button", { name: "Nitro boost" })).toBeVisible();
         await expect(
@@ -116,7 +114,7 @@ test("screenless remotes stay bounded in landscape and portrait across console s
             viewportWidth: innerWidth,
             viewportHeight: innerHeight,
             scrollWidth: document.documentElement.scrollWidth,
-            go: rectFor('[data-control-id="drive"]'),
+            start: rectFor('[data-control-id="start"]'),
             brake: rectFor('[data-control-id="brake"]'),
             boost: rectFor('[data-control-id="boost"]'),
             camera: rectFor('[data-control-id="camera"]'),
@@ -127,7 +125,7 @@ test("screenless remotes stay bounded in landscape and portrait across console s
           portraitGeometry.viewportWidth + 1,
         );
         for (const control of [
-          portraitGeometry.go,
+          portraitGeometry.start,
           portraitGeometry.brake,
           portraitGeometry.boost,
           portraitGeometry.camera,
@@ -136,7 +134,7 @@ test("screenless remotes stay bounded in landscape and portrait across console s
           expect(control.top).toBeGreaterThanOrEqual(-1);
           expect(control.bottom).toBeLessThanOrEqual(portraitGeometry.viewportHeight + 1);
         }
-        expect(portraitGeometry.go.height).toBeLessThan(portraitGeometry.viewportHeight * 0.34);
+        expect(portraitGeometry.start.height).toBeLessThan(portraitGeometry.viewportHeight * 0.34);
         expect(portraitGeometry.brake.height).toBeLessThan(portraitGeometry.viewportHeight * 0.34);
         expect(portraitGeometry.boost.width).toBeGreaterThanOrEqual(70);
         await expect(page.locator(".play-toolbar__role-switch")).toBeHidden();

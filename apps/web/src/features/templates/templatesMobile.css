@@ -2,7 +2,7 @@
   content-visibility: auto;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .template-grid::-webkit-scrollbar {
     display: none;
     width: 0;
@@ -45,7 +45,7 @@
   contain-intrinsic-size: 430px;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .template-page,
   .developer-page,
   .ops-page-native {
@@ -109,7 +109,7 @@
   }
 }
 
-@media (max-width: 760px) and (orientation: landscape) and (max-height: 500px) {
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
   .developer-hero,
   .template-heading {
     padding-top: 6px;
@@ -122,7 +122,7 @@
   }
 }
 
-@media (max-width: 760px) and (orientation: landscape) and (max-height: 500px) {
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
   .template-page__content {
     padding-bottom: calc(68px + env(safe-area-inset-bottom));
   }

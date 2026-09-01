@@ -28,7 +28,9 @@ export function AuthPage() {
         notice={auth.notice}
         resetEmail={auth.resetEmail}
         resetEnabled={auth.resetCapability?.enabled}
+        googleEnabled={auth.authCapabilities?.google}
         onModeChange={auth.switchMode}
+        onGoogle={() => void auth.signInWithGoogle()}
         onAccount={(event) => void auth.submitAccount(event)}
         onResetRequest={(event) => void auth.submitResetRequest(event)}
         onResetVerification={(event) => void auth.submitResetVerification(event)}

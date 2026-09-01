@@ -1,0 +1,59 @@
+.ds-button {
+  min-height: var(--control-height-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  border: 1px solid transparent;
+  border-radius: var(--radius-xl);
+  padding: 0 17px;
+  font-weight: 760;
+  line-height: 1;
+  transition:
+    transform 120ms ease,
+    background 120ms ease,
+    border-color 120ms ease;
+}
+.ds-button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.995);
+}
+.ds-button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.ds-button--primary {
+  background: var(--accent);
+  color: #07110c;
+}
+.ds-button--secondary {
+  background: rgba(201, 255, 220, 0.1);
+  color: var(--accent);
+  border-color: var(--line);
+}
+.ds-button--outline {
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--color-text-strong);
+  border-color: var(--line);
+}
+.ds-button--ghost {
+  background: transparent;
+  color: var(--color-text-strong);
+}
+.ds-button--danger {
+  background: rgba(224, 122, 109, 0.12);
+  color: #ffd8d2;
+  border-color: rgba(224, 122, 109, 0.28);
+}
+.ds-button--sm {
+  min-height: var(--control-height-sm);
+  padding-inline: 12px;
+  font-size: var(--text-sm);
+}
+.ds-button--icon {
+  width: var(--control-height-md);
+  padding: 0;
+  border-radius: 50%;
+}
+.ds-button--full {
+  width: 100%;
+}

@@ -28,6 +28,16 @@ const changes = [
     name: "ALLOW_INSECURE_GAME_ORIGINS",
     value: environment.ALLOW_INSECURE_GAME_ORIGINS || "false",
   },
+  ...optionalChanges(environment, [
+    "AUTH_GOOGLE_ID",
+    "AUTH_GOOGLE_SECRET",
+    "EMAIL_FROM_ADDRESS",
+    "EMAIL_PROJECT_NAME",
+    "EMAIL_PROJECT_TAG",
+    "EMAIL_REPLY_TO",
+    "EMAIL_SITE_URL",
+    "RESEND_API_KEY",
+  ]),
 ];
 const response = await fetch(
   `${deploymentUrl.replace(/\/$/, "")}/api/update_environment_variables`,
@@ -45,6 +55,13 @@ if (!response.ok) {
   throw new Error(`Convex environment update failed (${response.status}): ${detail}`);
 }
 console.log("Convex function environment synchronized");
+
+function optionalChanges(environment, keys) {
+  return keys.flatMap((name) => {
+    const value = environment[name]?.trim();
+    return value ? [{ name, value }] : [];
+  });
+}
 
 function required(environment, key) {
   const value = environment[key];

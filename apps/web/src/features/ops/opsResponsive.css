@@ -53,7 +53,7 @@
   }
 }
 
-@media (max-width: 760px) and (orientation: landscape) and (max-height: 500px) {
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
   .ops-page-native__content {
     padding-bottom: calc(68px + env(safe-area-inset-bottom));
   }

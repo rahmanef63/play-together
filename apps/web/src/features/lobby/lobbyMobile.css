@@ -24,7 +24,7 @@
   contain-intrinsic-size: 86px;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .create-panel,
   .rooms-panel {
     flex: 0 0 100%;
@@ -56,14 +56,14 @@
   }
 }
 
-@media (max-width: 760px) and (orientation: landscape) and (max-height: 500px) {
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
   .create-panel,
   .rooms-panel {
     flex-basis: min(86vw, 680px);
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .game-picker {
     width: 100%;
     display: grid;
@@ -100,13 +100,13 @@
   }
 }
 
-@media (max-width: 760px) and (orientation: landscape) and (max-height: 500px) {
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
   .game-picker {
     grid-auto-columns: minmax(150px, 38%);
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .app-shell--lobby {
     height: 100svh;
     grid-template-rows: auto minmax(0, 1fr);
@@ -170,7 +170,7 @@
   }
 }
 
-@media (max-width: 760px) and (orientation: landscape) and (max-height: 500px) {
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
   .app-shell--lobby {
     grid-template-rows: auto minmax(0, 1fr);
     padding-bottom: calc(65px + env(safe-area-inset-bottom));

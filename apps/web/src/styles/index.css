@@ -2,8 +2,10 @@
 @import "./foundation.css";
 @import "./layout.css";
 @import "./shell.css";
+@import "./designSystem.css";
 @import "../shared/ScrollArea.css";
 @import "../features/auth/auth.css";
+@import "../features/auth/authMobile.css";
 @import "../features/lobby/lobby.css";
 @import "../features/lobby/gameCatalog.css";
 @import "../features/lobby/roomDirectory.css";
@@ -20,6 +22,7 @@
 
 @import "./mobileFoundation.css";
 @import "../shared/AppDock.css";
+@import "../shared/MobileAccountMenu.css";
 @import "../shared/PwaUpdateToast.css";
 @import "../shared/Skeleton.css";
 @import "../features/developers/developers.css";

@@ -1,6 +1,6 @@
 import { type BrowserContext, expect, type FrameLocator, type Page } from "@playwright/test";
 
-export const accountPassword = "SecurePass123!";
+export const accountPassword = "testpass";
 export const pong = "pong@0.4.0";
 export const tapRace = "tap-race@0.4.0";
 export const realtimeHealthUrl =

@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as _shared_emailShell from "../_shared/emailShell.js";
 import type * as _shared_gameCatalog from "../_shared/gameCatalog.js";
 import type * as _shared_gamePresentation from "../_shared/gamePresentation.js";
 import type * as _shared_gameRelease from "../_shared/gameRelease.js";
@@ -49,6 +50,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "_shared/emailShell": typeof _shared_emailShell;
   "_shared/gameCatalog": typeof _shared_gameCatalog;
   "_shared/gamePresentation": typeof _shared_gamePresentation;
   "_shared/gameRelease": typeof _shared_gameRelease;

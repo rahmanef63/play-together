@@ -3,7 +3,7 @@
   display: none;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .app-dock {
     position: fixed;
     z-index: 100;
@@ -77,7 +77,7 @@
   }
 }
 
-@media (max-width: 760px) and (orientation: landscape) and (max-height: 500px) {
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
   .app-dock {
     width: min(480px, calc(100vw - 28px));
   }
@@ -103,7 +103,7 @@
   }
 }
 
-@media (display-mode: standalone) and (max-width: 760px) {
+@media (display-mode: standalone) and (max-width: 900px) {
   .app-dock {
     bottom: max(6px, env(safe-area-inset-bottom));
   }

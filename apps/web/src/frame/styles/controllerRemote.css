@@ -125,7 +125,7 @@
     width: min(42vw, 172px);
   }
   .console-shell--remote .builtin-controller--racing .builtin-controller__zone--right {
-    grid-template-columns: repeat(2, minmax(60px, 78px));
+    grid-template-columns: repeat(2, minmax(70px, 78px));
     gap: var(--console-space-md);
   }
   .console-shell--remote
@@ -153,7 +153,7 @@
 
 @media (max-width: 390px) and (orientation: portrait) {
   .console-shell--remote .builtin-controller--racing {
-    grid-template-columns: minmax(132px, 1fr) minmax(126px, 0.86fr);
+    grid-template-columns: minmax(132px, 1fr) minmax(146px, 0.9fr);
     column-gap: 6px;
     padding-inline: 4px;
   }
@@ -161,8 +161,8 @@
     width: min(40vw, 152px);
   }
   .console-shell--remote .builtin-controller--racing .builtin-controller__zone--right {
-    grid-template-columns: repeat(2, minmax(54px, 68px));
-    gap: 6px;
+    grid-template-columns: repeat(2, minmax(70px, 72px));
+    gap: 4px;
   }
 }
 

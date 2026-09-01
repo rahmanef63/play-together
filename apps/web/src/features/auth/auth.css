@@ -123,3 +123,24 @@
     margin-bottom: 28px;
   }
 }
+
+.auth-google-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--line);
+}

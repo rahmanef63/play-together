@@ -61,7 +61,7 @@
   border-radius: 28px;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .route-skeleton {
     height: 100svh;
     padding-top: max(12px, env(safe-area-inset-top));

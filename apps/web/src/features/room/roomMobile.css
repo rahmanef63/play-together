@@ -3,7 +3,7 @@
   content-visibility: auto;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .launch-grid::-webkit-scrollbar {
     display: none;
     width: 0;
@@ -39,7 +39,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .app-shell,
   .room-page {
     width: 100%;
@@ -95,7 +95,7 @@
   }
 }
 
-@media (max-width: 760px) and (orientation: landscape) and (max-height: 500px) {
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
   .room-page-scroll__content,
   .room-invite-scroll-content {
     padding-bottom: calc(68px + env(safe-area-inset-bottom));

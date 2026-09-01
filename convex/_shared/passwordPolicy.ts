@@ -1,13 +1,8 @@
-export const PASSWORD_MIN_LENGTH = 12;
+export const PASSWORD_MIN_LENGTH = 8;
+export const PASSWORD_MAX_LENGTH = 128;
 
 export function validateAccountPassword(password: string): void {
-  if (password.length < PASSWORD_MIN_LENGTH || password.length > 128) {
-    throw new Error(`Password must be ${PASSWORD_MIN_LENGTH}–128 characters`);
-  }
-  if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
-    throw new Error("Password must include uppercase, lowercase, and a number");
-  }
-  if (!/[^A-Za-z0-9]/.test(password)) {
-    throw new Error("Password must include at least one symbol");
+  if (password.length < PASSWORD_MIN_LENGTH || password.length > PASSWORD_MAX_LENGTH) {
+    throw new Error(`Password must be ${PASSWORD_MIN_LENGTH}–${PASSWORD_MAX_LENGTH} characters`);
   }
 }

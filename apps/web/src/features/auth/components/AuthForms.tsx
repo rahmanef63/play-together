@@ -1,6 +1,8 @@
 import type { FormEvent } from "react";
+import { Button } from "../../../shared/ui/Button";
 import type { AuthMode } from "../model/useAuthFlow";
 import { AuthField, FormError } from "./AuthField";
+import { GoogleAuthButton } from "./GoogleAuthButton";
 
 export function AuthForms({
   mode,
@@ -9,10 +11,12 @@ export function AuthForms({
   notice,
   resetEmail,
   resetEnabled,
+  googleEnabled,
   onModeChange,
   onAccount,
   onResetRequest,
   onResetVerification,
+  onGoogle,
 }: {
   mode: AuthMode;
   busy: boolean;
@@ -20,10 +24,12 @@ export function AuthForms({
   notice: string;
   resetEmail: string;
   resetEnabled: boolean | undefined;
+  googleEnabled: boolean | undefined;
   onModeChange: (mode: AuthMode) => void;
   onAccount: (event: FormEvent<HTMLFormElement>) => void;
   onResetRequest: (event: FormEvent<HTMLFormElement>) => void;
   onResetVerification: (event: FormEvent<HTMLFormElement>) => void;
+  onGoogle: () => void;
 }) {
   const accountMode = mode === "signIn" || mode === "signUp";
   return (
@@ -47,39 +53,42 @@ export function AuthForms({
         </div>
       )}
       {accountMode && (
-        <form onSubmit={onAccount}>
-          {mode === "signUp" && (
+        <>
+          <GoogleAuthButton enabled={googleEnabled} busy={busy} onClick={onGoogle} />
+          <form onSubmit={onAccount}>
+            {mode === "signUp" && (
+              <AuthField
+                label="Player name"
+                name="name"
+                autoComplete="name"
+                minLength={2}
+                maxLength={48}
+              />
+            )}
+            <AuthField label="Email" name="email" type="email" autoComplete="email" />
             <AuthField
-              label="Player name"
-              name="name"
-              autoComplete="name"
-              minLength={2}
-              maxLength={48}
+              label="Password"
+              name="password"
+              type="password"
+              autoComplete={mode === "signUp" ? "new-password" : "current-password"}
+              minLength={8}
+              maxLength={128}
             />
-          )}
-          <AuthField label="Email" name="email" type="email" autoComplete="email" />
-          <AuthField
-            label="Password"
-            name="password"
-            type="password"
-            autoComplete={mode === "signUp" ? "new-password" : "current-password"}
-            minLength={mode === "signUp" ? 12 : 8}
-            maxLength={128}
-          />
-          {error && <FormError>{error}</FormError>}
-          <button className="primary-button full" type="submit" disabled={busy}>
-            {busy ? "Connecting…" : mode === "signUp" ? "Create account" : "Sign in"}
-          </button>
-          {mode === "signIn" && (
-            <button
-              className="auth-link-button"
-              type="button"
-              onClick={() => onModeChange("forgot")}
-            >
-              Forgot password?
-            </button>
-          )}
-        </form>
+            {error && <FormError>{error}</FormError>}
+            <Button type="submit" fullWidth busy={busy}>
+              {busy ? "Connecting…" : mode === "signUp" ? "Create account" : "Sign in"}
+            </Button>
+            {mode === "signIn" && (
+              <button
+                className="auth-link-button"
+                type="button"
+                onClick={() => onModeChange("forgot")}
+              >
+                Forgot password?
+              </button>
+            )}
+          </form>
+        </>
       )}
       {mode === "forgot" && (
         <form onSubmit={onResetRequest}>
@@ -91,17 +100,13 @@ export function AuthForms({
           </p>
           <AuthField label="Email" name="email" type="email" autoComplete="email" />
           {error && <FormError>{error}</FormError>}
-          <button
-            className="primary-button full"
-            type="submit"
-            disabled={busy || resetEnabled !== true}
-          >
+          <Button type="submit" fullWidth busy={busy} disabled={resetEnabled !== true}>
             {busy
               ? "Sending…"
               : resetEnabled === false
                 ? "Email reset unavailable"
                 : "Send reset code"}
-          </button>
+          </Button>
           <button className="auth-link-button" type="button" onClick={() => onModeChange("signIn")}>
             Back to sign in
           </button>
@@ -137,7 +142,7 @@ export function AuthForms({
             name="newPassword"
             type="password"
             autoComplete="new-password"
-            minLength={12}
+            minLength={8}
             maxLength={128}
           />
           <AuthField
@@ -145,20 +150,20 @@ export function AuthForms({
             name="confirmPassword"
             type="password"
             autoComplete="new-password"
-            minLength={12}
+            minLength={8}
             maxLength={128}
           />
           {error && <FormError>{error}</FormError>}
-          <button className="primary-button full" type="submit" disabled={busy}>
+          <Button type="submit" fullWidth busy={busy}>
             {busy ? "Updating…" : "Reset password"}
-          </button>
+          </Button>
           <button className="auth-link-button" type="button" onClick={() => onModeChange("forgot")}>
             Send another code
           </button>
         </form>
       )}
       <p className="microcopy">
-        New passwords require 12–128 characters with uppercase, lowercase, a number, and a symbol.
+        Use at least 8 characters. A longer passphrase is easier to remember and harder to guess.
         Reset codes expire after 10 minutes.
       </p>
     </section>

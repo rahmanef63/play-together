@@ -3,7 +3,7 @@
   content-visibility: auto;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .lobby-grid::-webkit-scrollbar,
   .game-picker::-webkit-scrollbar {
     display: none;

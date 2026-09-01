@@ -97,7 +97,7 @@
 }
 .console-shell--remote .console-shell__chassis {
   width: min(100%, 760px);
-  max-width: 760px;
+  max-width: 900px;
   height: min(100%, 420px);
   max-height: 420px;
   margin: auto;

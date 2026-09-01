@@ -71,7 +71,7 @@
   font-size: 1.2rem;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .update-toast {
     left: 50%;
     right: auto;
