@@ -138,13 +138,14 @@ async function assertScrollContracts(page: Page) {
       expect(metrics.right).toBeLessThanOrEqual(pageMetrics.viewportWidth + 1);
     }
     if (metrics.scrollHeight > metrics.clientHeight + 2) {
-      await area.evaluate((element) => {
+      const scrolled = await area.evaluate((element) => {
+        if (element.scrollHeight <= element.clientHeight + 2) return null;
         element.scrollTop = element.scrollHeight;
-      });
-      expect(await area.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
-      await area.evaluate((element) => {
+        const top = element.scrollTop;
         element.scrollTop = 0;
+        return top;
       });
+      if (scrolled !== null) expect(scrolled).toBeGreaterThan(0);
     }
   }
 

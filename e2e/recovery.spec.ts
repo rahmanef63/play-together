@@ -21,14 +21,14 @@ test("remote and shared screen recover after network interruption and keep accep
   let guestDropPong = false;
   let hostRealtimeSockets = 0;
   let guestRealtimeSockets = 0;
-  await host.routeWebSocket(/\/v1\/connect/, (route) => {
+  await host.routeWebSocket(/\/(?:v1\/connect|api\/realtime)(?:\?|$)/, (route) => {
     hostRealtimeSockets += 1;
     const server = route.connectToServer();
     server.onMessage((message) => {
       if (!hostDropPong || !isPong(message)) route.send(message);
     });
   });
-  await guest.routeWebSocket(/\/v1\/connect/, (route) => {
+  await guest.routeWebSocket(/\/(?:v1\/connect|api\/realtime)(?:\?|$)/, (route) => {
     guestRealtimeSockets += 1;
     const server = route.connectToServer();
     server.onMessage((message) => {
