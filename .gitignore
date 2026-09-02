@@ -7,6 +7,9 @@ coverage/
 !.env.example
 !.env.production.example
 !.env.all.example
+!.env.convex.production.example
+!.env.convex.google.example
+!.env.vercel.production.example
 var/
 .cache/
 .local/

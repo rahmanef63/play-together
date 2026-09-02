@@ -5,6 +5,7 @@ import {
   environmentVariableNames,
   environmentVariables,
 } from "../scripts/environment-manifest.mjs";
+import { environmentProfiles } from "../scripts/environment-platforms.mjs";
 
 const SYSTEM_ENVIRONMENT = new Set(["HOME", "NODE_ENV", "PROD", "DEV", "MODE", "BASE_URL"]);
 const SOURCE_ROOTS = ["apps", "api", "convex", "packages", "scripts", "infra", "e2e", ".github"];
@@ -27,6 +28,13 @@ describe("environment manifest", () => {
     expect(new Set(all.keys())).toEqual(environmentVariableNames);
     expect(new Set(local.keys())).toEqual(namesForScopes(scopes.local));
     expect(new Set(production.keys())).toEqual(namesForScopes(scopes.production));
+    for (const profile of environmentProfiles) {
+      const generated = await readExample(profile.file);
+      expect(new Set(generated.keys()), profile.file).toEqual(new Set(profile.names));
+    }
+    const convex = await readExample(".env.convex.production.example");
+    expect(convex.get("AUTH_GOOGLE_ID")).toBe("<google-oauth-web-client-id>");
+    expect(convex.get("AUTH_GOOGLE_SECRET")).toBe("<google-oauth-web-client-secret>");
     for (const item of environmentVariables.filter((entry) => entry.secret)) {
       expect(all.get(item.name), `${item.name} must remain a placeholder`).toMatch(/^</);
     }

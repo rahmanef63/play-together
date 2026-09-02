@@ -91,7 +91,7 @@ Recommended Vercel Marketplace resource for this deployment: Redis Free, region 
 
 Production and development use separate Convex deployments. Never make production the implicit CLI target. Production operations should use an explicit deploy key or `--prod` option.
 
-Convex-owned values are generated under the **Convex Cloud & Auth**, **Transactional email**, **Shared security**, and template-security groups in `docs/environment.md`. Use `.env.production.example` as the placeholder checklist, but place each server secret in the production Convex deployment rather than exposing it through Vite/browser variables.
+Convex-owned values are generated in `.env.convex.production.example`; Google OAuth has the safer two-variable `.env.convex.google.example`. Place these server values in the production Convex deployment rather than exposing them through Vite/browser variables. `.env.production.example` is only the aggregate production/CI inventory.
 
 `RESEND_API_KEY` is consumed only by Convex server actions. It must never be exposed as a Vite variable or shipped to Vercel browser output.
 
@@ -106,11 +106,11 @@ Application origin: https://game.rahmanef.com
 Authorized redirect URI: https://upbeat-dog-398.convex.site/api/auth/callback/google
 ```
 
-Store `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` in the **production Convex deployment environment**, not in Vercel browser variables or the repository. Development should use a separate Google OAuth client and callback for its own Convex deployment.
+Store `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` in the **production Convex deployment environment**, not in Vercel browser variables or the repository. They are listed explicitly in `.env.convex.google.example` and in the full `.env.convex.production.example`. Never apply the literal placeholders to Convex: replace them with the real Google Web OAuth client values first. Development should use a separate Google OAuth client and callback for its own Convex deployment.
 
 ## Vercel environment
 
-Use `.env.production.example` and the **Managed production runtime**, **Public endpoints**, and **CI / deployment tooling** groups in `docs/environment.md` as the generated checklist. `JOIN_TICKET_SECRET` and `TEMPLATE_DOWNLOAD_SECRET` must match their corresponding Convex values. `BLOB_READ_WRITE_TOKEN` and Vercel deployment host variables are supplied by their platform integrations; do not expose any server credential through a `VITE_` variable.
+Use `.env.vercel.production.example` as the Vercel-specific checklist. Use `.env.convex.production.example` for values that belong in the Convex production deployment; `.env.production.example` is only the aggregate production/CI reference. `JOIN_TICKET_SECRET` and `TEMPLATE_DOWNLOAD_SECRET` must match their corresponding Convex values. `BLOB_READ_WRITE_TOKEN` and Vercel deployment host variables are supplied by their platform integrations; do not expose any server credential through a `VITE_` variable.
 
 ## Password-reset email
 
