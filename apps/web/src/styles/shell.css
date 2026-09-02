@@ -114,6 +114,10 @@
   grid-template-rows: auto minmax(0, 1fr);
 }
 
+.panel-frame--with-toolbar {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
 .panel-frame > .section-title {
   margin-bottom: 16px;
 }

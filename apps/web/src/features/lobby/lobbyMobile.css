@@ -71,17 +71,12 @@
     grid-auto-flow: column;
     grid-auto-columns: minmax(160px, 72%);
     gap: 9px;
-    overflow-x: auto;
     overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
     padding: 3px 2px 8px;
   }
 
   .game-preview-card {
     min-height: 0;
-    scroll-snap-align: start;
     border-color: rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-2xl);
     background: var(--mobile-card-soft);
@@ -108,7 +103,7 @@
 
 @media (max-width: 900px) {
   .app-shell--lobby {
-    height: 100svh;
+    height: var(--viewport-block);
     grid-template-rows: auto minmax(0, 1fr);
     padding-top: max(10px, env(safe-area-inset-top));
     padding-bottom: calc(84px + env(safe-area-inset-bottom));

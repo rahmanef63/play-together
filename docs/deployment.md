@@ -31,6 +31,23 @@ wss://game.rahmanef.com/api/realtime
 
 Convex uses its managed `*.convex.cloud` and `*.convex.site` endpoints. These values are supplied through deployment environment variables rather than custom VPS subdomains.
 
+## Environment contract
+
+Environment ownership is generated from one source of truth: `scripts/environment-manifest.mjs`, composed from the bounded group files under `scripts/environment/`. Run:
+
+```bash
+pnpm env:examples
+```
+
+It generates:
+
+- `.env.all.example` — every project-consumed environment contract, including platform-injected informational values;
+- `.env.example` — local/runtime/tooling values with safe defaults or placeholders;
+- `.env.production.example` — production/CI values the project may need configured;
+- `docs/environment.md` — generated variable scope, secret classification, source, and purpose table.
+
+Do not maintain parallel handwritten env inventories. Add or change the manifest, regenerate, and let the environment-manifest tests reject undeclared source/Compose/Turbo/CI references. Real secrets never belong in these generated files.
+
 ## Vercel build
 
 `vercel.json` owns the managed runtime contract. The build command is:
@@ -73,31 +90,7 @@ Recommended Vercel Marketplace resource for this deployment: Redis Free, region 
 
 Production and development use separate Convex deployments. Never make production the implicit CLI target. Production operations should use an explicit deploy key or `--prod` option.
 
-Required Convex environment categories:
-
-```text
-SITE_URL=https://game.rahmanef.com
-JWT_PRIVATE_KEY=<secret>
-JWKS=<secret/public-key-set JSON>
-JOIN_TICKET_SECRET=<same value as Vercel realtime>
-GAME_PUBLISH_TOKEN=<release-only secret>
-GAME_MODULE_ORIGINS=https://game.rahmanef.com
-ALLOW_INSECURE_GAME_ORIGINS=false
-
-RESEND_API_KEY=<server-only Resend key>
-EMAIL_FROM_ADDRESS=official@rahmanef.com
-EMAIL_PROJECT_NAME=Play Together
-EMAIL_PROJECT_TAG=play-together
-EMAIL_SITE_URL=https://game.rahmanef.com
-
-# Optional until a dedicated Play Together Google Cloud OAuth client exists.
-AUTH_GOOGLE_ID=<Google OAuth web client id>
-AUTH_GOOGLE_SECRET=<Google OAuth web client secret>
-
-TEMPLATE_DOWNLOAD_SECRET=<same value as Vercel download function>
-TEMPLATE_PUBLISH_TOKEN=<release-only secret>
-TEMPLATE_SALES_WEBHOOK_SECRET=<checkout fulfillment HMAC secret>
-```
+Convex-owned values are generated under the **Convex Cloud & Auth**, **Transactional email**, **Shared security**, and template-security groups in `docs/environment.md`. Use `.env.production.example` as the placeholder checklist, but place each server secret in the production Convex deployment rather than exposing it through Vite/browser variables.
 
 `RESEND_API_KEY` is consumed only by Convex server actions. It must never be exposed as a Vite variable or shipped to Vercel browser output.
 
@@ -116,18 +109,7 @@ Store `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` in the **production Convex deplo
 
 ## Vercel environment
 
-At minimum:
-
-```text
-VITE_CONVEX_URL=<production Convex Cloud URL>
-JOIN_TICKET_SECRET=<same value as Convex>
-ALLOWED_ORIGINS=https://game.rahmanef.com
-GAME_MODULE_ORIGINS=https://game.rahmanef.com
-ALLOW_INSECURE_GAME_ORIGINS=false
-TEMPLATE_DOWNLOAD_SECRET=<same value as Convex>
-```
-
-The connected private Blob store supplies `BLOB_READ_WRITE_TOKEN` to the server runtime. Never expose it through a `VITE_` variable.
+Use `.env.production.example` and the **Managed production runtime**, **Public endpoints**, and **CI / deployment tooling** groups in `docs/environment.md` as the generated checklist. `JOIN_TICKET_SECRET` and `TEMPLATE_DOWNLOAD_SECRET` must match their corresponding Convex values. `BLOB_READ_WRITE_TOKEN` and Vercel deployment host variables are supplied by their platform integrations; do not expose any server credential through a `VITE_` variable.
 
 ## Password-reset email
 

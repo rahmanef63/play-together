@@ -53,6 +53,7 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --mobile-dock-clearance: calc(86px + var(--safe-bottom));
+  --viewport-block: 100dvh;
 
   /* Stable semantic aliases used by game-portal surfaces. */
   --arcade-ink: var(--color-bg);

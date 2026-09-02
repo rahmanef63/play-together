@@ -13,7 +13,7 @@
 }
 
 .room-page {
-  min-height: 100dvh;
+  min-height: var(--viewport-block);
 }
 
 .room-identity {
@@ -59,7 +59,7 @@
 .room-page {
   width: 100%;
   max-width: none;
-  height: 100svh;
+  height: var(--viewport-block);
   min-height: 0;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -97,7 +97,7 @@
 }
 
 .room-layout > .panel-frame {
-  height: min(58svh, 620px);
+  height: min(58dvh, 620px);
   min-height: 320px;
 }
 
@@ -109,6 +109,6 @@
 
 @media (max-width: 900px) {
   .room-layout > .panel-frame {
-    height: min(52svh, 520px);
+    height: min(52dvh, 520px);
   }
 }

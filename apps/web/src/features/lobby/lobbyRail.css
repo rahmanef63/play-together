@@ -2,19 +2,3 @@
 .game-preview-card {
   content-visibility: auto;
 }
-
-@media (max-width: 900px) {
-  .lobby-grid::-webkit-scrollbar,
-  .game-picker::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lobby-grid,
-  .game-picker {
-    scroll-behavior: auto;
-  }
-}

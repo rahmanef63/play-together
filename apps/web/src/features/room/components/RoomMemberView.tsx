@@ -1,6 +1,8 @@
 import { navigate } from "../../../shared/navigation";
 import { ScrollArea } from "../../../shared/ScrollArea";
 import type { RoomDetails } from "../../../shared/types";
+import { Button } from "../../../shared/ui/Button";
+import { StatusBadge } from "../../../shared/ui/StatusBadge";
 import { LaunchPanel } from "./LaunchPanel";
 import { MembersPanel } from "./MembersPanel";
 
@@ -24,10 +26,10 @@ export function RoomMemberView({
   return (
     <main className="room-page">
       <header className="room-header">
-        <button className="ghost-button" type="button" onClick={() => navigate("/")}>
+        <Button variant="ghost" type="button" onClick={() => navigate("/")}>
           ← Lobby
-        </button>
-        <span className="status-badge">{room.status}</span>
+        </Button>
+        <StatusBadge>{room.status}</StatusBadge>
       </header>
       <ScrollArea className="room-page-scroll" ariaLabel="Room details">
         <div className="room-page-scroll__content">

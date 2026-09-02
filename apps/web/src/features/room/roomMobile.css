@@ -4,38 +4,22 @@
 }
 
 @media (max-width: 900px) {
-  .launch-grid::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
-
   .launch-grid {
     display: flex;
     grid-template-columns: none;
     gap: 9px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
     padding: 2px 2px 8px;
   }
 
   .launch-card {
     flex: 0 0 86%;
     min-height: 168px;
-    scroll-snap-align: center;
     border-radius: 22px;
     background: rgba(255, 255, 255, 0.035);
   }
 
   .launch-icon {
     margin-bottom: 18px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .launch-grid {
-    scroll-behavior: auto;
   }
 }
 
@@ -49,7 +33,7 @@
   }
 
   .room-page {
-    height: 100svh;
+    height: var(--viewport-block);
     padding-top: max(8px, env(safe-area-inset-top));
     padding-bottom: 0;
   }

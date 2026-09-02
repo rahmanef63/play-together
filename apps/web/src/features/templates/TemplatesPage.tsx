@@ -1,10 +1,13 @@
 import { useAction, useMutation, useQuery } from "convex/react";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../../shared/convexApi";
-import { navigate } from "../../shared/navigation";
-import { ScrollArea } from "../../shared/ScrollArea";
 import { SkeletonBlock } from "../../shared/Skeleton";
 import type { CurrentUser } from "../../shared/types";
+import { Button } from "../../shared/ui/Button";
+import { EmptyState } from "../../shared/ui/EmptyState";
+import { HorizontalSnap } from "../../shared/ui/HorizontalSnap";
+import { ScrollableAppPage } from "../../shared/ui/ScrollableAppPage";
+import { StatusBadge } from "../../shared/ui/StatusBadge";
 
 const TEMPLATE_SKELETON_KEYS = ["template-a", "template-b", "template-c"] as const;
 
@@ -37,106 +40,97 @@ export function TemplatesPage({ user }: { user: CurrentUser }) {
   };
 
   return (
-    <main className="app-shell template-page">
-      <header className="topbar desktop-topbar">
-        <button className="brand-button" type="button" onClick={() => navigate("/")}>
-          <span>PT</span> Play Together
-        </button>
-        <nav>
-          <button className="ghost-button" type="button" onClick={() => navigate("/")}>
-            Lobby
-          </button>
-          <span className="template-user">{user.name}</span>
-        </nav>
-      </header>
-
-      <ScrollArea className="template-page__scroll" ariaLabel="Game source marketplace">
-        <div className="template-page__content">
-          <section className="page-heading template-heading">
-            <div>
-              <p className="eyebrow">SOURCE MARKETPLACE</p>
-              <h1>Own the game source, not the platform runtime.</h1>
-              <p>
-                Each template is independently versioned. Buying a template grants its private
-                source package; public gameplay remains isolated from platform updates.
-              </p>
-            </div>
-            <div className="template-stat">
-              <strong>{ownedResult === undefined ? "—" : owned.length}</strong>
-              <span>owned</span>
-            </div>
-          </section>
-
-          {error && (
-            <p className="global-error" role="alert">
-              {error}
-            </p>
-          )}
-
-          <section className="template-grid" aria-label="Published game templates">
-            {templatesResult === undefined
-              ? TEMPLATE_SKELETON_KEYS.map((key) => <TemplateSkeleton key={key} />)
-              : templates.map((template) => {
-                  const isOwned = ownedIds.has(template.id);
-                  return (
-                    <article
-                      className="panel template-card"
-                      key={`${template.slug}@${template.version}`}
-                    >
-                      <img
-                        className="template-preview"
-                        src={`/game-previews/${template.previewGameId}.png`}
-                        alt={`${template.title} gameplay preview`}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <div className="template-card__body">
-                        <div className="template-card__meta">
-                          <code>
-                            {template.slug}@{template.version}
-                          </code>
-                          {template.licenseId && <span>{template.licenseId}</span>}
-                        </div>
-                        <h2>{template.title}</h2>
-                        <p>{template.summary}</p>
-                        <div className="template-card__footer">
-                          <strong>{formatPrice(template.priceMinor, template.currency)}</strong>
-                          {isOwned ? (
-                            <button
-                              className="primary-button"
-                              type="button"
-                              disabled={busyTemplateId === template.id}
-                              onClick={() => void download(template.id)}
-                            >
-                              {busyTemplateId === template.id ? "Preparing…" : "Download source"}
-                            </button>
-                          ) : template.purchaseUrl ? (
-                            <a
-                              className="primary-button template-buy-link"
-                              href={template.purchaseUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              Buy source
-                            </a>
-                          ) : (
-                            <span className="status-badge">Not listed for checkout</span>
-                          )}
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
-            {templatesResult !== undefined && !templates.length && (
-              <div className="panel empty-state template-empty">
-                <strong>No source templates are published yet.</strong>
-                <p>Playable games remain available from the lobby.</p>
-              </div>
-            )}
-          </section>
+    <ScrollableAppPage
+      className="template-page"
+      scrollClassName="template-page__scroll"
+      contentClassName="template-page__content"
+      ariaLabel="Game source marketplace"
+      topbarActions={[{ label: "Lobby", href: "/" }]}
+      topbarEnd={<span className="topbar-user">{user.name}</span>}
+    >
+      <section className="page-heading template-heading">
+        <div>
+          <p className="eyebrow">SOURCE MARKETPLACE</p>
+          <h1>Own the game source, not the platform runtime.</h1>
+          <p>
+            Each template is independently versioned. Buying a template grants its private source
+            package; public gameplay remains isolated from platform updates.
+          </p>
         </div>
-      </ScrollArea>
-    </main>
+        <div className="template-stat">
+          <strong>{ownedResult === undefined ? "—" : owned.length}</strong>
+          <span>owned</span>
+        </div>
+      </section>
+
+      {error && (
+        <p className="global-error" role="alert">
+          {error}
+        </p>
+      )}
+
+      <HorizontalSnap as="section" className="template-grid" ariaLabel="Published game templates">
+        {templatesResult === undefined
+          ? TEMPLATE_SKELETON_KEYS.map((key) => <TemplateSkeleton key={key} />)
+          : templates.map((template) => {
+              const isOwned = ownedIds.has(template.id);
+              return (
+                <article
+                  className="panel template-card"
+                  key={`${template.slug}@${template.version}`}
+                >
+                  <img
+                    className="template-preview"
+                    src={`/game-previews/${template.previewGameId}.png`}
+                    alt={`${template.title} gameplay preview`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div className="template-card__body">
+                    <div className="template-card__meta">
+                      <code>
+                        {template.slug}@{template.version}
+                      </code>
+                      {template.licenseId && <span>{template.licenseId}</span>}
+                    </div>
+                    <h2>{template.title}</h2>
+                    <p>{template.summary}</p>
+                    <div className="template-card__footer">
+                      <strong>{formatPrice(template.priceMinor, template.currency)}</strong>
+                      {isOwned ? (
+                        <Button
+                          type="button"
+                          busy={busyTemplateId === template.id}
+                          onClick={() => void download(template.id)}
+                        >
+                          {busyTemplateId === template.id ? "Preparing…" : "Download source"}
+                        </Button>
+                      ) : template.purchaseUrl ? (
+                        <a
+                          className="primary-button template-buy-link"
+                          href={template.purchaseUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Buy source
+                        </a>
+                      ) : (
+                        <StatusBadge>Not listed for checkout</StatusBadge>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+        {templatesResult !== undefined && !templates.length && (
+          <EmptyState
+            className="panel template-empty"
+            title="No source templates are published yet."
+            body="Playable games remain available from the lobby."
+          />
+        )}
+      </HorizontalSnap>
+    </ScrollableAppPage>
   );
 }
 

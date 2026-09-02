@@ -1,4 +1,5 @@
 import type { CurrentUser } from "../../../shared/types";
+import { Button } from "../../../shared/ui/Button";
 
 export function LobbyHeading({
   user,
@@ -38,9 +39,9 @@ export function LobbyHeading({
           value={password}
           onChange={(event) => onPasswordChange(event.target.value)}
         />
-        <button className="primary-button" type="button" onClick={onJoin} disabled={busy}>
+        <Button type="button" onClick={onJoin} busy={busy}>
           Join
-        </button>
+        </Button>
       </div>
     </section>
   );

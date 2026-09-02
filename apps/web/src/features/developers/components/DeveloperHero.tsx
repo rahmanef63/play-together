@@ -1,3 +1,5 @@
+import { Button } from "../../../shared/ui/Button";
+
 export function DeveloperHero({
   promptReady,
   copied,
@@ -18,9 +20,9 @@ export function DeveloperHero({
         </p>
       </div>
       <div className="developer-hero__actions">
-        <button className="primary-button" type="button" disabled={!promptReady} onClick={onCopy}>
+        <Button type="button" disabled={!promptReady} onClick={onCopy}>
           {copied ? "Prompt copied" : "Copy full submission prompt"}
-        </button>
+        </Button>
         <a
           className="secondary-button docs-link"
           href="/docs/submitting-games.md"

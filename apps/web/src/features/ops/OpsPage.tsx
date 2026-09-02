@@ -1,9 +1,11 @@
 import { useQuery } from "convex/react";
 import { api } from "../../shared/convexApi";
 import { navigate } from "../../shared/navigation";
-import { ScrollArea } from "../../shared/ScrollArea";
 import { SkeletonBlock } from "../../shared/Skeleton";
 import type { CurrentUser, GameSummary } from "../../shared/types";
+import { Button } from "../../shared/ui/Button";
+import { ScrollableAppPage } from "../../shared/ui/ScrollableAppPage";
+import { ScrollablePanel } from "../../shared/ui/ScrollablePanel";
 import { RealtimeTelemetryPanel } from "./RealtimeTelemetryPanel";
 
 const GAME_SKELETON_KEYS = ["game-a", "game-b", "game-c", "game-d", "game-e"] as const;
@@ -13,122 +15,108 @@ export function OpsPage({ user }: { user: CurrentUser }) {
   const games = gamesResult ?? [];
 
   return (
-    <main className="app-shell ops-page-native ops-console-page">
-      <header className="topbar desktop-topbar ops-console-topbar">
-        <button className="brand-button" type="button" onClick={() => navigate("/")}>
-          <span>PT</span> Play Together
-        </button>
-        <button className="ghost-button" type="button" onClick={() => navigate("/")}>
-          ← Lobby
-        </button>
-      </header>
-
-      <ScrollArea className="ops-page-native__scroll" ariaLabel="Platform system console">
-        <div className="ops-page-native__content ops-console-content">
-          <section className="ops-console-overview" aria-labelledby="ops-title">
-            <div className="ops-console-overview__copy">
-              <span className="ops-console-label">System console</span>
-              <h1 id="ops-title">Platform operations</h1>
-              <p>
-                Published game releases and the isolation rules that keep room sessions pinned to
-                exact versions. Signed in as {user.name}.
-              </p>
-              <div className="ops-console-summary">
-                <strong>{gamesResult === undefined ? "…" : games.length}</strong>
-                <span>published games</span>
-              </div>
-            </div>
-            <figure className="ops-console-overview__art" aria-hidden="true">
-              <img src="/assets/ui/ops/ops-hero-control-room.webp" alt="" />
-            </figure>
-          </section>
-
-          <RealtimeTelemetryPanel />
-
-          <div className="ops-grid ops-console-grid">
-            <section className="panel panel-frame ops-catalog-panel">
-              <div className="section-title ops-panel-title">
-                <div>
-                  <span className="ops-console-label">Catalog</span>
-                  <h2>Published games</h2>
-                </div>
-                <span>{gamesResult === undefined ? "Loading" : `${games.length} total`}</span>
-              </div>
-
-              <ScrollArea
-                className="panel-scroll ops-panel-scroll"
-                ariaLabel="Published game versions"
-              >
-                <div className="panel-scroll__content ops-game-list">
-                  {gamesResult === undefined ? (
-                    GAME_SKELETON_KEYS.map((key) => <GameVersionSkeleton key={key} />)
-                  ) : games.length === 0 ? (
-                    <div className="ops-empty-state">
-                      <img src="/assets/ui/states/ops-empty-rooms.webp" alt="" aria-hidden="true" />
-                      <div>
-                        <strong>No published games</strong>
-                        <p>Published cartridges will appear here after validation and release.</p>
-                      </div>
-                    </div>
-                  ) : (
-                    games.map((game) => (
-                      <article className="game-version" key={`${game.gameId}@${game.version}`}>
-                        <div>
-                          <strong>{game.title}</strong>
-                          <p>{game.description}</p>
-                        </div>
-                        <div>
-                          <code>
-                            {game.gameId}@{game.version}
-                          </code>
-                          <span>
-                            {game.minPlayers}–{game.maxPlayers} players
-                          </span>
-                        </div>
-                      </article>
-                    ))
-                  )}
-                </div>
-              </ScrollArea>
-            </section>
-
-            <aside className="panel panel-frame architecture-card ops-architecture-panel">
-              <div className="section-title ops-panel-title">
-                <div>
-                  <span className="ops-console-label">Isolation model</span>
-                  <h2>Release boundaries</h2>
-                </div>
-              </div>
-
-              <ScrollArea
-                className="panel-scroll ops-panel-scroll"
-                ariaLabel="Release isolation model"
-              >
-                <div className="panel-scroll__content ops-architecture-content">
-                  <p>
-                    A game release changes independently from the portal. Existing rooms keep their
-                    stored manifest and server bundle.
-                  </p>
-                  <ol>
-                    <li>Room stores an immutable game version and manifest hash.</li>
-                    <li>Browser verifies controller and display bundles before import.</li>
-                    <li>Gateway verifies the server bundle and starts an isolated room Worker.</li>
-                    <li>Existing rooms retain their pinned version until the room closes.</li>
-                  </ol>
-                  <button
-                    className="secondary-button full"
-                    type="button"
-                    onClick={() => navigate("/developers")}
-                  >
-                    Open submission & MCP guide
-                  </button>
-                </div>
-              </ScrollArea>
-            </aside>
+    <ScrollableAppPage
+      className="ops-page-native ops-console-page"
+      scrollClassName="ops-page-native__scroll"
+      contentClassName="ops-page-native__content ops-console-content"
+      ariaLabel="Platform system console"
+      topbarActions={[{ label: "← Lobby", href: "/" }]}
+      topbarClassName="ops-console-topbar"
+    >
+      <section className="ops-console-overview" aria-labelledby="ops-title">
+        <div className="ops-console-overview__copy">
+          <span className="ops-console-label">System console</span>
+          <h1 id="ops-title">Platform operations</h1>
+          <p>
+            Published game releases and the isolation rules that keep room sessions pinned to exact
+            versions. Signed in as {user.name}.
+          </p>
+          <div className="ops-console-summary">
+            <strong>{gamesResult === undefined ? "…" : games.length}</strong>
+            <span>published games</span>
           </div>
         </div>
-      </ScrollArea>
-    </main>
+        <figure className="ops-console-overview__art" aria-hidden="true">
+          <img src="/assets/ui/ops/ops-hero-control-room.webp" alt="" />
+        </figure>
+      </section>
+
+      <RealtimeTelemetryPanel />
+
+      <div className="ops-grid ops-console-grid">
+        <ScrollablePanel
+          className="ops-catalog-panel"
+          titleClassName="ops-panel-title"
+          labelClassName="ops-console-label"
+          label="Catalog"
+          title="Published games"
+          meta={gamesResult === undefined ? "Loading" : `${games.length} total`}
+          scrollClassName="ops-panel-scroll"
+          contentClassName="panel-scroll__content ops-game-list"
+          ariaLabel="Published game versions"
+        >
+          {gamesResult === undefined ? (
+            GAME_SKELETON_KEYS.map((key) => <GameVersionSkeleton key={key} />)
+          ) : games.length === 0 ? (
+            <div className="ops-empty-state">
+              <img src="/assets/ui/states/ops-empty-rooms.webp" alt="" aria-hidden="true" />
+              <div>
+                <strong>No published games</strong>
+                <p>Published cartridges will appear here after validation and release.</p>
+              </div>
+            </div>
+          ) : (
+            games.map((game) => (
+              <article className="game-version" key={`${game.gameId}@${game.version}`}>
+                <div>
+                  <strong>{game.title}</strong>
+                  <p>{game.description}</p>
+                </div>
+                <div>
+                  <code>
+                    {game.gameId}@{game.version}
+                  </code>
+                  <span>
+                    {game.minPlayers}–{game.maxPlayers} players
+                  </span>
+                </div>
+              </article>
+            ))
+          )}
+        </ScrollablePanel>
+
+        <ScrollablePanel
+          as="aside"
+          className="architecture-card ops-architecture-panel"
+          titleClassName="ops-panel-title"
+          labelClassName="ops-console-label"
+          label="Isolation model"
+          title="Release boundaries"
+          scrollClassName="ops-panel-scroll"
+          contentClassName="panel-scroll__content ops-architecture-content"
+          ariaLabel="Release isolation model"
+        >
+          <p>
+            A game release changes independently from the portal. Existing rooms keep their stored
+            manifest and server bundle.
+          </p>
+          <ol>
+            <li>Room stores an immutable game version and manifest hash.</li>
+            <li>Browser verifies controller and display bundles before import.</li>
+            <li>Gateway verifies the server bundle and starts an isolated room Worker.</li>
+            <li>Existing rooms retain their pinned version until the room closes.</li>
+          </ol>
+          <Button
+            type="button"
+            variant="secondary"
+            fullWidth
+            onClick={() => navigate("/developers")}
+          >
+            Open submission & MCP guide
+          </Button>
+        </ScrollablePanel>
+      </div>
+    </ScrollableAppPage>
   );
 }
 

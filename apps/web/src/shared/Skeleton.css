@@ -38,7 +38,7 @@
 }
 
 .route-skeleton {
-  min-height: 100svh;
+  min-height: var(--viewport-block);
   display: grid;
   align-content: start;
   gap: 26px;
@@ -57,13 +57,13 @@
 }
 
 .route-skeleton__card {
-  height: min(34svh, 320px);
+  height: min(34dvh, 320px);
   border-radius: 28px;
 }
 
 @media (max-width: 900px) {
   .route-skeleton {
-    height: 100svh;
+    height: var(--viewport-block);
     padding-top: max(12px, env(safe-area-inset-top));
     padding-bottom: calc(92px + env(safe-area-inset-bottom));
   }

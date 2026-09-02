@@ -1,0 +1,40 @@
+.scrollable-app-page {
+  width: 100%;
+  max-width: none;
+  height: var(--viewport-block);
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.scrollable-app-page__scroll {
+  min-width: 0;
+  min-height: 0;
+}
+
+.scrollable-app-page__content {
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  padding: 0 2px 38px;
+}
+
+@media (max-width: 900px) {
+  .scrollable-app-page {
+    grid-template-rows: minmax(0, 1fr);
+    padding-top: max(8px, var(--safe-top));
+    padding-bottom: 0;
+  }
+
+  .scrollable-app-page__content {
+    padding-bottom: var(--mobile-dock-clearance);
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+  .scrollable-app-page__content {
+    padding-bottom: calc(68px + var(--safe-bottom));
+  }
+}

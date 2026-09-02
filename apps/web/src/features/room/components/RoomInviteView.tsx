@@ -2,6 +2,10 @@ import type { FormEvent } from "react";
 import { navigate } from "../../../shared/navigation";
 import { ScrollArea } from "../../../shared/ScrollArea";
 import type { RoomDetails } from "../../../shared/types";
+import { Button } from "../../../shared/ui/Button";
+import { FormField } from "../../../shared/ui/FormField";
+import { FormMessage } from "../../../shared/ui/FormMessage";
+import { StatusBadge } from "../../../shared/ui/StatusBadge";
 
 export function RoomInviteView({
   room,
@@ -21,10 +25,10 @@ export function RoomInviteView({
   return (
     <main className="room-page room-invite-page">
       <header className="room-header">
-        <button className="ghost-button" type="button" onClick={() => navigate("/")}>
+        <Button variant="ghost" type="button" onClick={() => navigate("/")}>
           ← Lobby
-        </button>
-        <span className="status-badge">{room.visibility}</span>
+        </Button>
+        <StatusBadge>{room.visibility}</StatusBadge>
       </header>
       <ScrollArea className="room-page-scroll" ariaLabel="Room invitation">
         <div className="room-invite-scroll-content">
@@ -38,32 +42,30 @@ export function RoomInviteView({
             {room.status === "open" ? (
               <form onSubmit={onJoin}>
                 {room.requiresPassword && (
-                  <label className="field">
-                    <span>Room password</span>
-                    <input
-                      type="password"
-                      autoComplete="current-password"
-                      value={password}
-                      onChange={(event) => onPasswordChange(event.target.value)}
-                      minLength={4}
-                      maxLength={64}
-                      required
-                    />
-                  </label>
+                  <FormField
+                    label="Room password"
+                    control={
+                      <input
+                        type="password"
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(event) => onPasswordChange(event.target.value)}
+                        minLength={4}
+                        maxLength={64}
+                        required
+                      />
+                    }
+                  />
                 )}
-                {error && (
-                  <p className="form-error" role="alert">
-                    {error}
-                  </p>
-                )}
-                <button className="primary-button full" type="submit" disabled={busy}>
+                {error && <FormMessage>{error}</FormMessage>}
+                <Button type="submit" fullWidth busy={busy}>
                   {busy ? "Joining…" : "Join room"}
-                </button>
+                </Button>
               </form>
             ) : (
-              <button className="secondary-button full" type="button" onClick={() => navigate("/")}>
+              <Button variant="secondary" type="button" fullWidth onClick={() => navigate("/")}>
                 This room has closed
-              </button>
+              </Button>
             )}
           </section>
         </div>

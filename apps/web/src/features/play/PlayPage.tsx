@@ -1,4 +1,5 @@
 import type { CurrentUser } from "../../shared/types";
+import { Button } from "../../shared/ui/Button";
 import { LiveGameView } from "./components/LiveGameView";
 import { PlayToolbar } from "./components/PlayToolbar";
 import { PregameMenu } from "./components/PregameMenu";
@@ -27,9 +28,9 @@ export function PlayPage({
     return (
       <main className="centered-state">
         <p>Room not found</p>
-        <button className="primary-button" type="button" onClick={() => location.assign("/")}>
+        <Button type="button" onClick={() => location.assign("/")}>
           Back to lobby
-        </button>
+        </Button>
       </main>
     );
   return (

@@ -1,9 +1,7 @@
 .room-list {
   display: grid;
   gap: var(--space-5);
-  max-height: 620px;
-  overflow: auto;
-  padding-right: 2px;
+  padding-right: 0;
 }
 
 .room-card {
@@ -48,33 +46,8 @@
   font-size: 0.72rem;
 }
 
-.empty-state {
-  min-height: 150px;
-  display: grid;
-  place-content: center;
-  text-align: center;
-  border: 1px dashed var(--line);
-  border-radius: var(--radius-2xl);
-  padding: 24px;
-  color: var(--muted);
-}
-
-.empty-state strong {
-  color: #fff;
-}
-
-.empty-state p {
-  margin: 8px 0 0;
-}
-
 .rooms-panel-frame {
   grid-template-rows: auto auto minmax(0, 1fr);
-}
-
-.room-list {
-  max-height: none;
-  overflow: visible;
-  padding-right: 0;
 }
 
 .room-tabs {

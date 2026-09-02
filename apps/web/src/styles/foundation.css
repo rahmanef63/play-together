@@ -149,7 +149,7 @@ h2 {
 }
 
 .centered-state {
-  min-height: 100dvh;
+  min-height: var(--viewport-block);
   display: grid;
   place-content: center;
   justify-items: center;

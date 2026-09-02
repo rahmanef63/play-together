@@ -1,17 +1,3 @@
-@media (max-width: 900px) {
-  .developer-card-rail::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .developer-card-rail {
-    scroll-behavior: auto;
-  }
-}
-
 @media (max-width: 980px) {
   .developer-card-rail {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -23,6 +9,20 @@
 }
 
 @media (max-width: 900px) {
+  .developer-hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: var(--space-7);
+    padding: 18px 2px 20px;
+  }
+
+  .developer-hero h1 {
+    max-width: 14ch;
+    margin-bottom: 10px;
+    font-size: clamp(2rem, 9vw, 3rem);
+  }
+
   .developer-hero__actions {
     width: 100%;
     min-width: 0;
@@ -34,16 +34,12 @@
     display: flex;
     grid-template-columns: none;
     gap: 9px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
     padding: 2px 2px 12px;
   }
 
   .developer-guide-card {
     flex: 0 0 82%;
     min-height: 172px;
-    scroll-snap-align: center;
     border-radius: var(--radius-3xl);
   }
 
@@ -58,7 +54,7 @@
   }
 
   .developer-panel--prompt {
-    height: min(66svh, 620px);
+    height: min(66dvh, 620px);
   }
 
   .developer-prompt {
@@ -67,7 +63,12 @@
 }
 
 @media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
-  .developer-page__content {
-    padding-bottom: calc(68px + env(safe-area-inset-bottom));
+  .developer-hero {
+    padding-top: 6px;
+    padding-bottom: 12px;
+  }
+
+  .developer-hero h1 {
+    font-size: 1.8rem;
   }
 }

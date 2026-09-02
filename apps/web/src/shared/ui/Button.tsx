@@ -3,6 +3,14 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
 type ButtonSize = "sm" | "md" | "icon";
 
+const LEGACY_VARIANT_CLASSES: Record<ButtonVariant, string> = {
+  primary: "primary-button",
+  secondary: "secondary-button",
+  outline: "secondary-button",
+  ghost: "ghost-button",
+  danger: "ghost-button danger",
+};
+
 export function Button({
   variant = "primary",
   size = "md",
@@ -23,7 +31,8 @@ export function Button({
     "ds-button",
     `ds-button--${variant}`,
     `ds-button--${size}`,
-    fullWidth ? "ds-button--full" : "",
+    LEGACY_VARIANT_CLASSES[variant],
+    fullWidth ? "ds-button--full full" : "",
     className,
   ]
     .filter(Boolean)

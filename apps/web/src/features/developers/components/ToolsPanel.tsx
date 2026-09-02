@@ -1,15 +1,14 @@
 import gameToolCatalog from "../../../generated/gameTools.json";
+import { SectionTitle } from "../../../shared/ui/SectionTitle";
 
 export function ToolsPanel() {
   return (
     <aside className="panel developer-panel developer-panel--tools">
-      <div className="section-title">
-        <div>
-          <p className="eyebrow">MCP + TOOL CALLING</p>
-          <h2>Game CRUD without shell interpolation</h2>
-        </div>
-        <span>{gameToolCatalog.tools.length} tools</span>
-      </div>
+      <SectionTitle
+        label="MCP + TOOL CALLING"
+        title="Game CRUD without shell interpolation"
+        meta={`${gameToolCatalog.tools.length} tools`}
+      />
       <p className="developer-tools-intro">
         The repository ships a stdio MCP server in <code>.mcp.json</code> and the same bounded
         operations through <code>.mso/functions.json</code>. Production credentials are

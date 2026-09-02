@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 import { closeContext, createRoom, pong, signUp } from "./support/multiplayer";
 
 test("mobile auth remains vertically scrollable on short phone viewports", async ({ browser }) => {
@@ -65,6 +65,7 @@ test("mobile account menu exposes sign out and compact app routes stay width-saf
           scroll: document.documentElement.scrollWidth,
         }));
         expect(width.scroll).toBeLessThanOrEqual(width.client + 1);
+        await assertScrollContracts(page);
       }
     }
     await page.setViewportSize({ width: 1024, height: 768 });
@@ -85,3 +86,75 @@ test("mobile account menu exposes sign out and compact app routes stay width-saf
     await closeContext(context);
   }
 });
+
+async function assertScrollContracts(page: Page) {
+  const pageMetrics = await page.evaluate(() => ({
+    bodyOverflow: getComputedStyle(document.body).overflow,
+    viewportHeight: innerHeight,
+    viewportWidth: innerWidth,
+    main: (() => {
+      const main = document.querySelector<HTMLElement>("main");
+      if (!main) return null;
+      const rect = main.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, width: rect.width };
+    })(),
+  }));
+  expect(pageMetrics.bodyOverflow).toBe("hidden");
+  if (pageMetrics.main) {
+    expect(pageMetrics.main.width).toBeLessThanOrEqual(pageMetrics.viewportWidth + 1);
+    expect(pageMetrics.main.bottom).toBeLessThanOrEqual(pageMetrics.viewportHeight + 1);
+  }
+
+  const scrollAreas = page.locator("[data-scroll-viewport]");
+  for (let index = 0; index < (await scrollAreas.count()); index += 1) {
+    const area = scrollAreas.nth(index);
+    const metrics = await area.evaluate((element) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return {
+        clientHeight: element.clientHeight,
+        clientWidth: element.clientWidth,
+        scrollHeight: element.scrollHeight,
+        overflowY: style.overflowY,
+        left: rect.left,
+        right: rect.right,
+        panel: (() => {
+          const panel = element.closest<HTMLElement>(".panel");
+          if (!panel) return null;
+          const panelRect = panel.getBoundingClientRect();
+          return { left: panelRect.left, right: panelRect.right };
+        })(),
+        insideHorizontalSnap: Boolean(element.closest(".horizontal-snap")),
+      };
+    });
+    expect(metrics.clientWidth).toBeGreaterThan(0);
+    expect(metrics.clientHeight).toBeGreaterThan(0);
+    expect(["auto", "scroll"]).toContain(metrics.overflowY);
+    if (metrics.insideHorizontalSnap && metrics.panel) {
+      expect(metrics.left).toBeGreaterThanOrEqual(metrics.panel.left - 1);
+      expect(metrics.right).toBeLessThanOrEqual(metrics.panel.right + 1);
+    } else {
+      expect(metrics.left).toBeGreaterThanOrEqual(-1);
+      expect(metrics.right).toBeLessThanOrEqual(pageMetrics.viewportWidth + 1);
+    }
+    if (metrics.scrollHeight > metrics.clientHeight + 2) {
+      await area.evaluate((element) => {
+        element.scrollTop = element.scrollHeight;
+      });
+      expect(await area.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+      await area.evaluate((element) => {
+        element.scrollTop = 0;
+      });
+    }
+  }
+
+  const snaps = page.locator(".horizontal-snap");
+  for (let index = 0; index < (await snaps.count()); index += 1) {
+    const style = await snaps.nth(index).evaluate((element) => {
+      const computed = getComputedStyle(element);
+      return { overflowX: computed.overflowX, snap: computed.scrollSnapType };
+    });
+    expect(style.overflowX).toBe("auto");
+    expect(style.snap).toContain("x mandatory");
+  }
+}

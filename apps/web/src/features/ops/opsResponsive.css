@@ -17,7 +17,7 @@
   }
 
   .ops-console-grid > .panel-frame {
-    height: min(58svh, 520px);
+    height: min(58dvh, 520px);
     min-height: 320px;
   }
 }
@@ -46,15 +46,9 @@
   }
 
   .ops-console-grid > .panel-frame {
-    height: min(56svh, 470px);
+    height: min(56dvh, 470px);
     min-height: 300px;
     padding: 13px;
     border-radius: var(--radius-md);
-  }
-}
-
-@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
-  .ops-page-native__content {
-    padding-bottom: calc(68px + env(safe-area-inset-bottom));
   }
 }

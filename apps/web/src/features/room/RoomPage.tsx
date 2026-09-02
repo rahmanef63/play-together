@@ -1,5 +1,6 @@
 import { navigate } from "../../shared/navigation";
 import type { CurrentUser } from "../../shared/types";
+import { Button } from "../../shared/ui/Button";
 import { RoomInviteView } from "./components/RoomInviteView";
 import { RoomMemberView } from "./components/RoomMemberView";
 import { useRoomSession } from "./model/useRoomSession";
@@ -38,9 +39,9 @@ function RoomState({ label, action }: { label: string; action?: () => void }) {
     <main className="centered-state">
       <p>{label}</p>
       {action && (
-        <button className="primary-button" type="button" onClick={action}>
+        <Button type="button" onClick={action}>
           Back to lobby
-        </button>
+        </Button>
       )}
     </main>
   );

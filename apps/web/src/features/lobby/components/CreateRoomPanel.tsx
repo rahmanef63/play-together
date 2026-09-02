@@ -1,8 +1,13 @@
 import type { GameManifest } from "@play-together/contracts";
 import type { FormEvent } from "react";
-import { ScrollArea } from "../../../shared/ScrollArea";
 import { PreviewCardSkeleton, SkeletonBlock } from "../../../shared/Skeleton";
 import type { CurrentUser, GameSummary } from "../../../shared/types";
+import { Button } from "../../../shared/ui/Button";
+import { EmptyState } from "../../../shared/ui/EmptyState";
+import { FormField } from "../../../shared/ui/FormField";
+import { FormMessage } from "../../../shared/ui/FormMessage";
+import { HorizontalSnap } from "../../../shared/ui/HorizontalSnap";
+import { ScrollablePanel } from "../../../shared/ui/ScrollablePanel";
 import { consoleControlLabels, consoleLayoutLabel } from "../model/useGameCatalog";
 
 export function CreateRoomPanel({
@@ -29,153 +34,144 @@ export function CreateRoomPanel({
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
   return (
-    <section className="panel create-panel panel-frame">
-      <div className="section-title">
-        <div>
-          <p className="eyebrow">NEW SESSION</p>
-          <h2>Create a server</h2>
-        </div>
-        <span className="status-badge">Version pinned</span>
-      </div>
-      <ScrollArea className="panel-scroll" ariaLabel="Create room settings">
-        <div className="panel-scroll__content">
-          {selectedGame ? (
-            <form onSubmit={onSubmit}>
-              <label className="field">
-                <span>Room name</span>
-                <input
-                  name="name"
-                  defaultValue={`${user.name}'s room`}
-                  minLength={2}
-                  maxLength={64}
-                  required
-                />
-              </label>
-              <label className="field">
-                <span>Game</span>
-                <select
-                  name="game"
-                  value={effectiveGameKey}
-                  onChange={(event) => onGameChange(event.target.value)}
-                >
-                  {games.map((game) => {
-                    const key = `${game.gameId}@${game.version}`;
-                    return (
-                      <option key={key} value={key}>
-                        {game.title} · {game.version}
-                      </option>
-                    );
-                  })}
-                </select>
-              </label>
-              <span className="game-picker-label">Gameplay previews</span>
-              {loadingGames ? (
-                <PreviewCardSkeleton count={4} />
-              ) : (
-                <div className="game-picker">
-                  {games.map((game) => {
-                    const key = `${game.gameId}@${game.version}`;
-                    return (
-                      <button
-                        className={`game-preview-card${key === effectiveGameKey ? " game-preview-card--active" : ""}`}
-                        type="button"
-                        key={key}
-                        aria-pressed={key === effectiveGameKey}
-                        onClick={() => onGameChange(key)}
-                      >
-                        <img
-                          src={`/game-previews/${game.gameId}.png`}
-                          alt={`${game.title} gameplay preview`}
-                          loading="lazy"
-                          decoding="async"
-                        />
-                        <span>
-                          <strong>{game.title}</strong>
-                          <small>v{game.version}</small>
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-              {selectedManifestError && (
-                <p className="form-error" role="alert">
-                  {selectedManifestError}
-                </p>
-              )}
-              {selectedManifest?.controller.console && (
-                <div className="console-registry-card">
-                  <div>
-                    <span>Console</span>
-                    <strong>{consoleLayoutLabel(selectedManifest)}</strong>
-                  </div>
-                  <div className="console-control-chips">
-                    {consoleControlLabels(selectedManifest).map((label) => (
-                      <span key={label}>{label}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <div className="form-row">
-                <label className="field">
-                  <span>Visibility</span>
-                  <select name="visibility">
-                    <option value="public">Public listing</option>
-                    <option value="private">Private by code</option>
-                  </select>
-                </label>
-                <label className="field">
-                  <span>Player slots</span>
-                  <input
-                    name="maxPlayers"
-                    type="number"
-                    key={effectiveGameKey}
-                    min={selectedGame.minPlayers}
-                    max={selectedGame.maxPlayers}
-                    defaultValue={selectedGame.maxPlayers}
-                  />
-                </label>
-              </div>
-              <label className="field">
-                <span>
-                  Room password <small>optional</small>
-                </span>
-                <input name="password" type="password" minLength={4} maxLength={64} />
-              </label>
-              <button
-                className="primary-button full"
-                type="submit"
-                disabled={busy || !selectedManifest || Boolean(selectedManifestError)}
+    <ScrollablePanel
+      className="create-panel"
+      label="NEW SESSION"
+      title="Create a server"
+      meta="Version pinned"
+      metaClassName="status-badge"
+      ariaLabel="Create room settings"
+    >
+      {selectedGame ? (
+        <form onSubmit={onSubmit}>
+          <FormField
+            label="Room name"
+            control={
+              <input
+                name="name"
+                defaultValue={`${user.name}'s room`}
+                minLength={2}
+                maxLength={64}
+                required
+              />
+            }
+          />
+          <FormField
+            label="Game"
+            control={
+              <select
+                name="game"
+                value={effectiveGameKey}
+                onChange={(event) => onGameChange(event.target.value)}
               >
-                Create room
-              </button>
-            </form>
-          ) : loadingGames ? (
-            <div className="create-form-skeleton" aria-hidden="true">
-              <SkeletonBlock width="38%" height={10} />
-              <SkeletonBlock height={44} />
-              <SkeletonBlock width="31%" height={10} />
-              <PreviewCardSkeleton count={2} />
-              <SkeletonBlock height={44} />
-              <SkeletonBlock height={44} />
-            </div>
+                {games.map((game) => {
+                  const key = `${game.gameId}@${game.version}`;
+                  return (
+                    <option key={key} value={key}>
+                      {game.title} · {game.version}
+                    </option>
+                  );
+                })}
+              </select>
+            }
+          />
+          <span className="game-picker-label">Gameplay previews</span>
+          {loadingGames ? (
+            <PreviewCardSkeleton count={4} />
           ) : (
-            <EmptyState
-              title="No published game yet"
-              body="Publish a signed game manifest from the operations workflow first."
-            />
+            <HorizontalSnap className="game-picker" ariaLabel="Gameplay previews">
+              {games.map((game) => {
+                const key = `${game.gameId}@${game.version}`;
+                return (
+                  <button
+                    className={`game-preview-card${key === effectiveGameKey ? " game-preview-card--active" : ""}`}
+                    type="button"
+                    key={key}
+                    aria-pressed={key === effectiveGameKey}
+                    onClick={() => onGameChange(key)}
+                  >
+                    <img
+                      src={`/game-previews/${game.gameId}.png`}
+                      alt={`${game.title} gameplay preview`}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <span>
+                      <strong>{game.title}</strong>
+                      <small>v{game.version}</small>
+                    </span>
+                  </button>
+                );
+              })}
+            </HorizontalSnap>
           )}
+          {selectedManifestError && <FormMessage>{selectedManifestError}</FormMessage>}
+          {selectedManifest?.controller.console && (
+            <div className="console-registry-card">
+              <div>
+                <span>Console</span>
+                <strong>{consoleLayoutLabel(selectedManifest)}</strong>
+              </div>
+              <div className="console-control-chips">
+                {consoleControlLabels(selectedManifest).map((label) => (
+                  <span key={label}>{label}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="form-row">
+            <FormField
+              label="Visibility"
+              control={
+                <select name="visibility">
+                  <option value="public">Public listing</option>
+                  <option value="private">Private by code</option>
+                </select>
+              }
+            />
+            <FormField
+              label="Player slots"
+              control={
+                <input
+                  name="maxPlayers"
+                  type="number"
+                  key={effectiveGameKey}
+                  min={selectedGame.minPlayers}
+                  max={selectedGame.maxPlayers}
+                  defaultValue={selectedGame.maxPlayers}
+                />
+              }
+            />
+          </div>
+          <FormField
+            label="Room password"
+            hint="optional"
+            control={<input name="password" type="password" minLength={4} maxLength={64} />}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            busy={busy}
+            disabled={!selectedManifest || Boolean(selectedManifestError)}
+          >
+            Create room
+          </Button>
+        </form>
+      ) : loadingGames ? (
+        <div className="create-form-skeleton" aria-hidden="true">
+          <SkeletonBlock width="38%" height={10} />
+          <SkeletonBlock height={44} />
+          <SkeletonBlock width="31%" height={10} />
+          <PreviewCardSkeleton count={2} />
+          <SkeletonBlock height={44} />
+          <SkeletonBlock height={44} />
         </div>
-      </ScrollArea>
-    </section>
-  );
-}
-
-export function EmptyState({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="empty-state">
-      <strong>{title}</strong>
-      <p>{body}</p>
-    </div>
+      ) : (
+        <EmptyState
+          title="No published game yet"
+          body="Publish a signed game manifest from the operations workflow first."
+        />
+      )}
+    </ScrollablePanel>
   );
 }

@@ -11,8 +11,8 @@
 .play-page {
   width: 100%;
   min-width: 0;
-  height: 100dvh;
-  min-height: 100dvh;
+  height: var(--viewport-block);
+  min-height: var(--viewport-block);
   display: grid;
   grid-template-rows: 46px minmax(0, 1fr);
   background: var(--color-surface-deep);

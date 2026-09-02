@@ -1,5 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import type { CurrentUser } from "../../shared/types";
+import { HorizontalSnap } from "../../shared/ui/HorizontalSnap";
 import { CreateRoomPanel } from "./components/CreateRoomPanel";
 import { LobbyHeader } from "./components/LobbyHeader";
 import { LobbyHeading } from "./components/LobbyHeading";
@@ -35,7 +36,7 @@ export function LobbyPage({
           {directory.error}
         </p>
       )}
-      <div className="lobby-grid">
+      <HorizontalSnap className="lobby-grid" ariaLabel="Lobby panels">
         <CreateRoomPanel
           user={user}
           games={catalog.games}
@@ -67,7 +68,7 @@ export function LobbyPage({
           onDelete={(room) => void directory.onDelete(room)}
           onUpdate={(event, room) => void directory.onUpdate(event, room)}
         />
-      </div>
+      </HorizontalSnap>
     </main>
   );
 }

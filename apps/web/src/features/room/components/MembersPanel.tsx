@@ -1,5 +1,6 @@
-import { ScrollArea } from "../../../shared/ScrollArea";
 import type { RoomDetails } from "../../../shared/types";
+import { Button } from "../../../shared/ui/Button";
+import { ScrollablePanel } from "../../../shared/ui/ScrollablePanel";
 
 export function MembersPanel({
   room,
@@ -13,37 +14,32 @@ export function MembersPanel({
   onExit: () => void;
 }) {
   return (
-    <aside className="panel members-panel panel-frame">
-      <div className="section-title">
-        <div>
-          <p className="eyebrow">CONNECTED</p>
-          <h2>Players</h2>
-        </div>
-        <span>
-          {room.activeMembers.length}/{room.maxPlayers}
-        </span>
+    <ScrollablePanel
+      as="aside"
+      className="members-panel"
+      label="CONNECTED"
+      title="Players"
+      meta={`${room.activeMembers.length}/${room.maxPlayers}`}
+      contentClassName="panel-scroll__content members-scroll-content"
+      ariaLabel="Connected players"
+    >
+      <ul>
+        {room.activeMembers.map((member) => (
+          <li key={member.userId}>
+            <span className="member-dot" />
+            <strong>{member.displayName}</strong>
+            {member.userId === room.hostUserId && <small>Host</small>}
+          </li>
+        ))}
+      </ul>
+      <div className="room-actions">
+        <Button type="button" variant="secondary" fullWidth onClick={onCopy}>
+          Copy invite
+        </Button>
+        <Button type="button" variant="danger" fullWidth onClick={onExit}>
+          {isHost ? "Close room" : "Leave room"}
+        </Button>
       </div>
-      <ScrollArea className="panel-scroll" ariaLabel="Connected players">
-        <div className="panel-scroll__content members-scroll-content">
-          <ul>
-            {room.activeMembers.map((member) => (
-              <li key={member.userId}>
-                <span className="member-dot" />
-                <strong>{member.displayName}</strong>
-                {member.userId === room.hostUserId && <small>Host</small>}
-              </li>
-            ))}
-          </ul>
-          <div className="room-actions">
-            <button className="secondary-button full" type="button" onClick={onCopy}>
-              Copy invite
-            </button>
-            <button className="ghost-button danger full" type="button" onClick={onExit}>
-              {isHost ? "Close room" : "Leave room"}
-            </button>
-          </div>
-        </div>
-      </ScrollArea>
-    </aside>
+    </ScrollablePanel>
   );
 }

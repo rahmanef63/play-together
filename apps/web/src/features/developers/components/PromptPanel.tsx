@@ -1,5 +1,8 @@
 import { ScrollArea } from "../../../shared/ScrollArea";
 import { SkeletonBlock } from "../../../shared/Skeleton";
+import { Button } from "../../../shared/ui/Button";
+import { FormMessage } from "../../../shared/ui/FormMessage";
+import { SectionTitle } from "../../../shared/ui/SectionTitle";
 
 const SKELETON_KEYS = Array.from({ length: 12 }, (_, index) => `prompt-${index}`);
 
@@ -16,20 +19,16 @@ export function PromptPanel({
 }) {
   return (
     <section className="panel developer-panel developer-panel--prompt">
-      <div className="section-title">
-        <div>
-          <p className="eyebrow">BASE PROMPT</p>
-          <h2>Rules → implementation → tests → publish</h2>
-        </div>
-        <span>{prompt ? `${prompt.length.toLocaleString()} chars` : "Loading"}</span>
-      </div>
+      <SectionTitle
+        label="BASE PROMPT"
+        title="Rules → implementation → tests → publish"
+        meta={prompt ? `${prompt.length.toLocaleString()} chars` : "Loading"}
+      />
       <ScrollArea className="developer-prompt-scroll" ariaLabel="Full game submission prompt">
         {prompt ? (
           <pre className="developer-prompt">{prompt}</pre>
         ) : error ? (
-          <p className="form-error">
-            The generated prompt file is unavailable. Run pnpm docs:sync.
-          </p>
+          <FormMessage>The generated prompt file is unavailable. Run pnpm docs:sync.</FormMessage>
         ) : (
           <div className="developer-prompt-skeleton">
             {SKELETON_KEYS.map((key, index) => (
@@ -38,9 +37,9 @@ export function PromptPanel({
           </div>
         )}
       </ScrollArea>
-      <button className="primary-button full" type="button" disabled={!prompt} onClick={onCopy}>
+      <Button type="button" fullWidth disabled={!prompt} onClick={onCopy}>
         {copied ? "Copied to clipboard" : "Copy complete prompt"}
-      </button>
+      </Button>
     </section>
   );
 }

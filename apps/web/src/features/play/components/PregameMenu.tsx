@@ -2,6 +2,8 @@ import type { ControllerMode } from "@play-together/contracts";
 import { navigate } from "../../../shared/navigation";
 import { RoomInviteQr } from "../../../shared/RoomInviteQr";
 import type { RoomDetails } from "../../../shared/types";
+import { Button } from "../../../shared/ui/Button";
+import { FormMessage } from "../../../shared/ui/FormMessage";
 import type { RemoteRole } from "../remotePresentation";
 
 export function PregameMenu({
@@ -75,26 +77,18 @@ export function PregameMenu({
             </div>
           </div>
         )}
-        {error && (
-          <p className="form-error" role="alert">
-            {error}
-          </p>
-        )}
+        {error && <FormMessage>{error}</FormMessage>}
         <div className="pregame-menu__actions">
           {isHost ? (
-            <button className="primary-button" type="button" onClick={onStart}>
+            <Button type="button" onClick={onStart}>
               Start Game
-            </button>
+            </Button>
           ) : (
             <span className="pregame-menu__host-note">Host controls Start Game</span>
           )}
-          <button
-            className="secondary-button"
-            type="button"
-            onClick={() => navigate(`/room/${code}`)}
-          >
+          <Button variant="secondary" type="button" onClick={() => navigate(`/room/${code}`)}>
             Room settings
-          </button>
+          </Button>
         </div>
       </div>
     </section>

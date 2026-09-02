@@ -98,6 +98,7 @@ export function ScrollArea({
         ref={viewportRef}
         className={`scroll-area__viewport ${viewportClassName}`.trim()}
         aria-label={ariaLabel ?? "Scrollable content"}
+        data-scroll-viewport
       >
         {children}
       </section>

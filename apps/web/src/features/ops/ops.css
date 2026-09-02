@@ -102,7 +102,7 @@
 }
 
 .ops-console-grid > .panel-frame {
-  height: clamp(430px, 58svh, 700px);
+  height: clamp(430px, 58dvh, 700px);
   min-height: 0;
   padding: clamp(16px, 2.2vw, 24px);
 }

@@ -34,12 +34,7 @@
     grid-template: none;
     align-items: stretch;
     gap: var(--space-5);
-    overflow-x: auto;
     overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
     padding: 1px 0 3px;
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "play-together",
-  "version": "0.11.12",
+  "version": "0.11.13",
   "private": true,
   "description": "Version-isolated multiplayer game platform with mobile controllers and shared browser displays.",
   "packageManager": "pnpm@10.32.1",
@@ -21,6 +21,7 @@
     "verify": "pnpm prepare:web && pnpm game:tools:sync && pnpm lint && pnpm architecture:check && pnpm typecheck && pnpm test && pnpm build && pnpm smoke:realtime && pnpm security:check",
     "convex:codegen": "convex codegen",
     "env:local": "node scripts/generate-local-env.mjs",
+    "env:examples": "node scripts/generate-env-examples.mjs",
     "stack:bootstrap": "node scripts/bootstrap-local.mjs",
     "stack:up": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin up -d --build --wait",
     "stack:stop": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin stop",
@@ -47,7 +48,7 @@
     "game:tools:sync": "node scripts/sync-game-tools.mjs",
     "mcp:game": "node scripts/game-mcp-server.mjs",
     "game:tool": "node scripts/game-tool.mjs",
-    "prepare:web": "pnpm engine:vendors && pnpm pwa:stamp && pnpm docs:sync",
+    "prepare:web": "pnpm engine:vendors && pnpm pwa:stamp && pnpm docs:sync && pnpm env:examples",
     "web:build:check": "node scripts/check-web-build.mjs",
     "workspace:build": "node scripts/run-workspace-build.mjs",
     "engine:vendors": "node scripts/build-engine-vendors.mjs"

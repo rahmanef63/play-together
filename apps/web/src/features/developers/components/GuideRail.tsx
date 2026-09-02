@@ -1,3 +1,5 @@
+import { HorizontalSnap } from "../../../shared/ui/HorizontalSnap";
+
 const GUIDES = [
   [
     "01",
@@ -28,7 +30,7 @@ const GUIDES = [
 
 export function GuideRail() {
   return (
-    <section className="developer-card-rail" aria-label="Submission rules">
+    <HorizontalSnap as="section" className="developer-card-rail" ariaLabel="Submission rules">
       {GUIDES.map(([index, title, body]) => (
         <article className="developer-guide-card" key={index}>
           <span>{index}</span>
@@ -36,6 +38,6 @@ export function GuideRail() {
           <p>{body}</p>
         </article>
       ))}
-    </section>
+    </HorizontalSnap>
   );
 }

@@ -16,8 +16,7 @@
   line-height: 1;
 }
 
-.template-stat span,
-.template-user {
+.template-stat span {
   color: var(--muted);
   font-size: 0.76rem;
 }
@@ -107,10 +106,6 @@
 
   .template-stat {
     justify-items: start;
-  }
-
-  .template-user {
-    display: none;
   }
 }
 

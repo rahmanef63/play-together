@@ -1,7 +1,8 @@
 import type { FormEvent } from "react";
 import { Button } from "../../../shared/ui/Button";
+import { InputField } from "../../../shared/ui/FormField";
+import { FormMessage } from "../../../shared/ui/FormMessage";
 import type { AuthMode } from "../model/useAuthFlow";
-import { AuthField, FormError } from "./AuthField";
 import { GoogleAuthButton } from "./GoogleAuthButton";
 
 export function AuthForms({
@@ -57,24 +58,26 @@ export function AuthForms({
           <GoogleAuthButton enabled={googleEnabled} busy={busy} onClick={onGoogle} />
           <form onSubmit={onAccount}>
             {mode === "signUp" && (
-              <AuthField
+              <InputField
                 label="Player name"
                 name="name"
                 autoComplete="name"
                 minLength={2}
                 maxLength={48}
+                required
               />
             )}
-            <AuthField label="Email" name="email" type="email" autoComplete="email" />
-            <AuthField
+            <InputField label="Email" name="email" type="email" autoComplete="email" required />
+            <InputField
               label="Password"
               name="password"
               type="password"
               autoComplete={mode === "signUp" ? "new-password" : "current-password"}
               minLength={8}
               maxLength={128}
+              required
             />
-            {error && <FormError>{error}</FormError>}
+            {error && <FormMessage>{error}</FormMessage>}
             <Button type="submit" fullWidth busy={busy}>
               {busy ? "Connecting…" : mode === "signUp" ? "Create account" : "Sign in"}
             </Button>
@@ -98,8 +101,8 @@ export function AuthForms({
             Enter your account email. For privacy, the response is the same whether an account
             exists or not.
           </p>
-          <AuthField label="Email" name="email" type="email" autoComplete="email" />
-          {error && <FormError>{error}</FormError>}
+          <InputField label="Email" name="email" type="email" autoComplete="email" required />
+          {error && <FormMessage>{error}</FormMessage>}
           <Button type="submit" fullWidth busy={busy} disabled={resetEnabled !== true}>
             {busy
               ? "Sending…"
@@ -116,19 +119,16 @@ export function AuthForms({
         <form onSubmit={onResetVerification}>
           <p className="eyebrow">PASSWORD RESET</p>
           <h2>Set a new password.</h2>
-          {notice && (
-            <p className="form-notice" role="status">
-              {notice}
-            </p>
-          )}
-          <AuthField
+          {notice && <FormMessage variant="notice">{notice}</FormMessage>}
+          <InputField
             label="Email"
             name="email"
             type="email"
             autoComplete="email"
             defaultValue={resetEmail}
+            required
           />
-          <AuthField
+          <InputField
             label="8-digit reset code"
             name="code"
             inputMode="numeric"
@@ -136,24 +136,27 @@ export function AuthForms({
             pattern="[0-9]{8}"
             minLength={8}
             maxLength={8}
+            required
           />
-          <AuthField
+          <InputField
             label="New password"
             name="newPassword"
             type="password"
             autoComplete="new-password"
             minLength={8}
             maxLength={128}
+            required
           />
-          <AuthField
+          <InputField
             label="Confirm new password"
             name="confirmPassword"
             type="password"
             autoComplete="new-password"
             minLength={8}
             maxLength={128}
+            required
           />
-          {error && <FormError>{error}</FormError>}
+          {error && <FormMessage>{error}</FormMessage>}
           <Button type="submit" fullWidth busy={busy}>
             {busy ? "Updating…" : "Reset password"}
           </Button>

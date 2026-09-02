@@ -1,5 +1,6 @@
 import type { RefObject } from "react";
 import { RoomInviteQr } from "../../../shared/RoomInviteQr";
+import { Button } from "../../../shared/ui/Button";
 import type { RemoteDisplayLayout, RemoteRole } from "../remotePresentation";
 
 export function LiveGameView({
@@ -48,9 +49,9 @@ export function LiveGameView({
         <aside className="live-invite" aria-label="Join this game">
           <RoomInviteQr code={code} compact />
           {inviteOpen && remoteCount > 0 && (
-            <button className="ghost-button" type="button" onClick={onHideInvite}>
+            <Button variant="ghost" type="button" onClick={onHideInvite}>
               Hide invite
-            </button>
+            </Button>
           )}
         </aside>
       )}

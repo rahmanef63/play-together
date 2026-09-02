@@ -87,7 +87,7 @@
 }
 
 .developer-panel--prompt {
-  height: min(68svh, 760px);
+  height: min(68dvh, 760px);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: var(--space-7);
