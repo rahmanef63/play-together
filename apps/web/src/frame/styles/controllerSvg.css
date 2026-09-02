@@ -1,0 +1,137 @@
+.console-controller-svg {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.console-controller-svg__shadow {
+  fill: #05070a;
+  opacity: 0.72;
+}
+.console-controller-svg__body {
+  fill: #20262d;
+  stroke: #59616a;
+  stroke-width: 3;
+}
+.console-controller-svg__panel {
+  fill: #171b20;
+  stroke: #363d45;
+  stroke-width: 2;
+}
+.console-controller-svg__touch {
+  fill: #0e1216;
+  stroke: #444d57;
+  stroke-width: 2;
+}
+.console-controller-svg__led {
+  fill: #7ce8a6;
+  filter: drop-shadow(0 0 8px #7ce8a6);
+}
+.console-controller-svg__grip {
+  fill: none;
+  stroke: #090b0e;
+  stroke-width: 8;
+  stroke-linecap: round;
+  opacity: 0.54;
+}
+
+.console-face-svg,
+.console-stick-svg,
+.console-dpad-svg,
+.console-direction-svg,
+.console-touch-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.console-face-svg__outer {
+  fill: #090b0e;
+  stroke: #4b5561;
+  stroke-width: 2;
+}
+.console-face-svg__inner {
+  fill: #2c333b;
+}
+.console-face-svg__glyph {
+  fill: #f3f6f8;
+  font:
+    900 22px / 1 system-ui,
+    sans-serif;
+}
+.console-control--button[data-face="a"] .console-face-svg__inner {
+  fill: #238b57;
+}
+.console-control--button[data-face="b"] .console-face-svg__inner {
+  fill: #b43b40;
+}
+.console-control--button[data-face="c"] .console-face-svg__inner,
+.console-control--button[data-face="x"] .console-face-svg__inner {
+  fill: #2e6da4;
+}
+.console-control--button[data-face="d"] .console-face-svg__inner,
+.console-control--button[data-face="y"] .console-face-svg__inner {
+  fill: #b48a2f;
+}
+
+.console-stick-svg__well {
+  fill: #090c10;
+  stroke: #454e58;
+  stroke-width: 3;
+}
+.console-stick-svg__ring {
+  fill: #1b2026;
+  stroke: #2c343d;
+  stroke-width: 3;
+}
+.console-stick-svg__cap {
+  fill: #303841;
+  stroke: #69727c;
+  stroke-width: 2;
+}
+.console-stick-svg__texture {
+  fill: none;
+  stroke: #151a1f;
+  stroke-width: 9;
+  stroke-dasharray: 4 5;
+}
+.console-stick-svg__knob {
+  transition: transform 45ms linear;
+}
+.console-control--stick[data-active="true"] .console-stick-svg__cap {
+  fill: #38434d;
+}
+
+.console-dpad-svg {
+  position: absolute;
+  inset: 0;
+}
+.console-dpad-svg__body {
+  fill: #12171c;
+  stroke: #56606a;
+  stroke-width: 2;
+}
+.console-dpad-svg__center {
+  fill: #252d35;
+}
+.console-direction-svg__arrow {
+  fill: #aeb8c2;
+}
+
+.console-touch-svg {
+  position: absolute;
+  inset: 0;
+}
+.console-touch-svg__grid {
+  fill: none;
+  stroke: #7f8b9829;
+  stroke-width: 1;
+}
+.console-touch-svg__crosshair {
+  fill: none;
+  stroke: #d6dce3;
+  stroke-width: 3;
+  transition: transform 55ms linear;
+}

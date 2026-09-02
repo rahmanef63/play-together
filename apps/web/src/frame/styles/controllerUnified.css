@@ -1,0 +1,168 @@
+/* Shared console geometry: one PS/Xbox-inspired physical language for every game manifest. */
+.console-shell--remote {
+  place-items: center;
+  background: radial-gradient(circle at 50% 45%, #202833 0, #10151c 58%, #080b0f 100%);
+}
+.console-shell--remote .console-shell__chassis,
+.console-shell--remote.console-shell--classic .console-shell__chassis,
+.console-shell--remote.console-shell--racing .console-shell__chassis,
+.console-shell--remote.console-shell--flight .console-shell__chassis {
+  width: min(96vw, 820px);
+  height: min(92vh, 430px);
+  padding: 34px 72px 38px;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.console-shell--remote .console-shell__controls {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.console-shell--remote .console-shell__status {
+  z-index: 5;
+  top: 52%;
+  opacity: 0.48;
+}
+.console-shell--remote .builtin-controller {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  padding: 0;
+  gap: clamp(5px, 1vmin, 10px);
+  grid-template-columns: minmax(0, 1fr) minmax(92px, 0.38fr) minmax(0, 1fr);
+  grid-template-rows: minmax(42px, 0.27fr) minmax(0, 1fr) minmax(38px, 0.25fr);
+}
+.console-shell--remote .builtin-controller__zone {
+  z-index: 2;
+}
+
+.console-control--button[data-canonical-face="true"] {
+  width: clamp(58px, 13vmin, 84px);
+  padding: 0;
+  gap: 2px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+.console-control--button[data-canonical-face="true"][data-active="true"] {
+  transform: scale(0.9);
+  box-shadow: none;
+}
+.console-control__action-label {
+  position: absolute;
+  top: calc(100% - 5px);
+  left: 50%;
+  width: 110px;
+  transform: translateX(-50%);
+  color: #e8edf2;
+  text-shadow: 0 2px 3px #000;
+  opacity: 0.72;
+}
+.console-control--button[data-face="start"],
+.console-control--button[data-face="pause"],
+.console-control--button[data-face="select"] {
+  min-height: 34px;
+  border: 1px solid #59636d;
+  background: #171c22;
+  box-shadow:
+    inset 0 1px 0 #ffffff14,
+    0 3px 0 #07090b;
+}
+.console-control--button[data-face="l1"],
+.console-control--button[data-face="r1"],
+.console-control--button[data-face="l2"],
+.console-control--button[data-face="r2"] {
+  min-height: 40px;
+  border: 1px solid #59636d;
+  background: linear-gradient(#2d353d, #151a1f);
+  box-shadow: 0 4px 0 #07090b;
+}
+
+.console-shell--remote .console-control--stick {
+  width: clamp(126px, 29vmin, 176px);
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+}
+.console-shell--remote .console-control--dpad {
+  width: clamp(120px, 28vmin, 168px);
+  background: transparent;
+  filter: drop-shadow(0 7px 7px #0008);
+}
+.console-dpad__button {
+  z-index: 1;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  box-shadow: none;
+}
+.console-dpad__button[data-active="true"] {
+  transform: scale(0.9);
+  box-shadow: none;
+}
+.console-dpad__button--up {
+  grid-area: 1 / 2;
+}
+.console-dpad__button--down {
+  grid-area: 3 / 2;
+}
+.console-dpad__button--left {
+  grid-area: 2 / 1;
+}
+.console-dpad__button--right {
+  grid-area: 2 / 3;
+}
+
+.console-control--touchpad {
+  width: min(100%, 430px);
+  height: min(100%, 230px);
+  padding: 0;
+  border: 2px solid #4d5863;
+  border-radius: 28px;
+  background: #11171d;
+  box-shadow:
+    inset 0 0 26px #0007,
+    0 5px 12px #0007;
+}
+
+.console-shell--remote .builtin-controller--racing,
+.console-shell--remote .builtin-controller--flight {
+  grid-template-columns: minmax(0, 1fr) minmax(90px, 0.38fr) minmax(0, 1fr);
+  grid-template-rows: minmax(42px, 0.27fr) minmax(0, 1fr) minmax(38px, 0.25fr);
+  grid-template-areas:
+    "top-left center top-right"
+    "left center right"
+    "bottom-left bottom bottom-right";
+  column-gap: clamp(8px, 2vw, 18px);
+  row-gap: 6px;
+}
+.console-shell--remote .builtin-controller--racing .builtin-controller__zone--right,
+.console-shell--remote .builtin-controller--flight .builtin-controller__zone--right {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
+  gap: 2px;
+}
+.console-shell--remote
+  .builtin-controller--racing
+  .builtin-controller__zone--right
+  .console-control--button,
+.console-shell--remote
+  .builtin-controller--flight
+  .builtin-controller__zone--right
+  .console-control--button {
+  width: clamp(70px, 12vmin, 84px);
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}

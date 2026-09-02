@@ -36,17 +36,13 @@ export function mountBuiltinController(
     wrapper.append(element);
   }
   const faceButtons = config.controls.filter(
-    (control) =>
-      control.kind === "button" &&
-      control.zone === "right" &&
-      control.face !== undefined &&
-      ["a", "b", "c", "d", "x", "y"].includes(control.face),
+    (control) => control.kind === "button" && isFaceButton(control.face),
   );
   if (faceButtons.length === 4)
     zones.get("right")?.classList.add("builtin-controller__zone--face-cluster");
 
   const cleanups = config.controls.flatMap((control) => {
-    const zone = zones.get(control.zone);
+    const zone = zones.get(physicalZoneForControl(control));
     return zone ? [mountControl(zone, control, state, context)] : [];
   });
   root.append(wrapper);
@@ -66,4 +62,18 @@ function mountControl(
   if (control.kind === "dpad") return mountDpad(zone, control, state, context);
   if (control.kind === "stick") return mountStick(zone, control, state, context);
   return mountTouchpad(zone, control, state, context);
+}
+
+export function physicalZoneForControl(control: ConsoleControl): ConsoleZone {
+  if (control.kind !== "button" || !control.face) return control.zone;
+  if (isFaceButton(control.face)) return "right";
+  if (control.face === "l1" || control.face === "l2") return "top-left";
+  if (control.face === "r1" || control.face === "r2") return "top-right";
+  if (control.face === "start" || control.face === "select" || control.face === "pause")
+    return "bottom";
+  return control.zone;
+}
+
+function isFaceButton(face: Extract<ConsoleControl, { kind: "button" }>["face"]): boolean {
+  return face !== undefined && ["a", "b", "c", "d", "x", "y"].includes(face);
 }

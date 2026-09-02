@@ -1,0 +1,50 @@
+@media (orientation: portrait) {
+  .console-shell--remote .console-shell__chassis,
+  .console-shell--remote.console-shell--classic .console-shell__chassis,
+  .console-shell--remote.console-shell--racing .console-shell__chassis,
+  .console-shell--remote.console-shell--flight .console-shell__chassis {
+    width: min(96vw, 430px);
+    height: min(74vw, 340px);
+    min-height: 280px;
+    padding: 28px 34px 30px;
+  }
+  .console-shell--remote .builtin-controller,
+  .console-shell--remote .builtin-controller--racing,
+  .console-shell--remote .builtin-controller--flight {
+    width: 100%;
+    height: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(72px, 0.3fr) minmax(0, 1fr);
+    grid-template-rows: 38px minmax(0, 1fr) 34px;
+    grid-template-areas:
+      "top-left center top-right"
+      "left center right"
+      "bottom-left bottom bottom-right";
+  }
+  .console-shell--remote .builtin-controller__zone--center {
+    display: flex;
+  }
+  .console-shell--remote .console-control--stick {
+    width: min(31vw, 136px);
+  }
+  .console-shell--remote .console-control--dpad {
+    width: min(30vw, 132px);
+  }
+  .console-control__action-label {
+    display: none;
+  }
+}
+
+@media (max-height: 430px) and (orientation: landscape) {
+  .console-shell--remote .console-shell__chassis,
+  .console-shell--remote.console-shell--classic .console-shell__chassis,
+  .console-shell--remote.console-shell--racing .console-shell__chassis,
+  .console-shell--remote.console-shell--flight .console-shell__chassis {
+    width: min(96vw, 760px);
+    height: min(96vh, 380px);
+    padding: 22px 58px 24px;
+  }
+  .console-shell--remote .console-control--stick,
+  .console-shell--remote .console-control--dpad {
+    width: min(36vh, 145px);
+  }
+}

@@ -122,7 +122,7 @@ pnpm test:e2e        # 10 end-to-end user scenarios split by capability
 pnpm game:previews   # recapture game preview thumbnails from a running stack
 ```
 
-E2E covers QR join, Start-gated lifecycle, public/private/password admission, remote/handheld surfaces, responsive console shells, independent cartridges, automatic shared/split display, room CRUD, PWA/ops layout, authoritative realtime, and concurrent final-slot admission.
+E2E covers QR join, Start-gated lifecycle, public/private/password admission, remote/handheld surfaces, the shared SVG console across gamepad/racing/flight/arcade/touch layouts, independent cartridges, automatic shared/split display, room CRUD, PWA/ops layout, authoritative realtime, concurrent final-slot admission, half-open WebSocket recovery, reconnect state continuity, and WebGL frame recovery.
 
 ## Production
 

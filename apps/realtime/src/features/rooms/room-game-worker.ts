@@ -9,6 +9,7 @@ import type {
 import type { CoordinatedSnapshot } from "./room-coordinator.js";
 
 const WORKER_READY_TIMEOUT_MS = 8_000;
+export const PLAYER_DISCONNECT_GRACE_MS = 8_000;
 
 interface WorkerMessage {
   type: "ready" | "snapshot" | "performance" | "error" | "disposed";
@@ -38,6 +39,7 @@ export class RoomGameWorker {
   #rejectReady!: (error: Error) => void;
   #readyTimer: ReturnType<typeof setTimeout> | null = null;
   #closed = false;
+  readonly #pendingLeaves = new Map<string, ReturnType<typeof setTimeout>>();
 
   constructor(
     claims: TicketClaims,
@@ -97,10 +99,22 @@ export class RoomGameWorker {
   }
 
   join(playerId: string, connectedAt: number): void {
+    const pending = this.#pendingLeaves.get(playerId);
+    if (pending) {
+      clearTimeout(pending);
+      this.#pendingLeaves.delete(playerId);
+      return;
+    }
     this.#worker.postMessage({ type: "join", playerId, connectedAt });
   }
   leave(playerId: string): void {
-    this.#worker.postMessage({ type: "leave", playerId });
+    if (this.#closed || this.#pendingLeaves.has(playerId)) return;
+    const timer = setTimeout(() => {
+      this.#pendingLeaves.delete(playerId);
+      if (!this.#closed) this.#worker.postMessage({ type: "leave", playerId });
+    }, PLAYER_DISCONNECT_GRACE_MS);
+    timer.unref();
+    this.#pendingLeaves.set(playerId, timer);
   }
   input(playerId: string, payload: unknown, sequence: number): void {
     this.#worker.postMessage({ type: "input", playerId, payload, sequence });
@@ -109,6 +123,8 @@ export class RoomGameWorker {
     if (this.#closed) return;
     this.#closed = true;
     this.#clearReadyTimer();
+    for (const timer of this.#pendingLeaves.values()) clearTimeout(timer);
+    this.#pendingLeaves.clear();
     this.#worker.postMessage({ type: "dispose" });
     setTimeout(() => void this.#worker.terminate(), 2_000).unref();
   }

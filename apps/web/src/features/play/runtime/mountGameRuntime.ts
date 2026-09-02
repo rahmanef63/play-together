@@ -11,6 +11,7 @@ import {
 } from "../remotePresentation";
 import { FramePerformanceSampler } from "./framePerformanceSampler";
 import { createGameFrame, isFrameMessage } from "./frameProtocol";
+import { mountRuntimeLiveness } from "./runtimeLiveness";
 
 interface RuntimeCallbacks {
   onConnection: (status: ConnectionStatus) => void;
@@ -34,6 +35,7 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
   let client: RealtimeClient | null = null;
   let unsubscribeSnapshot: (() => void) | null = null;
   let unsubscribeMessages: (() => void) | null = null;
+  let disposeLiveness: (() => void) | null = null;
   let gameTitle = options.roomTitle || "Game";
   let latestPresence: PresencePlayer[] = [];
   let currentPlayerId = "";
@@ -107,6 +109,7 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
     unsubscribeMessages?.();
     client?.stop();
     performanceSampler?.stop();
+    disposeLiveness?.();
     window.removeEventListener("message", onFrameMessage);
     frame.remove();
     options.onConnection("idle");
@@ -144,7 +147,12 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
         reconnect: true,
         telemetry: (rttMs) => performanceSampler?.snapshot(rttMs),
       });
-      client.onStatus(options.onConnection);
+      const liveness = mountRuntimeLiveness(client);
+      disposeLiveness = liveness.dispose;
+      client.onStatus((status) => {
+        liveness.connection(status);
+        options.onConnection(status);
+      });
       unsubscribeMessages = client.onMessage((message) => {
         if (message.type === "error") options.onError(message.message);
         else if (message.type === "presence") {
@@ -152,30 +160,27 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
           pushPresentation();
         }
       });
-      unsubscribeSnapshot = client.subscribe((snapshot) =>
-        frame.contentWindow?.postMessage({ type: "snapshot", channel, snapshot }, "*"),
-      );
-      frame.addEventListener(
-        "load",
-        () => {
-          frame.contentWindow?.postMessage(
-            {
-              type: "init",
-              channel,
-              role: options.role,
-              mode: options.mode,
-              playerId: initial.playerId,
-              gameId: initial.gameId,
-              gameVersion: initial.gameVersion,
-              manifestUrl: initial.manifestUrl,
-              manifestSha256: initial.manifestSha256,
-            },
-            "*",
-          );
-          pushPresentation();
-        },
-        { once: true },
-      );
+      unsubscribeSnapshot = client.subscribe((snapshot) => {
+        liveness.snapshot();
+        frame.contentWindow?.postMessage({ type: "snapshot", channel, snapshot }, "*");
+      });
+      frame.addEventListener("load", () => {
+        frame.contentWindow?.postMessage(
+          {
+            type: "init",
+            channel,
+            role: options.role,
+            mode: options.mode,
+            playerId: initial.playerId,
+            gameId: initial.gameId,
+            gameVersion: initial.gameVersion,
+            manifestUrl: initial.manifestUrl,
+            manifestSha256: initial.manifestSha256,
+          },
+          "*",
+        );
+        pushPresentation();
+      });
       options.mount.replaceChildren(frame);
       client.start();
     } catch (reason) {

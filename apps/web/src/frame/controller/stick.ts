@@ -1,6 +1,8 @@
 import type { ConsoleControl } from "@play-together/contracts";
 import type { BrowserGameContext } from "@play-together/game-sdk";
+import { gameFeedback } from "../feedback/feedbackEngine";
 import { clamp, runAction } from "./actions";
+import { stickGraphic } from "./svg";
 import type { Cleanup, MutableState } from "./types";
 
 export function mountStick(
@@ -14,18 +16,17 @@ export function mountStick(
   stick.dataset.controlId = control.id;
   stick.setAttribute("role", "application");
   stick.setAttribute("aria-label", control.ariaLabel);
-  const knob = document.createElement("span");
-  knob.className = "console-stick__knob";
-  stick.append(knob);
+  const { svg, knob } = stickGraphic();
+  stick.append(svg);
   zone.append(stick);
 
   let keyboardX = 0;
   let keyboardY = 0;
+  let pointerActive = false;
   const emit = (x: number, y: number) => {
     const nx = clamp(x, -1, 1);
     const ny = clamp(y, -1, 1);
-    knob.style.setProperty("--stick-x", `${nx * 38}%`);
-    knob.style.setProperty("--stick-y", `${-ny * 38}%`);
+    knob.style.transform = `translate(${nx * 24}px, ${-ny * 24}px)`;
     runAction(control.action, state, context, { x: nx, y: ny });
   };
   const move = (event: PointerEvent) => {
@@ -35,27 +36,34 @@ export function mountStick(
     const radius = Math.max(1, Math.min(rect.width, rect.height) * 0.38);
     const dx = event.clientX - cx;
     const dy = event.clientY - cy;
-    const scale = Math.hypot(dx, dy) > radius ? radius / Math.hypot(dx, dy) : 1;
+    const distance = Math.hypot(dx, dy);
+    const scale = distance > radius ? radius / distance : 1;
     emit((dx * scale) / radius, (-dy * scale) / radius);
   };
   const down = (event: PointerEvent) => {
+    pointerActive = true;
     stick.setPointerCapture(event.pointerId);
     stick.dataset.active = "true";
+    gameFeedback.unlock();
+    gameFeedback.cue("control");
     move(event);
   };
   const pointerMove = (event: PointerEvent) => {
-    if (stick.hasPointerCapture(event.pointerId)) move(event);
+    if (pointerActive && stick.hasPointerCapture(event.pointerId)) move(event);
   };
   const up = () => {
+    if (!pointerActive) return;
+    pointerActive = false;
     delete stick.dataset.active;
-    knob.style.setProperty("--stick-x", "0%");
-    knob.style.setProperty("--stick-y", "0%");
+    knob.style.transform = "translate(0px, 0px)";
     runAction(control.release ?? control.action, state, context, { x: 0, y: 0 });
   };
   stick.addEventListener("pointerdown", down);
   stick.addEventListener("pointermove", pointerMove);
   stick.addEventListener("pointerup", up);
   stick.addEventListener("pointercancel", up);
+  stick.addEventListener("lostpointercapture", up);
+  window.addEventListener("blur", up);
 
   const keyLookup = new Map<string, "up" | "down" | "left" | "right">();
   for (const direction of ["up", "down", "left", "right"] as const)
@@ -82,11 +90,14 @@ export function mountStick(
   window.addEventListener("keydown", keydown);
   window.addEventListener("keyup", keyup);
   return () => {
+    up();
     window.removeEventListener("keydown", keydown);
     window.removeEventListener("keyup", keyup);
+    window.removeEventListener("blur", up);
     stick.removeEventListener("pointerdown", down);
     stick.removeEventListener("pointermove", pointerMove);
     stick.removeEventListener("pointerup", up);
     stick.removeEventListener("pointercancel", up);
+    stick.removeEventListener("lostpointercapture", up);
   };
 }

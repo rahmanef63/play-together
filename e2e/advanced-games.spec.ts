@@ -54,8 +54,8 @@ test("advanced 3D cartridges expose distinct console controls and live WebGL gam
         await expect(frame.getByRole("button", { name: "Brake" })).toContainText("B");
         await expect(
           frame.getByRole("button", { name: "Toggle chase or driver camera" }),
-        ).toContainText("C");
-        await expect(frame.getByRole("button", { name: "Hold rear view" })).toContainText("D");
+        ).toContainText("X");
+        await expect(frame.getByRole("button", { name: "Hold rear view" })).toContainText("Y");
         await expect(frame.getByRole("button", { name: "Pause or resume race" })).toBeVisible();
         await useStick(page, frame, "steer", 0.9, 0, 120);
         await expect(turbo).toHaveAttribute("data-car", "comet-gt");

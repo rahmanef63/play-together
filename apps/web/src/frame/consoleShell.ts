@@ -1,4 +1,5 @@
 import type { ConsoleShellPreset, GameManifest } from "@play-together/contracts";
+import { controllerBackdrop } from "./controller/svg";
 export type ConsoleShellMode = "handheld" | "remote";
 
 export interface ConsoleShellSurface {
@@ -38,6 +39,8 @@ export function mountConsoleShell(
   const vents = document.createElement("span");
   vents.className = "console-shell__vents";
   status.append(light, vents);
+
+  if (options.mode === "remote") chassis.append(controllerBackdrop());
 
   const controls = document.createElement("section");
   controls.className = "console-shell__controls";

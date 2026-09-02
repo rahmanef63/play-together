@@ -1,5 +1,5 @@
 /* Historical cartridge DOM can carry stronger/inline sizing. Keep compatibility normalization isolated here. */
-.console-shell__controls > :first-child {
+.console-shell__controls > :first-child:not(.builtin-controller) {
   /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge surface normalization */
   width: 100% !important;
   /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge surface normalization */
@@ -21,7 +21,7 @@
   touch-action: none;
 }
 @media (orientation: landscape) {
-  .console-shell--remote .console-shell__controls > :first-child {
+  .console-shell--remote .console-shell__controls > :first-child:not(.builtin-controller) {
     /* biome-ignore lint/complexity/noImportantStyles: legacy cartridge surface normalization */
     padding: clamp(4px, 1.5vmin, 10px) !important;
   }

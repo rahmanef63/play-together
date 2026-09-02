@@ -14,7 +14,7 @@ games/<game-id>/
 
 `game.config.json` declares identity, version, player limits, tick/snapshot rates, supported modes, hardware capabilities, and the controller topology. It is the single source of truth for standard controls.
 
-`controller.console` selects a built-in layout (`gamepad`, `arcade`, `racing`, `flight`, or `touch`) and declares controls such as analog sticks, D-pads, A/B/X/Y face buttons, shoulder/trigger buttons, or a normalized touch surface. Controls map directly to validated game input payloads through declarative actions (`send`, `patch`, `toggle`, `increment`, `pulse`).
+`controller.console` selects a built-in layout (`gamepad`, `arcade`, `racing`, `flight`, or `touch`) and declares controls such as analog sticks, D-pads, A/B/X/Y face buttons, shoulder/trigger buttons, or a normalized touch surface. The platform renders those declarations through one shared PS/Xbox-inspired SVG control system and normalizes physical placement across games; games provide semantic labels and input mappings rather than controller chrome. Controls map directly to validated game input payloads through declarative actions (`send`, `patch`, `toggle`, `increment`, `pulse`). Platform-owned feedback supplies bounded control haptics/SFX plus generic result/impact cues from snapshots without branching on game IDs.
 
 ## Server module
 

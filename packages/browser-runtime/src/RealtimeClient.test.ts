@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RealtimeClient } from "./RealtimeClient.js";
+import { HEARTBEAT_PONG_TIMEOUT_MS } from "./realtimeHeartbeat.js";
 import { CONNECT_TIMEOUT_MS, type ConnectionStatus } from "./realtimeProtocol.js";
 
 class MockWebSocket extends EventTarget {
@@ -87,6 +88,46 @@ describe("RealtimeClient connection watchdog", () => {
     expect(warmSample.telemetry).toMatchObject({ frameP95Ms: 17, frameSamples: 12 });
     expect(typeof warmSample.telemetry.rttMs).toBe("number");
     expect(telemetry).toHaveBeenCalledTimes(1);
+    client.stop();
+  });
+
+  it("reconnects a half-open websocket when pong stops", async () => {
+    const refreshTicket = vi.fn(async () => ({
+      token: "ticket-2",
+      expiresAt: Date.now() + 60_000,
+    }));
+    const client = new RealtimeClient({
+      baseUrl: "wss://realtime.test/v1/connect",
+      initialTicket: { token: "ticket-1", expiresAt: Date.now() + 60_000 },
+      refreshTicket,
+      reconnect: true,
+      WebSocketImpl: MockWebSocket as unknown as typeof WebSocket,
+    });
+
+    client.start();
+    const first = MockWebSocket.instances[0];
+    first?.open();
+    first?.receive({
+      type: "welcome",
+      connectionId: "c1",
+      playerId: "p1",
+      roomId: "r1",
+      roomCode: "ROOM01",
+      role: "controller",
+      mode: "remote",
+      gameId: "pong",
+      gameVersion: "0.4.0",
+      protocolVersion: 1,
+    });
+    expect(client.status).toBe("connected");
+    expect(JSON.parse(first?.sent[0] ?? "{}").type).toBe("heartbeat");
+
+    await vi.advanceTimersByTimeAsync(HEARTBEAT_PONG_TIMEOUT_MS + 1);
+    expect(first?.closed).toBe(true);
+    expect(client.status).toBe("reconnecting");
+    await vi.advanceTimersByTimeAsync(1);
+    expect(refreshTicket).toHaveBeenCalledTimes(1);
+    expect(MockWebSocket.instances).toHaveLength(2);
     client.stop();
   });
 

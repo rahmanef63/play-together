@@ -60,6 +60,7 @@ test("screenless remotes stay bounded in landscape and portrait across console s
         timeout: 20_000,
       });
       await expect(frame.locator(".console-shell__screen")).toHaveCount(0);
+      await expect(frame.locator(".console-controller-svg")).toBeVisible();
       await expect(frame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible({
         timeout: 20_000,
       });

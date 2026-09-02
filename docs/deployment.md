@@ -63,7 +63,7 @@ It:
 3. builds the Vite web shell;
 4. copies immutable release artifacts under `apps/web/dist/games` for Vercel CDN delivery.
 
-The realtime Function uses the standard Node HTTP/WebSocket server boundary and a 300-second duration compatible with the current Hobby deployment. The browser runtime already refreshes its short-lived room ticket and reconnects transparently when a Function lifetime or deployment causes a reconnect.
+The realtime Function uses the standard Node HTTP/WebSocket server boundary and a 300-second duration compatible with the current Hobby deployment. The browser runtime refreshes its short-lived room ticket and reconnects transparently when a Function lifetime or deployment causes a reconnect. It also detects half-open connections with an application pong deadline, probes or reconnects after browser suspension/network restoration, and treats prolonged snapshot silence as stale. The gateway adds protocol-level WebSocket ping/pong liveness. Reconnects inside the short player disconnect grace retain authoritative game state instead of respawning or resetting progress.
 
 ### Horizontal realtime scale
 

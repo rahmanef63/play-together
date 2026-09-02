@@ -38,7 +38,7 @@ The gateway stores no durable product record. It:
 - records bounded aggregate worker/browser/revocation telemetry without room/player identifiers;
 - expires idle rooms and connection tickets.
 
-If the gateway restarts, rooms reconnect with fresh tickets while durable lobby data remains in Convex.
+If the gateway restarts, rooms reconnect with fresh tickets while durable lobby data remains in Convex. Browser connections also maintain an application heartbeat with a missing-pong watchdog; tab resume, network restore, and snapshot-stall signals trigger bounded recovery instead of trusting a browser socket that merely remains in `OPEN`. The gateway independently sends WebSocket protocol pings and terminates peers that stop returning protocol pongs. A short disconnect grace preserves authoritative player state across transient reconnects without keeping departed players indefinitely.
 
 ### Immutable game plane — Game CDN
 
@@ -121,7 +121,7 @@ Launch UI → `convex/tickets` → HMAC ticket → gateway verification and repl
 
 ### Realtime play
 
-Manifest-declared console → validated input protocol → room worker → validated snapshot protocol → display module. In handheld mode the browser runtime mounts the pinned display plus generated controls over the same realtime context; in shared-screen mode the display and phone console are separate surfaces of the same room. Legacy/custom controller bundles remain an optional manifest entry.
+Manifest-declared console → shared platform SVG renderer → validated input protocol → room worker → validated snapshot protocol → display module. The renderer normalizes physical placement so A/B/X/Y share the right face cluster, L/R shoulders stay on their respective sides, and system controls remain centered while semantic actions still come from the immutable manifest. Shared control/audio/haptic feedback is platform-owned and game-ID agnostic. In handheld mode the browser runtime mounts the pinned display plus generated controls over the same realtime context; in shared-screen mode the display and phone console are separate surfaces of the same room. Legacy/custom controller bundles remain an optional manifest entry. Renderer exceptions and WebGL context loss recover the sandboxed game frame without forcing a full app restart.
 
 ### Operations
 

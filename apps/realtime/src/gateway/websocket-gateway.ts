@@ -7,6 +7,7 @@ import { RELEASE_BLOCK_RESPONSE } from "../features/releases/release-block-respo
 import { ReleaseBlockedError } from "../features/releases/release-control.js";
 import type { RoomManager } from "../features/rooms/room-manager.js";
 import type { TicketReplayGuard } from "../features/tickets/replay-guard.js";
+import { monitorWebSocketLiveness } from "./websocket-liveness.js";
 
 interface WebSocketGatewayOptions {
   server: Server;
@@ -37,6 +38,7 @@ export function attachWebSocketGateway(options: WebSocketGatewayOptions): WebSoc
   websocketServer.on(
     "connection",
     async (socket: WebSocket, _request: IncomingMessage, claims: TicketClaims) => {
+      monitorWebSocketLiveness(socket);
       const ticketLifetime = Math.max(1, claims.exp * 1_000 - Date.now());
       const expirationTimer = setTimeout(
         () => socket.close(4001, "ticket expired"),

@@ -139,6 +139,22 @@ describe("RoomSession distributed coordination", () => {
     });
     await expect.poll(() => latestGuestX(display.raw.messages), { timeout: 2_000 }).toBe(-1);
 
+    controllerSession.remove(controllerId);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(latestGuestX(display.raw.messages)).toBe(-1);
+    const reconnected = socket();
+    const reconnectedId = await controllerSession.add(
+      reconnected.websocket,
+      claims("guest", "controller"),
+    );
+    controllerSession.handle(reconnectedId, {
+      type: "input",
+      seq: 2,
+      sentAt: Date.now(),
+      payload: { steer: -1 },
+    });
+    await expect.poll(() => latestGuestX(display.raw.messages), { timeout: 2_000 }).toBe(-2);
+
     displaySession.close();
     controllerSession.close();
     await coordinator.close();

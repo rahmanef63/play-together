@@ -4,17 +4,22 @@ import {
   type SnapshotMessage,
   serverMessageSchema,
 } from "@play-together/contracts";
+import {
+  closeForRecovery,
+  createRealtimeSocket,
+  needsTicketRefresh,
+  reconnectDelay,
+  refreshConnectionTicket,
+  ticketRefreshDelay,
+} from "./realtimeConnection.js";
 import { RealtimeHeartbeat } from "./realtimeHeartbeat.js";
 import {
-  BASE_PROTOCOL,
   CONNECT_TIMEOUT_MS,
   type ConnectionStatus,
   type ConnectionTicket,
   createInputMessage,
   type Listener,
-  REFRESH_SKEW_MS,
   type RealtimeClientOptions,
-  TICKET_PROTOCOL_PREFIX,
 } from "./realtimeProtocol.js";
 import { RealtimeSubscriptions } from "./realtimeSubscriptions.js";
 
@@ -36,21 +41,22 @@ export class RealtimeClient {
   constructor(options: RealtimeClientOptions) {
     this.#options = options;
     this.#ticket = options.initialTicket;
-    this.#heartbeat = new RealtimeHeartbeat((message) => this.#send(message), options.telemetry);
+    this.#heartbeat = new RealtimeHeartbeat(
+      (message) => this.#send(message),
+      options.telemetry,
+      () => this.recover("heartbeat timeout"),
+    );
   }
-
   get status(): ConnectionStatus {
     return this.#status;
   }
   get latestSnapshot(): SnapshotMessage | null {
     return this.#latest;
   }
-
   start(): void {
     if (this.#socket || this.#connecting || this.#stopped) return;
     void this.#connect();
   }
-
   stop(): void {
     this.#stopped = true;
     this.#clearTimers();
@@ -58,40 +64,43 @@ export class RealtimeClient {
     this.#socket?.close(1000, "client closed");
     this.#socket = null;
   }
-
   sendInput(payload: unknown): void {
     this.#send(createInputMessage(this.#sequence++, payload));
   }
-
+  recover(reason = "client recovery"): void {
+    if (this.#stopped || this.#connecting) return;
+    const socket = this.#socket;
+    this.#socket = null;
+    this.#heartbeat.stop();
+    this.#clearConnectionTimers();
+    if (this.#reconnectTimer) clearTimeout(this.#reconnectTimer);
+    this.#reconnectTimer = null;
+    closeForRecovery(socket, reason);
+    this.#attempt = Math.max(1, this.#attempt + 1);
+    this.#scheduleReconnect(true);
+  }
+  probe(): void {
+    if (this.#status === "connected") this.#heartbeat.probe();
+    else if (!this.#socket && !this.#connecting) this.#scheduleReconnect(true);
+  }
   subscribe(listener: Listener<SnapshotMessage>): () => void {
     return this.#subscriptions.snapshot(listener, this.#latest);
   }
-
   onMessage(listener: Listener<ServerMessage>): () => void {
     return this.#subscriptions.message(listener);
   }
-
   onStatus(listener: Listener<ConnectionStatus>): () => void {
     return this.#subscriptions.status(listener, this.#status);
   }
-
   async #connect(): Promise<void> {
     if (this.#connecting || this.#socket || this.#stopped) return;
     this.#connecting = true;
     this.#setStatus(this.#attempt === 0 ? "connecting" : "reconnecting");
     try {
-      if (this.#attempt > 0 || this.#ticket.expiresAt <= Date.now() + REFRESH_SKEW_MS) {
-        if (!this.#options.refreshTicket) throw new Error("Realtime ticket expired");
-        this.#ticket = await this.#options.refreshTicket();
-      }
+      if (needsTicketRefresh(this.#ticket, this.#attempt))
+        this.#ticket = await refreshConnectionTicket(this.#options);
       if (this.#stopped) return;
-      const WebSocketConstructor = this.#options.WebSocketImpl ?? WebSocket;
-      const endpoint = new URL(this.#options.baseUrl);
-      endpoint.searchParams.delete("ticket");
-      const socket = new WebSocketConstructor(endpoint.toString(), [
-        BASE_PROTOCOL,
-        `${TICKET_PROTOCOL_PREFIX}${this.#ticket.token}`,
-      ]);
+      const socket = createRealtimeSocket(this.#options, this.#ticket);
       this.#socket = socket;
       this.#socketTimer = setTimeout(() => {
         if (this.#socket !== socket || this.#stopped) return;
@@ -108,13 +117,14 @@ export class RealtimeClient {
         this.#socketTimer = null;
         this.#attempt = 0;
         this.#setStatus("connected");
-        const refreshIn = Math.max(1_000, this.#ticket.expiresAt - Date.now() - REFRESH_SKEW_MS);
+        const refreshIn = ticketRefreshDelay(this.#ticket);
         this.#socketTimer = setTimeout(() => {
           if (this.#socket === socket) socket.close(4000, "refresh ticket");
         }, refreshIn);
       });
 
       socket.addEventListener("message", (event) => {
+        if (this.#socket !== socket) return;
         try {
           const parsed = serverMessageSchema.parse(JSON.parse(String(event.data)));
           if (parsed.type === "welcome") {
@@ -153,37 +163,29 @@ export class RealtimeClient {
       this.#connecting = false;
     }
   }
-
-  #scheduleReconnect(): void {
+  #scheduleReconnect(immediate = false): void {
     if (this.#reconnectTimer || this.#stopped) return;
     this.#setStatus("reconnecting");
-    const delay = Math.min(10_000, 300 * 2 ** Math.min(this.#attempt, 5));
-    this.#reconnectTimer = setTimeout(
-      () => {
-        this.#reconnectTimer = null;
-        void this.#connect();
-      },
-      delay + Math.random() * 250,
-    );
+    const delay = reconnectDelay(this.#attempt, immediate);
+    this.#reconnectTimer = setTimeout(() => {
+      this.#reconnectTimer = null;
+      void this.#connect();
+    }, delay);
   }
-
   #send(message: ClientMessage): void {
     if (this.#socket?.readyState !== WebSocket.OPEN) return;
     this.#socket.send(JSON.stringify(message));
   }
-
   #setStatus(status: ConnectionStatus): void {
     if (status === this.#status) return;
     this.#status = status;
     this.#subscriptions.emitStatus(status);
   }
-
   #clearConnectionTimers(): void {
     this.#heartbeat.stop();
     if (this.#socketTimer) clearTimeout(this.#socketTimer);
     this.#socketTimer = null;
   }
-
   #clearTimers(): void {
     this.#clearConnectionTimers();
     if (this.#reconnectTimer) clearTimeout(this.#reconnectTimer);
