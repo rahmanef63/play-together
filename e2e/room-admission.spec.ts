@@ -5,7 +5,6 @@ import {
   expectGameFrame,
   expectPregame,
   pong,
-  realtimeHealthUrl,
   signUp,
   signUpAtCurrentLocation,
   startGame,
@@ -14,7 +13,6 @@ import {
 
 test("QR join, password rooms, shared display and mobile modes respect the pre-game lobby", async ({
   browser,
-  request,
 }, testInfo) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const hostContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
@@ -95,12 +93,11 @@ test("QR join, password rooms, shared display and mobile modes respect the pre-g
     await expect(remoteFrame.locator(".console-shell__screen")).toHaveCount(0);
     await expect(remoteFrame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible();
     await useStick(guest, remoteFrame, "move", 0, -0.85, 250);
-    await expect
-      .poll(async () => {
-        const response = await request.get(realtimeHealthUrl);
-        return (await response.json()).rooms as number;
-      })
-      .toBeGreaterThanOrEqual(1);
+    // `rooms` in realtime health is deliberately instance-local. In managed/serverless
+    // deployments a separate health request may land on another healthy replica and
+    // report zero rooms, so assert the user-visible distributed session remains live.
+    await expect(host.locator(".connection")).toHaveText("connected");
+    await expect(guest.locator(".connection")).toHaveText("connected");
 
     await host.screenshot({ path: testInfo.outputPath("public-room-desktop.png"), fullPage: true });
     await host.getByRole("button", { name: /Room/ }).click();
