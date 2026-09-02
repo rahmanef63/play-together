@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { closeContext, createRoom, pong, signUp } from "./support/multiplayer";
+import { closeContext, createRoom, signUp, turboCircuit } from "./support/multiplayer";
 
 test("mobile auth remains vertically scrollable on short phone viewports", async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 480 } });
@@ -44,7 +44,7 @@ test("mobile account menu exposes sign out and compact app routes stay width-saf
     await signUp(page, `Mobile QA ${runId}`, `mobile-${runId}@example.test`);
     const code = await createRoom(page, {
       name: `Mobile Room ${runId}`,
-      gameKey: pong,
+      gameKey: turboCircuit,
       maxPlayers: 2,
       visibility: "private",
     });

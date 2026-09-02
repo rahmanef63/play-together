@@ -1,15 +1,14 @@
-import type { CarId, CircuitId } from "../shared/catalog.js";
-
+import type { CarId, TrackId } from "../shared/catalog.js";
 export type Phase = "setup" | "countdown" | "racing" | "finished";
+export type CameraMode = "chase" | "wide" | "driver" | "bumper";
+export type ItemType = "BOOST" | "PULSE" | "MINE";
 export interface InputState {
   steer: number;
   menuY: number;
-  drive: boolean;
+  throttle: number;
   brake: number;
-  boost: boolean;
-  cockpit: boolean;
+  drift: boolean;
   rearView: boolean;
-  pause: boolean;
 }
 export interface BotBrain {
   chaos: number;
@@ -25,8 +24,7 @@ export interface Racer {
   bot: boolean;
   carId: CarId;
   ready: boolean;
-  autoDrive: boolean;
-  cockpit: boolean;
+  cameraMode: CameraMode;
   rearView: boolean;
   x: number;
   z: number;
@@ -34,14 +32,42 @@ export interface Racer {
   speed: number;
   lap: number;
   nextCheckpoint: number;
-  nitro: number;
   finished: boolean;
   finishMs: number | null;
   steering: number;
+  coins: number;
+  item: ItemType | null;
+  boostTimer: number;
+  driftTime: number;
+  driftTier: 0 | 1 | 2;
+  drifting: boolean;
+  draftTimer: number;
+  drafting: boolean;
+  spinTimer: number;
+  rescueCooldown: number;
   menuXActive: boolean;
   menuYActive: boolean;
   input: InputState;
   brain?: BotBrain;
+}
+export interface Pickup {
+  id: string;
+  type: "coin" | "item";
+  x: number;
+  z: number;
+  active: boolean;
+  respawnMs: number;
+}
+export interface WorldItem {
+  id: string;
+  type: "pulse" | "mine";
+  x: number;
+  z: number;
+  vx: number;
+  vz: number;
+  ownerId: string;
+  ttlMs: number;
+  armMs: number;
 }
 export interface RaceState {
   kind: "turbo-circuit";
@@ -50,36 +76,41 @@ export interface RaceState {
   raceMs: number;
   paused: boolean;
   lapsToWin: number;
-  circuitId: CircuitId;
-  track: {
-    id: CircuitId;
-    name: string;
-    width: number;
-    checkpoints: Array<{ x: number; z: number }>;
-  };
+  trackId: TrackId;
+  track: { id: TrackId; name: string; width: number; checkpoints: Array<{ x: number; z: number }> };
   racers: Racer[];
+  pickups: Pickup[];
+  worldItems: WorldItem[];
   winnerId: string | null;
 }
-
 export const dist = (a: { x: number; z: number }, b: { x: number; z: number }) =>
   Math.hypot(a.x - b.x, a.z - b.z);
-
-export function resolveCollisions(racers: Racer[]): void {
-  for (let i = 0; i < racers.length; i++) {
+export function resolveRacerCollisions(racers: Racer[]) {
+  for (let i = 0; i < racers.length; i++)
     for (let j = i + 1; j < racers.length; j++) {
-      const a = racers[i];
-      const b = racers[j];
-      if (!a || !b || dist(a, b) >= 3.1) continue;
-      const dx = a.x - b.x;
-      const dz = a.z - b.z;
-      const distance = Math.hypot(dx, dz) || 1;
-      const push = (3.1 - distance) * 0.48;
-      a.x += (dx / distance) * push;
-      a.z += (dz / distance) * push;
-      b.x -= (dx / distance) * push;
-      b.z -= (dz / distance) * push;
-      a.speed *= 0.9;
-      b.speed *= 0.9;
+      const a = racers[i],
+        b = racers[j];
+      if (!a || !b || a.spinTimer > 0 || b.spinTimer > 0) continue;
+      const distance = dist(a, b);
+      if (distance >= 3.1) continue;
+      const dx = a.x - b.x,
+        dz = a.z - b.z,
+        length = distance || 1,
+        push = (3.1 - length) * 0.48;
+      const aWeight = a.bot ? 1 : 1.05,
+        bWeight = b.bot ? 1 : 1.05,
+        total = aWeight + bWeight;
+      a.x += (dx / length) * push * (bWeight / total) * 2;
+      a.z += (dz / length) * push * (bWeight / total) * 2;
+      b.x -= (dx / length) * push * (aWeight / total) * 2;
+      b.z -= (dz / length) * push * (aWeight / total) * 2;
     }
-  }
 }
+export const emptyInput = (): InputState => ({
+  steer: 0,
+  menuY: 0,
+  throttle: 0,
+  brake: 0,
+  drift: false,
+  rearView: false,
+});

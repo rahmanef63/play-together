@@ -5,79 +5,84 @@ import type {
   ServerPlayer,
 } from "@play-together/game-sdk";
 import { createBot, updateBotDriver } from "./server/botDriver.js";
-import { updateHumanDriver } from "./server/driverPhysics.js";
+import { applyControlPatch } from "./server/controlInput.js";
+import { updateWorldItems, useHeldItem } from "./server/items.js";
+import { rescueRacer, updateHumanDriver } from "./server/kartMechanics.js";
+import { collectPickups, createPickups, deterministicItem, tickPickups } from "./server/pickups.js";
 import {
-  dist,
-  type InputState,
+  emptyInput,
   type Racer,
   type RaceState,
-  resolveCollisions,
+  resolveRacerCollisions,
 } from "./server/raceModel.js";
 import { applySetupInput, resetGrid } from "./server/setup.js";
-import { CARS, circuitCheckpoints, clamp, DEFAULT_CAR, DEFAULT_CIRCUIT } from "./shared/catalog.js";
+import { CARS, DEFAULT_CAR, DEFAULT_TRACK } from "./shared/catalog.js";
+import { trackCheckpoints } from "./shared/trackMath.js";
 
 class TurboCircuit implements ServerGame {
   readonly #s: RaceState;
+  readonly #seed: number;
   #clock = 0;
   #readyClock = 0;
+  #itemSequence = 0;
   constructor(ctx: ServerGameContext) {
-    const circuit = DEFAULT_CIRCUIT;
+    const track = DEFAULT_TRACK;
+    this.#seed = ctx.seed;
     this.#s = {
       kind: "turbo-circuit",
       phase: "setup",
       countdownMs: 3000,
       raceMs: 0,
       paused: false,
-      lapsToWin: circuit.laps,
-      circuitId: circuit.id,
+      lapsToWin: track.laps,
+      trackId: track.id,
       track: {
-        id: circuit.id,
-        name: circuit.name,
-        width: circuit.width,
-        checkpoints: circuitCheckpoints(circuit),
+        id: track.id,
+        name: track.name,
+        width: track.width,
+        checkpoints: trackCheckpoints(track),
       },
-      racers: Array.from({ length: 3 }, (_, index) => createBot(index, ctx.seed, circuit.id)),
+      racers: Array.from({ length: 3 }, (_, i) => createBot(i, ctx.seed, track.id)),
+      pickups: createPickups(track.id),
+      worldItems: [],
       winnerId: null,
     };
+    resetGrid(this.#s);
   }
   onJoin(player: ServerPlayer) {
-    if (this.#s.racers.some((racer) => racer.id === player.id)) return;
-    const humans = this.#s.racers.filter((racer) => !racer.bot);
+    if (this.#s.racers.some((r) => r.id === player.id)) return;
+    const humans = this.#s.racers.filter((r) => !r.bot);
     if (humans.length >= 4 || this.#s.phase !== "setup") return;
     this.#s.racers.push(this.#human(player.id, humans.length));
     resetGrid(this.#s);
   }
   onLeave(id: string) {
-    this.#s.racers = this.#s.racers.filter((racer) => racer.bot || racer.id !== id);
+    this.#s.racers = this.#s.racers.filter((r) => r.bot || r.id !== id);
     if (this.#s.phase === "setup") resetGrid(this.#s);
   }
   onInput(id: string, payload: unknown) {
-    if (typeof payload !== "object" || payload === null) return;
-    const racer = this.#s.racers.find((item) => item.id === id && !item.bot);
+    const racer = this.#s.racers.find((r) => r.id === id && !r.bot);
     if (!racer) return;
-    const patch = payload as Partial<InputState>;
-    if (!validInput(patch)) return;
-    racer.input = {
-      steer: clamp(Number(patch.steer ?? racer.input.steer), -1, 1),
-      menuY: clamp(Number(patch.menuY ?? racer.input.menuY), -1, 1),
-      drive: Boolean(patch.drive ?? racer.input.drive),
-      brake: clamp(Number(patch.brake ?? racer.input.brake), 0, 1),
-      boost: Boolean(patch.boost ?? racer.input.boost),
-      cockpit: Boolean(patch.cockpit ?? racer.input.cockpit),
-      rearView: Boolean(patch.rearView ?? racer.input.rearView),
-      pause: Boolean(patch.pause ?? false),
-    };
-    racer.cockpit = racer.input.cockpit;
-    racer.rearView = racer.input.rearView;
-    if (patch.pause === true && this.#s.phase !== "setup" && this.#s.phase !== "finished")
+    const beforeTrack = this.#s.trackId,
+      action = applyControlPatch(racer, payload);
+    if (action?.type === "ready" && this.#s.phase === "setup") racer.ready = true;
+    else if (action?.type === "camera") racer.cameraMode = nextCamera(racer.cameraMode);
+    else if (action?.type === "rescue" && this.#s.phase === "racing") rescueRacer(racer, this.#s);
+    else if (action?.type === "item" && this.#s.phase === "racing")
+      useHeldItem(this.#s, racer, action.direction);
+    else if (action?.type === "pause" && this.#s.phase !== "setup" && this.#s.phase !== "finished")
       this.#s.paused = !this.#s.paused;
-    if (this.#s.phase === "setup") applySetupInput(this.#s, racer, patch);
+    if (this.#s.phase === "setup") applySetupInput(this.#s, racer);
+    if (beforeTrack !== this.#s.trackId) this.#s.pickups = createPickups(this.#s.trackId);
   }
   tick(_now: number, delta: number) {
-    const ms = clamp(delta, 0, 50);
+    const ms = Math.max(0, Math.min(50, delta));
     if (this.#s.paused) return;
     const dt = ms / 1000;
-    if (this.#s.phase === "setup") return this.#tickSetup(ms);
+    if (this.#s.phase === "setup") {
+      this.#tickSetup(ms);
+      return;
+    }
     this.#clock += ms;
     if (this.#s.phase === "countdown") {
       this.#s.countdownMs = Math.max(0, 3000 - this.#clock);
@@ -89,30 +94,42 @@ class TurboCircuit implements ServerGame {
     }
     if (this.#s.phase !== "racing") return;
     this.#s.raceMs += ms;
+    tickPickups(this.#s, ms);
     for (const racer of this.#s.racers) {
       if (racer.finished) continue;
       if (racer.bot) updateBotDriver(racer, this.#s, dt);
       else updateHumanDriver(racer, this.#s, dt);
+      collectPickups(this.#s, racer, () =>
+        deterministicItem(this.#seed + ++this.#itemSequence * 17),
+      );
+      if (racer.bot && racer.item && racer.nextCheckpoint % 4 === 0)
+        useHeldItem(this.#s, racer, "forward");
       this.#checkpoint(racer);
     }
-    resolveCollisions(this.#s.racers);
-    const humans = this.#s.racers.filter((racer) => !racer.bot);
-    if (humans.length > 0 && humans.every((racer) => racer.finished)) this.#s.phase = "finished";
+    updateWorldItems(this.#s, ms);
+    resolveRacerCollisions(this.#s.racers);
+    const humans = this.#s.racers.filter((r) => !r.bot);
+    if (humans.length > 0 && humans.every((r) => r.finished)) this.#s.phase = "finished";
   }
   #tickSetup(ms: number) {
-    const humans = this.#s.racers.filter((racer) => !racer.bot);
-    if (humans.length > 0 && humans.every((racer) => racer.ready)) this.#readyClock += ms;
+    const humans = this.#s.racers.filter((r) => !r.bot);
+    if (humans.length > 0 && humans.every((r) => r.ready)) this.#readyClock += ms;
     else this.#readyClock = 0;
     if (this.#readyClock < 650) return;
     resetGrid(this.#s);
+    this.#s.pickups = createPickups(this.#s.trackId);
     this.#s.phase = "countdown";
     this.#s.countdownMs = 3000;
     this.#clock = 0;
     this.#readyClock = 0;
   }
   #checkpoint(racer: Racer) {
-    const checkpoint = this.#s.track.checkpoints[racer.nextCheckpoint];
-    if (!checkpoint || dist(racer, checkpoint) > Math.max(10, this.#s.track.width * 0.72)) return;
+    const cp = this.#s.track.checkpoints[racer.nextCheckpoint];
+    if (
+      !cp ||
+      Math.hypot(racer.x - cp.x, racer.z - cp.z) > Math.max(10, this.#s.track.width * 0.72)
+    )
+      return;
     racer.nextCheckpoint += 1;
     if (racer.nextCheckpoint < this.#s.track.checkpoints.length) return;
     racer.nextCheckpoint = 0;
@@ -129,8 +146,7 @@ class TurboCircuit implements ServerGame {
       bot: false,
       carId: CARS[index % CARS.length]?.id ?? DEFAULT_CAR.id,
       ready: false,
-      autoDrive: false,
-      cockpit: false,
+      cameraMode: "chase",
       rearView: false,
       x: 0,
       z: 0,
@@ -138,22 +154,22 @@ class TurboCircuit implements ServerGame {
       speed: 0,
       lap: 0,
       nextCheckpoint: 1,
-      nitro: 100,
       finished: false,
       finishMs: null,
       steering: 0,
+      coins: 0,
+      item: null,
+      boostTimer: 0,
+      driftTime: 0,
+      driftTier: 0,
+      drifting: false,
+      draftTimer: 0,
+      drafting: false,
+      spinTimer: 0,
+      rescueCooldown: 0,
       menuXActive: false,
       menuYActive: false,
-      input: {
-        steer: 0,
-        menuY: 0,
-        drive: false,
-        brake: 0,
-        boost: false,
-        cockpit: false,
-        rearView: false,
-        pause: false,
-      },
+      input: emptyInput(),
     };
   }
   snapshot() {
@@ -163,17 +179,8 @@ class TurboCircuit implements ServerGame {
     return structuredClone({ ...this.#s, racers });
   }
 }
-
-function validInput(input: Partial<InputState>) {
-  return (
-    (input.steer === undefined || typeof input.steer === "number") &&
-    (input.menuY === undefined || typeof input.menuY === "number") &&
-    (input.drive === undefined || typeof input.drive === "boolean") &&
-    (input.brake === undefined || typeof input.brake === "number") &&
-    (input.boost === undefined || typeof input.boost === "boolean") &&
-    (input.cockpit === undefined || typeof input.cockpit === "boolean") &&
-    (input.rearView === undefined || typeof input.rearView === "boolean") &&
-    (input.pause === undefined || typeof input.pause === "boolean")
-  );
+function nextCamera(mode: Racer["cameraMode"]): Racer["cameraMode"] {
+  const modes: Racer["cameraMode"][] = ["chase", "wide", "driver", "bumper"];
+  return modes[(modes.indexOf(mode) + 1) % modes.length] ?? "chase";
 }
 export const createServerGame: CreateServerGame = (ctx) => new TurboCircuit(ctx);

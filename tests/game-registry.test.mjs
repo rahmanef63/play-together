@@ -11,7 +11,11 @@ describe("game slice registry", () => {
     );
     expect(registry.schemaVersion).toBe(1);
     expect(registry.games).toHaveLength(discovered.length);
-    expect(discovered).toHaveLength(15);
+    expect(discovered.map((game) => game.id).sort()).toEqual([
+      "flight-trainer",
+      "sky-strike",
+      "turbo-circuit",
+    ]);
 
     const byId = new Map(registry.games.map((game) => [game.id, game]));
     for (const game of discovered) {

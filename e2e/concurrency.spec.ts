@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { closeContext, createRoom, pong, signUp } from "./support/multiplayer";
+import { closeContext, createRoom, signUp, turboCircuit } from "./support/multiplayer";
 
 test("concurrent joins cannot overbook the final public room slot", async ({ browser }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -14,7 +14,7 @@ test("concurrent joins cannot overbook the final public room slot", async ({ bro
     await signUp(host, `Capacity Host ${runId}`, `capacity-host-${runId}@example.test`);
     const roomCode = await createRoom(host, {
       name: `Capacity ${runId}`,
-      gameKey: pong,
+      gameKey: turboCircuit,
       maxPlayers: 2,
       visibility: "public",
     });

@@ -1,126 +1,124 @@
-import {
-  CARS,
-  carById,
-  circuitById,
-  clamp,
-  DEFAULT_CAR,
-  gridPose,
-  nearestTrackPoint,
-  sampleCircuit,
-  wrapIndex,
-} from "../shared/catalog.js";
-import type { Racer, RaceState } from "./raceModel.js";
-
-export function createBot(index: number, seed: number, circuitId: string): Racer {
-  const circuit = circuitById(circuitId);
-  const pose = gridPose(circuit, index + 4);
-  const chaos = seededUnit(seed * 17 + index * 97 + 11);
+import { CARS, carById, clamp, trackById } from "../shared/catalog.js";
+import { nearestTrackPoint, sampleTrack } from "../shared/trackMath.js";
+import { emptyInput, type Racer, type RaceState } from "./raceModel.js";
+export function createBot(index: number, seed: number, trackId: string): Racer {
+  const track = trackById(trackId),
+    chaos = seeded(seed * 17 + index * 97 + 11),
+    car = CARS[(index + 1) % CARS.length] ?? CARS.at(0);
+  const start = sampleTrack(track).at(0);
+  if (!car || !start) throw new Error("Kart catalog is empty");
   return {
     id: `ai-${index + 1}`,
     name: ["CPU RAVEN", "CPU VELA", "CPU KITE"][index] ?? `CPU ${index + 1}`,
     bot: true,
-    carId: CARS[(index + 1) % CARS.length]?.id ?? DEFAULT_CAR.id,
+    carId: car.id,
     ready: true,
-    autoDrive: true,
-    cockpit: false,
+    cameraMode: "chase",
     rearView: false,
-    ...pose,
+    x: start.x,
+    z: start.z,
+    heading: start.heading,
     speed: 0,
     lap: 0,
     nextCheckpoint: 1,
-    nitro: 100,
     finished: false,
     finishMs: null,
     steering: 0,
+    coins: 0,
+    item: null,
+    boostTimer: 0,
+    driftTime: 0,
+    driftTier: 0,
+    drifting: false,
+    draftTimer: 0,
+    drafting: false,
+    spinTimer: 0,
+    rescueCooldown: 0,
     menuXActive: false,
     menuYActive: false,
-    input: {
-      steer: 0,
-      menuY: 0,
-      drive: true,
-      brake: 0,
-      boost: false,
-      cockpit: false,
-      rearView: false,
-      pause: false,
-    },
+    input: emptyInput(),
     brain: {
       chaos: clamp(chaos, 0.08, 0.92),
       chaosTarget: clamp(chaos, 0.08, 0.92),
-      chaosTimer: 0.35 + seededUnit(seed + index * 83) * 0.55,
-      skill: 0.72 + seededUnit(seed + index * 31) * 0.22,
-      laneBias: (seededUnit(seed + index * 47) - 0.5) * circuit.width * 0.35,
-      aggression: 0.35 + seededUnit(seed + index * 71) * 0.55,
+      chaosTimer: 0.35 + seeded(seed + index * 83) * 0.55,
+      skill: 0.72 + seeded(seed + index * 31) * 0.22,
+      laneBias: (seeded(seed + index * 47) - 0.5) * track.width * 0.34,
+      aggression: 0.35 + seeded(seed + index * 71) * 0.55,
     },
   };
 }
-
 export function updateBotDriver(racer: Racer, state: RaceState, dt: number) {
   const brain = racer.brain;
   if (!brain) return;
-  const circuit = circuitById(state.circuitId);
-  const car = carById(racer.carId);
-  const samples = sampleCircuit(circuit);
-  const nearest = nearestTrackPoint(circuit, racer.x, racer.z);
+  const track = trackById(state.trackId),
+    car = carById(racer.carId),
+    samples = sampleTrack(track),
+    near = nearestTrackPoint(track, racer.x, racer.z);
+  racer.boostTimer = Math.max(0, racer.boostTimer - dt);
+  racer.spinTimer = Math.max(0, racer.spinTimer - dt);
+  if (racer.spinTimer > 0) {
+    racer.heading += 9 * dt;
+    racer.speed *= Math.max(0.2, 1 - 2 * dt);
+    move(racer, dt);
+    return;
+  }
   brain.chaosTimer -= dt;
   if (brain.chaosTimer <= 0) {
     brain.chaosTarget = clamp(3.88 * brain.chaosTarget * (1 - brain.chaosTarget), 0.02, 0.98);
     brain.chaosTimer = 0.3 + brain.chaosTarget * 0.72;
   }
   brain.chaos += (brain.chaosTarget - brain.chaos) * (1 - Math.exp(-2.4 * dt));
-  const lookAhead = 5 + Math.round(clamp(racer.speed / 9, 0, 5));
-  const target = sampleAt(samples, nearest.index + lookAhead);
-  const curvePoint = sampleAt(samples, nearest.index + lookAhead + 8);
-  const laneNoise = (brain.chaos - 0.5) * circuit.width * 0.24;
-  const lane = clamp(brain.laneBias + laneNoise, -circuit.width * 0.32, circuit.width * 0.32);
-  const rightX = Math.cos(target.heading);
-  const rightZ = -Math.sin(target.heading);
-  const tx = target.x + rightX * lane;
-  const tz = target.z + rightZ * lane;
-  const desiredHeading = Math.atan2(tx - racer.x, tz - racer.z);
-  const headingDelta = Math.atan2(
-    Math.sin(desiredHeading - racer.heading),
-    Math.cos(desiredHeading - racer.heading),
-  );
-  racer.steering = clamp(-headingDelta / 0.7, -1, 1);
+  const look = 5 + Math.round(clamp(racer.speed / 9, 0, 5)),
+    target = at(samples, near.index + look),
+    future = at(samples, near.index + look + 8);
+  const lane = clamp(
+      brain.laneBias + (brain.chaos - 0.5) * track.width * 0.22,
+      -track.width * 0.31,
+      track.width * 0.31,
+    ),
+    rx = Math.cos(target.heading),
+    rz = -Math.sin(target.heading);
+  const desired = Math.atan2(target.x + rx * lane - racer.x, target.z + rz * lane - racer.z),
+    delta = Math.atan2(Math.sin(desired - racer.heading), Math.cos(desired - racer.heading));
+  racer.steering = clamp(-delta / 0.7, -1, 1);
   const curve = Math.abs(
     Math.atan2(
-      Math.sin(curvePoint.heading - target.heading),
-      Math.cos(curvePoint.heading - target.heading),
+      Math.sin(future.heading - target.heading),
+      Math.cos(future.heading - target.heading),
     ),
   );
-  const chaosSpeed = (brain.chaos - 0.5) * 5.5;
   const targetSpeed =
-    car.topSpeed * (0.7 + brain.skill * 0.22) * (1 - clamp(curve * 0.42, 0, 0.28)) + chaosSpeed;
-  const wantsBoost = brain.chaos > 0.9 && curve < 0.13 && racer.nitro > 28 && racer.speed > 15;
-  const accel = racer.speed < targetSpeed ? car.accel * 0.78 : -car.braking * 0.35;
+    car.topSpeed * (0.7 + brain.skill * 0.23) * (1 - clamp(curve * 0.45, 0, 0.3)) +
+    (brain.chaos - 0.5) * 5;
+  const wantsBoost = brain.chaos > 0.9 && curve < 0.13 && racer.speed > 15;
+  racer.boostTimer = wantsBoost ? Math.max(racer.boostTimer, 0.7) : racer.boostTimer;
+  const accel = racer.speed < targetSpeed ? car.accel * 0.78 : -car.braking * 0.34;
   racer.speed = clamp(
-    racer.speed + (accel + (wantsBoost ? car.nitroPower : 0)) * dt,
+    racer.speed + (accel + (racer.boostTimer > 0 ? car.boostPower : 0)) * dt,
     7,
-    car.topSpeed + 7,
+    car.topSpeed + 8,
   );
-  racer.nitro = wantsBoost
-    ? Math.max(0, racer.nitro - 21 * dt)
-    : Math.min(100, racer.nitro + 5 * dt);
-  const authority = car.handling * (1.05 - clamp(racer.speed / car.topSpeed, 0, 1) * 0.3);
-  racer.heading -= racer.steering * 1.9 * authority * dt;
-  racer.x += Math.sin(racer.heading) * racer.speed * dt;
-  racer.z += Math.cos(racer.heading) * racer.speed * dt;
-  const after = nearestTrackPoint(circuit, racer.x, racer.z);
-  if (after.distance > circuit.width * 0.64) {
-    racer.x += (after.x - racer.x) * 1.5 * dt;
-    racer.z += (after.z - racer.z) * 1.5 * dt;
-    racer.speed *= 1 - 0.55 * dt;
+  racer.drifting = curve > 0.16 && racer.speed > 20;
+  racer.driftTier = racer.drifting ? (curve > 0.28 ? 2 : 1) : 0;
+  racer.heading -= racer.steering * 1.9 * car.handling * (racer.drifting ? 1.18 : 1) * dt;
+  move(racer, dt);
+  const after = nearestTrackPoint(track, racer.x, racer.z);
+  if (after.distance > track.width * 0.68) {
+    racer.x += (after.x - racer.x) * 1.6 * dt;
+    racer.z += (after.z - racer.z) * 1.6 * dt;
+    racer.speed *= 1 - 0.58 * dt;
   }
 }
-
-function seededUnit(seed: number) {
+function move(r: Racer, dt: number) {
+  r.x += Math.sin(r.heading) * r.speed * dt;
+  r.z += Math.cos(r.heading) * r.speed * dt;
+}
+function seeded(seed: number) {
   const value = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
   return value - Math.floor(value);
 }
-
-function sampleAt<T>(samples: T[], index: number): T {
-  const sample = samples[wrapIndex(index, samples.length)];
-  if (sample === undefined) throw new Error("Bot racing line is empty");
-  return sample;
+function at<T>(items: T[], index: number): T {
+  const item = items[((index % items.length) + items.length) % items.length];
+  if (item === undefined) throw new Error("Bot racing line is empty");
+  return item;
 }

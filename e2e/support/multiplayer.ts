@@ -1,8 +1,7 @@
 import { type BrowserContext, expect, type FrameLocator, type Page } from "@playwright/test";
 
 export const accountPassword = "testpass";
-export const pong = "pong@0.4.0";
-export const tapRace = "tap-race@0.4.0";
+export const turboCircuit = "turbo-circuit@0.8.1";
 export const realtimeHealthUrl =
   process.env.E2E_REALTIME_HEALTH_URL ?? "http://127.0.0.1:8787/healthz";
 

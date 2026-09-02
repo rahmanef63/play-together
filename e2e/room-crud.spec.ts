@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { closeContext, createRoom, pong, signUp } from "./support/multiplayer";
+import { closeContext, createRoom, signUp, turboCircuit } from "./support/multiplayer";
 
 test("hosts can list, edit, and delete their rooms from the lobby directory", async ({
   browser,
@@ -18,7 +18,7 @@ test("hosts can list, edit, and delete their rooms from the lobby directory", as
     const roomName = `CRUD ${runId}`;
     const code = await createRoom(page, {
       name: roomName,
-      gameKey: pong,
+      gameKey: turboCircuit,
       maxPlayers: 2,
       visibility: "public",
     });

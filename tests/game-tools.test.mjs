@@ -11,29 +11,35 @@ import { GAME_TOOL_DEFINITIONS } from "../scripts/game-tool-definitions.mjs";
 describe("game project tools", () => {
   it("lists and reads games without duplicating portal discovery", async () => {
     const result = await runGameTool("list", {});
-    expect(result.count).toBe(15);
-    expect(result.games.some((game) => game.id === "pong" && game.published)).toBe(true);
-    const pong = await runGameTool("get", { id: "pong" });
-    expect(pong.config.game.id).toBe("pong");
-    expect(pong.config.presentation.remoteDisplay).toEqual({ mode: "shared", maxViewports: 1 });
-    expect(pong.currentVersionPublished).toBe(true);
-    const racing = result.games.find((game) => game.id === "turbo-circuit");
-    expect(racing?.remoteDisplay).toBe("per-player");
-    expect(racing?.maxViewports).toBe(4);
+    expect(result.count).toBe(3);
+    expect(result.games.map((game) => game.id).sort()).toEqual([
+      "flight-trainer",
+      "sky-strike",
+      "turbo-circuit",
+    ]);
+    const turbo = await runGameTool("get", { id: "turbo-circuit" });
+    expect(turbo.config.game.id).toBe("turbo-circuit");
+    expect(turbo.config.presentation.remoteDisplay).toEqual({
+      mode: "per-player",
+      maxViewports: 4,
+    });
+    expect(turbo.currentVersionPublished).toBe(true);
   });
 
   it("refuses byte-changing updates and deletion of published game history", async () => {
-    const pong = await runGameTool("get", { id: "pong" });
+    const turbo = await runGameTool("get", { id: "turbo-circuit" });
     await expect(
       runGameTool("update", {
-        id: "pong",
-        expectedVersion: pong.config.game.version,
+        id: "turbo-circuit",
+        expectedVersion: turbo.config.game.version,
         title: "This must never be written",
       }),
     ).rejects.toThrow(/published and immutable/i);
-    await expect(runGameTool("delete", { id: "pong" })).rejects.toThrow(/cannot be deleted/i);
-    const after = await runGameTool("get", { id: "pong" });
-    expect(after.config.game.title).toBe(pong.config.game.title);
+    await expect(runGameTool("delete", { id: "turbo-circuit" })).rejects.toThrow(
+      /cannot be deleted/i,
+    );
+    const after = await runGameTool("get", { id: "turbo-circuit" });
+    expect(after.config.game.title).toBe(turbo.config.game.title);
   });
 
   it("revalidates per-player presentation before writing changed player limits", async () => {
@@ -156,10 +162,10 @@ describe("game project tools", () => {
         jsonrpc: "2.0",
         id: 3,
         method: "tools/call",
-        params: { name: "game_get", arguments: { id: "pong" } },
+        params: { name: "game_get", arguments: { id: "turbo-circuit" } },
       });
       expect(fetched.result.isError).toBe(false);
-      expect(fetched.result.structuredContent.id).toBe("pong");
+      expect(fetched.result.structuredContent.id).toBe("turbo-circuit");
     } finally {
       child.kill("SIGTERM");
       lines.close();

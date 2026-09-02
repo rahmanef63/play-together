@@ -3,9 +3,9 @@
   "protocolVersion": 1,
   "game": {
     "id": "turbo-circuit",
-    "version": "0.7.0",
+    "version": "0.8.1",
     "title": "Turbo Circuit",
-    "description": "A mobile-first real-circuit racer with PS1-style garage flow, auto-throttle, A/B/C/D console controls, server-authoritative pause, chase/driver/rear cameras, a dynamic SVG cockpit, nitro, collisions, and chaotic CPU rivals.",
+    "description": "A server-authoritative 3D kart racer with manual throttle, drifting and mini-turbos, slipstream drafting, boost pads, coins, item boxes, hazards, rescue, four camera modes and CPU rivals.",
     "minPlayers": 1,
     "maxPlayers": 4,
     "tickRate": 60,
@@ -56,35 +56,13 @@
           }
         },
         {
-          "id": "boost",
-          "kind": "button",
-          "label": "A",
-          "displayLabel": "BOOST",
-          "ariaLabel": "Nitro boost",
-          "face": "a",
-          "zone": "right",
-          "press": {
-            "type": "patch",
-            "values": {
-              "boost": true
-            }
-          },
-          "release": {
-            "type": "patch",
-            "values": {
-              "boost": false
-            }
-          },
-          "keys": ["Space"]
-        },
-        {
           "id": "brake",
           "kind": "button",
-          "label": "B",
+          "label": "L2",
           "displayLabel": "BRAKE",
           "ariaLabel": "Brake",
-          "face": "b",
-          "zone": "right",
+          "face": "l2",
+          "zone": "top-left",
           "press": {
             "type": "patch",
             "values": {
@@ -97,30 +75,16 @@
               "brake": 0
             }
           },
-          "keys": ["ArrowDown"]
-        },
-        {
-          "id": "camera",
-          "kind": "button",
-          "label": "C",
-          "displayLabel": "VIEW",
-          "ariaLabel": "Toggle chase or driver camera",
-          "face": "c",
-          "zone": "right",
-          "press": {
-            "type": "toggle",
-            "field": "cockpit"
-          },
-          "keys": ["KeyV"]
+          "keys": ["ArrowDown", "KeyS"]
         },
         {
           "id": "rear-view",
           "kind": "button",
-          "label": "D",
+          "label": "L1",
           "displayLabel": "REAR",
           "ariaLabel": "Hold rear view",
-          "face": "d",
-          "zone": "right",
+          "face": "l1",
+          "zone": "top-left",
           "press": {
             "type": "patch",
             "values": {
@@ -133,22 +97,133 @@
               "rearView": false
             }
           },
+          "keys": ["KeyB"]
+        },
+        {
+          "id": "throttle",
+          "kind": "button",
+          "label": "R2",
+          "displayLabel": "GAS",
+          "ariaLabel": "Accelerate",
+          "face": "r2",
+          "zone": "top-right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "throttle": 1
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "throttle": 0
+            }
+          },
+          "keys": ["ArrowUp", "KeyW"]
+        },
+        {
+          "id": "item-back",
+          "kind": "button",
+          "label": "R1",
+          "displayLabel": "ITEM \u2193",
+          "ariaLabel": "Use item backward",
+          "face": "r1",
+          "zone": "top-right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "item",
+              "direction": "backward"
+            }
+          },
+          "keys": ["KeyF"]
+        },
+        {
+          "id": "item",
+          "kind": "button",
+          "label": "A",
+          "displayLabel": "ITEM",
+          "ariaLabel": "Use item forward",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "item",
+              "direction": "forward"
+            }
+          },
+          "keys": ["Space", "Enter"]
+        },
+        {
+          "id": "drift",
+          "kind": "button",
+          "label": "B",
+          "displayLabel": "DRIFT",
+          "ariaLabel": "Hold drift",
+          "face": "b",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "drift": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "drift": false
+            }
+          },
+          "keys": ["ShiftLeft", "ShiftRight"]
+        },
+        {
+          "id": "camera",
+          "kind": "button",
+          "label": "X",
+          "displayLabel": "VIEW",
+          "ariaLabel": "Cycle camera",
+          "face": "x",
+          "zone": "right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "camera"
+            }
+          },
+          "keys": ["KeyC", "KeyV"]
+        },
+        {
+          "id": "rescue",
+          "kind": "button",
+          "label": "Y",
+          "displayLabel": "RESET",
+          "ariaLabel": "Rescue kart to track",
+          "face": "y",
+          "zone": "right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "rescue"
+            }
+          },
           "keys": ["KeyR"]
         },
         {
           "id": "start",
           "kind": "button",
           "label": "START",
+          "displayLabel": "READY",
           "ariaLabel": "Ready and start race",
           "face": "start",
           "zone": "bottom",
           "press": {
             "type": "send",
             "payload": {
-              "drive": true
+              "action": "ready"
             }
           },
-          "keys": ["Enter", "KeyG"]
+          "keys": ["KeyG"]
         },
         {
           "id": "pause",
@@ -158,14 +233,10 @@
           "face": "pause",
           "zone": "bottom",
           "press": {
-            "type": "pulse",
-            "values": {
-              "pause": true
-            },
-            "releaseValues": {
-              "pause": false
-            },
-            "durationMs": 80
+            "type": "send",
+            "payload": {
+              "action": "pause"
+            }
           },
           "keys": ["Escape", "KeyP"]
         }
@@ -173,11 +244,10 @@
       "initialState": {
         "steer": 0,
         "menuY": 0,
+        "throttle": 0,
         "brake": 0,
-        "boost": false,
-        "cockpit": false,
-        "rearView": false,
-        "pause": false
+        "drift": false,
+        "rearView": false
       }
     }
   },

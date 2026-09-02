@@ -18,14 +18,16 @@ const cdn = spawn(process.execPath, ["scripts/serve-game-cdn.mjs"], {
   env: { ...process.env, PORT: String(cdnPort) },
   stdio: ["ignore", "pipe", "inherit"],
 });
-const pongConfig = JSON.parse(await readFile(resolve("games/pong/game.config.json"), "utf8"));
+const turboConfig = JSON.parse(
+  await readFile(resolve("games/turbo-circuit/game.config.json"), "utf8"),
+);
 const manifestPath = resolve(
-  `releases/game-cdn/games/pong/${pongConfig.game.version}/manifest.json`,
+  `releases/game-cdn/games/turbo-circuit/${turboConfig.game.version}/manifest.json`,
 );
 const manifestBytes = await readFile(manifestPath);
 const manifestSha256 = createHash("sha256").update(manifestBytes).digest("hex");
-const gameVersion = pongConfig.game.version;
-const manifestUrl = `http://127.0.0.1:${cdnPort}/games/pong/${gameVersion}/manifest.json`;
+const gameVersion = turboConfig.game.version;
+const manifestUrl = `http://127.0.0.1:${cdnPort}/games/turbo-circuit/${gameVersion}/manifest.json`;
 await waitForUrl(manifestUrl);
 const secret = "smoke-test-secret-with-more-than-thirty-two-bytes";
 let releaseListener = null;
@@ -61,7 +63,7 @@ const base = {
   aud: "play-together-realtime",
   roomId: "smoke-room",
   roomCode: "SMOKE1",
-  gameId: "pong",
+  gameId: "turbo-circuit",
   gameVersion,
   manifestUrl,
   manifestSha256,
@@ -114,17 +116,19 @@ try {
   );
   const first = await waitForType(display, "snapshot");
   controller.send(
-    JSON.stringify({ type: "input", seq: 1, sentAt: Date.now(), payload: { move: 1 } }),
+    JSON.stringify({ type: "input", seq: 1, sentAt: Date.now(), payload: { action: "camera" } }),
   );
   let changed = false;
   for (let attempt = 0; attempt < 8; attempt += 1) {
     const next = await waitForType(display, "snapshot");
-    if (next.state?.paddles?.[0] > first.state?.paddles?.[0]) {
+    const initialCamera = first.state?.racers?.find((racer) => racer.id === "player-1")?.cameraMode;
+    const nextCamera = next.state?.racers?.find((racer) => racer.id === "player-1")?.cameraMode;
+    if (initialCamera === "chase" && nextCamera === "wide") {
       changed = true;
       break;
     }
   }
-  if (!changed) throw new Error("Controller input did not change the authoritative game snapshot");
+  if (!changed) throw new Error("Controller input did not change the authoritative kart snapshot");
 
   const expiryIssuedAt = Math.floor(Date.now() / 1000);
   const expiringTicket = signTicket(
@@ -154,7 +158,7 @@ try {
   const controllerClosed = expectClosed(controller, 4003);
   releaseListener({
     type: "release-status",
-    gameId: "pong",
+    gameId: "turbo-circuit",
     version: gameVersion,
     manifestSha256,
     status: "blocked",

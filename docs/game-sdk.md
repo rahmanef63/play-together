@@ -68,7 +68,7 @@ Return a cleanup function from custom browser modules that removes listeners and
 The shared build script bundles the display and authoritative server independently, and bundles a controller entry only for a custom-controller slice. Every emitted executable is SHA-256 pinned in the manifest. Do not add a game-specific copy of the build script.
 
 ```bash
-pnpm game:publish:one tap-race
+pnpm game:publish:one turbo-circuit
 ```
 
 The publisher refuses to replace an existing version with different bytes. To change code, bump the version.
@@ -76,7 +76,7 @@ The publisher refuses to replace an existing version with different bytes. To ch
 Register only after uploading the exact bytes:
 
 ```bash
-pnpm game:publish:convex:one tap-race
+pnpm game:publish:convex:one turbo-circuit
 ```
 
 ## Compatibility change

@@ -6,6 +6,8 @@
 
 A version-isolated multiplayer platform for phone remotes, handheld play, and shared browser/TV displays. Each game ships as an independent cartridge; the platform owns discovery, rooms, pairing, realtime transport, device shells, and immutable release verification.
 
+The active catalog is intentionally focused on three 3D cartridges: **Turbo Circuit 0.8.1**, **Flight Trainer 0.2.6**, and **Sky Strike 0.2.6**. Historical releases for removed games stay byte-immutable but are retired from new-room selection.
+
 [![CI](https://github.com/rahmanef63/play-together/actions/workflows/ci.yml/badge.svg)](https://github.com/rahmanef63/play-together/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/Node.js-22%2B-339933?logo=nodedotjs&logoColor=white)](package.json)

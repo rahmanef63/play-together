@@ -10,7 +10,7 @@ export const TURBO_HUD_CSS = `
 .turbo-speedometer__needle{position:absolute;left:49%;top:21%;width:3px;height:38%;background:#e2473f;transform-origin:50% 78%;transform:rotate(-125deg);border-radius:3px}
 .turbo-speedometer__value{position:absolute;left:50%;bottom:20%;transform:translateX(-50%);font:900 clamp(20px,4vw,32px)/1 system-ui;color:white;white-space:nowrap}
 .turbo-speedometer small{position:absolute;left:50%;bottom:9%;transform:translateX(-50%);font:800 9px/1 system-ui;color:#d7d1c4}
-.turbo-nitro{right:12px;bottom:16px;min-width:116px;padding:8px 10px;background:#0b0d10dd;border:2px solid #e9e3d4;font:900 12px/1 system-ui;text-align:center;transition:opacity .18s}
+.turbo-nitro{right:12px;bottom:16px;min-width:210px;max-width:58vw;padding:8px 10px;background:#0b0d10dd;border:2px solid #e9e3d4;font:900 12px/1 system-ui;text-align:center;transition:opacity .18s}
 .turbo-minimap{position:absolute;z-index:8;right:12px;top:52px;width:clamp(120px,18vw,176px);aspect-ratio:1.45;background:#080b10b8;border:1px solid #ffffff2b;padding:6px;pointer-events:none;transition:opacity .18s}
 .turbo-setup{position:absolute;z-index:12;inset:0;display:grid;place-items:center;padding:clamp(10px,2vw,22px);pointer-events:none;background:linear-gradient(180deg,#0a1017a8,#05070bcc)}
 .turbo-setup::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,#ffffff08 0,#ffffff08 1px,transparent 1px,transparent 4px);mix-blend-mode:screen;opacity:.2}

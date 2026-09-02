@@ -6,7 +6,7 @@ import {
   expectPregame,
   signUp,
   startGame,
-  tapRace,
+  turboCircuit,
 } from "./support/multiplayer";
 
 test("remote and shared screen recover after network interruption and keep accepting input", async ({
@@ -25,21 +25,21 @@ test("remote and shared screen recover after network interruption and keep accep
     hostRealtimeSockets += 1;
     const server = route.connectToServer();
     server.onMessage((message) => {
-      if (!hostDropPong || !isPong(message)) route.send(message);
+      if (!hostDropPong || !isHeartbeatPong(message)) route.send(message);
     });
   });
   await guest.routeWebSocket(/\/(?:v1\/connect|api\/realtime)(?:\?|$)/, (route) => {
     guestRealtimeSockets += 1;
     const server = route.connectToServer();
     server.onMessage((message) => {
-      if (!guestDropPong || !isPong(message)) route.send(message);
+      if (!guestDropPong || !isHeartbeatPong(message)) route.send(message);
     });
   });
   try {
     await signUp(host, `Recovery Host ${runId}`, `recovery-host-${runId}@example.test`);
     const code = await createRoom(host, {
       name: `Recovery ${runId}`,
-      gameKey: tapRace,
+      gameKey: turboCircuit,
       maxPlayers: 2,
       visibility: "private",
     });
@@ -56,10 +56,12 @@ test("remote and shared screen recover after network interruption and keep accep
 
     const display = host.frameLocator("iframe.game-frame");
     const remote = guest.frameLocator("iframe.game-frame");
-    const tap = remote.getByRole("button", { name: "Tap to race" });
+    const camera = remote.getByRole("button", { name: "Cycle camera" });
+    const turbo = display.locator(".turbo-circuit");
     await expect(remote.locator(".console-controller-svg")).toBeVisible();
-    await tap.click();
-    await expect(display.getByText("4%", { exact: true })).toBeVisible();
+    await expect(turbo).toHaveAttribute("data-camera", "chase", { timeout: 20_000 });
+    await camera.click();
+    await expect(turbo).toHaveAttribute("data-camera", "wide");
 
     const guestSocketsBefore = guestRealtimeSockets;
     guestDropPong = true;
@@ -68,8 +70,8 @@ test("remote and shared screen recover after network interruption and keep accep
       .toBeGreaterThan(guestSocketsBefore);
     guestDropPong = false;
     await expect(guest.locator(".connection")).toHaveText("connected", { timeout: 25_000 });
-    await tap.click();
-    await expect(display.getByText("8%", { exact: true })).toBeVisible({ timeout: 15_000 });
+    await camera.click();
+    await expect(turbo).toHaveAttribute("data-camera", "driver", { timeout: 15_000 });
 
     const hostSocketsBefore = hostRealtimeSockets;
     hostDropPong = true;
@@ -78,8 +80,8 @@ test("remote and shared screen recover after network interruption and keep accep
       .toBeGreaterThan(hostSocketsBefore);
     hostDropPong = false;
     await expect(host.locator(".connection")).toHaveText("connected", { timeout: 25_000 });
-    await tap.click();
-    await expect(display.getByText("12%", { exact: true })).toBeVisible({ timeout: 15_000 });
+    await camera.click();
+    await expect(turbo).toHaveAttribute("data-camera", "bumper", { timeout: 15_000 });
     await expect(host.locator(".play-error")).toHaveCount(0);
     await expect(guest.locator(".play-error")).toHaveCount(0);
   } finally {
@@ -98,7 +100,7 @@ test("3D game frame self-recovers from a WebGL context loss without restarting t
     await signUp(page, `Recovery Pilot ${runId}`, `recovery-pilot-${runId}@example.test`);
     await createRoom(page, {
       name: `Recovery Turbo ${runId}`,
-      gameKey: "turbo-circuit@0.7.0",
+      gameKey: turboCircuit,
       maxPlayers: 1,
       visibility: "private",
     });
@@ -110,7 +112,6 @@ test("3D game frame self-recovers from a WebGL context loss without restarting t
     page.on("framenavigated", (navigated) => {
       if (navigated.parentFrame() === page.mainFrame()) loads += 1;
     });
-
     await frame.locator(".turbo-circuit canvas").dispatchEvent("webglcontextlost");
     await expect.poll(() => loads, { timeout: 15_000 }).toBeGreaterThan(0);
     await expect(frame.locator(".turbo-circuit canvas")).toBeVisible({ timeout: 20_000 });
@@ -121,7 +122,7 @@ test("3D game frame self-recovers from a WebGL context loss without restarting t
   }
 });
 
-function isPong(message: string | Buffer): boolean {
+function isHeartbeatPong(message: string | Buffer): boolean {
   if (typeof message !== "string") return false;
   try {
     return (JSON.parse(message) as { type?: unknown }).type === "pong";

@@ -84,7 +84,7 @@ ${COCKPIT_CSS}`;
   setupHeadingCopy.append(setupEyebrow, setupTitle);
   const setupVersion = document.createElement("span");
   setupVersion.className = "turbo-setup__version";
-  setupVersion.textContent = "GARAGE";
+  setupVersion.textContent = "KART TOUR";
   setupHeader.append(setupHeadingCopy, setupVersion);
 
   const setupGrid = document.createElement("div");

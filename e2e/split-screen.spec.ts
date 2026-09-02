@@ -6,6 +6,7 @@ import {
   joinFromPublicCard,
   signUp,
   startGame,
+  turboCircuit,
 } from "./support/multiplayer";
 
 test("remote controllers automatically move per-player games between shared and split screen", async ({
@@ -24,7 +25,7 @@ test("remote controllers automatically move per-player games between shared and 
     const roomName = `Split Circuit ${runId}`;
     const code = await createRoom(host, {
       name: roomName,
-      gameKey: "turbo-circuit@0.7.0",
+      gameKey: turboCircuit,
       maxPlayers: 3,
       visibility: "public",
     });

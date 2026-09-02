@@ -1,7 +1,7 @@
 import * as THREE from "three";
-import { type CircuitSpec, circuitById, sampleCircuit } from "../shared/catalog.js";
-import { addCircuitEnvironment } from "./environment.js";
-
+import { type TrackSpec, trackById } from "../shared/catalog.js";
+import { featurePoses, sampleTrack } from "../shared/trackMath.js";
+import { addTrackEnvironment } from "./environment.js";
 export function createTrackScene(canvas: HTMLCanvasElement) {
   const renderer = new THREE.WebGLRenderer({
     canvas,
@@ -9,34 +9,33 @@ export function createTrackScene(canvas: HTMLCanvasElement) {
     powerPreference: "high-performance",
   });
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(62, 1, 0.1, 600);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x405031, 2));
-  const sun = new THREE.DirectionalLight(0xffffff, 2.1);
+  const scene = new THREE.Scene(),
+    camera = new THREE.PerspectiveCamera(62, 1, 0.1, 600);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x40352b, 2));
+  const sun = new THREE.DirectionalLight(0xfff1dd, 2.2);
   sun.position.set(-55, 95, -40);
   scene.add(sun);
   return { renderer, scene, camera };
 }
-
-export function createCircuitWorld(
+export function createTrackWorld(
   scene: THREE.Scene,
   renderer: THREE.WebGLRenderer,
-  circuitId: string,
+  trackId: string,
 ) {
-  const circuit = circuitById(circuitId);
-  const group = new THREE.Group();
-  group.name = `circuit-${circuit.id}`;
-  renderer.setClearColor(circuit.palette.sky);
-  scene.fog = new THREE.Fog(circuit.palette.sky, 125, 300);
-  group.add(createGround(circuit), createRoad(circuit));
-  addEdges(group, circuit);
-  addStartGrid(group, circuit);
-  addCircuitEnvironment(group, circuit);
+  const track = trackById(trackId),
+    group = new THREE.Group();
+  group.name = `track-${track.id}`;
+  renderer.setClearColor(track.palette.sky);
+  scene.fog = new THREE.Fog(track.palette.sky, 120, 310);
+  group.add(createGround(track), createRoad(track));
+  addEdges(group, track);
+  addStartGrid(group, track);
+  addBoostPads(group, track);
+  addTrackEnvironment(group, track);
   scene.add(group);
   return group;
 }
-
-export function disposeCircuitWorld(scene: THREE.Scene, group: THREE.Group) {
+export function disposeTrackWorld(scene: THREE.Scene, group: THREE.Group) {
   scene.remove(group);
   group.traverse((object) => {
     const mesh = object as THREE.Mesh;
@@ -46,113 +45,117 @@ export function disposeCircuitWorld(scene: THREE.Scene, group: THREE.Group) {
     else material?.dispose?.();
   });
 }
-
-function createGround(circuit: CircuitSpec) {
-  const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(430, 430),
-    new THREE.MeshStandardMaterial({ color: circuit.palette.ground, roughness: 1 }),
+function createGround(track: TrackSpec) {
+  const mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(360, 360),
+    new THREE.MeshStandardMaterial({ color: track.palette.ground, roughness: 1 }),
   );
-  ground.rotation.x = -Math.PI / 2;
-  ground.position.y = -0.05;
-  return ground;
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.y = -0.05;
+  return mesh;
 }
-
-function createRoad(circuit: CircuitSpec) {
-  const points = sampleCircuit(circuit, 180);
-  const vertices: number[] = [];
-  const indices: number[] = [];
-  for (const point of points) {
-    const rightX = Math.cos(point.heading);
-    const rightZ = -Math.sin(point.heading);
-    const half = circuit.width / 2;
-    vertices.push(point.x - rightX * half, 0, point.z - rightZ * half);
-    vertices.push(point.x + rightX * half, 0, point.z + rightZ * half);
+function createRoad(track: TrackSpec) {
+  const points = sampleTrack(track, 220),
+    vertices: number[] = [],
+    indices: number[] = [];
+  for (const p of points) {
+    const rx = Math.cos(p.heading),
+      rz = -Math.sin(p.heading),
+      half = track.width / 2;
+    vertices.push(p.x - rx * half, 0, p.z - rz * half, p.x + rx * half, 0, p.z + rz * half);
   }
-  for (let index = 0; index < points.length; index++) {
-    const next = (index + 1) % points.length;
-    const a = index * 2;
-    const b = a + 1;
-    const c = next * 2;
-    const d = c + 1;
+  for (let i = 0; i < points.length; i++) {
+    const n = (i + 1) % points.length,
+      a = i * 2,
+      b = a + 1,
+      c = n * 2,
+      d = c + 1;
     indices.push(a, c, b, b, c, d);
   }
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
-  geometry.setIndex(indices);
-  geometry.computeVertexNormals();
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
   return new THREE.Mesh(
-    geometry,
+    geo,
     new THREE.MeshStandardMaterial({
-      color: circuit.palette.road,
-      roughness: 0.92,
+      color: track.palette.road,
+      roughness: 0.9,
       side: THREE.DoubleSide,
     }),
   );
 }
-
-function addEdges(group: THREE.Group, circuit: CircuitSpec) {
-  const samples = sampleCircuit(circuit, 84);
-  const curbGeometry = new THREE.BoxGeometry(1.2, 0.12, 2.7);
-  const barrierGeometry = new THREE.BoxGeometry(0.55, 0.82, 3.1);
-  const red = new THREE.MeshStandardMaterial({ color: 0xcf3f48, roughness: 0.82 });
-  const white = new THREE.MeshStandardMaterial({ color: 0xf0eee7, roughness: 0.82 });
+function addEdges(group: THREE.Group, track: TrackSpec) {
+  const samples = sampleTrack(track, 92),
+    curbGeo = new THREE.BoxGeometry(1.15, 0.12, 2.55),
+    barrierGeo = new THREE.BoxGeometry(0.5, 0.78, 2.9),
+    red = new THREE.MeshStandardMaterial({ color: 0xcf3f48, roughness: 0.82 }),
+    white = new THREE.MeshStandardMaterial({ color: 0xf0eee7, roughness: 0.82 });
   for (const side of [-1, 1])
-    for (const [index, point] of samples.entries()) {
-      const rightX = Math.cos(point.heading);
-      const rightZ = -Math.sin(point.heading);
-      const curb = new THREE.Mesh(curbGeometry, index % 2 === 0 ? red : white);
-      const curbOffset = side * (circuit.width / 2 - 0.35);
-      curb.position.set(point.x + rightX * curbOffset, 0.08, point.z + rightZ * curbOffset);
-      curb.rotation.y = point.heading;
+    for (const [i, p] of samples.entries()) {
+      const rx = Math.cos(p.heading),
+        rz = -Math.sin(p.heading),
+        curb = new THREE.Mesh(curbGeo, i % 2 === 0 ? red : white),
+        off = side * (track.width / 2 - 0.32);
+      curb.position.set(p.x + rx * off, 0.08, p.z + rz * off);
+      curb.rotation.y = p.heading;
       group.add(curb);
-      if (index % 2 !== 0) continue;
-      const barrier = new THREE.Mesh(
-        barrierGeometry,
-        Math.floor(index / 2) % 2 === 0 ? white : red,
-      );
-      const barrierOffset = side * (circuit.width / 2 + 1.3);
-      barrier.position.set(
-        point.x + rightX * barrierOffset,
-        0.41,
-        point.z + rightZ * barrierOffset,
-      );
-      barrier.rotation.y = point.heading;
+      if (i % 2) continue;
+      const barrier = new THREE.Mesh(barrierGeo, Math.floor(i / 2) % 2 === 0 ? white : red),
+        boff = side * (track.width / 2 + 1.1);
+      barrier.position.set(p.x + rx * boff, 0.39, p.z + rz * boff);
+      barrier.rotation.y = p.heading;
       group.add(barrier);
     }
 }
-
-function addStartGrid(group: THREE.Group, circuit: CircuitSpec) {
-  const start = sampleCircuit(circuit)[0];
+function addStartGrid(group: THREE.Group, track: TrackSpec) {
+  const start = sampleTrack(track)[0];
   if (!start) return;
-  const rightX = Math.cos(start.heading);
-  const rightZ = -Math.sin(start.heading);
-  const forwardX = Math.sin(start.heading);
-  const forwardZ = Math.cos(start.heading);
+  const rx = Math.cos(start.heading),
+    rz = -Math.sin(start.heading);
   for (let lane = 0; lane < 10; lane++) {
     const tile = new THREE.Mesh(
-      new THREE.BoxGeometry(1.4, 0.05, circuit.width / 10),
-      new THREE.MeshStandardMaterial({
-        color: lane % 2 === 0 ? 0xf6f3eb : 0x17191c,
-        roughness: 0.9,
-      }),
-    );
-    const lateral = -circuit.width / 2 + circuit.width / 20 + lane * (circuit.width / 10);
-    tile.position.set(start.x + rightX * lateral, 0.07, start.z + rightZ * lateral);
+        new THREE.BoxGeometry(1.2, 0.05, track.width / 10),
+        new THREE.MeshStandardMaterial({
+          color: lane % 2 === 0 ? 0xf6f3eb : 0x17191c,
+          roughness: 0.9,
+        }),
+      ),
+      lateral = -track.width / 2 + track.width / 20 + lane * (track.width / 10);
+    tile.position.set(start.x + rx * lateral, 0.07, start.z + rz * lateral);
     tile.rotation.y = start.heading;
     group.add(tile);
   }
-  for (let row = 0; row < 4; row++) {
-    const marker = new THREE.Mesh(
-      new THREE.PlaneGeometry(5.6, 2.2),
-      new THREE.MeshBasicMaterial({ color: 0xe8e2d4, side: THREE.DoubleSide }),
-    );
-    marker.rotation.x = -Math.PI / 2;
-    marker.rotation.z = -start.heading;
-    marker.position.set(
-      start.x - forwardX * (5 + row * 5.2),
-      0.035,
-      start.z - forwardZ * (5 + row * 5.2),
-    );
-    group.add(marker);
+}
+function addBoostPads(group: THREE.Group, track: TrackSpec) {
+  const mat = new THREE.MeshBasicMaterial({
+    color: track.palette.accent,
+    transparent: true,
+    opacity: 0.85,
+    side: THREE.DoubleSide,
+  });
+  for (const pad of featurePoses(track, track.features.boostPads, [0])) {
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(8, 4.6), mat);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.rotation.z = -pad.heading;
+    mesh.position.set(pad.x, 0.08, pad.z);
+    group.add(mesh);
+    for (const offset of [-2.2, 0, 2.2]) {
+      const stripe = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.1, 3.4),
+        new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.55,
+          side: THREE.DoubleSide,
+        }),
+      );
+      stripe.rotation.x = -Math.PI / 2;
+      stripe.rotation.z = -pad.heading;
+      const rx = Math.cos(pad.heading),
+        rz = -Math.sin(pad.heading);
+      stripe.position.set(pad.x + rx * offset, 0.09, pad.z + rz * offset);
+      group.add(stripe);
+    }
   }
 }

@@ -6,21 +6,27 @@
       "version": "0.1.0",
       "title": "Dodge Dash",
       "manifestPath": "/games/dodge-dash/0.1.0/manifest.json",
-      "manifestSha256": "ca2d88ae450feca7cf8125f8d7e338077666407928a1b86d28ecfc0812a113a5"
+      "manifestSha256": "ca2d88ae450feca7cf8125f8d7e338077666407928a1b86d28ecfc0812a113a5",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "dodge-dash",
       "version": "0.2.0",
       "title": "Dodge Dash",
       "manifestPath": "/games/dodge-dash/0.2.0/manifest.json",
-      "manifestSha256": "f62af6e5adddf2099dba268530e77a34fcb5a9ebedb03cd07b049b1af6572160"
+      "manifestSha256": "f62af6e5adddf2099dba268530e77a34fcb5a9ebedb03cd07b049b1af6572160",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "dodge-dash",
       "version": "0.3.0",
       "title": "Dodge Dash",
       "manifestPath": "/games/dodge-dash/0.3.0/manifest.json",
-      "manifestSha256": "555ed569662bb659e1afd72ebbf3b1d68ba2b05c5f23913ecfe8dd3a8d577234"
+      "manifestSha256": "555ed569662bb659e1afd72ebbf3b1d68ba2b05c5f23913ecfe8dd3a8d577234",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "dodge-dash",
@@ -33,7 +39,9 @@
           "mode": "shared",
           "maxViewports": 1
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "flight-trainer",
@@ -117,21 +125,27 @@
       "version": "0.1.0",
       "title": "Maze Run",
       "manifestPath": "/games/maze-run/0.1.0/manifest.json",
-      "manifestSha256": "482879cf9e23aa1b7e5ae01ca3e501107f01cef8e221229a35f12cde5b88225b"
+      "manifestSha256": "482879cf9e23aa1b7e5ae01ca3e501107f01cef8e221229a35f12cde5b88225b",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "maze-run",
       "version": "0.2.0",
       "title": "Maze Run",
       "manifestPath": "/games/maze-run/0.2.0/manifest.json",
-      "manifestSha256": "995d5c396f94185e3412d0f78949ac9056a3a0a9d6d75a2a90f2c1ddb5c3ba8b"
+      "manifestSha256": "995d5c396f94185e3412d0f78949ac9056a3a0a9d6d75a2a90f2c1ddb5c3ba8b",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "maze-run",
       "version": "0.3.0",
       "title": "Maze Run",
       "manifestPath": "/games/maze-run/0.3.0/manifest.json",
-      "manifestSha256": "e5ae487ba56ab41fba31e2a006c20d7aa54d322e60d5528b771656b0d339580d"
+      "manifestSha256": "e5ae487ba56ab41fba31e2a006c20d7aa54d322e60d5528b771656b0d339580d",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "maze-run",
@@ -144,21 +158,27 @@
           "mode": "shared",
           "maxViewports": 1
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "memory-lights",
       "version": "0.1.0",
       "title": "Memory Lights",
       "manifestPath": "/games/memory-lights/0.1.0/manifest.json",
-      "manifestSha256": "aefcc1c5a4df9edebfe19c930f20c83e2cf0aabf94d6bcc1cc98f232fc970806"
+      "manifestSha256": "aefcc1c5a4df9edebfe19c930f20c83e2cf0aabf94d6bcc1cc98f232fc970806",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "memory-lights",
       "version": "0.2.0",
       "title": "Memory Lights",
       "manifestPath": "/games/memory-lights/0.2.0/manifest.json",
-      "manifestSha256": "16c1fbfbbb422b279409a52729d2ed4e8c954e281a6fe52264e750ede6984e0d"
+      "manifestSha256": "16c1fbfbbb422b279409a52729d2ed4e8c954e281a6fe52264e750ede6984e0d",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "memory-lights",
@@ -171,28 +191,36 @@
           "mode": "shared",
           "maxViewports": 1
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "orbit-dodge",
       "version": "0.1.0",
       "title": "Orbit Dodge",
       "manifestPath": "/games/orbit-dodge/0.1.0/manifest.json",
-      "manifestSha256": "e77096b43bf1d39a30aa35f2a44e15828c8e2dc864f13d2f11acecbbe125faf0"
+      "manifestSha256": "e77096b43bf1d39a30aa35f2a44e15828c8e2dc864f13d2f11acecbbe125faf0",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "orbit-dodge",
       "version": "0.2.0",
       "title": "Orbit Dodge",
       "manifestPath": "/games/orbit-dodge/0.2.0/manifest.json",
-      "manifestSha256": "52b042cb493f2e30cb0d48ed2c979a2b4c31083f4285d40e34f0b230370d346e"
+      "manifestSha256": "52b042cb493f2e30cb0d48ed2c979a2b4c31083f4285d40e34f0b230370d346e",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "orbit-dodge",
       "version": "0.3.0",
       "title": "Orbit Dodge",
       "manifestPath": "/games/orbit-dodge/0.3.0/manifest.json",
-      "manifestSha256": "03bb0a169880cc6ed1787210fef52794b8143fab2519df6579448d58fbb87d93"
+      "manifestSha256": "03bb0a169880cc6ed1787210fef52794b8143fab2519df6579448d58fbb87d93",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "orbit-dodge",
@@ -205,28 +233,36 @@
           "mode": "shared",
           "maxViewports": 1
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "pong",
       "version": "0.1.0",
       "title": "Pong Together",
       "manifestPath": "/games/pong/0.1.0/manifest.json",
-      "manifestSha256": "cf1c8053178297ceea3653989b8869e58c4a194d6ae38f7197c7dc0c36201e0d"
+      "manifestSha256": "cf1c8053178297ceea3653989b8869e58c4a194d6ae38f7197c7dc0c36201e0d",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "pong",
       "version": "0.2.0",
       "title": "Pong Together",
       "manifestPath": "/games/pong/0.2.0/manifest.json",
-      "manifestSha256": "486b1c4a479cc8afc1531f5f62b0c539f46b1bfd29a0082b4cba9827c7e18939"
+      "manifestSha256": "486b1c4a479cc8afc1531f5f62b0c539f46b1bfd29a0082b4cba9827c7e18939",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "pong",
       "version": "0.3.0",
       "title": "Pong Together",
       "manifestPath": "/games/pong/0.3.0/manifest.json",
-      "manifestSha256": "cdf1b6f0ae98b5496b149f78348b8a916e3ff1c98440da7d05f4acbb0fb14e71"
+      "manifestSha256": "cdf1b6f0ae98b5496b149f78348b8a916e3ff1c98440da7d05f4acbb0fb14e71",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "pong",
@@ -239,21 +275,27 @@
           "mode": "shared",
           "maxViewports": 1
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "reaction-rush",
       "version": "0.1.0",
       "title": "Reaction Rush",
       "manifestPath": "/games/reaction-rush/0.1.0/manifest.json",
-      "manifestSha256": "beca2fc81c096810f0cdee0bc11ec6cc40bb8a3821f6bce2398ac4fe4f4c1f07"
+      "manifestSha256": "beca2fc81c096810f0cdee0bc11ec6cc40bb8a3821f6bce2398ac4fe4f4c1f07",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "reaction-rush",
       "version": "0.2.0",
       "title": "Reaction Rush",
       "manifestPath": "/games/reaction-rush/0.2.0/manifest.json",
-      "manifestSha256": "4393b40757f57ff02a3e3be2b731a5dce29caff4d9c7e6fc4362ce8e94ac9197"
+      "manifestSha256": "4393b40757f57ff02a3e3be2b731a5dce29caff4d9c7e6fc4362ce8e94ac9197",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "reaction-rush",
@@ -266,21 +308,27 @@
           "mode": "shared",
           "maxViewports": 1
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "rhythm-pulse",
       "version": "0.1.0",
       "title": "Rhythm Pulse",
       "manifestPath": "/games/rhythm-pulse/0.1.0/manifest.json",
-      "manifestSha256": "7e4479e95f73f1b8eee28e66ca0387139b2a5b7fd48014843af090c9ec3bf577"
+      "manifestSha256": "7e4479e95f73f1b8eee28e66ca0387139b2a5b7fd48014843af090c9ec3bf577",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "rhythm-pulse",
       "version": "0.2.0",
       "title": "Rhythm Pulse",
       "manifestPath": "/games/rhythm-pulse/0.2.0/manifest.json",
-      "manifestSha256": "06821f29fa7797bf5a857a9b988675060ef510933ada4a13e3606d91bed8246c"
+      "manifestSha256": "06821f29fa7797bf5a857a9b988675060ef510933ada4a13e3606d91bed8246c",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "rhythm-pulse",
@@ -293,7 +341,9 @@
           "mode": "shared",
           "maxViewports": 1
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "sky-strike",
@@ -377,21 +427,27 @@
       "version": "0.1.0",
       "title": "Snake Arena",
       "manifestPath": "/games/snake-arena/0.1.0/manifest.json",
-      "manifestSha256": "c94da01b31ab0fde306fc39411cf5ef7ca5fbd76737233dfc20ae83469e85094"
+      "manifestSha256": "c94da01b31ab0fde306fc39411cf5ef7ca5fbd76737233dfc20ae83469e85094",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "snake-arena",
       "version": "0.2.0",
       "title": "Snake Arena",
       "manifestPath": "/games/snake-arena/0.2.0/manifest.json",
-      "manifestSha256": "b4a4748a4ad90fe0225d0dae8d56b8d7fbe3bce22544052f9a1554a0fee75c55"
+      "manifestSha256": "b4a4748a4ad90fe0225d0dae8d56b8d7fbe3bce22544052f9a1554a0fee75c55",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "snake-arena",
       "version": "0.3.0",
       "title": "Snake Arena",
       "manifestPath": "/games/snake-arena/0.3.0/manifest.json",
-      "manifestSha256": "d661738234aee0baea6ecbf72b307538bcfe1f8de7020a3d5e44f988b76a2133"
+      "manifestSha256": "d661738234aee0baea6ecbf72b307538bcfe1f8de7020a3d5e44f988b76a2133",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "snake-arena",
@@ -404,21 +460,27 @@
           "mode": "shared",
           "maxViewports": 1
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "stack-tower",
       "version": "0.1.0",
       "title": "Stack Tower",
       "manifestPath": "/games/stack-tower/0.1.0/manifest.json",
-      "manifestSha256": "88ff91c2597f9d6171dfaebcfc905a31bb60dc9dd872ce11cda5367c95509170"
+      "manifestSha256": "88ff91c2597f9d6171dfaebcfc905a31bb60dc9dd872ce11cda5367c95509170",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "stack-tower",
       "version": "0.2.0",
       "title": "Stack Tower",
       "manifestPath": "/games/stack-tower/0.2.0/manifest.json",
-      "manifestSha256": "f4b2e3671a14f4bebab9539cf816136d7e688f16c32fb2838700fde87f95f818"
+      "manifestSha256": "f4b2e3671a14f4bebab9539cf816136d7e688f16c32fb2838700fde87f95f818",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "stack-tower",
@@ -431,28 +493,36 @@
           "mode": "shared",
           "maxViewports": 1
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "tap-race",
       "version": "0.1.0",
       "title": "Tap Race",
       "manifestPath": "/games/tap-race/0.1.0/manifest.json",
-      "manifestSha256": "9db8e55d83e6f13fd8fa71bd8cf9f552067ca6a862b7b76824ce1396f533c7e6"
+      "manifestSha256": "9db8e55d83e6f13fd8fa71bd8cf9f552067ca6a862b7b76824ce1396f533c7e6",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "tap-race",
       "version": "0.2.0",
       "title": "Tap Race",
       "manifestPath": "/games/tap-race/0.2.0/manifest.json",
-      "manifestSha256": "0b6d6ce61e8ed859f284c08a96173ae7ae046b3453c446cecc5ef2c3c845ba61"
+      "manifestSha256": "0b6d6ce61e8ed859f284c08a96173ae7ae046b3453c446cecc5ef2c3c845ba61",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "tap-race",
       "version": "0.3.0",
       "title": "Tap Race",
       "manifestPath": "/games/tap-race/0.3.0/manifest.json",
-      "manifestSha256": "411e601b1170d396c13875b0641cefcab305b90fb0a44804f09abce536565aae"
+      "manifestSha256": "411e601b1170d396c13875b0641cefcab305b90fb0a44804f09abce536565aae",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "tap-race",
@@ -465,21 +535,27 @@
           "mode": "shared",
           "maxViewports": 1
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "target-blast",
       "version": "0.1.0",
       "title": "Target Blast",
       "manifestPath": "/games/target-blast/0.1.0/manifest.json",
-      "manifestSha256": "0bd1391c34da69ed32994833cea391dbd94e0ce39991a3cb3ec8b3f9ce150e93"
+      "manifestSha256": "0bd1391c34da69ed32994833cea391dbd94e0ce39991a3cb3ec8b3f9ce150e93",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "target-blast",
       "version": "0.2.0",
       "title": "Target Blast",
       "manifestPath": "/games/target-blast/0.2.0/manifest.json",
-      "manifestSha256": "1d3d12fb3956149fbf525c487f33721deebce5d3709fb8e65dc4afffac3bd4a8"
+      "manifestSha256": "1d3d12fb3956149fbf525c487f33721deebce5d3709fb8e65dc4afffac3bd4a8",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "target-blast",
@@ -492,21 +568,27 @@
           "mode": "shared",
           "maxViewports": 1
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "tug-war",
       "version": "0.1.0",
       "title": "Tug War",
       "manifestPath": "/games/tug-war/0.1.0/manifest.json",
-      "manifestSha256": "ae588af19f705706b410d62a55b6febbb36277d8500b81b0b41511eefda491ac"
+      "manifestSha256": "ae588af19f705706b410d62a55b6febbb36277d8500b81b0b41511eefda491ac",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "tug-war",
       "version": "0.2.0",
       "title": "Tug War",
       "manifestPath": "/games/tug-war/0.2.0/manifest.json",
-      "manifestSha256": "0c562ee227b16a789a198bf349c388d6caacd4b9c5db9b2517e5f6a618ac3fcd"
+      "manifestSha256": "0c562ee227b16a789a198bf349c388d6caacd4b9c5db9b2517e5f6a618ac3fcd",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "tug-war",
@@ -519,84 +601,108 @@
           "mode": "shared",
           "maxViewports": 1
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
       "version": "0.1.0",
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.1.0/manifest.json",
-      "manifestSha256": "dcbc9149c2f8e9f9a9fdb1ce9bf70b0adbdf5118c384f62b064d19d2172e2b55"
+      "manifestSha256": "dcbc9149c2f8e9f9a9fdb1ce9bf70b0adbdf5118c384f62b064d19d2172e2b55",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
       "version": "0.1.1",
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.1.1/manifest.json",
-      "manifestSha256": "ba639439af442a16c03628ded390fb20511c70d4eac854faaab5168182537a33"
+      "manifestSha256": "ba639439af442a16c03628ded390fb20511c70d4eac854faaab5168182537a33",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
       "version": "0.2.0",
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.2.0/manifest.json",
-      "manifestSha256": "6bfba853b5b320c620f1c2544704af8e2e8e53185b57cc46deafd954587f721d"
+      "manifestSha256": "6bfba853b5b320c620f1c2544704af8e2e8e53185b57cc46deafd954587f721d",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
       "version": "0.2.1",
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.2.1/manifest.json",
-      "manifestSha256": "2596be57b7a358547a0e99482921bc80a57fc8bd0a18b52b9142ce8ac094cd4a"
+      "manifestSha256": "2596be57b7a358547a0e99482921bc80a57fc8bd0a18b52b9142ce8ac094cd4a",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
       "version": "0.2.2",
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.2.2/manifest.json",
-      "manifestSha256": "ac64532c5ff61f4cb08e441d6082bc0ce98272acdd786eaf4b799dbfee18faab"
+      "manifestSha256": "ac64532c5ff61f4cb08e441d6082bc0ce98272acdd786eaf4b799dbfee18faab",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
       "version": "0.2.3",
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.2.3/manifest.json",
-      "manifestSha256": "ba84735442c8372a6627e155389fa0262666d401c15f45108332f5ca8618f68d"
+      "manifestSha256": "ba84735442c8372a6627e155389fa0262666d401c15f45108332f5ca8618f68d",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
       "version": "0.3.0",
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.3.0/manifest.json",
-      "manifestSha256": "c3bc267eb646849bfd7c048a961b5ac93c46fc0714e1cd898c06a79310894882"
+      "manifestSha256": "c3bc267eb646849bfd7c048a961b5ac93c46fc0714e1cd898c06a79310894882",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
       "version": "0.4.0",
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.4.0/manifest.json",
-      "manifestSha256": "4fa7847685bec03cc0569629e22e3670662f82f8a4d1faf837076bf66e618ee6"
+      "manifestSha256": "4fa7847685bec03cc0569629e22e3670662f82f8a4d1faf837076bf66e618ee6",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
       "version": "0.4.1",
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.4.1/manifest.json",
-      "manifestSha256": "28fc5bfa6a4c8fca40b14e11f75d84f5857896a74fc28fa1b0f645aa6062a8a6"
+      "manifestSha256": "28fc5bfa6a4c8fca40b14e11f75d84f5857896a74fc28fa1b0f645aa6062a8a6",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
       "version": "0.5.0",
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.5.0/manifest.json",
-      "manifestSha256": "5d0ed45aa9c9b3bc663417c7963dde7ccea4d0e5a832335d579e624dd2352bbb"
+      "manifestSha256": "5d0ed45aa9c9b3bc663417c7963dde7ccea4d0e5a832335d579e624dd2352bbb",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
       "version": "0.5.1",
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.5.1/manifest.json",
-      "manifestSha256": "486b17c9267c4dda6bd1bdfc2a4b389bbc2d11bc978561f2e79ef578ecbbb8a9"
+      "manifestSha256": "486b17c9267c4dda6bd1bdfc2a4b389bbc2d11bc978561f2e79ef578ecbbb8a9",
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
@@ -611,7 +717,7 @@
         }
       },
       "status": "retired",
-      "retirementReason": "Intermediate shared-runtime migration release; superseded by the verified +pt1 compatibility release."
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
@@ -624,7 +730,9 @@
           "mode": "per-player",
           "maxViewports": 4
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
@@ -637,7 +745,9 @@
           "mode": "per-player",
           "maxViewports": 4
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
@@ -650,7 +760,9 @@
           "mode": "per-player",
           "maxViewports": 4
         }
-      }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
       "gameId": "turbo-circuit",
@@ -658,6 +770,36 @@
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.7.0/manifest.json",
       "manifestSha256": "4de9605490030f374615bc6a365fc1fb10517e6c07e316ccb34e05be3b3017a9",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      },
+      "status": "retired",
+      "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.8.0",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.8.0/manifest.json",
+      "manifestSha256": "48fd7cef2f00b8503a33d9973bcefa63dde330b0e0c7438b74b25fd810c28a18",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      },
+      "status": "retired",
+      "retirementReason": "Superseded by the engine-ABI-compatible Turbo Circuit 0.8.1 release."
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.8.1",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.8.1/manifest.json",
+      "manifestSha256": "71ed0fc4af2f64bf491fdaef454e3c0b37b664124dc64fe9aa1545c8f9f7fa87",
       "presentation": {
         "remoteDisplay": {
           "mode": "per-player",

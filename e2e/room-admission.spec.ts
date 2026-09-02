@@ -4,10 +4,10 @@ import {
   createRoom,
   expectGameFrame,
   expectPregame,
-  pong,
   signUp,
   signUpAtCurrentLocation,
   startGame,
+  turboCircuit,
   useStick,
 } from "./support/multiplayer";
 
@@ -26,14 +26,14 @@ test("QR join, password rooms, shared display and mobile modes respect the pre-g
     const publicRoomName = `Public ${runId}`;
     const publicCode = await createRoom(host, {
       name: publicRoomName,
-      gameKey: pong,
+      gameKey: turboCircuit,
       maxPlayers: 2,
       visibility: "public",
     });
 
     await host.getByRole("button", { name: /^Remote/ }).click();
     await expectPregame(host);
-    await expect(host.getByRole("heading", { name: "Pong Together" })).toBeVisible();
+    await expect(host.getByRole("heading", { name: "Turbo Circuit" })).toBeVisible();
     await expect(host.locator(".pregame-menu__settings")).toContainText(
       "Remote party · auto shared/split",
     );
@@ -87,12 +87,10 @@ test("QR join, password rooms, shared display and mobile modes respect the pre-g
     expect(viewportFit.frame.height).toBeCloseTo(viewportFit.innerHeight, 0);
 
     const remoteFrame = guest.frameLocator("iframe.game-frame");
-    await expect(
-      remoteFrame.locator(".console-shell--remote.console-shell--classic"),
-    ).toBeVisible();
+    await expect(remoteFrame.locator(".console-shell--remote.console-shell--racing")).toBeVisible();
     await expect(remoteFrame.locator(".console-shell__screen")).toHaveCount(0);
     await expect(remoteFrame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible();
-    await useStick(guest, remoteFrame, "move", 0, -0.85, 250);
+    await useStick(guest, remoteFrame, "steer", 0, -0.85, 250);
     // `rooms` in realtime health is deliberately instance-local. In managed/serverless
     // deployments a separate health request may land on another healthy replica and
     // report zero rooms, so assert the user-visible distributed session remains live.
@@ -107,7 +105,7 @@ test("QR join, password rooms, shared display and mobile modes respect the pre-g
     const privateRoomName = `Private ${runId}`;
     const privateCode = await createRoom(host, {
       name: privateRoomName,
-      gameKey: pong,
+      gameKey: turboCircuit,
       maxPlayers: 2,
       visibility: "private",
       roomPassword: "RoomPass42",
@@ -134,7 +132,7 @@ test("QR join, password rooms, shared display and mobile modes respect the pre-g
     const controller = handheldFrame.locator('.builtin-controller[data-renderer="builtin"]');
     await expect(controller).toBeVisible();
     await expect(handheldFrame.locator("canvas")).toBeVisible();
-    await expect(handheldFrame.locator('[data-control-id="move"]')).toBeVisible();
+    await expect(handheldFrame.locator('[data-control-id="steer"]')).toBeVisible();
     await guest.screenshot({ path: testInfo.outputPath("handheld-portrait.png"), fullPage: true });
 
     await guest.setViewportSize({ width: 844, height: 390 });
