@@ -27,8 +27,8 @@ export class RedisReleaseControl implements ReleaseControl {
     if (this.#started) return;
     // Connect sequentially so a cold serverless instance does not burst two
     // new managed-Redis handshakes at the same instant.
-    await waitForRedisReady(this.#commands);
-    await waitForRedisReady(this.#subscriber);
+    await releaseControlStage("commands-ready", () => waitForRedisReady(this.#commands));
+    await releaseControlStage("subscriber-ready", () => waitForRedisReady(this.#subscriber));
     this.#subscriber.on("message", (channel, encoded) => {
       if (
         channel !== RELEASE_CONTROL_CHANNEL ||
@@ -38,10 +38,14 @@ export class RedisReleaseControl implements ReleaseControl {
       const event = parseEvent(encoded);
       if (event) listener(event);
     });
-    await this.#subscriber.subscribe(RELEASE_CONTROL_CHANNEL);
+    await releaseControlStage("subscribe", () =>
+      this.#subscriber.subscribe(RELEASE_CONTROL_CHANNEL),
+    );
     this.#started = true;
 
-    const blocked = await this.#commands.smembers(BLOCKED_RELEASES_KEY);
+    const blocked = await releaseControlStage("blocked-read", () =>
+      this.#commands.smembers(BLOCKED_RELEASES_KEY),
+    );
     const changedAt = Date.now();
     for (const encoded of blocked) {
       const identity = parseReleaseIdentity(encoded);
@@ -55,6 +59,32 @@ export class RedisReleaseControl implements ReleaseControl {
     if (this.#started)
       await this.#subscriber.unsubscribe(RELEASE_CONTROL_CHANNEL).catch(() => undefined);
     await Promise.all([closeRedis(this.#subscriber), closeRedis(this.#commands)]);
+  }
+}
+
+async function releaseControlStage<T>(stage: string, action: () => Promise<T>): Promise<T> {
+  try {
+    return await action();
+  } catch (error) {
+    console.warn(
+      JSON.stringify({
+        event: "redis_release_control_start_failed",
+        stage,
+        name: error instanceof Error ? error.name : "Error",
+        code: error instanceof Error && "code" in error ? String(error.code) : null,
+      }),
+    );
+    throw new RedisReleaseControlStartError(stage, error);
+  }
+}
+
+export class RedisReleaseControlStartError extends Error {
+  readonly stage: string;
+
+  constructor(stage: string, cause: unknown) {
+    super("Redis release control startup failed", { cause });
+    this.name = "RedisReleaseControlStartError";
+    this.stage = stage;
   }
 }
 

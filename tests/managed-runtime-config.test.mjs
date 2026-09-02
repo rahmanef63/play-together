@@ -17,6 +17,7 @@ describe("managed Vercel runtime configuration", () => {
     expect(runtimeManifest.entry).toBe("../apps/realtime/dist/index.js");
     expect(realtimeAdapter).toContain("./realtime-runtime.json");
     expect(realtimeAdapter).toContain("await import(runtimeManifest.entry)");
+    expect(realtimeAdapter).toContain("await gateway.ready()");
     expect(realtimeAdapter).not.toContain("apps/realtime/src/");
     expect(realtimeAdapter).not.toContain("../apps/realtime/dist/index.js");
     expect(vercel.rewrites).toContainEqual({

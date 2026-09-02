@@ -19,5 +19,6 @@ const environment = {
 };
 
 const gateway = createGateway(loadConfig(environment));
+await gateway.ready();
 
 export default gateway.server;

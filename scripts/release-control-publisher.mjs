@@ -4,7 +4,7 @@ import {
   RELEASE_CONTROL_CHANNEL,
   releaseControlEventSchema,
 } from "@play-together/contracts";
-import Redis from "ioredis";
+import { createClient } from "redis";
 
 const RELEASE_CONTROL_SCRIPT = `
 local changed
@@ -27,11 +27,17 @@ export class ReleaseControlPublisher {
   }
 
   static async connect(url) {
-    const client = new Redis(url, {
-      lazyConnect: true,
-      maxRetriesPerRequest: null,
-      enableReadyCheck: true,
-      retryStrategy: (attempt) => Math.min(200 * attempt, 5_000),
+    const client = createClient({
+      url,
+      socket: { reconnectStrategy: (retries) => Math.min(200 * (retries + 1), 5_000) },
+    });
+    client.on("error", (error) => {
+      console.warn(
+        JSON.stringify({
+          event: "redis_connection_error",
+          code: error instanceof Error && "code" in error ? String(error.code) : "REDIS_ERROR",
+        }),
+      );
     });
     await client.connect();
     return new ReleaseControlPublisher(client);
@@ -51,20 +57,15 @@ export class ReleaseControlPublisher {
       status,
       changedAt: Date.now(),
     });
-    const changed = await this.readonlyClient.eval(
-      RELEASE_CONTROL_SCRIPT,
-      2,
-      BLOCKED_RELEASES_KEY,
-      RELEASE_CONTROL_CHANNEL,
-      member,
-      status,
-      JSON.stringify(event),
-    );
+    const changed = await this.readonlyClient.eval(RELEASE_CONTROL_SCRIPT, {
+      keys: [BLOCKED_RELEASES_KEY, RELEASE_CONTROL_CHANNEL],
+      arguments: [member, status, JSON.stringify(event)],
+    });
     return Number(changed) === 1;
   }
 
   async close() {
-    if (this.readonlyClient.status === "wait" || this.readonlyClient.status === "end") return;
-    await this.readonlyClient.quit().catch(() => this.readonlyClient.disconnect());
+    if (!this.readonlyClient.isOpen) return;
+    await this.readonlyClient.quit().catch(() => this.readonlyClient.destroy());
   }
 }

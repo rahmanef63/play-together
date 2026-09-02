@@ -9,6 +9,7 @@ interface RealtimeHttpOptions {
   metrics: RealtimeMetrics;
   distributed: boolean;
   controlState: () => "disabled" | "starting" | "ready" | "failed";
+  controlFailureStage: () => string | null;
 }
 
 export function createRealtimeHttpHandler(options: RealtimeHttpOptions): RequestListener {
@@ -24,6 +25,9 @@ export function createRealtimeHttpHandler(options: RealtimeHttpOptions): Request
       rooms: options.rooms.size,
       coordination: options.distributed ? "distributed" : "local",
       releaseControl,
+      ...(releaseControl === "failed"
+        ? { releaseControlFailureStage: options.controlFailureStage() }
+        : {}),
       blockedReleases: options.rooms.blockedReleaseCount,
       observability: options.metrics.snapshot({
         rooms: options.rooms.size,

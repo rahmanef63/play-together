@@ -3,7 +3,10 @@ import { pathToFileURL } from "node:url";
 import { type GatewayConfig, loadConfig } from "./config.js";
 import { GameModuleStore } from "./features/modules/module-store.js";
 import { RealtimeMetrics } from "./features/observability/realtime-metrics.js";
-import { RedisReleaseControl } from "./features/releases/redis-release-control.js";
+import {
+  RedisReleaseControl,
+  RedisReleaseControlStartError,
+} from "./features/releases/redis-release-control.js";
 import type { ReleaseControl } from "./features/releases/release-control.js";
 import { RedisRoomCoordinator } from "./features/rooms/redis-room-coordinator.js";
 import type { RoomCoordinator } from "./features/rooms/room-coordinator.js";
@@ -21,6 +24,7 @@ export interface GatewayOptions {
 
 export interface GatewayHandle {
   server: Server;
+  ready(): Promise<void>;
   listen(): Promise<{ host: string; port: number }>;
   close(): Promise<void>;
   roomCount(): number;
@@ -60,6 +64,7 @@ export function createGateway(config: GatewayConfig, options: GatewayOptions = {
   let controlState: "disabled" | "starting" | "ready" | "failed" = releaseControl
     ? "starting"
     : "disabled";
+  let controlFailureStage: string | null = null;
   const releaseControlReady = releaseControl
     ? releaseControl
         .start((event) => {
@@ -82,6 +87,8 @@ export function createGateway(config: GatewayConfig, options: GatewayOptions = {
           },
           (error) => {
             controlState = "failed";
+            controlFailureStage =
+              error instanceof RedisReleaseControlStartError ? error.stage : "unknown";
             throw error;
           },
         )
@@ -109,6 +116,7 @@ export function createGateway(config: GatewayConfig, options: GatewayOptions = {
       metrics,
       distributed: Boolean(roomCoordinator),
       controlState: () => controlState,
+      controlFailureStage: () => controlFailureStage,
     }),
   );
   const websocketServer = attachWebSocketGateway({
@@ -122,6 +130,9 @@ export function createGateway(config: GatewayConfig, options: GatewayOptions = {
   return {
     server,
     roomCount: () => rooms.size,
+    ready: async () => {
+      await releaseControlReady;
+    },
     listen: async () => {
       await releaseControlReady;
       return new Promise((resolve, reject) => {

@@ -13,7 +13,7 @@ class FakeRedis extends EventEmitter {
 }
 
 describe("waitForRedisReady", () => {
-  it("survives an initial connect rejection when ioredis later becomes ready", async () => {
+  it("survives an initial connect rejection when the client later becomes ready", async () => {
     const client = new FakeRedis();
     const ready = waitForRedisReady(client as never, 1_000);
     await vi.waitFor(() => expect(client.status).toBe("reconnecting"));

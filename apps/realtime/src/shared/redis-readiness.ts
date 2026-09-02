@@ -46,8 +46,8 @@ export async function waitForRedisReady(
       return;
     }
     if (client.status === "wait") {
-      // ioredis may reject this first connect promise while its retryStrategy
-      // correctly keeps the client in `reconnecting`. Readiness is event-owned.
+      // A managed Redis client may reject an initial connect attempt while its
+      // reconnect policy continues asynchronously. Readiness is event-owned.
       void client.connect().catch((error) => {
         lastError = error;
       });

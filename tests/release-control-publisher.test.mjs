@@ -7,7 +7,9 @@ class FakeRedis {
   status = "ready";
   blocked = new Set();
   published = [];
-  async eval(_script, _keys, _blockedKey, channel, value, status, encodedEvent) {
+  async eval(_script, { keys, arguments: args }) {
+    const [, channel] = keys;
+    const [value, status, encodedEvent] = args;
     const changed =
       status === "blocked"
         ? this.blocked.has(value)

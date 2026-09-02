@@ -75,7 +75,7 @@ The distributed path is intentionally transient:
 - Redis stores short-lived connection leases and carries validated room presence, controller input, and authority snapshots between Function replicas. It also holds a transient set of exact blocked-release identities and a release-control Pub/Sub channel so emergency policy propagates to already-live sessions; Convex/catalog policy remains durable SSOT.
 - Every replica runs the same deterministic server game worker, but authority election prefers a display/handheld replica and only that replica publishes snapshots. Other replicas consume that snapshot stream for their locally connected sockets.
 - Browser heartbeats refresh Redis connection leases. Stale entries expire automatically and coordinator failure is fatal to the affected room instead of silently falling back to divergent local state.
-- Fresh serverless instances wait for the managed Redis client `ready` event across transient reconnects instead of treating the first TCP handshake rejection as permanent. Release control remains fail-closed: WebSocket upgrades are rejected until the blocked-release subscriber is ready.
+- Fresh serverless instances use the official `redis` client recommended by the Vercel Redis integration. The Vercel adapter awaits `gateway.ready()` during module initialization, so Redis release-control bootstrap completes inside the cold-start lifecycle instead of being left as background work that the serverless runtime may freeze. Release control remains fail-closed: the Function is not exported until the blocked-release subscriber is ready, and WebSocket upgrades remain gated by the same readiness promise.
 
 Production requirements:
 
