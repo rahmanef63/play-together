@@ -42,7 +42,9 @@ test("all active 3D cartridges expose distinct shared-console controls and live 
         const turbo = frame.locator(".turbo-circuit");
         const carName = frame.locator(".turbo-setup__card--car .turbo-setup__name");
         const trackName = frame.locator(".turbo-setup__card--circuit .turbo-setup__name");
-        await expect(frame.locator('[data-asset-state="ready"]')).toBeVisible({ timeout: 20_000 });
+        await expect(frame.locator('[data-asset-state="procedural"]')).toBeVisible({
+          timeout: 20_000,
+        });
         await expect(trackName).toContainText("Neo Metro Circuit");
         await expect(carName).toContainText("Falcon R");
         await expect(frame.locator(".turbo-setup__mode")).toContainText("MANUAL THROTTLE");
@@ -55,6 +57,18 @@ test("all active 3D cartridges expose distinct shared-console controls and live 
         await expect(frame.getByRole("button", { name: "Cycle camera" })).toBeVisible();
         await expect(frame.getByRole("button", { name: "Rescue kart to track" })).toBeVisible();
         await expect(frame.getByRole("button", { name: "Hold rear view" })).toBeVisible();
+        const sound = frame.getByRole("button", { name: "Toggle race sound" });
+        await expect(sound).toHaveText("SOUND ON");
+        await sound.click();
+        await expect(sound).toHaveText("SOUND OFF");
+        await sound.click();
+        await expect(sound).toHaveText("SOUND ON");
+        const minimap = frame.getByRole("button", { name: "Toggle race map size" });
+        await expect(minimap).toHaveAttribute("data-expanded", "false");
+        await minimap.click();
+        await expect(minimap).toHaveAttribute("data-expanded", "true");
+        await minimap.press("Enter");
+        await expect(minimap).toHaveAttribute("data-expanded", "false");
         await useStick(page, frame, "steer", 0.9, 0, 120);
         await expect(turbo).toHaveAttribute("data-car", "comet-gt");
         await useStick(page, frame, "steer", 0, 0.9, 120);

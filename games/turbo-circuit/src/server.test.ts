@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createServerGame } from "./server.js";
 
-const ctx = { roomId: "r", gameId: "turbo-circuit", gameVersion: "0.8.0", seed: 7 };
+const ctx = { roomId: "r", gameId: "turbo-circuit", gameVersion: "0.9.0", seed: 7 };
 async function startSolo(seed = 7) {
   const game = await createServerGame({ ...ctx, seed });
   await game.onJoin({ id: "p", connectedAt: 0 });
@@ -74,6 +74,8 @@ describe("Turbo Circuit kart migration", () => {
     }
     await game.onInput("p", { action: "rescue" }, 3);
     expect(me(game).rescueCooldown).toBeGreaterThan(2);
+    expect(me(game).invulnerableTimer).toBeGreaterThan(2);
+    expect(me(game).wrongWay).toBe(false);
     expect(me(game).speed).toBe(0);
   });
   it("keeps CPU behavior bounded and non-uniform", async () => {

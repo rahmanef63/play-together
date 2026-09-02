@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "turbo-circuit",
-    "version": "0.9.1",
+    "version": "0.9.0",
     "title": "Turbo Circuit",
     "description": "Server-authoritative multiplayer kart racing with procedural 3D tracks, dynamic game audio, drift mini-turbos, drafting, coins, items, hazards and four camera modes.",
     "minPlayers": 1,
@@ -11,15 +11,12 @@
     "tickRate": 60,
     "snapshotRate": 20
   },
-  "modes": ["shared-screen", "handheld"],
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
   "runtimeDependencies": {
     "three": "0.185.1+pt1"
-  },
-  "presentation": {
-    "remoteDisplay": {
-      "mode": "per-player",
-      "maxViewports": 4
-    }
   },
   "controller": {
     "supportsRemote": true,
@@ -49,10 +46,20 @@
             }
           },
           "keys": {
-            "left": ["ArrowLeft", "KeyA"],
-            "right": ["ArrowRight", "KeyD"],
-            "up": ["KeyW"],
-            "down": ["KeyS"]
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ],
+            "up": [
+              "KeyW"
+            ],
+            "down": [
+              "KeyS"
+            ]
           }
         },
         {
@@ -75,7 +82,10 @@
               "brake": 0
             }
           },
-          "keys": ["ArrowDown", "KeyS"]
+          "keys": [
+            "ArrowDown",
+            "KeyS"
+          ]
         },
         {
           "id": "rear-view",
@@ -97,7 +107,9 @@
               "rearView": false
             }
           },
-          "keys": ["KeyB"]
+          "keys": [
+            "KeyB"
+          ]
         },
         {
           "id": "throttle",
@@ -119,13 +131,16 @@
               "throttle": 0
             }
           },
-          "keys": ["ArrowUp", "KeyW"]
+          "keys": [
+            "ArrowUp",
+            "KeyW"
+          ]
         },
         {
           "id": "item-back",
           "kind": "button",
           "label": "R1",
-          "displayLabel": "ITEM \u2193",
+          "displayLabel": "ITEM ↓",
           "ariaLabel": "Use item backward",
           "face": "r1",
           "zone": "top-right",
@@ -136,7 +151,9 @@
               "direction": "backward"
             }
           },
-          "keys": ["KeyF"]
+          "keys": [
+            "KeyF"
+          ]
         },
         {
           "id": "item",
@@ -153,7 +170,10 @@
               "direction": "forward"
             }
           },
-          "keys": ["Space", "Enter"]
+          "keys": [
+            "Space",
+            "Enter"
+          ]
         },
         {
           "id": "drift",
@@ -175,7 +195,10 @@
               "drift": false
             }
           },
-          "keys": ["ShiftLeft", "ShiftRight"]
+          "keys": [
+            "ShiftLeft",
+            "ShiftRight"
+          ]
         },
         {
           "id": "camera",
@@ -191,7 +214,10 @@
               "action": "camera"
             }
           },
-          "keys": ["KeyC", "KeyV"]
+          "keys": [
+            "KeyC",
+            "KeyV"
+          ]
         },
         {
           "id": "rescue",
@@ -207,7 +233,9 @@
               "action": "rescue"
             }
           },
-          "keys": ["KeyR"]
+          "keys": [
+            "KeyR"
+          ]
         },
         {
           "id": "start",
@@ -223,7 +251,9 @@
               "action": "ready"
             }
           },
-          "keys": ["KeyG"]
+          "keys": [
+            "KeyG"
+          ]
         },
         {
           "id": "pause",
@@ -238,7 +268,10 @@
               "action": "pause"
             }
           },
-          "keys": ["Escape", "KeyP"]
+          "keys": [
+            "Escape",
+            "KeyP"
+          ]
         }
       ],
       "initialState": {
@@ -256,5 +289,15 @@
     "keyboard": true,
     "gamepad": false,
     "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "0984d197f5d2a867f2d438edcd2c78ce14b575bb5e0afcbc42061e3a6f3a7885"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "8728c03f44f52e49f14ff15ab0b6e45d56ef19dd4b3e21cca9d309cf192a8d9b"
+    }
   }
 }

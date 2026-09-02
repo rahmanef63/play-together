@@ -23,3 +23,24 @@ export function cardKicker(label: string, hint: string) {
   row.append(key, value);
   return row;
 }
+
+export function soundButton() {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "turbo-sound";
+  button.setAttribute("aria-label", "Toggle race sound");
+  return button;
+}
+
+export function speedometer() {
+  const speed = document.createElement("div");
+  speed.className = "turbo-speedometer";
+  const speedNeedle = document.createElement("span");
+  speedNeedle.className = "turbo-speedometer__needle";
+  const speedValue = document.createElement("strong");
+  speedValue.className = "turbo-speedometer__value";
+  const kmh = document.createElement("small");
+  kmh.textContent = "KM/H";
+  speed.append(speedNeedle, speedValue, kmh);
+  return { speed, speedNeedle, speedValue };
+}

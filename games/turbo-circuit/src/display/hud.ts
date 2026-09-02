@@ -1,5 +1,5 @@
 import { COCKPIT_CSS, type CockpitHud, createCockpitHud } from "./cockpitHud.js";
-import { cardKicker, createTrackSvg, layer } from "./hudElements.js";
+import { cardKicker, createTrackSvg, layer, soundButton, speedometer } from "./hudElements.js";
 import { TURBO_HUD_CSS } from "./hudStyles.js";
 
 export interface TurboHud {
@@ -31,6 +31,7 @@ export interface TurboHud {
   resultsBody: HTMLElement;
   wrongWay: HTMLElement;
   pause: HTMLElement;
+  sound: HTMLButtonElement;
   cockpit: CockpitHud;
 }
 
@@ -50,17 +51,10 @@ ${COCKPIT_CSS}`;
   wrongWay.textContent = "WRONG WAY";
   const pause = layer("turbo-pause");
   pause.textContent = "PAUSED";
+  const sound = soundButton();
   const cockpit = createCockpitHud();
 
-  const speed = document.createElement("div");
-  speed.className = "turbo-speedometer";
-  const speedNeedle = document.createElement("span");
-  speedNeedle.className = "turbo-speedometer__needle";
-  const speedValue = document.createElement("strong");
-  speedValue.className = "turbo-speedometer__value";
-  const kmh = document.createElement("small");
-  kmh.textContent = "KM/H";
-  speed.append(speedNeedle, speedValue, kmh);
+  const { speed, speedNeedle, speedValue } = speedometer();
 
   const nitro = layer("turbo-nitro");
   const minimap = document.createElement("div");
@@ -147,7 +141,7 @@ ${COCKPIT_CSS}`;
   const resultsBody = document.createElement("div");
   resultsBody.className = "turbo-results__body";
   const resultsHelp = document.createElement("p");
-  resultsHelp.textContent = "ROOM → MENU TO RACE AGAIN";
+  resultsHelp.textContent = "START = READY FOR REMATCH · ROOM = EXIT";
   results.append(resultsTitle, resultsBody, resultsHelp);
 
   host.append(
@@ -158,6 +152,7 @@ ${COCKPIT_CSS}`;
     cameraBadge,
     wrongWay,
     pause,
+    sound,
     speed,
     nitro,
     minimap,
@@ -195,6 +190,7 @@ ${COCKPIT_CSS}`;
     resultsBody,
     wrongWay,
     pause,
+    sound,
     cockpit,
   };
 }

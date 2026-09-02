@@ -335,9 +335,9 @@
     },
     {
       "id": "turbo-circuit",
-      "version": "0.8.1",
+      "version": "0.9.1",
       "title": "Turbo Circuit",
-      "description": "A server-authoritative 3D kart racer with manual throttle, drifting and mini-turbos, slipstream drafting, boost pads, coins, item boxes, hazards, rescue, four camera modes and CPU rivals.",
+      "description": "Server-authoritative multiplayer kart racing with procedural 3D tracks, dynamic game audio, drift mini-turbos, drafting, coins, items, hazards and four camera modes.",
       "modes": ["shared-screen", "handheld"],
       "capabilities": {
         "touch": true,

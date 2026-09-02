@@ -1,7 +1,7 @@
 import type { ControllerMode } from "@play-together/contracts";
 import * as THREE from "three";
 import { trackById } from "../shared/catalog.js";
-import { nearestTrackPoint } from "../shared/trackMath.js";
+import { applyCameraJuice } from "./cameraJuice.js";
 import { type CameraState, updateCameraView } from "./cameraViews.js";
 import { updateCockpitHud } from "./cockpitHud.js";
 import { updateGarageHud } from "./garagePresenter.js";
@@ -21,8 +21,11 @@ export function updateCameraAndHud(
   hud: TurboHud,
 ) {
   if (state.phase === "setup") setupCamera(camera, cameraState, dt);
-  else updateCameraView(me, pose, camera, cameraState, dt, mode);
-  updateHud(state, me, pose, hud);
+  else {
+    updateCameraView(me, pose, camera, cameraState, dt, mode);
+    applyCameraJuice(me, camera, performance.now());
+  }
+  updateHud(state, me, hud);
 }
 function setupCamera(camera: THREE.PerspectiveCamera, state: CameraState, dt: number) {
   const desired = new THREE.Vector3(0, 88, 88),
@@ -35,7 +38,7 @@ function setupCamera(camera: THREE.PerspectiveCamera, state: CameraState, dt: nu
   camera.lookAt(state.target);
   state.ready = true;
 }
-function updateHud(state: TurboState, me: Racer, pose: RacerPose, hud: TurboHud) {
+function updateHud(state: TurboState, me: Racer, hud: TurboHud) {
   const track = trackById(state.trackId),
     inSetup = state.phase === "setup";
   hud.host.dataset.phase = state.phase;
@@ -91,9 +94,12 @@ function updateHud(state: TurboState, me: Racer, pose: RacerPose, hud: TurboHud)
         : state.phase === "finished"
           ? `FINISH · P${position}`
           : `LAP ${Math.min(me.lap + 1, state.lapsToWin)}/${state.lapsToWin} · P${position}/${state.racers.length} · ${formatTime(state.raceMs)}`;
-  const nearest = nearestTrackPoint(track, pose.x, pose.z),
-    alignment = Math.cos(pose.heading - nearest.heading);
-  hud.wrongWay.style.opacity = me.speed > 7 && alignment < -0.25 ? "1" : "0";
+  hud.wrongWay.style.opacity = me.wrongWay ? "1" : "0";
+  hud.host.dataset.wrongWay = String(me.wrongWay);
+  hud.host.dataset.scraping = String(me.scraping);
+  hud.host.dataset.drafting = String(me.drafting);
+  hud.host.dataset.driftTier = String(me.driftTier);
+  hud.host.dataset.invulnerable = String(me.invulnerableTimer > 0);
 }
 function formatTime(ms: number) {
   const total = Math.max(0, ms) / 1000,

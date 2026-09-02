@@ -25,7 +25,11 @@ export interface Racer {
   draftTimer: number;
   drafting: boolean;
   spinTimer: number;
+  invulnerableTimer: number;
   rescueCooldown: number;
+  scraping: boolean;
+  wrongWay: boolean;
+  wrongWayTimer: number;
   finished: boolean;
   finishMs: number | null;
 }
@@ -47,6 +51,7 @@ export interface WorldItem {
   ownerId: string;
   ttlMs: number;
   armMs: number;
+  bounces: number;
 }
 export interface TurboState {
   kind: "turbo-circuit";

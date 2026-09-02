@@ -15,6 +15,7 @@ import {
   type RaceState,
   resolveRacerCollisions,
 } from "./server/raceModel.js";
+import { finishRaceIfComplete, requestRematch } from "./server/rematch.js";
 import { applySetupInput, resetGrid } from "./server/setup.js";
 import { CARS, DEFAULT_CAR, DEFAULT_TRACK } from "./shared/catalog.js";
 import { trackCheckpoints } from "./shared/trackMath.js";
@@ -66,7 +67,14 @@ class TurboCircuit implements ServerGame {
     const beforeTrack = this.#s.trackId,
       action = applyControlPatch(racer, payload);
     if (action?.type === "ready" && this.#s.phase === "setup") racer.ready = true;
-    else if (action?.type === "camera") racer.cameraMode = nextCamera(racer.cameraMode);
+    else if (
+      action?.type === "ready" &&
+      this.#s.phase === "finished" &&
+      requestRematch(this.#s, racer)
+    ) {
+      this.#clock = 0;
+      this.#readyClock = 0;
+    } else if (action?.type === "camera") racer.cameraMode = nextCamera(racer.cameraMode);
     else if (action?.type === "rescue" && this.#s.phase === "racing") rescueRacer(racer, this.#s);
     else if (action?.type === "item" && this.#s.phase === "racing")
       useHeldItem(this.#s, racer, action.direction);
@@ -108,8 +116,7 @@ class TurboCircuit implements ServerGame {
     }
     updateWorldItems(this.#s, ms);
     resolveRacerCollisions(this.#s.racers);
-    const humans = this.#s.racers.filter((r) => !r.bot);
-    if (humans.length > 0 && humans.every((r) => r.finished)) this.#s.phase = "finished";
+    finishRaceIfComplete(this.#s);
   }
   #tickSetup(ms: number) {
     const humans = this.#s.racers.filter((r) => !r.bot);
@@ -166,7 +173,11 @@ class TurboCircuit implements ServerGame {
       draftTimer: 0,
       drafting: false,
       spinTimer: 0,
+      invulnerableTimer: 0,
       rescueCooldown: 0,
+      scraping: false,
+      wrongWay: false,
+      wrongWayTimer: 0,
       menuXActive: false,
       menuYActive: false,
       input: emptyInput(),

@@ -46,6 +46,21 @@ export function nearestTrackPoint(track: TrackSpec, x: number, z: number) {
   }
   return { ...best, distance };
 }
+export function trackCorridorInfo(track: TrackSpec, x: number, z: number) {
+  const near = nearestTrackPoint(track, x, z),
+    rightX = Math.cos(near.heading),
+    rightZ = -Math.sin(near.heading),
+    dx = x - near.x,
+    dz = z - near.z;
+  return {
+    ...near,
+    rightX,
+    rightZ,
+    lateral: dx * rightX + dz * rightZ,
+    forwardX: Math.sin(near.heading),
+    forwardZ: Math.cos(near.heading),
+  };
+}
 export function trackCheckpoints(track: TrackSpec, count = 12) {
   const points = sampleTrack(track);
   return Array.from({ length: count }, (_, index) => {

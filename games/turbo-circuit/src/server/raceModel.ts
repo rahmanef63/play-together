@@ -44,7 +44,11 @@ export interface Racer {
   draftTimer: number;
   drafting: boolean;
   spinTimer: number;
+  invulnerableTimer: number;
   rescueCooldown: number;
+  scraping: boolean;
+  wrongWay: boolean;
+  wrongWayTimer: number;
   menuXActive: boolean;
   menuYActive: boolean;
   input: InputState;
@@ -68,6 +72,7 @@ export interface WorldItem {
   ownerId: string;
   ttlMs: number;
   armMs: number;
+  bounces: number;
 }
 export interface RaceState {
   kind: "turbo-circuit";

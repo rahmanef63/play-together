@@ -805,6 +805,36 @@
           "mode": "per-player",
           "maxViewports": 4
         }
+      },
+      "status": "retired",
+      "retirementReason": "Superseded by Turbo Circuit 0.9.0 full procedural 3D/audio adaptation."
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.9.0",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.9.0/manifest.json",
+      "manifestSha256": "aad18cf84eed4e1bb8086480d25a4ecdf4d373abc355130fa9ae8b72fb06f075",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      },
+      "status": "retired",
+      "retirementReason": "Intermediate immutable build superseded by Turbo Circuit 0.9.1 after expandable minimap integration."
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.9.1",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.9.1/manifest.json",
+      "manifestSha256": "1928e1a0d3d3eb1d711d5951775d65e250bf1e9645282302e1ca23fd9f853d92",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
       }
     }
   ]

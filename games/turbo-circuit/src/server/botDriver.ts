@@ -33,7 +33,11 @@ export function createBot(index: number, seed: number, trackId: string): Racer {
     draftTimer: 0,
     drafting: false,
     spinTimer: 0,
+    invulnerableTimer: 0,
     rescueCooldown: 0,
+    scraping: false,
+    wrongWay: false,
+    wrongWayTimer: 0,
     menuXActive: false,
     menuYActive: false,
     input: emptyInput(),
@@ -56,6 +60,10 @@ export function updateBotDriver(racer: Racer, state: RaceState, dt: number) {
     near = nearestTrackPoint(track, racer.x, racer.z);
   racer.boostTimer = Math.max(0, racer.boostTimer - dt);
   racer.spinTimer = Math.max(0, racer.spinTimer - dt);
+  racer.invulnerableTimer = Math.max(0, racer.invulnerableTimer - dt);
+  racer.scraping = false;
+  racer.wrongWay = false;
+  racer.wrongWayTimer = 0;
   if (racer.spinTimer > 0) {
     racer.heading += 9 * dt;
     racer.speed *= Math.max(0.2, 1 - 2 * dt);
@@ -89,7 +97,8 @@ export function updateBotDriver(racer: Racer, state: RaceState, dt: number) {
   );
   const targetSpeed =
     car.topSpeed * (0.7 + brain.skill * 0.23) * (1 - clamp(curve * 0.45, 0, 0.3)) +
-    (brain.chaos - 0.5) * 5;
+    (brain.chaos - 0.5) * 5 +
+    rubberBandBonus(racer, state, samples, near.index);
   const wantsBoost = brain.chaos > 0.9 && curve < 0.13 && racer.speed > 15;
   racer.boostTimer = wantsBoost ? Math.max(racer.boostTimer, 0.7) : racer.boostTimer;
   const accel = racer.speed < targetSpeed ? car.accel * 0.78 : -car.braking * 0.34;
@@ -108,6 +117,26 @@ export function updateBotDriver(racer: Racer, state: RaceState, dt: number) {
     racer.z += (after.z - racer.z) * 1.6 * dt;
     racer.speed *= 1 - 0.58 * dt;
   }
+}
+export function rubberBandBonus(
+  racer: Racer,
+  state: RaceState,
+  samples = sampleTrack(trackById(state.trackId)),
+  botIndex = nearestTrackPoint(trackById(state.trackId), racer.x, racer.z).index,
+) {
+  const humans = state.racers.filter((item) => !item.bot && !item.finished);
+  if (humans.length === 0 || samples.length === 0) return 0;
+  const botProgress = racer.lap + botIndex / samples.length,
+    leader = Math.max(
+      ...humans.map((human) => {
+        const index = nearestTrackPoint(trackById(state.trackId), human.x, human.z).index;
+        return human.lap + index / samples.length;
+      }),
+    ),
+    gap = leader - botProgress;
+  if (gap > 0.12) return clamp((gap - 0.12) * 16, 0, 12);
+  if (gap < -0.15) return clamp((gap + 0.15) * 10, -6, 0);
+  return 0;
 }
 function move(r: Racer, dt: number) {
   r.x += Math.sin(r.heading) * r.speed * dt;
