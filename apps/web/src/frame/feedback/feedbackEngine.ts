@@ -47,14 +47,29 @@ export class GameFeedbackEngine {
   }
 
   stop(): void {
-    if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate(0);
+    if (this.#canVibrate()) {
+      try {
+        navigator.vibrate(0);
+      } catch {
+        // Haptics are optional and must never interrupt teardown.
+      }
+    }
     if (!this.#audio) return;
     void this.#audio.close().catch(() => undefined);
     this.#audio = null;
   }
 
+  #canVibrate(): boolean {
+    if (!this.#unlocked || typeof navigator === "undefined" || !("vibrate" in navigator)) {
+      return false;
+    }
+    const activation = (navigator as Navigator & { userActivation?: { hasBeenActive: boolean } })
+      .userActivation;
+    return activation?.hasBeenActive ?? true;
+  }
+
   #vibrate(cue: FeedbackCue): void {
-    if (typeof navigator === "undefined" || !("vibrate" in navigator)) return;
+    if (!this.#canVibrate()) return;
     try {
       navigator.vibrate(VIBRATION[cue]);
     } catch {
