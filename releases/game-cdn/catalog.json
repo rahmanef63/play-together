@@ -835,6 +835,21 @@
           "mode": "per-player",
           "maxViewports": 4
         }
+      },
+      "status": "retired",
+      "retirementReason": "Superseded by Turbo Circuit 0.9.2 simplified phone remote mapping: A gas, B brake, X item, Y rear, Start ready/pause."
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.9.2",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.9.2/manifest.json",
+      "manifestSha256": "34b9783d1f470b93f449f38038006d1ddc412aaf7ed2b4678b110ea834941211",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
       }
     }
   ]

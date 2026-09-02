@@ -9,7 +9,7 @@ test("active catalog exposes only the car game and two aircraft games", async ({
     {
       key: turboCircuit,
       title: "Turbo Circuit",
-      control: "Ready and start race",
+      control: "Start ready or pause",
       preset: "racing",
     },
     { key: "sky-strike@0.2.6", title: "Sky Strike", control: "Fire cannon", preset: "flight" },
@@ -27,7 +27,7 @@ test("active catalog exposes only the car game and two aircraft games", async ({
     expect(await picker.allTextContents()).toEqual([
       "Flight Trainer · 0.2.6",
       "Sky Strike · 0.2.6",
-      "Turbo Circuit · 0.9.1",
+      "Turbo Circuit · 0.9.2",
     ]);
     const previews = page.locator(".game-picker img");
     await expect(previews).toHaveCount(3);

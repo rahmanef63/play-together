@@ -56,12 +56,11 @@ test("remote and shared screen recover after network interruption and keep accep
 
     const display = host.frameLocator("iframe.game-frame");
     const remote = guest.frameLocator("iframe.game-frame");
-    const camera = remote.getByRole("button", { name: "Cycle camera" });
+    const rear = remote.getByRole("button", { name: "Hold rear view" });
     const turbo = display.locator(".turbo-circuit");
     await expect(remote.locator(".console-controller-svg")).toBeVisible();
     await expect(turbo).toHaveAttribute("data-camera", "chase", { timeout: 20_000 });
-    await camera.click();
-    await expect(turbo).toHaveAttribute("data-camera", "wide");
+    await holdRearView(guest, rear, turbo);
 
     const guestSocketsBefore = guestRealtimeSockets;
     guestDropPong = true;
@@ -70,8 +69,7 @@ test("remote and shared screen recover after network interruption and keep accep
       .toBeGreaterThan(guestSocketsBefore);
     guestDropPong = false;
     await expect(guest.locator(".connection")).toHaveText("connected", { timeout: 25_000 });
-    await camera.click();
-    await expect(turbo).toHaveAttribute("data-camera", "driver", { timeout: 15_000 });
+    await holdRearView(guest, rear, turbo);
 
     const hostSocketsBefore = hostRealtimeSockets;
     hostDropPong = true;
@@ -80,8 +78,7 @@ test("remote and shared screen recover after network interruption and keep accep
       .toBeGreaterThan(hostSocketsBefore);
     hostDropPong = false;
     await expect(host.locator(".connection")).toHaveText("connected", { timeout: 25_000 });
-    await camera.click();
-    await expect(turbo).toHaveAttribute("data-camera", "bumper", { timeout: 15_000 });
+    await holdRearView(guest, rear, turbo);
     await expect(host.locator(".play-error")).toHaveCount(0);
     await expect(guest.locator(".play-error")).toHaveCount(0);
   } finally {
@@ -121,6 +118,18 @@ test("3D game frame self-recovers from a WebGL context loss without restarting t
     await closeContext(context);
   }
 });
+
+async function holdRearView(
+  page: import("@playwright/test").Page,
+  button: import("@playwright/test").Locator,
+  turbo: import("@playwright/test").Locator,
+) {
+  await button.hover();
+  await page.mouse.down();
+  await expect(turbo).toHaveAttribute("data-camera", "rear", { timeout: 10_000 });
+  await page.mouse.up();
+  await expect(turbo).toHaveAttribute("data-camera", "chase", { timeout: 10_000 });
+}
 
 function isHeartbeatPong(message: string | Buffer): boolean {
   if (typeof message !== "string") return false;

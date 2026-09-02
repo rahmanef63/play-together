@@ -7,15 +7,16 @@ import type {
 import { createBot, updateBotDriver } from "./server/botDriver.js";
 import { applyControlPatch } from "./server/controlInput.js";
 import { updateWorldItems, useHeldItem } from "./server/items.js";
-import { rescueRacer, updateHumanDriver } from "./server/kartMechanics.js";
+import { updateHumanDriver } from "./server/kartMechanics.js";
 import { collectPickups, createPickups, deterministicItem, tickPickups } from "./server/pickups.js";
+import { applyKartAction } from "./server/raceActions.js";
 import {
   emptyInput,
   type Racer,
   type RaceState,
   resolveRacerCollisions,
 } from "./server/raceModel.js";
-import { finishRaceIfComplete, requestRematch } from "./server/rematch.js";
+import { finishRaceIfComplete } from "./server/rematch.js";
 import { applySetupInput, resetGrid } from "./server/setup.js";
 import { CARS, DEFAULT_CAR, DEFAULT_TRACK } from "./shared/catalog.js";
 import { trackCheckpoints } from "./shared/trackMath.js";
@@ -66,20 +67,11 @@ class TurboCircuit implements ServerGame {
     if (!racer) return;
     const beforeTrack = this.#s.trackId,
       action = applyControlPatch(racer, payload);
-    if (action?.type === "ready" && this.#s.phase === "setup") racer.ready = true;
-    else if (
-      action?.type === "ready" &&
-      this.#s.phase === "finished" &&
-      requestRematch(this.#s, racer)
-    ) {
+    const actionResult = applyKartAction(this.#s, racer, action);
+    if (actionResult.resetRaceClock) {
       this.#clock = 0;
       this.#readyClock = 0;
-    } else if (action?.type === "camera") racer.cameraMode = nextCamera(racer.cameraMode);
-    else if (action?.type === "rescue" && this.#s.phase === "racing") rescueRacer(racer, this.#s);
-    else if (action?.type === "item" && this.#s.phase === "racing")
-      useHeldItem(this.#s, racer, action.direction);
-    else if (action?.type === "pause" && this.#s.phase !== "setup" && this.#s.phase !== "finished")
-      this.#s.paused = !this.#s.paused;
+    }
     if (this.#s.phase === "setup") applySetupInput(this.#s, racer);
     if (beforeTrack !== this.#s.trackId) this.#s.pickups = createPickups(this.#s.trackId);
   }
@@ -189,9 +181,5 @@ class TurboCircuit implements ServerGame {
     );
     return structuredClone({ ...this.#s, racers });
   }
-}
-function nextCamera(mode: Racer["cameraMode"]): Racer["cameraMode"] {
-  const modes: Racer["cameraMode"][] = ["chase", "wide", "driver", "bumper"];
-  return modes[(modes.indexOf(mode) + 1) % modes.length] ?? "chase";
 }
 export const createServerGame: CreateServerGame = (ctx) => new TurboCircuit(ctx);

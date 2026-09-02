@@ -5,7 +5,7 @@ const ctx = { roomId: "r", gameId: "turbo-circuit", gameVersion: "0.9.0", seed: 
 async function startSolo(seed = 7) {
   const game = await createServerGame({ ...ctx, seed });
   await game.onJoin({ id: "p", connectedAt: 0 });
-  await game.onInput("p", { action: "ready" }, 1);
+  await game.onInput("p", { action: "start" }, 1);
   for (let i = 0; i < 14; i++) await game.tick(i * 50, 50);
   expect((game.snapshot() as any).phase).toBe("countdown");
   for (let i = 0; i < 61; i++) await game.tick(700 + i * 50, 50);
@@ -93,17 +93,17 @@ describe("Turbo Circuit kart migration", () => {
     expect(Math.max(...samples)).toBeLessThan(58);
     expect(new Set(samples).size).toBeGreaterThan(5);
   });
-  it("pauses authoritative race simulation and resumes", async () => {
+  it("uses START to pause authoritative race simulation and resume", async () => {
     const game = await startSolo();
     await game.onInput("p", { throttle: 1 }, 2);
     for (let i = 0; i < 12; i++) await game.tick(4000 + i * 50, 50);
     const before = game.snapshot() as any;
-    await game.onInput("p", { action: "pause" }, 3);
+    await game.onInput("p", { action: "start" }, 3);
     for (let i = 0; i < 12; i++) await game.tick(5000 + i * 50, 50);
     const paused = game.snapshot() as any;
     expect(paused.paused).toBe(true);
     expect(paused.raceMs).toBe(before.raceMs);
-    await game.onInput("p", { action: "pause" }, 4);
+    await game.onInput("p", { action: "start" }, 4);
     await game.tick(6000, 50);
     expect((game.snapshot() as any).raceMs).toBeGreaterThan(paused.raceMs);
   });

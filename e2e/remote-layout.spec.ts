@@ -10,7 +10,7 @@ test("active screenless remotes stay bounded in landscape and portrait", async (
       key: turboCircuit,
       title: "Turbo Circuit",
       preset: "racing",
-      control: "Ready and start race",
+      control: "Start ready or pause",
       visibleAction: "ITEM",
     },
     {
@@ -78,12 +78,11 @@ test("active screenless remotes stay bounded in landscape and portrait", async (
         await page.screenshot({ path: testInfo.outputPath("turbo-remote-landscape.png") });
         await page.setViewportSize({ width: 390, height: 844 });
         for (const name of [
-          "Ready and start race",
+          "Start ready or pause",
           "Brake",
           "Accelerate",
-          "Hold drift",
-          "Use item forward",
-          "Cycle camera",
+          "Use item ability",
+          "Hold rear view",
         ])
           await expect(frame.getByRole("button", { name })).toBeVisible();
         const portrait = await frame.locator("body").evaluate(() => {
@@ -99,9 +98,9 @@ test("active screenless remotes stay bounded in landscape and portrait", async (
             scrollWidth: document.documentElement.scrollWidth,
             start: rect("start"),
             brake: rect("brake"),
-            throttle: rect("throttle"),
+            gas: rect("gas"),
             item: rect("item"),
-            camera: rect("camera"),
+            rear: rect("rear-view"),
             stick: rect("steer"),
           };
         });
@@ -109,9 +108,9 @@ test("active screenless remotes stay bounded in landscape and portrait", async (
         for (const control of [
           portrait.start,
           portrait.brake,
-          portrait.throttle,
+          portrait.gas,
           portrait.item,
-          portrait.camera,
+          portrait.rear,
           portrait.stick,
         ]) {
           expect(control.top).toBeGreaterThanOrEqual(-1);

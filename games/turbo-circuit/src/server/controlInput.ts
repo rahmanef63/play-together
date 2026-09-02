@@ -1,7 +1,7 @@
 import { clamp } from "../shared/catalog.js";
 import type { InputState, Racer } from "./raceModel.js";
 export type KartAction =
-  | { type: "ready" | "camera" | "rescue" | "pause" }
+  | { type: "start" | "ready" | "camera" | "rescue" | "pause" }
   | { type: "item"; direction: "forward" | "backward" };
 export function applyControlPatch(racer: Racer, payload: unknown): KartAction | null {
   if (typeof payload !== "object" || payload === null) return null;
@@ -21,6 +21,7 @@ export function applyControlPatch(racer: Racer, payload: unknown): KartAction | 
 }
 function readAction(data: Record<string, unknown>): KartAction | null {
   if (
+    data.action === "start" ||
     data.action === "ready" ||
     data.action === "camera" ||
     data.action === "rescue" ||

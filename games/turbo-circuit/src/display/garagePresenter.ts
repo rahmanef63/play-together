@@ -36,8 +36,8 @@ export function updateGarageHud(state: TurboState, me: Racer, hud: TurboHud) {
   hud.setupCta.dataset.ready = me.ready ? "true" : "false";
   hud.setupHelp.textContent =
     humans[0]?.id === me.id
-      ? "STICK ← → CAR · STICK ↑ ↓ TRACK · R2 GAS · L2 BRAKE · B DRIFT · A/R1 ITEM · X VIEW · Y RESET · L1 REAR"
-      : "STICK ← → CAR · P1 SELECTS TRACK · R2 GAS · L2 BRAKE · B DRIFT · A/R1 ITEM · X VIEW · Y RESET · L1 REAR";
+      ? "STICK ← → CAR · STICK ↑ ↓ TRACK · A GAS · B BRAKE · X ITEM · Y REAR · START READY / PAUSE"
+      : "STICK ← → CAR · P1 SELECTS TRACK · A GAS · B BRAKE · X ITEM · Y REAR · START READY / PAUSE";
 }
 function stat(value: number, min: number, max: number) {
   const score = Math.round(1 + clamp((value - min) / Math.max(0.001, max - min), 0, 1) * 4);

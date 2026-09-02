@@ -13,7 +13,7 @@ test("all active 3D cartridges expose distinct shared-console controls and live 
 }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const cases = [
-    { key: turboCircuit, title: "Turbo Circuit", control: "Ready and start race" },
+    { key: turboCircuit, title: "Turbo Circuit", control: "Start ready or pause" },
     { key: "sky-strike@0.2.6", title: "Sky Strike", control: "Fire cannon" },
     { key: "flight-trainer@0.2.6", title: "Flight Trainer", control: "Throttle up" },
   ] as const;
@@ -49,14 +49,27 @@ test("all active 3D cartridges expose distinct shared-console controls and live 
         await expect(carName).toContainText("Falcon R");
         await expect(frame.locator(".turbo-setup__mode")).toContainText("MANUAL THROTTLE");
         await expect(frame.locator(".turbo-setup__stats")).toContainText("BOOST");
+        const controller = frame.locator('.builtin-controller[data-renderer="builtin"]');
+        await expect(controller.locator(".console-control")).toHaveCount(6);
+        for (const [id, face, action] of [
+          ["gas", "a", "GAS"],
+          ["brake", "b", "BRAKE"],
+          ["item", "x", "ITEM"],
+          ["rear-view", "y", "REAR"],
+        ] as const) {
+          const button = controller.locator(`[data-control-id="${id}"]`);
+          await expect(button).toHaveAttribute("data-face", face);
+          await expect(button.locator(".console-control__action-label")).toHaveText(action);
+        }
         await expect(frame.getByRole("button", { name: "Accelerate" })).toBeVisible();
         await expect(frame.getByRole("button", { name: "Brake" })).toBeVisible();
-        await expect(frame.getByRole("button", { name: "Hold drift" })).toBeVisible();
-        await expect(frame.getByRole("button", { name: "Use item forward" })).toBeVisible();
-        await expect(frame.getByRole("button", { name: "Use item backward" })).toBeVisible();
-        await expect(frame.getByRole("button", { name: "Cycle camera" })).toBeVisible();
-        await expect(frame.getByRole("button", { name: "Rescue kart to track" })).toBeVisible();
+        await expect(frame.getByRole("button", { name: "Use item ability" })).toBeVisible();
         await expect(frame.getByRole("button", { name: "Hold rear view" })).toBeVisible();
+        await expect(frame.getByRole("button", { name: "Start ready or pause" })).toHaveText(
+          "START",
+        );
+        for (const removed of ["throttle", "item-back", "drift", "camera", "rescue", "pause"])
+          await expect(controller.locator(`[data-control-id="${removed}"]`)).toHaveCount(0);
         const sound = frame.getByRole("button", { name: "Toggle race sound" });
         await expect(sound).toHaveText("SOUND ON");
         await sound.click();
@@ -74,12 +87,9 @@ test("all active 3D cartridges expose distinct shared-console controls and live 
         await useStick(page, frame, "steer", 0, 0.9, 120);
         await expect(turbo).toHaveAttribute("data-track", "cosmic-loop");
         await expect(trackName).toContainText("Cosmic Loop");
-        const camera = frame.getByRole("button", { name: "Cycle camera" });
-        await camera.click();
-        await expect(turbo).toHaveAttribute("data-camera", "wide");
-        await camera.click();
-        await expect(turbo).toHaveAttribute("data-camera", "driver");
-        await frame.getByRole("button", { name: game.control }).click();
+        await expect(turbo).toHaveAttribute("data-camera", "chase");
+        const start = frame.getByRole("button", { name: game.control });
+        await start.click();
         await expect(frame.locator(".turbo-setup__cta")).toHaveText("READY ✓");
         await expect(turbo).toHaveAttribute("data-phase", "racing", { timeout: 6_000 });
         const throttle = frame.getByRole("button", { name: "Accelerate" });
@@ -90,12 +100,10 @@ test("all active 3D cartridges expose distinct shared-console controls and live 
             { timeout: 4_000 },
           )
           .toBeGreaterThan(20);
-        await expect(frame.locator(".turbo-cockpit")).toHaveAttribute("data-visible", "true");
         await expect(frame.locator(".turbo-nitro")).toContainText("COIN");
-        const pause = frame.getByRole("button", { name: "Pause or resume race" });
-        await pause.click();
+        await start.click();
         await expect(turbo).toHaveAttribute("data-paused", "true");
-        await pause.click();
+        await start.click();
         await expect(turbo).toHaveAttribute("data-paused", "false");
       } else {
         const control = frame.getByRole("button", { name: game.control });

@@ -11,15 +11,12 @@
     "tickRate": 60,
     "snapshotRate": 20
   },
-  "modes": ["shared-screen", "handheld"],
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
   "runtimeDependencies": {
     "three": "0.185.1+pt1"
-  },
-  "presentation": {
-    "remoteDisplay": {
-      "mode": "per-player",
-      "maxViewports": 4
-    }
   },
   "controller": {
     "supportsRemote": true,
@@ -49,10 +46,22 @@
             }
           },
           "keys": {
-            "left": ["ArrowLeft", "KeyA"],
-            "right": ["ArrowRight", "KeyD"],
-            "up": ["ArrowUp", "KeyW"],
-            "down": ["ArrowDown", "KeyS"]
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ],
+            "up": [
+              "ArrowUp",
+              "KeyW"
+            ],
+            "down": [
+              "ArrowDown",
+              "KeyS"
+            ]
           }
         },
         {
@@ -75,7 +84,10 @@
               "throttle": 0
             }
           },
-          "keys": ["ArrowUp", "KeyW"]
+          "keys": [
+            "ArrowUp",
+            "KeyW"
+          ]
         },
         {
           "id": "brake",
@@ -97,7 +109,10 @@
               "brake": 0
             }
           },
-          "keys": ["ArrowDown", "KeyS"]
+          "keys": [
+            "ArrowDown",
+            "KeyS"
+          ]
         },
         {
           "id": "item",
@@ -114,7 +129,11 @@
               "direction": "forward"
             }
           },
-          "keys": ["Space", "Enter", "KeyF"]
+          "keys": [
+            "Space",
+            "Enter",
+            "KeyF"
+          ]
         },
         {
           "id": "rear-view",
@@ -136,7 +155,9 @@
               "rearView": false
             }
           },
-          "keys": ["KeyR"]
+          "keys": [
+            "KeyR"
+          ]
         },
         {
           "id": "start",
@@ -152,7 +173,11 @@
               "action": "start"
             }
           },
-          "keys": ["Escape", "KeyP", "KeyG"]
+          "keys": [
+            "Escape",
+            "KeyP",
+            "KeyG"
+          ]
         }
       ],
       "initialState": {
@@ -170,5 +195,15 @@
     "keyboard": true,
     "gamepad": false,
     "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "7d44d117ed1fc11314de8bd2cd85663d4c62637a3efa4fbd8dc2212b7270e6b7"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "58e054d37b3b3ff9a6c94c6d14e8cf11979c2aeb40d32e7eff06a38a29b1afe8"
+    }
   }
 }
