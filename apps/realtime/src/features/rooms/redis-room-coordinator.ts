@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { createRedis, type RedisClient } from "../../shared/redis.js";
+import { waitForRedisReady } from "../../shared/redis-readiness.js";
 import {
   KEY_TTL_SECONDS,
   MAX_EVENT_BYTES,
@@ -34,7 +35,7 @@ export class RedisRoomCoordinator implements RoomCoordinator {
     callbacks: RoomCoordinatorCallbacks,
   ): Promise<RoomCoordinatorHandle> {
     if (this.#publisher.status !== "ready") {
-      this.#connectPromise ??= this.#publisher.connect().finally(() => {
+      this.#connectPromise ??= waitForRedisReady(this.#publisher).finally(() => {
         this.#connectPromise = null;
       });
       await this.#connectPromise;
@@ -81,7 +82,7 @@ class RedisRoomHandle implements RoomCoordinatorHandle {
 
   async start(): Promise<void> {
     if (this.#closed || this.#started) return;
-    await this.#subscriber.connect();
+    await waitForRedisReady(this.#subscriber);
     this.#subscriber.on("message", (channel, encoded) => {
       if (channel !== this.#channel || Buffer.byteLength(encoded) > MAX_EVENT_BYTES) return;
       const event = parseEvent(encoded);

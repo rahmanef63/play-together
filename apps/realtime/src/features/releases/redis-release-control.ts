@@ -6,6 +6,7 @@ import {
   releaseControlEventSchema,
 } from "@play-together/contracts";
 import { createRedis, type RedisClient } from "../../shared/redis.js";
+import { waitForRedisReady } from "../../shared/redis-readiness.js";
 import type { ReleaseControl, ReleaseControlListener } from "./release-control.js";
 
 const MAX_CONTROL_EVENT_BYTES = 2_048;
@@ -24,7 +25,10 @@ export class RedisReleaseControl implements ReleaseControl {
   async start(listener: ReleaseControlListener): Promise<void> {
     if (this.#closed) throw new Error("Release control is closed");
     if (this.#started) return;
-    await Promise.all([this.#commands.connect(), this.#subscriber.connect()]);
+    // Connect sequentially so a cold serverless instance does not burst two
+    // new managed-Redis handshakes at the same instant.
+    await waitForRedisReady(this.#commands);
+    await waitForRedisReady(this.#subscriber);
     this.#subscriber.on("message", (channel, encoded) => {
       if (
         channel !== RELEASE_CONTROL_CHANNEL ||
