@@ -58,7 +58,8 @@ test("remote and shared screen recover after network interruption and keep accep
     const remote = guest.frameLocator("iframe.game-frame");
     const rear = remote.getByRole("button", { name: "Hold rear view" });
     const turbo = display.locator(".turbo-circuit");
-    await expect(remote.locator(".console-controller-svg")).toBeVisible();
+    await expect(remote.locator(".console-controller-svg")).toHaveCount(0);
+    await expect(remote.locator(".console-shell__telemetry")).toBeVisible();
     await expect(turbo).toHaveAttribute("data-camera", "chase", { timeout: 20_000 });
     await holdRearView(guest, rear, turbo);
 

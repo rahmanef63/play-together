@@ -1,9 +1,10 @@
 import type { ConsoleShellPreset, GameManifest } from "@play-together/contracts";
-import { controllerBackdrop } from "./controller/svg";
+
 export type ConsoleShellMode = "handheld" | "remote";
 
 export interface ConsoleShellSurface {
   screen: HTMLElement | undefined;
+  telemetry: HTMLElement | undefined;
   controls: HTMLElement;
   dispose(): void;
 }
@@ -31,30 +32,23 @@ export function mountConsoleShell(
   const chassis = document.createElement("div");
   chassis.className = "console-shell__chassis";
 
-  const status = document.createElement("div");
-  status.className = "console-shell__status";
-  status.setAttribute("aria-hidden", "true");
-  const light = document.createElement("span");
-  light.className = "console-shell__status-light";
-  const vents = document.createElement("span");
-  vents.className = "console-shell__vents";
-  status.append(light, vents);
-
-  if (options.mode === "remote") chassis.append(controllerBackdrop());
-
   const controls = document.createElement("section");
   controls.className = "console-shell__controls";
   controls.setAttribute("aria-label", `${options.title} controls`);
 
   let screen: HTMLElement | undefined;
+  let telemetry: HTMLElement | undefined;
   if (options.mode === "handheld") {
     screen = document.createElement("section");
     screen.className = "console-shell__screen handheld-screen";
     screen.setAttribute("aria-label", `${options.title} game screen`);
     controls.classList.add("handheld-controls");
-    chassis.append(screen, controls, status);
+    chassis.append(screen, controls);
   } else {
-    chassis.append(controls, status);
+    telemetry = document.createElement("section");
+    telemetry.className = "console-shell__telemetry";
+    telemetry.setAttribute("aria-label", `${options.title} game status`);
+    chassis.append(telemetry, controls);
   }
 
   shell.append(chassis);
@@ -62,6 +56,7 @@ export function mountConsoleShell(
 
   return {
     screen,
+    telemetry,
     controls,
     dispose() {
       root.replaceChildren();

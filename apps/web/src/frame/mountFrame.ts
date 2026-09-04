@@ -8,6 +8,7 @@ import type { ControllerGameModule, DisplayGameModule } from "@play-together/gam
 import { type RuntimeImportSource, resolveRuntimeImports } from "../shared/runtimeDependencies";
 import { mountBuiltinController } from "./builtinController";
 import { mountConsoleShell, resolveConsoleShellPreset } from "./consoleShell";
+import { mountConsoleTelemetry } from "./consoleTelemetry";
 import { mountDisplayManager } from "./displayManager";
 import { createGameContext } from "./gameContext";
 import type { FrameInitMessage, FramePresentationMessage } from "./protocol";
@@ -55,14 +56,15 @@ export async function mountFrame(
       title: manifest.game.title,
     });
     if (!surface.screen) throw new Error("Handheld shell did not create a game screen");
-    const disposeDisplay = displayModule.mountDisplay(surface.screen, createContext());
+    const context = createContext();
+    const disposeDisplay = displayModule.mountDisplay(surface.screen, context);
     const disposeController = builtinConsole
-      ? mountBuiltinController(surface.controls, builtinConsole, createContext())
+      ? mountBuiltinController(surface.controls, builtinConsole, context)
       : await mountLegacyController(
           surface.controls,
           message,
           manifest.entries.controller,
-          createContext(),
+          context,
           runtimeImports,
         );
     state.post({ type: "ready", title: manifest.game.title });
@@ -76,17 +78,22 @@ export async function mountFrame(
 
   if (message.role === "controller") {
     const surface = mountConsoleShell(root, { mode: "remote", preset, title: manifest.game.title });
+    const context = createContext();
+    const disposeTelemetry = surface.telemetry
+      ? mountConsoleTelemetry(surface.telemetry, manifest, context)
+      : undefined;
     const disposeController = builtinConsole
-      ? mountBuiltinController(surface.controls, builtinConsole, createContext())
+      ? mountBuiltinController(surface.controls, builtinConsole, context)
       : await mountLegacyController(
           surface.controls,
           message,
           manifest.entries.controller,
-          createContext(),
+          context,
           runtimeImports,
         );
     state.post({ type: "ready", title: manifest.game.title });
     return () => {
+      disposeTelemetry?.();
       disposeController?.();
       state.snapshotListeners.clear();
       surface.dispose();

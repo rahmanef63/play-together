@@ -1,0 +1,478 @@
+/* Final responsive console contract: controls first, no decorative controller silhouette. */
+.console-shell__status,
+.console-controller-svg {
+  display: none;
+}
+
+.console-shell__telemetry {
+  display: none;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Remote landscape: one simple rectangular control surface. */
+.console-shell--remote {
+  display: grid;
+  place-items: stretch;
+  padding: max(4px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+    max(4px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+  background: #090b0e;
+}
+.console-shell--remote .console-shell__chassis,
+.console-shell--remote.console-shell--classic .console-shell__chassis,
+.console-shell--remote.console-shell--racing .console-shell__chassis,
+.console-shell--remote.console-shell--flight .console-shell__chassis {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: clamp(7px, 1.6vmin, 14px);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: clamp(14px, 3vmin, 24px);
+  background: #15181d;
+  box-shadow: none;
+}
+.console-shell--remote .console-shell__controls {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.console-shell--remote .builtin-controller,
+.console-shell--remote .builtin-controller--racing,
+.console-shell--remote .builtin-controller--flight {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: clamp(3px, 1vmin, 8px);
+  grid-template-columns: minmax(120px, 0.9fr) minmax(70px, 0.28fr) minmax(150px, 1fr);
+  grid-template-rows: minmax(34px, 0.24fr) minmax(0, 1fr) minmax(34px, 0.22fr);
+  grid-template-areas:
+    "top-left center top-right"
+    "left center right"
+    "bottom-left bottom bottom-right";
+  gap: clamp(4px, 1vmin, 10px);
+}
+.console-shell--remote .console-control--stick,
+.console-shell--remote .console-control--dpad {
+  width: min(38vh, 25vw, 160px);
+  background-color: transparent;
+}
+.console-shell--remote .builtin-controller__zone--right {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(56px, 88px));
+  align-content: center;
+  justify-content: end;
+  gap: clamp(5px, 1.2vmin, 10px);
+}
+.console-shell--remote .builtin-controller__zone--right .console-control--button {
+  width: 100%;
+  min-width: 0;
+  min-height: 50px;
+  aspect-ratio: 1.15 / 1;
+  border-radius: 16px;
+}
+.console-shell--remote .builtin-controller__zone--top-left,
+.console-shell--remote .builtin-controller__zone--top-right {
+  align-items: start;
+}
+.console-shell--remote .builtin-controller__zone--bottom {
+  gap: 7px;
+}
+.console-shell--remote .console-control--button[data-face="start"],
+.console-shell--remote .console-control--button[data-face="pause"],
+.console-shell--remote .console-control--button[data-face="select"] {
+  width: auto;
+  min-width: 68px;
+  min-height: 30px;
+  aspect-ratio: auto;
+  padding-inline: 12px;
+  border-radius: 999px;
+}
+
+/* Remote portrait: status/radar on top, compact usable controls below. */
+@media (orientation: portrait) {
+  .console-shell--remote {
+    padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+      max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+  }
+  .console-shell--remote .console-shell__chassis,
+  .console-shell--remote.console-shell--classic .console-shell__chassis,
+  .console-shell--remote.console-shell--racing .console-shell__chassis,
+  .console-shell--remote.console-shell--flight .console-shell__chassis {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 8px;
+    grid-template-rows: minmax(0, 1fr) minmax(190px, 40%);
+    gap: 8px;
+    border-radius: 20px;
+  }
+  .console-shell--remote .console-shell__telemetry {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 7px;
+    min-height: 0;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 15px;
+    background: #0d1014;
+    overflow: hidden;
+  }
+  .console-telemetry__header {
+    min-width: 0;
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .console-telemetry__header > div {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+  }
+  .console-telemetry__header strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font:
+      800 0.78rem / 1.1 system-ui,
+      sans-serif;
+    color: #f4f5f7;
+  }
+  .console-telemetry__header span {
+    color: var(--console-accent);
+    font:
+      850 0.64rem / 1 ui-monospace,
+      monospace;
+    letter-spacing: 0.08em;
+  }
+  .console-telemetry__header small {
+    max-width: 46%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #8e949d;
+    font:
+      650 0.6rem / 1.2 system-ui,
+      sans-serif;
+    text-align: right;
+  }
+  .console-telemetry__body {
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 8px;
+  }
+  .console-telemetry__map {
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #07090c;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .console-telemetry__map[hidden] {
+    display: none;
+  }
+  .console-telemetry__map svg {
+    width: 100%;
+    height: 100%;
+    min-height: 92px;
+  }
+  .console-telemetry__route {
+    fill: none;
+    stroke: #66717e;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .console-telemetry__actor {
+    fill: #a8b0ba;
+    stroke: #0a0c0f;
+    stroke-width: 1.2;
+  }
+  .console-telemetry__actor--own {
+    fill: var(--console-accent);
+  }
+  .console-telemetry__metrics {
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(42px, 1fr);
+    gap: 5px;
+    align-content: stretch;
+  }
+  .console-telemetry__metric {
+    min-width: 0;
+    display: grid;
+    align-content: center;
+    gap: 2px;
+    padding: 6px 7px;
+    border-radius: 10px;
+    background: #171b20;
+  }
+  .console-telemetry__metric span {
+    color: #7f8791;
+    font:
+      800 0.54rem / 1 ui-monospace,
+      monospace;
+    letter-spacing: 0.07em;
+  }
+  .console-telemetry__metric strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #f4f5f7;
+    font:
+      900 clamp(0.82rem, 3.5vw, 1.05rem) / 1 ui-monospace,
+      monospace;
+  }
+  .console-telemetry__metric--primary {
+    background: color-mix(in srgb, var(--console-accent) 12%, #171b20);
+  }
+  .console-telemetry__empty {
+    grid-column: 1 / -1;
+    align-self: center;
+    color: #808791;
+    font:
+      650 0.65rem / 1.3 system-ui,
+      sans-serif;
+  }
+  .console-shell--remote .console-shell__controls {
+    border-radius: 14px;
+    background: #111419;
+  }
+  .console-shell--remote .builtin-controller,
+  .console-shell--remote .builtin-controller--racing,
+  .console-shell--remote .builtin-controller--flight {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 5px;
+    grid-template-columns: minmax(100px, 0.9fr) minmax(120px, 1.1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "left right"
+      "bottom bottom";
+    gap: 6px;
+  }
+  .console-shell--remote .builtin-controller__zone--top-left,
+  .console-shell--remote .builtin-controller__zone--top-right,
+  .console-shell--remote .builtin-controller__zone--bottom-left,
+  .console-shell--remote .builtin-controller__zone--bottom-right {
+    position: absolute;
+    z-index: 4;
+  }
+  .console-shell--remote .builtin-controller__zone--top-left {
+    left: 6px;
+    top: 5px;
+  }
+  .console-shell--remote .builtin-controller__zone--top-right {
+    right: 6px;
+    top: 5px;
+  }
+  .console-shell--remote .builtin-controller__zone--bottom-left {
+    left: 6px;
+    bottom: 5px;
+  }
+  .console-shell--remote .builtin-controller__zone--bottom-right {
+    right: 6px;
+    bottom: 5px;
+  }
+  .console-shell--remote .console-control--stick,
+  .console-shell--remote .console-control--dpad {
+    width: min(29vw, 118px);
+  }
+  .console-shell--remote .builtin-controller__zone--right {
+    grid-template-columns: repeat(2, minmax(48px, 64px));
+    justify-content: end;
+    gap: 5px;
+  }
+  .console-shell--remote .builtin-controller__zone--right .console-control--button {
+    min-height: 48px;
+    border-radius: 13px;
+  }
+  .console-shell--remote .console-control--button[data-face="l1"],
+  .console-shell--remote .console-control--button[data-face="r1"],
+  .console-shell--remote .console-control--button[data-face="l2"],
+  .console-shell--remote .console-control--button[data-face="r2"] {
+    width: 62px;
+    min-height: 30px;
+  }
+}
+
+/* Handheld portrait: game-first screen with minimal overlay controls. */
+@media (orientation: portrait) {
+  .console-shell--handheld {
+    padding: 0;
+    background: #000;
+  }
+  .console-shell--handheld .console-shell__chassis {
+    position: relative;
+    display: block;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: #000;
+    box-shadow: none;
+  }
+  .console-shell--handheld .console-shell__screen {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .console-shell--handheld .console-shell__controls {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+    background: linear-gradient(
+      to bottom,
+      transparent 48%,
+      rgba(0, 0, 0, 0.18) 72%,
+      rgba(0, 0, 0, 0.52)
+    );
+  }
+  .console-shell--handheld .builtin-controller {
+    width: 100%;
+    height: 100%;
+    padding: max(8px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right))
+      max(12px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "top-left top-right"
+      "left right"
+      "bottom bottom";
+    align-items: end;
+  }
+  .console-shell--handheld .builtin-controller__zone {
+    pointer-events: auto;
+  }
+  .console-shell--handheld .builtin-controller__zone--left,
+  .console-shell--handheld .builtin-controller__zone--right {
+    align-items: end;
+    padding-bottom: 12px;
+  }
+  .console-shell--handheld .console-control--stick,
+  .console-shell--handheld .console-control--dpad {
+    width: min(30vw, 118px);
+    opacity: 0.82;
+  }
+  .console-shell--handheld .console-control--button {
+    width: min(15vw, 58px);
+    opacity: 0.88;
+  }
+}
+
+/* Handheld landscape: PSP-like body with the game screen centered between controls. */
+@media (orientation: landscape) {
+  .console-shell--handheld {
+    display: grid;
+    place-items: stretch;
+    padding: max(4px, env(safe-area-inset-top)) max(5px, env(safe-area-inset-right))
+      max(4px, env(safe-area-inset-bottom)) max(5px, env(safe-area-inset-left));
+    background: #090b0e;
+  }
+  .console-shell--handheld .console-shell__chassis {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: clamp(28px, 8vh, 52px);
+    background: linear-gradient(180deg, #24282d, #101216);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.06);
+  }
+  .console-shell--handheld .console-shell__screen {
+    position: absolute;
+    z-index: 1;
+    top: 7px;
+    bottom: 7px;
+    left: 20%;
+    right: 20%;
+    width: auto;
+    height: auto;
+    border: 3px solid #050608;
+    border-radius: 9px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+  .console-shell--handheld .console-shell__controls {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+  }
+  .console-shell--handheld .builtin-controller,
+  .console-shell--handheld .builtin-controller--racing,
+  .console-shell--handheld .builtin-controller--flight {
+    width: 100%;
+    height: 100%;
+    padding: 7px 10px;
+    grid-template-columns: minmax(100px, 20%) minmax(0, 60%) minmax(110px, 20%);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "top-left center top-right"
+      "left center right"
+      "bottom-left bottom bottom-right";
+    gap: 4px;
+  }
+  .console-shell--handheld .builtin-controller__zone {
+    pointer-events: auto;
+  }
+  .console-shell--handheld .builtin-controller__zone--center {
+    display: none;
+  }
+  .console-shell--handheld .console-control--stick,
+  .console-shell--handheld .console-control--dpad {
+    width: min(34vh, 16vw, 112px);
+  }
+  .console-shell--handheld .builtin-controller__zone--right {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(40px, 54px));
+    justify-content: end;
+    gap: 4px;
+  }
+  .console-shell--handheld .builtin-controller__zone--right .console-control--button {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+  }
+  .console-shell--handheld .console-control--button[data-face="l1"],
+  .console-shell--handheld .console-control--button[data-face="r1"],
+  .console-shell--handheld .console-control--button[data-face="l2"],
+  .console-shell--handheld .console-control--button[data-face="r2"] {
+    width: min(14vw, 86px);
+    min-height: 28px;
+  }
+  .console-shell--handheld .console-control--button[data-face="start"],
+  .console-shell--handheld .console-control--button[data-face="pause"],
+  .console-shell--handheld .console-control--button[data-face="select"] {
+    width: auto;
+    min-width: 56px;
+    min-height: 26px;
+    padding-inline: 8px;
+  }
+}

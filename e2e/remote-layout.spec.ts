@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { closeContext, createRoom, signUp, startGame, turboCircuit } from "./support/multiplayer";
 
-test("active screenless remotes stay bounded in landscape and portrait", async ({
+test("simple remotes stay bounded in landscape and expose live status in portrait", async ({
   browser,
 }, testInfo) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -46,8 +46,9 @@ test("active screenless remotes stay bounded in landscape and portrait", async (
         frame.locator(`.console-shell--remote.console-shell--${game.preset}`),
       ).toBeVisible({ timeout: 20_000 });
       await expect(frame.locator(".console-shell__screen")).toHaveCount(0);
-      await expect(frame.locator(".console-controller-svg")).toBeVisible();
+      await expect(frame.locator(".console-controller-svg")).toHaveCount(0);
       await expect(frame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible();
+      await expect(frame.locator(".console-shell__telemetry")).toBeHidden();
       const geometry = await frame.locator("body").evaluate(() => {
         const chassis = document.querySelector<HTMLElement>(".console-shell__chassis");
         const controls = document.querySelector<HTMLElement>(".builtin-controller");
@@ -59,10 +60,8 @@ test("active screenless remotes stay bounded in landscape and portrait", async (
           scrollWidth: document.documentElement.scrollWidth,
           chassisLeft: a.left,
           chassisRight: a.right,
-          chassisWidth: a.width,
           controlsLeft: b.left,
           controlsRight: b.right,
-          controlsWidth: b.width,
         };
       });
       expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.viewportWidth + 1);
@@ -70,13 +69,15 @@ test("active screenless remotes stay bounded in landscape and portrait", async (
       expect(geometry.chassisRight).toBeLessThanOrEqual(geometry.viewportWidth + 1);
       expect(geometry.controlsLeft).toBeGreaterThanOrEqual(-1);
       expect(geometry.controlsRight).toBeLessThanOrEqual(geometry.viewportWidth + 1);
-      expect(geometry.chassisWidth).toBeLessThanOrEqual(762);
-      expect(geometry.controlsWidth).toBeLessThanOrEqual(682);
       await expect(frame.getByText(game.visibleAction, { exact: true }).first()).toBeVisible();
 
       if (game.preset === "racing") {
         await page.screenshot({ path: testInfo.outputPath("turbo-remote-landscape.png") });
         await page.setViewportSize({ width: 390, height: 844 });
+        await expect(frame.locator(".console-shell__telemetry")).toBeVisible();
+        await expect(frame.locator(".console-telemetry__header")).toContainText("Turbo Circuit");
+        await expect(frame.locator(".console-telemetry__metrics")).toContainText("POS");
+        await expect(frame.locator(".console-telemetry__metrics")).toContainText("SPEED");
         for (const name of [
           "Start ready or pause",
           "Brake",
@@ -116,7 +117,7 @@ test("active screenless remotes stay bounded in landscape and portrait", async (
           expect(control.top).toBeGreaterThanOrEqual(-1);
           expect(control.bottom).toBeLessThanOrEqual(portrait.viewportHeight + 1);
         }
-        expect(portrait.item.width).toBeGreaterThanOrEqual(70);
+        expect(portrait.item.width).toBeGreaterThanOrEqual(45);
         await expect(page.locator(".play-toolbar__role-switch")).toBeHidden();
         await page.screenshot({ path: testInfo.outputPath("turbo-remote-portrait.png") });
         await page.setViewportSize({ width: 844, height: 390 });

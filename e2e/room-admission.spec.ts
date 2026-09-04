@@ -133,10 +133,32 @@ test("QR join, password rooms, shared display and mobile modes respect the pre-g
     await expect(controller).toBeVisible();
     await expect(handheldFrame.locator("canvas")).toBeVisible();
     await expect(handheldFrame.locator('[data-control-id="steer"]')).toBeVisible();
+    const portraitScreen = await handheldFrame
+      .locator(".console-shell__screen")
+      .evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+        return {
+          width: rect.width,
+          height: rect.height,
+          viewportWidth: innerWidth,
+          viewportHeight: innerHeight,
+        };
+      });
+    expect(portraitScreen.width).toBeCloseTo(portraitScreen.viewportWidth, 0);
+    expect(portraitScreen.height).toBeCloseTo(portraitScreen.viewportHeight, 0);
     await guest.screenshot({ path: testInfo.outputPath("handheld-portrait.png"), fullPage: true });
 
     await guest.setViewportSize({ width: 844, height: 390 });
     await expect(controller).toBeVisible();
+    const landscapeScreen = await handheldFrame
+      .locator(".console-shell__screen")
+      .evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+        return { left: rect.left, right: rect.right, width: rect.width, viewportWidth: innerWidth };
+      });
+    expect(landscapeScreen.left).toBeGreaterThan(0);
+    expect(landscapeScreen.right).toBeLessThan(landscapeScreen.viewportWidth);
+    expect(landscapeScreen.width).toBeLessThan(landscapeScreen.viewportWidth * 0.7);
     await guest.screenshot({ path: testInfo.outputPath("handheld-landscape.png"), fullPage: true });
     await host.getByRole("button", { name: /Room/ }).click();
     await host.getByRole("button", { name: "Close room" }).click();
