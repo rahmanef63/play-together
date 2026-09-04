@@ -1,4 +1,5 @@
-import { access, readFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { discoverGames } from "../scripts/discover-games.mjs";
@@ -30,6 +31,34 @@ describe("game slice registry", () => {
       expect(game.config.controller.console?.renderer).toBe("builtin");
       expect(game.config.controller.console?.controls.length).toBeGreaterThan(0);
       await expect(access(resolve(game.root, "src/controller.ts"))).rejects.toThrow();
+    }
+  });
+
+  it("ignores artifact-only directories restored by workspace build caches", async () => {
+    const root = await mkdtemp(resolve(tmpdir(), "play-together-games-"));
+    try {
+      const validRoot = resolve(root, "games/fixture-game");
+      await mkdir(resolve(validRoot, "src"), { recursive: true });
+      await mkdir(resolve(root, "games/stale-game/node_modules"), { recursive: true });
+      await writeFile(
+        resolve(validRoot, "game.config.json"),
+        JSON.stringify({
+          game: { id: "fixture-game", version: "1.0.0" },
+          presentation: { remoteDisplay: { mode: "shared", maxViewports: 1 } },
+          controller: { console: { renderer: "builtin", controls: [{ id: "start" }] } },
+        }),
+      );
+      await writeFile(
+        resolve(validRoot, "package.json"),
+        JSON.stringify({ name: "@play-together/game-fixture-game", version: "1.0.0" }),
+      );
+      await writeFile(resolve(validRoot, "src/display.ts"), "export {};\n");
+      await writeFile(resolve(validRoot, "src/server.ts"), "export {};\n");
+
+      const discovered = await discoverGames(root);
+      expect(discovered.map((game) => game.id)).toEqual(["fixture-game"]);
+    } finally {
+      await rm(root, { recursive: true, force: true });
     }
   });
 });

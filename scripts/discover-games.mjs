@@ -17,6 +17,10 @@ export async function discoverGames(root = repositoryRoot) {
     try {
       config = JSON.parse(await readFile(resolve(gameRoot, "game.config.json"), "utf8"));
     } catch (error) {
+      // Vercel/pnpm build caches can restore a deleted workspace's node_modules directory
+      // without restoring its source files. Treat those artifact-only directories as absent,
+      // while still failing loudly for a real source slice with a missing/invalid config.
+      if (error?.code === "ENOENT" && !(await hasGameSourceMarker(gameRoot))) continue;
       throw new Error(`Game ${entry.name} has no valid game.config.json`, { cause: error });
     }
     if (config?.game?.id !== entry.name) {
@@ -80,6 +84,16 @@ export async function discoverGames(root = repositoryRoot) {
   games.sort((left, right) => left.id.localeCompare(right.id));
   if (!games.length) throw new Error("No games were discovered under games/*");
   return games;
+}
+
+async function hasGameSourceMarker(gameRoot) {
+  for (const marker of ["package.json", "src"]) {
+    try {
+      await access(resolve(gameRoot, marker));
+      return true;
+    } catch {}
+  }
+  return false;
 }
 
 async function requireFile(path, label) {
