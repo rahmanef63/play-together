@@ -22,11 +22,15 @@ function verifiedKey(url: string, sha256: string): string {
   return `${sha256.toLowerCase()}:${url}`;
 }
 
-async function fetchVerifiedBytes(url: string, expectedSha256: string): Promise<ArrayBuffer> {
+async function fetchVerifiedBytes(
+  url: string,
+  expectedSha256: string,
+  cache: RequestCache = "force-cache",
+): Promise<ArrayBuffer> {
   const key = verifiedKey(url, expectedSha256);
   const existing = getRecent(verifiedBytesCache, key);
   if (existing) return existing;
-  const pending = fetchAndVerify(url, expectedSha256).catch((reason) => {
+  const pending = fetchAndVerify(url, expectedSha256, cache).catch((reason) => {
     verifiedBytesCache.delete(key);
     throw reason;
   });
@@ -34,8 +38,12 @@ async function fetchVerifiedBytes(url: string, expectedSha256: string): Promise<
   return pending;
 }
 
-async function fetchAndVerify(url: string, expectedSha256: string): Promise<ArrayBuffer> {
-  const response = await fetch(url, { cache: "force-cache", credentials: "omit" });
+async function fetchAndVerify(
+  url: string,
+  expectedSha256: string,
+  cache: RequestCache,
+): Promise<ArrayBuffer> {
+  const response = await fetch(url, { cache, credentials: "omit" });
   if (!response.ok) throw new Error(`Game resource request failed (${response.status})`);
   const bytes = await response.arrayBuffer();
   if ((await sha256Hex(bytes)) !== expectedSha256.toLowerCase())
@@ -46,13 +54,24 @@ async function fetchAndVerify(url: string, expectedSha256: string): Promise<Arra
 export async function prefetchVerifiedResource(url: string, expectedSha256: string): Promise<void> {
   await fetchVerifiedBytes(url, expectedSha256);
 }
-
 export async function fetchVerifiedManifest(
   manifestUrl: string,
   expectedSha256: string,
 ): Promise<GameManifest> {
   try {
-    const bytes = await fetchVerifiedBytes(manifestUrl, expectedSha256);
+    let bytes: ArrayBuffer;
+    try {
+      bytes = await fetchVerifiedBytes(manifestUrl, expectedSha256);
+    } catch (reason) {
+      if (
+        !(reason instanceof Error) ||
+        !reason.message.startsWith("Game resource request failed")
+      ) {
+        throw reason;
+      }
+      // Retry a transient cached 404 once; the pinned SHA still protects immutable manifest bytes.
+      bytes = await fetchVerifiedBytes(manifestUrl, expectedSha256, "reload");
+    }
     return gameManifestSchema.parse(JSON.parse(new TextDecoder().decode(bytes)));
   } catch (reason) {
     if (reason instanceof Error && reason.message.startsWith("Game resource request failed"))

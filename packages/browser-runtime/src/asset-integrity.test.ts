@@ -1,6 +1,12 @@
 import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchVerifiedAsset, prefetchVerifiedResource, rewriteRuntimeImports } from "./index.js";
+import {
+  fetchVerifiedAsset,
+  fetchVerifiedManifest,
+  prefetchVerifiedResource,
+  rewriteRuntimeImports,
+} from "./index.js";
 
 describe("verified game assets", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -41,6 +47,30 @@ describe("verified game assets", () => {
     await fetchVerifiedAsset(url, sha, "image/png");
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock).toHaveBeenCalledWith(url, { cache: "force-cache", credentials: "omit" });
+  });
+  it("bypasses a poisoned cached 404 once when loading a pinned manifest", async () => {
+    const bytes = await readFile(
+      new URL(
+        "../../../releases/game-cdn/games/turbo-circuit/0.9.2/manifest.json",
+        import.meta.url,
+      ),
+    );
+    const sha = createHash("sha256").update(bytes).digest("hex");
+    const url = "https://games.test/cache-poison-recovery/manifest.json";
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response("not found", { status: 404 }))
+      .mockResolvedValueOnce(new Response(bytes, { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(fetchVerifiedManifest(url, sha)).resolves.toMatchObject({
+      game: { id: "turbo-circuit", version: "0.9.2" },
+    });
+    expect(fetchMock).toHaveBeenNthCalledWith(1, url, {
+      cache: "force-cache",
+      credentials: "omit",
+    });
+    expect(fetchMock).toHaveBeenNthCalledWith(2, url, { cache: "reload", credentials: "omit" });
   });
   it("warms a verified resource once and reuses it for later runtime loading", async () => {
     const bytes = new TextEncoder().encode("prefetched-runtime-bytes");
