@@ -2,6 +2,11 @@
 
 All notable changes to Play Together are documented here. The project follows semantic versioning for the platform and immutable semantic versions for each game release.
 
+## [0.14.2] - 2026-09-05
+
+- Turbo Circuit 0.10.1 keeps the sound toggle responsive even when browser audio activation is pending; audio permission is explicitly delegated to the sandboxed game frame.
+- Fixed Node 22 JSON import attributes in the E2E manifest-driven cartridge selectors.
+
 ## [0.14.1] - 2026-09-05
 
 ### Fixed

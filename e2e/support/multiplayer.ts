@@ -2,9 +2,9 @@ import { type BrowserContext, expect, type FrameLocator, type Page } from "@play
 
 export const accountPassword = "testpass";
 
-import flightConfig from "../../games/flight-trainer/game.config.json";
-import skyConfig from "../../games/sky-strike/game.config.json";
-import turboConfig from "../../games/turbo-circuit/game.config.json";
+import flightConfig from "../../games/flight-trainer/game.config.json" with { type: "json" };
+import skyConfig from "../../games/sky-strike/game.config.json" with { type: "json" };
+import turboConfig from "../../games/turbo-circuit/game.config.json" with { type: "json" };
 export const turboCircuit = `${turboConfig.game.id}@${turboConfig.game.version}`;
 export const skyStrike = `${skyConfig.game.id}@${skyConfig.game.version}`;
 export const flightTrainer = `${flightConfig.game.id}@${flightConfig.game.version}`;

@@ -2,7 +2,7 @@
 
 ## Scope of the September 2026 gameplay pass
 
-The source catalogue targets Turbo Circuit 0.10.0, Flight Trainer 0.3.0 and Sky Strike 0.3.0. These are new immutable release identities, not edits to previously published cartridges. A source version does not prove that production has deployed it. Existing rooms remain pinned to their original manifest digest.
+The source catalogue targets Turbo Circuit 0.10.1, Flight Trainer 0.3.0 and Sky Strike 0.3.0. These are new immutable release identities, not edits to previously published cartridges. A source version does not prove that production has deployed it. Existing rooms remain pinned to their original manifest digest.
 
 This pass improves the three current games. The downhill and fighting concepts below are proposals, not playable catalogue entries. Do not add placeholder game cards or market them as shipped.
 

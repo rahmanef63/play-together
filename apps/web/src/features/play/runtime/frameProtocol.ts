@@ -16,7 +16,7 @@ export function createGameFrame(
         ? "Handheld game console"
         : "Phone game controller";
   frame.sandbox.add("allow-scripts", "allow-pointer-lock");
-  frame.allow = "fullscreen; gamepad; accelerometer; gyroscope";
+  frame.allow = "fullscreen; autoplay; gamepad; accelerometer; gyroscope";
   frame.src = browserPathForNavigation("/game-frame.html", window.location.pathname);
   frame.dataset.channel = channel;
   return frame;

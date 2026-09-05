@@ -110,7 +110,8 @@ export class AudioDirector {
     this.#timers.clear();
   }
   readonly #toggle = () => {
-    void this.#synth.setEnabled(!this.#synth.enabled).then(() => this.#renderButton());
+    void this.#synth.setEnabled(!this.#synth.enabled);
+    this.#renderButton();
   };
   #renderButton() {
     this.#button.textContent = this.#synth.enabled ? "SOUND ON" : "SOUND OFF";
