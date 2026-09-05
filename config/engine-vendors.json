@@ -35,6 +35,44 @@
           "Vector3",
           "WebGLRenderer"
         ]
+      },
+      "0.185.1+pt2": {
+        "packageVersion": "0.185.1",
+        "url": "/engine-vendors/three@0.185.1+pt2.js",
+        "exports": [
+          "BoxGeometry",
+          "BufferGeometry",
+          "CapsuleGeometry",
+          "Color",
+          "ConeGeometry",
+          "CylinderGeometry",
+          "DirectionalLight",
+          "DodecahedronGeometry",
+          "DoubleSide",
+          "Float32BufferAttribute",
+          "Fog",
+          "FogExp2",
+          "Group",
+          "HemisphereLight",
+          "LinearFilter",
+          "MathUtils",
+          "Mesh",
+          "MeshBasicMaterial",
+          "MeshStandardMaterial",
+          "PerspectiveCamera",
+          "PlaneGeometry",
+          "SRGBColorSpace",
+          "Scene",
+          "SphereGeometry",
+          "Sprite",
+          "SpriteMaterial",
+          "Texture",
+          "TextureLoader",
+          "TorusGeometry",
+          "Vector3",
+          "WebGLRenderer"
+        ],
+        "sha256": "2b2d630311b6ee7c331d59697c90621cc5a0de8ba6548f92d4ecfc63b775daca"
       }
     }
   }

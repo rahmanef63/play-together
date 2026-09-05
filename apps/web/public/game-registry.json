@@ -2,6 +2,182 @@
   "schemaVersion": 1,
   "games": [
     {
+      "id": "clash-arena",
+      "version": "0.1.3",
+      "title": "Clash Arena",
+      "description": "Original 1v1 arena fighter: read guard direction, manage meter, escape throws and choose your timing.",
+      "modes": ["shared-screen", "handheld"],
+      "capabilities": {
+        "touch": true,
+        "keyboard": true,
+        "gamepad": true,
+        "motion": false
+      },
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
+      "controller": {
+        "supportsRemote": true,
+        "supportsHandheld": true,
+        "preferredOrientation": "landscape",
+        "console": {
+          "renderer": "builtin",
+          "layout": "arcade",
+          "initialState": {
+            "x": 0,
+            "y": 0,
+            "a": false,
+            "b": false,
+            "xButton": false,
+            "yButton": false,
+            "start": false
+          },
+          "controls": [
+            {
+              "id": "move",
+              "kind": "stick",
+              "ariaLabel": "Move; hold away to guard high, crouch plus away to guard low",
+              "zone": "left",
+              "action": {
+                "type": "patch",
+                "values": {
+                  "x": "$x",
+                  "y": "$y"
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "x": 0,
+                  "y": 0
+                }
+              },
+              "keys": {
+                "up": ["ArrowUp", "KeyW"],
+                "down": ["ArrowDown", "KeyS"],
+                "left": ["ArrowLeft", "KeyA"],
+                "right": ["ArrowRight", "KeyD"]
+              }
+            },
+            {
+              "id": "jab",
+              "kind": "button",
+              "label": "A",
+              "displayLabel": "JAB / ESCAPE",
+              "ariaLabel": "Jab; press with B to escape a throw",
+              "face": "a",
+              "zone": "right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "a": true
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "a": false
+                }
+              },
+              "keys": ["KeyJ"]
+            },
+            {
+              "id": "kick",
+              "kind": "button",
+              "label": "B",
+              "displayLabel": "KICK / ESCAPE",
+              "ariaLabel": "Kick; press with A to escape a throw",
+              "face": "b",
+              "zone": "right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "b": true
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "b": false
+                }
+              },
+              "keys": ["KeyK"]
+            },
+            {
+              "id": "strike",
+              "kind": "button",
+              "label": "X",
+              "displayLabel": "LAUNCH / LOW",
+              "ariaLabel": "Launcher; crouch plus X performs a low sweep",
+              "face": "x",
+              "zone": "right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "xButton": true
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "xButton": false
+                }
+              },
+              "keys": ["KeyL"]
+            },
+            {
+              "id": "surge",
+              "kind": "button",
+              "label": "Y",
+              "displayLabel": "METER SURGE",
+              "ariaLabel": "Spend meter for Surge",
+              "face": "y",
+              "zone": "right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "yButton": true
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "yButton": false
+                }
+              },
+              "keys": ["KeyI"]
+            },
+            {
+              "id": "start",
+              "kind": "button",
+              "label": "START",
+              "displayLabel": "REMATCH",
+              "ariaLabel": "Request rematch after match",
+              "face": "start",
+              "zone": "bottom",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "start": true
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "start": false
+                }
+              },
+              "keys": ["Enter"]
+            }
+          ]
+        }
+      },
+      "previewUrl": "/game-previews/clash-arena.png"
+    },
+    {
       "id": "flight-trainer",
       "version": "0.3.0",
       "title": "Flight Trainer",
@@ -249,9 +425,9 @@
     },
     {
       "id": "ridge-rush",
-      "version": "0.2.0",
+      "version": "0.3.2",
       "title": "Ridge Rush",
-      "description": "Original 3D point-to-point downhill mountain-bike racing with carving, braking, jumps, stamina sprinting, risky shortcuts, checkpoints and automatic crash rescue.",
+      "description": "Extreme 3D mountain-bike descent with cliffside singletrack, deep vertical drops, gravity, wheel-weight transfer, surface grip, jumps, checkpoints and deterministic rivals.",
       "modes": ["shared-screen", "handheld"],
       "capabilities": {
         "touch": true,
@@ -278,11 +454,7 @@
             "pedal": false,
             "brake": false,
             "jump": false,
-            "rear": false,
-            "left": false,
-            "right": false,
-            "tuck": false,
-            "sprint": false
+            "rear": false
           },
           "controls": [
             {
@@ -398,94 +570,6 @@
                 }
               },
               "keys": ["KeyY"]
-            },
-            {
-              "id": "weight-left",
-              "kind": "button",
-              "label": "L1",
-              "displayLabel": "LEAN L",
-              "ariaLabel": "Weight shift left",
-              "face": "l1",
-              "zone": "top-left",
-              "press": {
-                "type": "patch",
-                "values": {
-                  "left": true
-                }
-              },
-              "release": {
-                "type": "patch",
-                "values": {
-                  "left": false
-                }
-              },
-              "keys": ["KeyQ"]
-            },
-            {
-              "id": "weight-right",
-              "kind": "button",
-              "label": "R1",
-              "displayLabel": "LEAN R",
-              "ariaLabel": "Weight shift right",
-              "face": "r1",
-              "zone": "top-right",
-              "press": {
-                "type": "patch",
-                "values": {
-                  "right": true
-                }
-              },
-              "release": {
-                "type": "patch",
-                "values": {
-                  "right": false
-                }
-              },
-              "keys": ["KeyE"]
-            },
-            {
-              "id": "tuck",
-              "kind": "button",
-              "label": "L2",
-              "displayLabel": "TUCK",
-              "ariaLabel": "Aerodynamic tuck",
-              "face": "l2",
-              "zone": "top-left",
-              "press": {
-                "type": "patch",
-                "values": {
-                  "tuck": true
-                }
-              },
-              "release": {
-                "type": "patch",
-                "values": {
-                  "tuck": false
-                }
-              },
-              "keys": ["KeyZ"]
-            },
-            {
-              "id": "sprint",
-              "kind": "button",
-              "label": "R2",
-              "displayLabel": "SPRINT",
-              "ariaLabel": "Stamina sprint",
-              "face": "r2",
-              "zone": "top-right",
-              "press": {
-                "type": "patch",
-                "values": {
-                  "sprint": true
-                }
-              },
-              "release": {
-                "type": "patch",
-                "values": {
-                  "sprint": false
-                }
-              },
-              "keys": ["KeyC"]
             },
             {
               "id": "start",

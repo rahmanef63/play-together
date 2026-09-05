@@ -52,7 +52,13 @@ try {
     const { mountBuiltinController } = await import("/src/frame/builtinController.ts");
     window.qa = { mountConsoleShell, mountBuiltinController, inputs: [], dispose: () => {} };
   });
-  for (const gameId of ["turbo-circuit", "flight-trainer", "sky-strike", "ridge-rush"]) {
+  for (const gameId of [
+    "turbo-circuit",
+    "flight-trainer",
+    "sky-strike",
+    "ridge-rush",
+    "clash-arena",
+  ]) {
     const config = JSON.parse(
       await readFile(resolve(root, "games", gameId, "game.config.json"), "utf8"),
     );

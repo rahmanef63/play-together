@@ -1,4 +1,4 @@
-import { CHECKPOINTS, progressRatio } from "../shared/course.js";
+import { CHECKPOINTS, courseSurface, gradeDegrees, progressRatio } from "../shared/course.js";
 import type { RiderView, RidgeViewState } from "./model.js";
 
 export interface RidgeHud {
@@ -48,7 +48,7 @@ export function createHud(root: HTMLElement): RidgeHud {
 export function updateHud(hud: RidgeHud, state: RidgeViewState, me: RiderView | undefined): void {
   const place = me ? state.riders.findIndex((rider) => rider.id === me.id) + 1 : 0;
   hud.title.textContent = me
-    ? `RIDGE RUSH · CP ${Math.min(me.checkpoint + 1, CHECKPOINTS.length)}/${CHECKPOINTS.length}`
+    ? `RIDGE RUSH · ${Math.max(0, Math.round(gradeDegrees(me.progress)))}° · ${courseSurface(me.progress).toUpperCase()} · CP ${Math.min(me.checkpoint + 1, CHECKPOINTS.length)}/${CHECKPOINTS.length}`
     : "RIDGE RUSH";
   hud.place.textContent = me ? `${ordinal(place)} / ${state.riders.length}` : "WAITING";
   hud.speed.textContent = me ? `${Math.round(me.speed * 3.6)} km/h` : "0 km/h";

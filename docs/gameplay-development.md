@@ -1,57 +1,57 @@
 # Gameplay development and controller contract
 
-## Scope of the September 2026 gameplay pass
+## Current source catalogue
 
-The source catalogue targets Turbo Circuit 0.10.1, Flight Trainer 0.3.0, Sky Strike 0.3.0 and Ridge Rush 0.2.0. These are new immutable release identities, not edits to previously published cartridges. A source version does not prove that production has deployed it. Existing rooms remain pinned to their original manifest digest.
+The source catalogue targets Turbo Circuit 0.10.1, Flight Trainer 0.3.0, Sky Strike 0.3.0, Ridge Rush 0.3.2 and Clash Arena 0.1.3. Published cartridge bytes are immutable; source versions do not prove production promotion, and existing rooms remain pinned to their exact manifest digest.
 
-The first three cartridges remain unchanged while Ridge Rush is now a playable original downhill-bike cartridge. Clash Arena and Sky Rescue below remain proposals; do not add placeholder cards for them.
+## Controller tiers
 
-## Shared controls
+Play Together uses the lowest controller tier that supports the core loop. **Tier 0 is the default and recommendation: left stick + ABXY + Menu/Start.** Shoulder buttons are never added merely because a console has them.
 
-Controllers are described by the cartridge manifest. Simple cartridges only show the controls they declare; complex cartridges may use all four shoulder positions. The host must not infer actions from a game ID.
+| Tier | Inputs | Policy |
+| --- | --- | --- |
+| 0 | left stick + ABXY + Menu/Start | default for mobile and new games |
+| 1 | Tier 0 + right stick | only for continuous second-axis control |
+| 2 | Tier 1 + L1/R1 | optional advanced actions after playtesting |
+| 3 | Tier 2 + L2/R2 | exceptional complex games only |
 
-| Game | A / B / X / Y | L1 | R1 | L2 | R2 | Start |
-| --- | --- | --- | --- | --- | --- | --- |
-| Turbo Circuit | Gas / Brake / Forward item / Rear view | Camera | Drift | Rescue | Backward item | Ready, pause, rematch |
-| Flight Trainer | Flaps / Gear / Throttle down / Throttle up | Left rudder | Right rudder | Brake | Level assist | Restart from runway |
-| Sky Strike | Cannon / Missile / Throttle down / Throttle up | Left rudder | Right rudder | Airbrake | Afterburner | Not declared |
-| Ridge Rush | Pedal / Brake / Jump-pump / Rear view | Weight left | Weight right | Tuck | Stamina sprint | Ready / rematch |
+Existing older cartridges may still expose shoulder actions; that history is not the default for new design. If an advanced shoulder action is only a shortcut, the core mechanic should remain reachable through Tier 0 where practical.
 
-Turbo Circuit keeps its explicit hold-to-drive contract: A is gas, B is brake, X is the item and Y is rear view. Boost force requires gas and is suppressed while braking. Shoulder buttons do not remap A or B into trigger pedals.
+| Game | Tier 0 core | Extra controls in current release |
+| --- | --- | --- |
+| Turbo Circuit | steer + A gas / B brake / X item / Y rear | legacy L1/R1/L2/R2 advanced actions |
+| Flight Trainer | flight stick + ABXY aircraft actions | legacy shoulder rudder/brake/assist |
+| Sky Strike | flight stick + ABXY combat/throttle | legacy shoulder rudder/airbrake/boost |
+| Ridge Rush 0.3.2 | steer/body stick + A pedal / B brake / X jump / Y rear | none |
+| Clash Arena 0.1.3 | movement/guard stick + A jab / B kick / X launch-or-low / Y meter Surge | none |
 
-Touch controls show both the shoulder glyph and its action. Remote portrait reserves a dedicated shoulder row below the status panel. Handheld mode retains the game screen, rather than replacing it with a remote status dashboard.
+### Ridge Rush keyboard
 
-### Keyboard
+Arrows/WASD steer and shift body weight, Space pedals, Shift brakes, X jumps/pumps, Y holds rear view, Enter readies/rematches. Forward body weight doubles as an aerodynamic tuck at speed; no shoulder shortcut is required.
 
-Turbo: arrows/WASD steer and select in the garage, W/up gas, S/down brake, Space/Enter/F forward item, R rear view, C camera, Shift drift, Backspace rescue, V backward item, G/P/Escape Start.
+### Clash Arena keyboard
 
-Flight Trainer: arrows/WASD yoke, Q/E rudder, F flaps, G gear, minus/equal throttle, Space brake, Shift level assist, R restart.
-
-Sky Strike: arrows/WASD flight stick, Q/E rudder, Space cannon, Shift missile, minus/equal throttle, Z airbrake, C afterburner.
-
-Ridge Rush: arrows/WASD steer/body shift, Space pedal, Shift brake, X jump/pump, Y rear view, Q/E weight shift, Z tuck, C sprint, Enter ready/rematch.
+Arrows/WASD move. Hold away to high guard; crouch-away guards low. J is A/jab, K is B/kick, L is X/launcher (crouch + X becomes a low sweep), I is Y/meter Surge, and Enter requests a rematch after the match. A+B together forms a throw and also escapes an incoming throw.
 
 ### Physical gamepad
 
-Standard-mapped browser gamepads use face indices 0–3, shoulders 4–7 and Start 9. Stick deadzone is radial, finite input is normalized, and directional-pad input can drive the primary stick. Unknown mappings are ignored instead of guessed.
+Standard-mapped browser gamepads retain radial stick deadzones and safe focus/disconnect cleanup. Unknown mappings are ignored rather than guessed. Games that only declare Tier 0 do not render shoulder buttons on mobile even though a physical pad may have them.
 
-L2/R2 are currently digital actions at a 0.5 trigger-value threshold; continuous analog trigger bindings are not implemented. A connected or refocused pad must return to neutral before controls react. Actual Xbox/PlayStation hardware and mobile Bluetooth combinations still require device testing; synthetic adapter tests are not hardware certification.
+## Ridge Rush 0.3.2
 
-The input lifecycle owns each keyboard alias, pointer and gamepad source independently. Releasing one finger or alias does not cancel another held source. Blur, hidden tabs, controller disposal and pad disconnection release active inputs. Pending pulse timers are cancelled when a controller unmounts.
+Ridge Rush is an original 1–4 player extreme mountain-bike descent. The 3.6 km course drops about **980 m** from start to finish, opens with sustained 30–50° chutes, contains multiple later 25°+ sectors, a real local climb, cliffside singletrack, off-camber sections, rock/snow/mud/dirt grip changes, a narrow shortcut, natural drop lips, ramps and deterministic AI riders.
 
-## Game-specific changes
+The authoritative bike simulation tracks forward and lateral velocity, altitude, vertical velocity, grounded state, pitch, front/rear suspension compression, stamina and surface grip. Downhill acceleration uses the gravity component along the trail; airborne motion uses 9.81 m/s² until terrain contact. Fast terrain fall-away can launch the bike without pressing jump. Landing risk depends on vertical impact, bike pitch relative to the landing slope, lean and body position. Front/rear terrain probes drive pitch and suspension response.
 
-### Turbo Circuit
+The renderer uses an actual procedural mountain mesh rather than a flat road ribbon. Cliff-side terrain can fall more than 100 m below the trail, opposite walls rise around chutes, trail camber is visible, and the chase camera keeps the local rider as the anchor while speed/grade influence FOV. The visuals are original low-poly geometry; no reference-game characters, courses, branding, audio or art are reused.
 
-Reject malformed numeric patches, including NaN and infinity, before mutating control state. Boost adds force only while gas is held and the brake is released. Wall correction no longer injects a minimum speed into a stopped kart. Drift, rescue, camera changes and backward item use are reachable through shoulder controls.
+## Clash Arena 0.1.3
 
-### Flight Trainer
+Clash Arena is an original deterministic 1v1 arena fighter with two original fighters, **Nova Rin** and **Kite Vale**, one procedural arena, a 60-second round clock and best-of-three match flow. A solo player receives a deterministic CPU opponent; a second human can occupy the other fighter slot.
 
-Zero throttle no longer produces idle taxi movement. Ground contact remembers airborne state across low-height frames, so a gentle touchdown is still evaluated. Safe landing requires runway alignment, landing gear, limited descent speed, low airspeed and stable attitude. Landing score cannot be farmed by repeated contact. Passing the last checkpoint requests a return to the runway; mission completion requires a safe landing. Restart resets the flight and controller defaults. Brake and level assist are held actions.
+The first combat slice implements spacing, high/low hold-away guard, jab, kick, crouching low sweep, launcher, bounded airborne juggle with damage scaling, A+B throw and throw escape, hit-stun/block-stun, an eight-frame input buffer, meter gain/spend and a meter Surge. Stunned fighters cannot act until recovery, juggles stop after two follow-up hits, and timeout draws/health advantages resolve deterministically.
 
-### Sky Strike
-
-Projectile collision checks the travelled segment and resolves the nearest intersection, rather than testing only the endpoint or the first plane in an array. Expired projectiles and protected respawns cannot score hits. Round resets distribute aircraft into separate slots. Short spawn protection, fuel-limited afterburner, airbrake priority, missile cooldown, respawn countdown and round-result countdown make combat state explicit.
+This is not marketed as a competitive rollback fighter yet. Prediction/rollback, larger move lists and character-specific stance systems remain later work after the local/server-authoritative duel is proven responsive.
 
 ## Verification
 
@@ -65,22 +65,6 @@ pnpm test:gameplay-controls
 The controller browser harness starts an isolated loopback Vite server, renders actual controller modules and CSS in Chromium, verifies 320×568, 360×800, 844×390 and 1280×720 in both remote and handheld modes, and checks input aliases, opposing shoulders and focus loss. Its reports/screenshots are stored under ignored `.local/gameplay-controls-qa/`. It does not authenticate against production or substitute for room-join/reconnect E2E.
 
 Before production promotion, run the local-stack room E2E suite and verify newly published manifest SHA-256 values through the live catalogue. Do not silently upgrade in-progress rooms. Longer multiplayer sessions, mobile thermal throttling and real controller ergonomics remain manual playtest work.
-
-## Ridge Rush 0.2.0
-
-Ridge Rush is an original 1–4 player point-to-point downhill mountain-bike race with a mountain-scale procedural elevation profile and deterministic AI riders filling unused starting slots. Version 0.2.0 drops roughly 176 m from start to finish while still including a real local climb, compression, rollers, ramps and drop lips. Forward speed now receives a gravity component from trail grade; jumps and drop launches use absolute altitude, vertical velocity and 9.81 m/s² gravity until physical terrain contact. Hard landings can crash based on impact, lean and body position. The narrow shortcut, rough sections and checkpoint rescue remain authoritative, and pinned 0.1.x rooms keep their immutable release.
-
-The race uses START readiness, a three-second countdown, checkpoint scoring, finish order, automatic DNF grace after the first finish and all-player rematch readiness. Sprint drains stamina only while pedalling, brake overrides sprint, and stamina recovers between efforts. X can bunny-hop or take marked ramps; unstable high-speed landings can crash. L1/R1 weight shift, L2 tuck and R2 sprint add depth but are not mandatory for basic racing.
-
-The display is procedural Three.js geometry only: original bike/rider shapes, descending terrain, trail/shortcut ribbons, trees, rocks, ramps and gates. Handheld mode follows the local rider and supports rear view; shared display follows the leading connected human. Real device/controller ergonomics and longer thermal sessions still need physical playtesting.
-
-## Proposed following cartridge: Clash Arena
-
-Working title only. Start with an original 1v1 2.5D martial-arts duel: two characters, one arena, visible range, guard and a small set of deliberate attacks. Do not promise a full competitive 3D fighting game before the core duel is responsive.
-
-The initial mechanics should include four limb attacks, throw/throw escape, guard, recovery time, hit and hurt regions, hit-stun, a small input buffer, best-of-three rounds and rematch. Proposed shoulders: L1 guard, R1 throw, L2 sidestep/dodge, R2 a meter-limited special. Each action needs a readable counter; shoulder controls must not become an automatic unbeatable combo button.
-
-Acceptance: one input produces one bounded action; simultaneous contacts resolve consistently; throws and specials have clear counters; round timers and ties have defined outcomes; neither player can act while in hit-stun; two-player LAN sessions are tested before competitive internet claims. Network prediction/rollback is future engineering work, not implemented by this gameplay pass.
 
 ## Optional later party game: Sky Rescue
 

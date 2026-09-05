@@ -2,10 +2,12 @@ import { type BrowserContext, expect, type FrameLocator, type Page } from "@play
 
 export const accountPassword = "testpass";
 
+import clashConfig from "../../games/clash-arena/game.config.json" with { type: "json" };
 import flightConfig from "../../games/flight-trainer/game.config.json" with { type: "json" };
 import ridgeConfig from "../../games/ridge-rush/game.config.json" with { type: "json" };
 import skyConfig from "../../games/sky-strike/game.config.json" with { type: "json" };
 import turboConfig from "../../games/turbo-circuit/game.config.json" with { type: "json" };
+export const clashArena = `${clashConfig.game.id}@${clashConfig.game.version}`;
 export const turboCircuit = `${turboConfig.game.id}@${turboConfig.game.version}`;
 export const skyStrike = `${skyConfig.game.id}@${skyConfig.game.version}`;
 export const ridgeRush = `${ridgeConfig.game.id}@${ridgeConfig.game.version}`;

@@ -15,7 +15,7 @@ type Snapshot = {
   }>;
 };
 
-const context = { roomId: "room", gameId: "ridge-rush", gameVersion: "0.2.0", seed: 41 };
+const context = { roomId: "room", gameId: "ridge-rush", gameVersion: "0.3.2", seed: 41 };
 const snap = (game: Awaited<ReturnType<typeof createServerGame>>) => game.snapshot() as Snapshot;
 
 async function start(game: Awaited<ReturnType<typeof createServerGame>>, id = "p1") {
@@ -72,7 +72,7 @@ describe("Ridge Rush authoritative server", () => {
     await game.onInput("p1", { steer: Number.NaN }, 3);
     for (let i = 0; i < 80; i += 1) await game.tick(3000 + i * 50, 50);
     const human = snap(game).riders.find((rider) => rider.id === "p1");
-    expect(human?.speed).toBeGreaterThan(14);
+    expect(human?.speed).toBeGreaterThan(12);
     expect(Number.isFinite(human?.progress)).toBe(true);
   });
 

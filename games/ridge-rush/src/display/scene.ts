@@ -10,7 +10,7 @@ import {
   SHORTCUT_END,
   SHORTCUT_START,
 } from "../shared/course.js";
-
+import { addMountainTerrain, trailColor, trailRibbon } from "./terrain.js";
 export interface RidgeScene {
   host: HTMLElement;
   renderer: THREE.WebGLRenderer;
@@ -18,7 +18,6 @@ export interface RidgeScene {
   camera: THREE.PerspectiveCamera;
   gates: THREE.Group[];
 }
-
 export function createRidgeScene(host: HTMLElement): RidgeScene {
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -26,24 +25,24 @@ export function createRidgeScene(host: HTMLElement): RidgeScene {
   });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.shadowMap.enabled = true;
   renderer.domElement.style.cssText = "display:block;width:100%;height:100%;";
   host.append(renderer.domElement);
   const scene = new THREE.Scene();
-  renderer.setClearColor(0x8bc8dd);
-  scene.fog = new THREE.Fog(0x8bc8dd, 90, 430);
-  const camera = new THREE.PerspectiveCamera(62, 1, 0.1, 720);
-  scene.add(new THREE.HemisphereLight(0xeaf8ff, 0x29432c, 2.4));
-  const sun = new THREE.DirectionalLight(0xffe5b2, 2.2);
-  sun.position.set(-18, 60, -30);
+  renderer.setClearColor(0xa2abb8);
+  scene.fog = new THREE.FogExp2(0x9da8b3, 0.0024);
+  const camera = new THREE.PerspectiveCamera(66, 1, 0.1, 1150);
+  scene.add(new THREE.HemisphereLight(0xe9f3ff, 0x293329, 2.1));
+  const sun = new THREE.DirectionalLight(0xffd7a2, 2.6);
+  sun.position.set(-80, 180, -110);
+  sun.castShadow = true;
   scene.add(sun);
-
-  scene.add(ribbon(82, 0, 0, COURSE_LENGTH, 0x4c713f, -0.16));
-  scene.add(ribbon(9.8, 0, 0, FINISH_PROGRESS + 8, 0x795337, -0.04));
-  scene.add(ribbon(3.6, SHORTCUT_CENTER, SHORTCUT_START, SHORTCUT_END, 0x99683d, 0.01));
-  addMountainBackdrop(scene);
+  addMountainTerrain(scene);
+  addTrailSurfaces(scene);
   addVegetation(scene);
   addRocks(scene);
   addRamps(scene);
+  addDistantPeaks(scene);
   const gates = CHECKPOINTS.map((progress, index) =>
     createGate(progress, index === CHECKPOINTS.length - 1 ? 0xfacc15 : 0x67e8f9),
   );
@@ -54,100 +53,76 @@ export function createRidgeScene(host: HTMLElement): RidgeScene {
   gates.push(finish);
   return { host, renderer, scene, camera, gates };
 }
-
-function ribbon(
-  width: number,
-  offset: number,
-  start: number,
-  end: number,
-  color: number,
-  yOffset: number,
-) {
-  const vertices: number[] = [];
-  const indices: number[] = [];
-  const step = 5;
-  let row = 0;
-  for (let p = start; p <= end + 0.1; p = Math.min(end, p + step)) {
-    const center = centerLine(p) + offset;
-    const y = courseElevation(p) + yOffset;
-    vertices.push(center - width / 2, y, p, center + width / 2, y, p);
-    if (row > 0) {
-      const a = row * 2;
-      indices.push(a - 2, a, a - 1, a, a + 1, a - 1);
-    }
-    row += 1;
-    if (p === end) break;
-  }
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
-  geometry.setIndex(indices);
-  geometry.computeVertexNormals();
-  return new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color, roughness: 1 }));
+function addTrailSurfaces(scene: THREE.Scene): void {
+  for (const [start, end] of [
+    [0, 520],
+    [520, 920],
+    [920, 1290],
+    [1290, 1740],
+    [1740, 2050],
+    [2050, 2470],
+    [2470, 2780],
+    [2780, FINISH_PROGRESS + 10],
+  ] as const)
+    scene.add(trailRibbon(8.4, start, end, trailColor((start + end) / 2)));
+  scene.add(trailRibbon(3.1, SHORTCUT_START, SHORTCUT_END, 0x8d603c, SHORTCUT_CENTER));
 }
-
 function createGate(progress: number, color: number): THREE.Group {
-  const group = new THREE.Group();
-  const x = centerLine(progress);
-  const y = courseElevation(progress);
-  const material = new THREE.MeshStandardMaterial({ color, roughness: 0.55 });
+  const group = new THREE.Group(),
+    x = centerLine(progress),
+    y = courseElevation(progress),
+    material = new THREE.MeshStandardMaterial({ color, roughness: 0.55 });
   for (const side of [-1, 1]) {
     const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 4, 8), material);
-    pole.position.set(x + side * 4.5, y + 2, progress);
+    pole.position.set(x + side * 3.7, y + 2, progress);
     group.add(pole);
   }
-  const banner = new THREE.Mesh(new THREE.BoxGeometry(9.2, 0.32, 0.22), material);
+  const banner = new THREE.Mesh(new THREE.BoxGeometry(7.6, 0.32, 0.22), material);
   banner.position.set(x, y + 3.8, progress);
   group.add(banner);
   return group;
 }
-
-function addRamps(scene: THREE.Scene) {
-  const material = new THREE.MeshStandardMaterial({ color: 0xa06b3e, roughness: 0.95 });
+function addRamps(scene: THREE.Scene): void {
+  const material = new THREE.MeshStandardMaterial({ color: 0x8c5f3a, roughness: 0.96 });
   for (const zone of JUMP_ZONES) {
-    const p = (zone.start + zone.end) / 2;
-    const ramp = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.45, 4.2), material);
-    ramp.position.set(centerLine(p), courseElevation(p) + 0.18, p);
-    ramp.rotation.x = -0.08;
+    const p = (zone.start + zone.end) / 2,
+      ramp = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.42, 5.5), material);
+    ramp.position.set(centerLine(p), courseElevation(p) + 0.14, p);
+    ramp.rotation.x = -0.11;
     scene.add(ramp);
   }
 }
-
-function addVegetation(scene: THREE.Scene) {
-  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x513721, roughness: 1 });
-  const leafMat = new THREE.MeshStandardMaterial({ color: 0x1f5b35, roughness: 1 });
-  for (let p = 26; p < COURSE_LENGTH; p += 23) {
+function addVegetation(scene: THREE.Scene): void {
+  const trunk = new THREE.MeshStandardMaterial({ color: 0x49311f, roughness: 1 }),
+    leaf = new THREE.MeshStandardMaterial({ color: 0x183e28, roughness: 1 });
+  for (let p = 35; p < COURSE_LENGTH; p += 34) {
     for (const side of [-1, 1]) {
-      if ((Math.floor(p) + side) % 5 === 0) continue;
-      const x = centerLine(p) + side * (10 + ((p * 7) % 12));
-      const y = courseElevation(p);
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 2.8, 6), trunkMat);
-      trunk.position.set(x, y + 1.4, p);
-      const crown = new THREE.Mesh(new THREE.ConeGeometry(1.8, 4.8, 7), leafMat);
-      crown.position.set(x, y + 4.7, p);
-      scene.add(trunk, crown);
+      if ((p + side) % 7 < 2) continue;
+      const distance = 10 + ((p * 7) % 20),
+        x = centerLine(p) + side * distance,
+        y = courseElevation(p) + (distance > 18 ? 3 : 0);
+      const a = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.28, 2.6, 6), trunk),
+        b = new THREE.Mesh(new THREE.ConeGeometry(1.6, 4.7, 7), leaf);
+      a.position.set(x, y + 1.3, p);
+      b.position.set(x, y + 4.5, p);
+      scene.add(a, b);
     }
   }
 }
-
-function addRocks(scene: THREE.Scene) {
-  const material = new THREE.MeshStandardMaterial({ color: 0x6d746f, roughness: 1 });
-  for (const base of [446, 474, 500, 895, 918, 940]) {
-    const rock = new THREE.Mesh(new THREE.SphereGeometry(0.55 + (base % 3) * 0.16, 7, 5), material);
-    rock.position.set(
-      centerLine(base) + ((base % 5) - 2) * 1.35,
-      courseElevation(base) + 0.35,
-      base,
-    );
+function addRocks(scene: THREE.Scene): void {
+  const material = new THREE.MeshStandardMaterial({ color: 0x5d5b5a, roughness: 1 });
+  for (let p = 900; p < 3300; p += 97) {
+    const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(0.55 + (p % 5) * 0.14, 0), material);
+    rock.position.set(centerLine(p) + ((p % 11) - 5) * 1.1, courseElevation(p) + 0.35, p);
     scene.add(rock);
   }
 }
-
-function addMountainBackdrop(scene: THREE.Scene) {
-  const material = new THREE.MeshStandardMaterial({ color: 0x587157, roughness: 1 });
+function addDistantPeaks(scene: THREE.Scene): void {
+  const material = new THREE.MeshStandardMaterial({ color: 0x59616a, roughness: 1 });
   for (const side of [-1, 1])
-    for (let p = 120; p < COURSE_LENGTH; p += 180) {
-      const mountain = new THREE.Mesh(new THREE.ConeGeometry(18, 36, 7), material);
-      mountain.position.set(side * 42 + centerLine(p), courseElevation(p) + 14, p + 36);
+    for (let p = 180; p < COURSE_LENGTH; p += 420) {
+      const mountain = new THREE.Mesh(new THREE.ConeGeometry(95, 230, 7), material);
+      mountain.position.set(centerLine(p) + side * 165, courseElevation(p) + 55, p + 150);
       scene.add(mountain);
     }
 }

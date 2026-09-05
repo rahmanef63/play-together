@@ -1,0 +1,25 @@
+export type ViewFighter = {
+  id: string;
+  name: string;
+  bot: boolean;
+  side: number;
+  hp: number;
+  meter: number;
+  wins: number;
+  x: number;
+  lane: number;
+  move: string | null;
+  stun: number;
+  airborne: number;
+  flash: string;
+};
+export type ArenaState = {
+  kind: "clash-arena";
+  phase: "lobby" | "fight" | "round-over" | "match-over";
+  round: number;
+  timerMs: number;
+  event: string;
+  fighters: ViewFighter[];
+};
+export const isArenaState = (value: unknown): value is ArenaState =>
+  !!value && typeof value === "object" && (value as { kind?: unknown }).kind === "clash-arena";

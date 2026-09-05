@@ -17,6 +17,20 @@ describe("game runtime dependencies", () => {
     });
   });
 
+  it("maps the new pt2 ABI without mutating pt1", () => {
+    const entry = vendorCatalog.vendors.three["0.185.1+pt2"];
+    const imports = resolveRuntimeImports(
+      { runtimeDependencies: { three: "0.185.1+pt2" } } as never,
+      "https://game.test",
+    );
+    expect(imports).toEqual({
+      "@play-together/runtime/three@0.185.1+pt2": {
+        url: "https://game.test/engine-vendors/three@0.185.1+pt2.js",
+        sha256: entry.sha256,
+      },
+    });
+  });
+
   it("rejects unsupported dependency versions", () => {
     expect(() =>
       resolveRuntimeImports(

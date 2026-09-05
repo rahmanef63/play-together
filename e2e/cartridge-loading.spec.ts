@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import {
+  clashArena,
   closeContext,
   createRoom,
   flightTrainer,
@@ -10,13 +11,19 @@ import {
   turboCircuit,
 } from "./support/multiplayer";
 
-test("active catalog exposes four games and each game has one compact platform menu", async ({
+test("active catalog exposes five games and each game has one compact platform menu", async ({
   browser,
 }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   const games = [
+    {
+      key: clashArena,
+      title: "Clash Arena",
+      control: "Jab; press with B to escape a throw",
+      preset: "classic",
+    },
     {
       key: turboCircuit,
       title: "Turbo Circuit",
@@ -42,13 +49,13 @@ test("active catalog exposes four games and each game has one compact platform m
     const setup = page.getByRole("button", { name: "Set up room", exact: true });
     await setup.click();
     const picker = page.locator('.create-panel select[name="game"] option');
-    await expect(picker).toHaveCount(4);
+    await expect(picker).toHaveCount(5);
     expect(await picker.allTextContents()).toEqual(
       games.map((game) => `${game.title} · ${game.key.split("@")[1]}`).sort(),
     );
     await page.getByRole("button", { name: "Back to library", exact: true }).click();
     const previews = page.locator(".game-picker img");
-    await expect(previews).toHaveCount(4);
+    await expect(previews).toHaveCount(5);
     expect(
       await previews.evaluateAll((images) =>
         images.every(

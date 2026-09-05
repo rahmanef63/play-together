@@ -6,12 +6,16 @@ export interface RiderView {
   progress: number;
   lane: number;
   speed: number;
+  lateralVelocity: number;
   stamina: number;
   checkpoint: number;
   altitude: number;
   verticalSpeed: number;
   grounded: boolean;
   airTimeMs: number;
+  pitch: number;
+  suspensionFront: number;
+  suspensionRear: number;
   crashed: number;
   finishedAt: number | null;
   score: number;
@@ -20,7 +24,6 @@ export interface RiderView {
   lean: number;
   rescueCount: number;
 }
-
 export interface RidgeViewState {
   kind: "ridge-rush";
   phase: "lobby" | "countdown" | "racing" | "finished";
@@ -30,7 +33,6 @@ export interface RidgeViewState {
   course: { length: number; checkpoints: readonly number[] };
   riders: RiderView[];
 }
-
 export interface RiderPose {
   x: number;
   y: number;
@@ -38,8 +40,9 @@ export interface RiderPose {
   heading: number;
   lean: number;
   pitch: number;
+  suspensionFront: number;
+  suspensionRear: number;
 }
-
 export function isRidgeState(value: unknown): value is RidgeViewState {
   if (typeof value !== "object" || value === null) return false;
   const state = value as Partial<RidgeViewState>;
@@ -51,11 +54,9 @@ export function isRidgeState(value: unknown): value is RidgeViewState {
     typeof state.course?.length === "number"
   );
 }
-
 export function smoothing(rate: number, dt: number): number {
   return 1 - Math.exp(-rate * dt);
 }
-
 export function smoothAngle(from: number, to: number, alpha: number): number {
   const delta = Math.atan2(Math.sin(to - from), Math.cos(to - from));
   return from + delta * alpha;

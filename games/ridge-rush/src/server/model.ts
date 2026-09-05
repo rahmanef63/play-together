@@ -1,12 +1,6 @@
-import {
-  BIKE_GROUND_OFFSET,
-  CHECKPOINTS,
-  courseElevation,
-  FINISH_PROGRESS,
-} from "../shared/course.js";
+import { CHECKPOINTS, courseElevation, FINISH_PROGRESS } from "../shared/course.js";
 
 export type Phase = "lobby" | "countdown" | "racing" | "finished";
-
 export interface RiderInput {
   steer: number;
   body: number;
@@ -14,12 +8,7 @@ export interface RiderInput {
   brake: boolean;
   jump: boolean;
   rear: boolean;
-  left: boolean;
-  right: boolean;
-  tuck: boolean;
-  sprint: boolean;
 }
-
 export interface Rider {
   id: string;
   name: string;
@@ -28,12 +17,16 @@ export interface Rider {
   progress: number;
   lane: number;
   speed: number;
+  lateralVelocity: number;
   stamina: number;
   checkpoint: number;
   altitude: number;
   verticalSpeed: number;
   grounded: boolean;
   airTimeMs: number;
+  pitch: number;
+  suspensionFront: number;
+  suspensionRear: number;
   crashed: number;
   finishedAt: number | null;
   score: number;
@@ -45,7 +38,6 @@ export interface Rider {
   jumpReady: boolean;
   input: RiderInput;
 }
-
 export interface RidgeState {
   kind: "ridge-rush";
   phase: Phase;
@@ -56,24 +48,11 @@ export interface RidgeState {
   course: { length: number; checkpoints: readonly number[] };
   riders: Rider[];
 }
-
 export function emptyInput(): RiderInput {
-  return {
-    steer: 0,
-    body: 0,
-    pedal: false,
-    brake: false,
-    jump: false,
-    rear: false,
-    left: false,
-    right: false,
-    tuck: false,
-    sprint: false,
-  };
+  return { steer: 0, body: 0, pedal: false, brake: false, jump: false, rear: false };
 }
-
 export function createRider(id: string, slot: number, bot = false): Rider {
-  const lanes = [-1.8, 1.8, -3.6, 3.6];
+  const lanes = [-1.5, 1.5, -3, 3];
   return {
     id,
     name: bot ? `RIDGE BOT ${slot + 1}` : `RIDER ${slot + 1}`,
@@ -82,12 +61,16 @@ export function createRider(id: string, slot: number, bot = false): Rider {
     progress: 0,
     lane: lanes[slot % lanes.length] ?? 0,
     speed: 0,
+    lateralVelocity: 0,
     stamina: 100,
     checkpoint: 0,
-    altitude: courseElevation(0) + BIKE_GROUND_OFFSET,
+    altitude: courseElevation(0) + 0.08,
     verticalSpeed: 0,
     grounded: true,
     airTimeMs: 0,
+    pitch: 0,
+    suspensionFront: 0,
+    suspensionRear: 0,
     crashed: 0,
     finishedAt: null,
     score: 0,
@@ -100,7 +83,6 @@ export function createRider(id: string, slot: number, bot = false): Rider {
     input: emptyInput(),
   };
 }
-
 export function createState(): RidgeState {
   return {
     kind: "ridge-rush",
@@ -113,15 +95,12 @@ export function createState(): RidgeState {
     riders: [],
   };
 }
-
 export function resetRider(rider: Rider): Rider {
   return createRider(rider.id, rider.slot, rider.bot);
 }
-
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
-
 export function finite(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }

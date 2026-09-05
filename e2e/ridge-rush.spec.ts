@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { closeContext, createRoom, ridgeRush, signUp, startGame } from "./support/multiplayer";
 
-test("Ridge Rush provides a distinct downhill race with optional advanced shoulder controls", async ({
+test("Ridge Rush provides a distinct downhill race with Tier 0 controls and extreme mountain physics", async ({
   browser,
 }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -22,21 +22,20 @@ test("Ridge Rush provides a distinct downhill race with optional advanced should
     await expect(race).toBeVisible({ timeout: 20_000 });
     await expect(frame.locator(".handheld-screen canvas")).toBeVisible();
     const controller = frame.locator('.builtin-controller[data-renderer="builtin"]');
-    await expect(controller.locator(".console-control")).toHaveCount(10);
+    await expect(controller.locator(".console-control")).toHaveCount(6);
     for (const [id, face, action] of [
       ["pedal", "a", "PEDAL"],
       ["brake", "b", "BRAKE"],
       ["jump", "x", "JUMP"],
       ["rear-view", "y", "REAR"],
-      ["weight-left", "l1", "LEAN L"],
-      ["weight-right", "r1", "LEAN R"],
-      ["tuck", "l2", "TUCK"],
-      ["sprint", "r2", "SPRINT"],
     ] as const) {
       const control = controller.locator(`[data-control-id="${id}"]`);
       await expect(control).toHaveAttribute("data-face", face);
       await expect(control.getByText(action, { exact: true })).toBeVisible();
     }
+    await expect(
+      controller.locator('[data-face="l1"], [data-face="r1"], [data-face="l2"], [data-face="r2"]'),
+    ).toHaveCount(0);
     const start = frame.getByRole("button", { name: "Ready or request rematch" });
     await start.click();
     const countdown = frame.getByText(/^3$|^2$|^1$/);
@@ -52,15 +51,9 @@ test("Ridge Rush provides a distinct downhill race with optional advanced should
       await expect(pedal).toHaveAttribute("aria-pressed", "true");
       await expect
         .poll(() => speed.textContent().then((text) => Number.parseInt(text ?? "0", 10)), {
-          timeout: 5_000,
+          timeout: 8_000,
         })
-        .toBeGreaterThan(35);
-      await page.keyboard.down("KeyC");
-      const sprint = frame.getByRole("button", { name: "Stamina sprint" });
-      await expect(sprint).toHaveAttribute("aria-pressed", "true");
-      await page.waitForTimeout(450);
-      await page.keyboard.up("KeyC");
-      await expect(sprint).toHaveAttribute("aria-pressed", "false");
+        .toBeGreaterThan(28);
       await page.keyboard.down("KeyX");
       try {
         await expect(frame.getByText(/^AIR /)).toBeVisible({ timeout: 1_500 });

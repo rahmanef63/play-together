@@ -12,7 +12,7 @@ if (catalog.schemaVersion !== 1 || !catalog.vendors?.three) {
 }
 const webPackage = JSON.parse(await readFile(resolve(root, "apps/web/package.json"), "utf8"));
 const installedThree = webPackage.dependencies?.three;
-const manifest = { schemaVersion: 1, vendors: {} };
+const manifest = { schemaVersion: 1, vendors: { three: {} } };
 await rm(outputRoot, { recursive: true, force: true });
 await mkdir(outputRoot, { recursive: true });
 
@@ -56,7 +56,7 @@ for (const [runtimeVersion, entry] of Object.entries(catalog.vendors.three)) {
       `Immutable engine vendor changed for three@${runtimeVersion}: expected ${entry.sha256}, got ${sha256}`,
     );
   }
-  manifest.vendors.three = {
+  manifest.vendors.three[runtimeVersion] = {
     version: runtimeVersion,
     packageVersion: entry.packageVersion,
     url: entry.url,

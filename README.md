@@ -6,7 +6,7 @@
 
 A version-isolated multiplayer platform for phone remotes, handheld play, and shared browser/TV displays. Each game ships as an independent cartridge; the platform owns discovery, rooms, pairing, realtime transport, device shells, and immutable release verification.
 
-The source catalog targets four active 3D cartridges: **Turbo Circuit 0.10.1**, **Flight Trainer 0.3.0**, **Sky Strike 0.3.0**, and the original downhill-bike racer **Ridge Rush 0.2.0**. Source versions do not imply that production or an already-open room has upgraded. Historical releases for removed games stay byte-immutable but are retired from new-room selection.
+The source catalog targets five active 3D cartridges: **Turbo Circuit 0.10.1**, **Flight Trainer 0.3.0**, **Sky Strike 0.3.0**, the extreme downhill-bike racer **Ridge Rush 0.3.2**, and the original 1v1 fighter **Clash Arena 0.1.3**. Source versions do not imply that production or an already-open room has upgraded. Historical releases for removed games stay byte-immutable but are retired from new-room selection.
 
 [![CI](https://github.com/rahmanef63/play-together/actions/workflows/ci.yml/badge.svg)](https://github.com/rahmanef63/play-together/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -33,7 +33,7 @@ requirements are separate; missing WebGL 2 cannot be fixed with a JavaScript pol
 
 ## Gameplay and controls
 
-Complex cartridge manifests can expose **L1, L2, R1 and R2** alongside ABXY controls. Touch, keyboard and standard-mapped physical gamepads share input ownership and focus-loss cleanup. Read the [gameplay development guide](docs/gameplay-development.md) for mappings, verification limits and the proposed original downhill/fighting cartridges.
+The default Play Together controller is deliberately **Tier 0: one left stick + ABXY + Menu/Start**. L1/L2/R1/R2 are not recommended by default and only belong in a game when playtesting proves the extra inputs are genuinely necessary. Ridge Rush 0.3.2 and Clash Arena 0.1.3 both ship with Tier 0 mobile controls. Touch, keyboard and standard-mapped physical gamepads share input ownership and focus-loss cleanup. Read the [gameplay development guide](docs/gameplay-development.md) for the controller-tier contract and per-game mappings.
 
 ## Product flow
 

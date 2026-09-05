@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "clash-arena",
+    "version": "0.1.1",
+    "title": "Clash Arena",
+    "description": "Original 1v1 arena fighter: read guard direction, manage meter, escape throws and choose your timing.",
+    "minPlayers": 1,
+    "maxPlayers": 2,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "runtimeDependencies": {
+    "three": "0.185.1+pt2"
+  },
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "landscape",
+    "console": {
+      "renderer": "builtin",
+      "layout": "arcade",
+      "initialState": {
+        "x": 0,
+        "y": 0,
+        "a": false,
+        "b": false,
+        "xButton": false,
+        "yButton": false,
+        "start": false
+      },
+      "controls": [
+        {
+          "id": "move",
+          "kind": "stick",
+          "ariaLabel": "Move; hold away to guard high, crouch plus away to guard low",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "x": "$x",
+              "y": "$y"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "x": 0,
+              "y": 0
+            }
+          },
+          "keys": {
+            "up": [
+              "ArrowUp",
+              "KeyW"
+            ],
+            "down": [
+              "ArrowDown",
+              "KeyS"
+            ],
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ]
+          }
+        },
+        {
+          "id": "jab",
+          "kind": "button",
+          "label": "A",
+          "displayLabel": "JAB / ESCAPE",
+          "ariaLabel": "Jab; press with B to escape a throw",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "a": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "a": false
+            }
+          },
+          "keys": [
+            "KeyJ"
+          ]
+        },
+        {
+          "id": "kick",
+          "kind": "button",
+          "label": "B",
+          "displayLabel": "KICK / ESCAPE",
+          "ariaLabel": "Kick; press with A to escape a throw",
+          "face": "b",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "b": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "b": false
+            }
+          },
+          "keys": [
+            "KeyK"
+          ]
+        },
+        {
+          "id": "strike",
+          "kind": "button",
+          "label": "X",
+          "displayLabel": "LAUNCH / LOW",
+          "ariaLabel": "Launcher; crouch plus X performs a low sweep",
+          "face": "x",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "xButton": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "xButton": false
+            }
+          },
+          "keys": [
+            "KeyL"
+          ]
+        },
+        {
+          "id": "surge",
+          "kind": "button",
+          "label": "Y",
+          "displayLabel": "METER SURGE",
+          "ariaLabel": "Spend meter for Surge",
+          "face": "y",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "yButton": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "yButton": false
+            }
+          },
+          "keys": [
+            "KeyI"
+          ]
+        },
+        {
+          "id": "start",
+          "kind": "button",
+          "label": "START",
+          "displayLabel": "REMATCH",
+          "ariaLabel": "Request rematch after match",
+          "face": "start",
+          "zone": "bottom",
+          "press": {
+            "type": "patch",
+            "values": {
+              "start": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "start": false
+            }
+          },
+          "keys": [
+            "Enter"
+          ]
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "771253c93e53cdceef480e43f0fa58c8b8b001fdcd553029e48c5ab6dbdb4d55"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "749c45ac2aed112d32092b7dbf0dc8a24b4023fa702f890ecab812d8c8fc75c0"
+    }
+  }
+}

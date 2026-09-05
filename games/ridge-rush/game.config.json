@@ -3,9 +3,9 @@
   "protocolVersion": 1,
   "game": {
     "id": "ridge-rush",
-    "version": "0.2.0",
+    "version": "0.3.2",
     "title": "Ridge Rush",
-    "description": "Original 3D point-to-point downhill mountain-bike racing with carving, braking, jumps, stamina sprinting, risky shortcuts, checkpoints and automatic crash rescue.",
+    "description": "Extreme 3D mountain-bike descent with cliffside singletrack, deep vertical drops, gravity, wheel-weight transfer, surface grip, jumps, checkpoints and deterministic rivals.",
     "minPlayers": 1,
     "maxPlayers": 4,
     "tickRate": 60,
@@ -19,7 +19,7 @@
     }
   },
   "runtimeDependencies": {
-    "three": "0.185.1+pt1"
+    "three": "0.185.1+pt2"
   },
   "controller": {
     "supportsRemote": true,
@@ -34,11 +34,7 @@
         "pedal": false,
         "brake": false,
         "jump": false,
-        "rear": false,
-        "left": false,
-        "right": false,
-        "tuck": false,
-        "sprint": false
+        "rear": false
       },
       "controls": [
         {
@@ -154,94 +150,6 @@
             }
           },
           "keys": ["KeyY"]
-        },
-        {
-          "id": "weight-left",
-          "kind": "button",
-          "label": "L1",
-          "displayLabel": "LEAN L",
-          "ariaLabel": "Weight shift left",
-          "face": "l1",
-          "zone": "top-left",
-          "press": {
-            "type": "patch",
-            "values": {
-              "left": true
-            }
-          },
-          "release": {
-            "type": "patch",
-            "values": {
-              "left": false
-            }
-          },
-          "keys": ["KeyQ"]
-        },
-        {
-          "id": "weight-right",
-          "kind": "button",
-          "label": "R1",
-          "displayLabel": "LEAN R",
-          "ariaLabel": "Weight shift right",
-          "face": "r1",
-          "zone": "top-right",
-          "press": {
-            "type": "patch",
-            "values": {
-              "right": true
-            }
-          },
-          "release": {
-            "type": "patch",
-            "values": {
-              "right": false
-            }
-          },
-          "keys": ["KeyE"]
-        },
-        {
-          "id": "tuck",
-          "kind": "button",
-          "label": "L2",
-          "displayLabel": "TUCK",
-          "ariaLabel": "Aerodynamic tuck",
-          "face": "l2",
-          "zone": "top-left",
-          "press": {
-            "type": "patch",
-            "values": {
-              "tuck": true
-            }
-          },
-          "release": {
-            "type": "patch",
-            "values": {
-              "tuck": false
-            }
-          },
-          "keys": ["KeyZ"]
-        },
-        {
-          "id": "sprint",
-          "kind": "button",
-          "label": "R2",
-          "displayLabel": "SPRINT",
-          "ariaLabel": "Stamina sprint",
-          "face": "r2",
-          "zone": "top-right",
-          "press": {
-            "type": "patch",
-            "values": {
-              "sprint": true
-            }
-          },
-          "release": {
-            "type": "patch",
-            "values": {
-              "sprint": false
-            }
-          },
-          "keys": ["KeyC"]
         },
         {
           "id": "start",

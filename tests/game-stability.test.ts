@@ -15,6 +15,7 @@ describe("latest cartridge server stability", () => {
       .map((entry) => entry.name)
       .sort();
     expect(gameDirectories).toEqual([
+      "clash-arena",
       "flight-trainer",
       "ridge-rush",
       "sky-strike",

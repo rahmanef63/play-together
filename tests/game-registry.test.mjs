@@ -13,6 +13,7 @@ describe("game slice registry", () => {
     expect(registry.schemaVersion).toBe(1);
     expect(registry.games).toHaveLength(discovered.length);
     expect(discovered.map((game) => game.id).sort()).toEqual([
+      "clash-arena",
       "flight-trainer",
       "ridge-rush",
       "sky-strike",

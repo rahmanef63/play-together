@@ -2,6 +2,27 @@
 
 All notable changes to Play Together are documented here. The project follows semantic versioning for the platform and immutable semantic versions for each game release.
 
+## [0.19.0] - 2026-09-06
+
+### Ridge Rush 0.3.2
+
+- Rebuild the downhill course around a 3.6 km mountain profile dropping about 980 m, with a sustained extreme opening, repeated 25–50° chutes, cliffside singletrack, off-camber terrain, a local climb and surface-specific grip/rolling resistance.
+- Add lateral velocity from steering/camber, front/rear terrain probing, bike pitch and suspension compression, natural terrain-drop launches, ballistic gravity and landing alignment/impact consequences.
+- Replace the broad flat surrounding ribbon with a procedural mountain mesh containing cliff drops, rising walls, cambered trail surfaces, biome segments and larger distant relief. Reframe handheld chase camera around the local rider instead of a distant valley target.
+- Move Ridge Rush to the Tier 0 controller contract: stick + A pedal / B brake / X jump / Y rear + Start. Remove default L1/L2/R1/R2 actions; forward body weight provides tuck behavior.
+- Preserve Ridge Rush 0.3.0 as an immutable retired pre-production visual-QA candidate rather than rewriting it.
+
+### Clash Arena 0.1.3
+
+- Add a fifth active original cartridge: a deterministic 1v1 arena fighter with Nova Rin, Kite Vale, one procedural arena, a solo CPU opponent, 60-second rounds, best-of-three wins and rematch flow.
+- Add high/low hold-away guard, jab/kick, low sweep, launcher, bounded/scaled juggle, A+B throw/escape, hit-stun, block-stun, short input buffer, meter gain and meter Surge.
+- Ship Tier 0 controls only: one movement/guard stick, ABXY and Start. No shoulder controls are declared by default.
+- Add focused combat/lifecycle/server tests, source-browser rendering checks, controller layout coverage and dedicated public E2E scenarios.
+
+### Controller contract
+
+- Document and persist the platform rule that Tier 0 (left stick + ABXY + Menu/Start) is the default. Right stick and L/R tiers are opt-in only when the core gameplay genuinely requires them.
+
 ## [0.17.0] - 2026-09-06
 
 ### Ridge Rush

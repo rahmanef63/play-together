@@ -167,3 +167,21 @@ The first immutable Ridge Rush release remains byte-identical to the current gam
 Play Together 0.18.0 replaces the gameplay action stack with one per-game Menu and moves invite, role switch, fullscreen, room details and host return-to-menu actions inside it. The shared display no longer auto-opens a large QR simply because zero controllers are connected; the existing status remains available to assistive technology and in the compact toolbar.
 
 Ridge Rush 0.2.0 is a new immutable release. The course profile drops more than 160 m between start and finish while retaining a measurable local climb. Unit coverage now proves grade-driven coasting differences, braking against downhill gravity, physical vertical-velocity decay under gravity, natural drop-lip airtime, hard-landing crashes, checkpoint enforcement and deterministic bots. Source-browser verification mounts the real Three.js scene/controller against authoritative four-rider snapshots without runtime errors. Ridge Rush 0.1.0, 0.1.1 and 0.1.2 remain immutable; 0.1.2 is retired only for new room creation.
+
+
+## Ridge Rush 0.3.2 + Clash Arena 0.1.3 candidate — 2026-09-06
+
+Ridge Rush 0.3.2 and Clash Arena 0.1.3 were created as new immutable releases; no historical cartridge bytes were rewritten. Ridge source physics/typecheck/build currently passes 26 package tests. The course profile drops roughly 980 m and has measured opening/later grade samples above 25°, including 40–50° sectors. Source browser QA mounted the actual Three.js renderer and Tier 0 controller for both new candidates at 755×690 without page errors or shoulder controls.
+
+Clash Arena package verification currently passes focused server/combat/lifecycle tests for deterministic solo CPU replacement, guard levels, throw escape, hit-stun, input buffering, launcher/juggle scaling and limit, meter spend, round timeout/draws, best-of-three lifecycle, rematch reset, malformed input and deterministic execution. Production status is intentionally not claimed in this candidate paragraph; main CI and public-domain verification are required below before completion.
+
+Clash Arena 0.1.2 was a task-local pre-production artifact with an invalid `classic` controller layout value. Its immutable files are retained for audit but its catalog row is intentionally removed so publication never attempts to register an invalid manifest. The final valid release is Clash Arena 0.1.3 (`arcade` controller layout resolving to the platform's `classic` shell preset).
+
+
+### Final local release gate — Play Together 0.19.0
+
+Final source state uses Ridge Rush 0.3.2 and Clash Arena 0.1.3. `pnpm verify` completed with exit 0: 319 visible unit/integration passes across workspace/root suites, with the two optional Redis scenarios skipped by the default realtime invocation; lint, architecture, TypeScript, production build, realtime smoke, source security and dependency audit also passed. The dedicated embed check passed all 8 allowed/denied nested-origin scenarios, and the gameplay-controller harness passed 51 Chromium cases across five games with no runtime errors.
+
+A full local production-topology browser suite then passed **26/26** scenarios, including the new Clash Arena match, Ridge Rush extreme downhill run, five-game catalog, QR/camera sign-in, recovery, remote layouts, split-screen, room admission/CRUD, mobile and TV checks. Because the repository-pinned Convex image is not currently pullable from GHCR on this VPS, this local stack used only an already-cached older Convex image through a task-local Compose override; production Compose pins were not edited. The QA stack, volume/network, generated local auth/admin material and temporary bootstrap/override files were removed after the run.
+
+All release files already tracked on `origin/main` remain byte-identical. Ridge Rush 0.3.2 manifest SHA-256 is `4f4e1d3f4779100f5366667a5596b55aae4bc19191bdab113dc4b27544917920`; Clash Arena 0.1.3 is `077cde55f3312d5b1feb483a2149906c9223d7a9823123f08ae0c7cf3de6143e`. Existing Three ABI `0.185.1+pt1` is preserved for the established games; new Ridge/Clash releases use additive ABI `0.185.1+pt2`. Production promotion is still a separate main-branch CI/deploy requirement at this point in the record.

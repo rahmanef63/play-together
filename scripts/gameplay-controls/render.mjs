@@ -5,7 +5,13 @@ import { pathToFileURL } from "node:url";
 
 /** Exercise cartridge rendering with real authoritative snapshots, without an auth backend. */
 export async function verifyGameDisplays(page, root, artifactDirectory, results) {
-  for (const gameId of ["turbo-circuit", "flight-trainer", "sky-strike", "ridge-rush"]) {
+  for (const gameId of [
+    "turbo-circuit",
+    "flight-trainer",
+    "sky-strike",
+    "ridge-rush",
+    "clash-arena",
+  ]) {
     const config = JSON.parse(
       await readFile(resolve(root, "games", gameId, "game.config.json"), "utf8"),
     );
@@ -17,11 +23,12 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
       gameVersion: config.game.version,
       seed: 42,
     });
-    for (let index = 0; index < 4; index++) {
+    const playerCount = gameId === "clash-arena" ? 2 : 4;
+    for (let index = 0; index < playerCount; index++) {
       const id = `qa-${index}`;
       await game.onJoin({ id, connectedAt: 0 });
     }
-    for (let index = 0; index < 4; index++) {
+    for (let index = 0; index < playerCount; index++) {
       const id = `qa-${index}`;
       if (gameId === "turbo-circuit" || gameId === "ridge-rush") {
         await game.onInput(id, { action: "ready" }, 1);
@@ -30,8 +37,10 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
         gameId === "flight-trainer"
           ? { throttle: 0.8, pitch: 0.5, roll: 0.05, flaps: true, gear: true }
           : gameId === "ridge-rush"
-            ? { steer: 0.06, body: 0.18, pedal: true, sprint: true }
-            : { throttle: 0.7, gun: true };
+            ? { steer: 0.06, body: 0.18, pedal: true }
+            : gameId === "clash-arena"
+              ? { x: index === 0 ? -0.7 : 0.7, a: index === 0, b: index === 1 }
+              : { throttle: 0.7, gun: true };
       await game.onInput(id, input, 2);
     }
     for (let tick = 0; tick < 160; tick++) await game.tick(tick * 50, 50);
@@ -109,7 +118,7 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
       const name = `${gameId}-gameplay-${viewport.width}x${viewport.height}`;
       await page.screenshot({ path: resolve(artifactDirectory, `${name}.png`) });
       results.push({ name, canvases, issues: [] });
-      console.log(`PASS ${name}: four authoritative players, mounted 3D display and controls`);
+      console.log(`PASS ${name}: authoritative players, mounted 3D display and controls`);
     }
     await page.evaluate(() => window.qa.dispose());
     await game.dispose?.();
