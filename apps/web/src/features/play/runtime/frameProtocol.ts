@@ -1,4 +1,5 @@
 import type { ControllerMode } from "@play-together/contracts";
+import { browserPathForNavigation } from "../../../shared/navigation";
 import type { RemoteRole } from "../remotePresentation";
 
 export function createGameFrame(
@@ -16,7 +17,7 @@ export function createGameFrame(
         : "Phone game controller";
   frame.sandbox.add("allow-scripts", "allow-pointer-lock");
   frame.allow = "fullscreen; gamepad; accelerometer; gyroscope";
-  frame.src = "/game-frame.html";
+  frame.src = browserPathForNavigation("/game-frame.html", window.location.pathname);
   frame.dataset.channel = channel;
   return frame;
 }

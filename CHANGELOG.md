@@ -2,6 +2,16 @@
 
 All notable changes to Play Together are documented here. The project follows semantic versioning for the platform and immutable semantic versions for each game release.
 
+## [0.14.1] - 2026-09-05
+
+### Fixed
+
+- Dedicated `/embed` routes now allow the complete reviewed ChatGPT sandbox → MSO → game ancestor chain; the ordinary application keeps its anti-framing policy.
+- Nested game frames keep the `/embed/game-frame.html` path and resolve to the actual sandbox document instead of the application shell.
+- The React app emits a minimal exact-parent readiness message after the auth/lobby shell is usable; it contains no account or room data.
+- Local HTTP and Vercel embed policies are covered by regression tests, including a real browser allowed-chain/refused-chain check.
+- E2E cartridge selection now follows source manifests and verifies the new shoulder controls rather than expecting retired layouts.
+
 ## [0.14.0] - 2026-09-05
 
 ### Gameplay and controls

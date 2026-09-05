@@ -17,7 +17,7 @@ ENV HOST=0.0.0.0
 ENV PORT=8080
 WORKDIR /app
 COPY --from=build --chown=node:node /workspace/apps/web/dist ./dist
-COPY --chown=node:node apps/web/server.mjs ./server.mjs
+COPY --chown=node:node apps/web/server.mjs apps/web/embed-policy.mjs ./
 USER node
 EXPOSE 8080
 CMD ["node", "server.mjs"]

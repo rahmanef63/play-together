@@ -3,6 +3,7 @@ import { stat } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, isAbsolute, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
+import { embedContentSecurityPolicy, isEmbedPath } from "./embed-policy.mjs";
 
 const defaultShellCsp =
   "default-src 'self'; script-src 'self' blob:; style-src 'self' 'unsafe-inline'; connect-src 'self' https: wss: http: ws:; img-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'";
@@ -65,7 +66,10 @@ async function handleRequest(request, response, context) {
   let candidate;
   try {
     decodedPath = decodeURIComponent(url.pathname);
-    candidate = resolveWebPath(context.root, decodedPath);
+    candidate = resolveWebPath(
+      context.root,
+      decodedPath === "/embed/game-frame.html" ? "/game-frame.html" : decodedPath,
+    );
   } catch (error) {
     sendPlain(
       response,
@@ -108,6 +112,7 @@ async function handleRequest(request, response, context) {
     isGameFrame,
     isPublicAsset: isPublicAsset || isEngineVendor,
     shellCsp: context.shellCsp,
+    isEmbed: isEmbedPath(decodedPath),
   });
   response.writeHead(200);
   if (request.method === "HEAD") {
@@ -132,11 +137,15 @@ function sendHeaders(
   response,
   contentType,
   cacheControl,
-  { isGameFrame, isPublicAsset, shellCsp },
+  { isGameFrame, isPublicAsset, shellCsp, isEmbed = false },
 ) {
   response.setHeader("content-type", contentType);
   response.setHeader("cache-control", cacheControl);
-  response.setHeader("content-security-policy", isGameFrame ? gameFrameCsp : shellCsp);
+  const policy = isGameFrame ? gameFrameCsp : shellCsp;
+  response.setHeader(
+    "content-security-policy",
+    isEmbed ? embedContentSecurityPolicy(policy) : policy,
+  );
   response.setHeader("cross-origin-opener-policy", "same-origin");
   response.setHeader("cross-origin-embedder-policy", "credentialless");
   response.setHeader(
@@ -147,10 +156,10 @@ function sendHeaders(
   response.setHeader("x-content-type-options", "nosniff");
   response.setHeader(
     "cross-origin-resource-policy",
-    isPublicAsset ? "cross-origin" : "same-origin",
+    isPublicAsset || isEmbed ? "cross-origin" : "same-origin",
   );
   if (isPublicAsset) response.setHeader("access-control-allow-origin", "*");
-  if (!isGameFrame) response.setHeader("x-frame-options", "DENY");
+  if (!isGameFrame && !isEmbed) response.setHeader("x-frame-options", "DENY");
 }
 
 function sendPlain(response, status, message) {

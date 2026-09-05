@@ -2,7 +2,9 @@ import { expect, type Locator, test } from "@playwright/test";
 import {
   closeContext,
   createRoom,
+  flightTrainer,
   signUp,
+  skyStrike,
   startGame,
   turboCircuit,
   useStick,
@@ -14,8 +16,8 @@ test("all active 3D cartridges expose distinct shared-console controls and live 
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const cases = [
     { key: turboCircuit, title: "Turbo Circuit", control: "Start ready or pause" },
-    { key: "sky-strike@0.2.6", title: "Sky Strike", control: "Fire cannon" },
-    { key: "flight-trainer@0.2.6", title: "Flight Trainer", control: "Throttle up" },
+    { key: skyStrike, title: "Sky Strike", control: "Fire cannon" },
+    { key: flightTrainer, title: "Flight Trainer", control: "Throttle up" },
   ] as const;
   const context = await browser.newContext({ viewport: { width: 844, height: 390 } });
   const page = await context.newPage();
@@ -50,7 +52,7 @@ test("all active 3D cartridges expose distinct shared-console controls and live 
         await expect(frame.locator(".turbo-setup__mode")).toContainText("MANUAL THROTTLE");
         await expect(frame.locator(".turbo-setup__stats")).toContainText("BOOST");
         const controller = frame.locator('.builtin-controller[data-renderer="builtin"]');
-        await expect(controller.locator(".console-control")).toHaveCount(6);
+        await expect(controller.locator(".console-control")).toHaveCount(10);
         for (const [id, face, action] of [
           ["gas", "a", "GAS"],
           ["brake", "b", "BRAKE"],
@@ -68,8 +70,19 @@ test("all active 3D cartridges expose distinct shared-console controls and live 
         await expect(frame.getByRole("button", { name: "Start ready or pause" })).toHaveText(
           "START",
         );
-        for (const removed of ["throttle", "item-back", "drift", "camera", "rescue", "pause"])
+        for (const removed of ["throttle", "item-back", "pause"])
           await expect(controller.locator(`[data-control-id="${removed}"]`)).toHaveCount(0);
+        for (const [id, face] of [
+          ["camera", "l1"],
+          ["drift", "r1"],
+          ["rescue", "l2"],
+          ["rear-item", "r2"],
+        ]) {
+          await expect(controller.locator(`[data-control-id="${id}"]`)).toHaveAttribute(
+            "data-face",
+            face,
+          );
+        }
         const sound = frame.getByRole("button", { name: "Toggle race sound" });
         await expect(sound).toHaveText("SOUND ON");
         await sound.click();

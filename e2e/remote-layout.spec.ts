@@ -1,5 +1,13 @@
 import { expect, test } from "@playwright/test";
-import { closeContext, createRoom, signUp, startGame, turboCircuit } from "./support/multiplayer";
+import {
+  closeContext,
+  createRoom,
+  flightTrainer,
+  signUp,
+  skyStrike,
+  startGame,
+  turboCircuit,
+} from "./support/multiplayer";
 
 test("simple remotes stay bounded in landscape and expose live status in portrait", async ({
   browser,
@@ -14,14 +22,14 @@ test("simple remotes stay bounded in landscape and expose live status in portrai
       visibleAction: "ITEM",
     },
     {
-      key: "sky-strike@0.2.6",
+      key: skyStrike,
       title: "Sky Strike",
       preset: "flight",
       control: "Fire cannon",
       visibleAction: "CANNON",
     },
     {
-      key: "flight-trainer@0.2.6",
+      key: flightTrainer,
       title: "Flight Trainer",
       preset: "flight",
       control: "Throttle up",

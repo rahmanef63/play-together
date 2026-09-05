@@ -174,3 +174,16 @@ Do not use `docker compose down -v` unless you intentionally want to delete loca
 - **Game:** select an already-published immutable game version; never overwrite release bytes.
 - **Convex:** use widen-migrate-narrow schema changes and deploy backward-compatible functions first.
 - **Domain migration:** keep the former deployment reachable until the managed production smoke/E2E window is complete.
+
+## ChatGPT / MSO embedded production
+
+The reviewed entry is `/embed`; navigation preserves that prefix, including `/embed/game-frame.html`.
+Only that namespace allows the exact MSO component, ChatGPT, and default ChatGPT sandbox origins.
+Every ancestor must match CSP, not only the immediate parent. Normal app pages remain protected.
+`apps/web/embed-policy.mjs` and Vercel configuration are tested for parity. The app sends a minimal
+`play-together:embed-ready` version-1 message to the exact MSO component parent after mounting a
+usable shell. Run `node scripts/verify-embed-boundary.mjs` to test both allowed and denied chains.
+
+A manual release from a verified commit still requires a real main-branch push, production build,
+CDN deployment, immutable Convex catalogue registration and public checks. A successful Git push
+alone does not deploy the managed app or register a newly built cartridge.

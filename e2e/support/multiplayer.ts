@@ -1,7 +1,13 @@
 import { type BrowserContext, expect, type FrameLocator, type Page } from "@playwright/test";
 
 export const accountPassword = "testpass";
-export const turboCircuit = "turbo-circuit@0.9.2";
+
+import flightConfig from "../../games/flight-trainer/game.config.json";
+import skyConfig from "../../games/sky-strike/game.config.json";
+import turboConfig from "../../games/turbo-circuit/game.config.json";
+export const turboCircuit = `${turboConfig.game.id}@${turboConfig.game.version}`;
+export const skyStrike = `${skyConfig.game.id}@${skyConfig.game.version}`;
+export const flightTrainer = `${flightConfig.game.id}@${flightConfig.game.version}`;
 export const realtimeHealthUrl =
   process.env.E2E_REALTIME_HEALTH_URL ?? "http://127.0.0.1:8787/healthz";
 

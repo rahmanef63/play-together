@@ -4,6 +4,7 @@ import { AuthPage } from "../features/auth/AuthPage";
 import { LobbyPage } from "../features/lobby/LobbyPage";
 import { AppDock } from "../shared/AppDock";
 import { api } from "../shared/convexApi";
+import { notifyEmbedReady } from "../shared/embedReady";
 import { MobileAccountMenu } from "../shared/MobileAccountMenu";
 import { currentPath, navigate } from "../shared/navigation";
 import { PwaUpdateToast } from "../shared/PwaUpdateToast";
@@ -40,6 +41,10 @@ export function App() {
     window.addEventListener("popstate", onPath);
     return () => window.removeEventListener("popstate", onPath);
   }, []);
+
+  useEffect(() => {
+    if (!isLoading && (!isAuthenticated || user !== undefined)) notifyEmbedReady();
+  }, [isLoading, isAuthenticated, user]);
 
   if (isLoading || (isAuthenticated && user === undefined)) {
     return <CenteredState label="Connecting to Play Together…" />;

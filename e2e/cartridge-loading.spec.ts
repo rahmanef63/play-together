@@ -1,5 +1,13 @@
 import { expect, test } from "@playwright/test";
-import { closeContext, createRoom, signUp, startGame, turboCircuit } from "./support/multiplayer";
+import {
+  closeContext,
+  createRoom,
+  flightTrainer,
+  signUp,
+  skyStrike,
+  startGame,
+  turboCircuit,
+} from "./support/multiplayer";
 
 test("active catalog exposes only the car game and two aircraft games", async ({ browser }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -12,9 +20,9 @@ test("active catalog exposes only the car game and two aircraft games", async ({
       control: "Start ready or pause",
       preset: "racing",
     },
-    { key: "sky-strike@0.2.6", title: "Sky Strike", control: "Fire cannon", preset: "flight" },
+    { key: skyStrike, title: "Sky Strike", control: "Fire cannon", preset: "flight" },
     {
-      key: "flight-trainer@0.2.6",
+      key: flightTrainer,
       title: "Flight Trainer",
       control: "Toggle flaps",
       preset: "flight",
