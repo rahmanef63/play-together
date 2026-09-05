@@ -106,3 +106,24 @@ origin scenarios (including denied suffix-lookalikes and unreviewed ancestors). 
 regression failed three cases before the fix and passed all eight afterward. Synthetic sandbox
 hostnames are fixture inputs, not a claim that the owner's actual browser origin was captured.
 This record describes source verification; production promotion needs its own live checks.
+
+## Console, QR and television pass — 0.15.1
+
+Public main `9e93ff3` delivered the console home, short actionable toasts, proof-bound QR
+sign-in and old-browser diagnostic paths. The initial 0.15.0 public QR deep link returned 404;
+0.15.1 adds `/device` to the explicit Vercel SPA rewrite table and tests every fixed App route.
+The final public UI/auth suite passed 11 scenarios, including independent requester/approver
+sessions, decline, mobile panel bounds, keyboard tabs and no-script TV help. Room CRUD also
+passed. Current cartridge releases and hashes were not rewritten.
+
+A subsequent production game test failed its speed assertion after a 1450 ms completed click.
+The browser trace showed the kart at 29 km/h immediately after the gas click, then 25, 18, 13,
+10, 6, 4 and 0 after release. The test was measuring coast-down, not held acceleration. It now
+keeps the real pointer down during the unchanged >20km/h assertion, releases in `finally`,
+and verifies the button returns to unpressed. No game physics or input source changed for
+this test correction. All claims about real TV compatibility remain unverified until the
+owner's actual model/firmware is tested; capability mocks are not hardware certification.
+
+Final held-input production check passed (43.8 seconds). The original 0.15.1 pipeline for
+`9e93ff3` completed verify, integration and deploy-managed successfully. The test correction
+changes only documentation and E2E code; deployed application bytes remain unchanged.

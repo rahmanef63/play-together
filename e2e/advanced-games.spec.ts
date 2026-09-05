@@ -1,4 +1,4 @@
-import { expect, type Locator, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import {
   closeContext,
   createRoom,
@@ -106,13 +106,23 @@ test("all active 3D cartridges expose distinct shared-console controls and live 
         await expect(frame.locator(".turbo-setup__cta")).toHaveText("READY ✓");
         await expect(turbo).toHaveAttribute("data-phase", "racing", { timeout: 6_000 });
         const throttle = frame.getByRole("button", { name: "Accelerate" });
-        await holdButton(page, throttle, 1_450);
-        await expect
-          .poll(
-            async () => Number(await frame.locator(".turbo-speedometer__value").textContent()),
-            { timeout: 4_000 },
-          )
-          .toBeGreaterThan(20);
+        // Hold-to-drive must be measured while the pointer is down. A completed
+        // click releases gas before the assertion; tracing/remote latency can then
+        // observe a stopped kart rather than the acceleration that already happened.
+        await throttle.hover();
+        await page.mouse.down();
+        try {
+          await expect(throttle).toHaveAttribute("aria-pressed", "true");
+          await expect
+            .poll(
+              async () => Number(await frame.locator(".turbo-speedometer__value").textContent()),
+              { timeout: 4_000 },
+            )
+            .toBeGreaterThan(20);
+        } finally {
+          await page.mouse.up();
+        }
+        await expect(throttle).toHaveAttribute("aria-pressed", "false");
         await expect(frame.locator(".turbo-nitro")).toContainText("COIN");
         await start.click();
         await expect(turbo).toHaveAttribute("data-paused", "true");
@@ -135,7 +145,3 @@ test("all active 3D cartridges expose distinct shared-console controls and live 
     await closeContext(context);
   }
 });
-
-async function holdButton(_page: import("@playwright/test").Page, button: Locator, holdMs: number) {
-  await button.click({ delay: holdMs });
-}
