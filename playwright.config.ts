@@ -9,7 +9,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   timeout: 90_000,
   expect: { timeout: 15_000 },
-  reporter: [["line"], ["html", { open: "never" }]],
+  reporter: process.env.CI ? [["line"], ["github"]] : [["line"], ["html", { open: "never" }]],
   outputDir: "test-results",
   use: {
     baseURL: process.env.E2E_BASE_URL ?? "http://localhost:4173",
