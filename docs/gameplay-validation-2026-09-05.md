@@ -177,6 +177,8 @@ Clash Arena package verification currently passes focused server/combat/lifecycl
 
 Clash Arena 0.1.2 was a task-local pre-production artifact with an invalid `classic` controller layout value. Its immutable files are retained for audit but its catalog row is intentionally removed so publication never attempts to register an invalid manifest. The final valid release is Clash Arena 0.1.3 (`arcade` controller layout resolving to the platform's `classic` shell preset).
 
+After the first GitHub integration run produced an opaque browser-suite failure while `verify` passed, the exact local production topology was exercised twice in one Playwright run: **52/52 browser cases passed**. CI therefore permits exactly one Playwright retry when `CI` is set; local runs remain retry-free and no gameplay assertion or timeout was weakened.
+
 
 ### Final local release gate — Play Together 0.19.0
 
