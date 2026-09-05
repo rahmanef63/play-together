@@ -39,8 +39,10 @@ test("Ridge Rush provides a distinct downhill race with optional advanced should
     }
     const start = frame.getByRole("button", { name: "Ready or request rematch" });
     await start.click();
-    await expect(frame.getByText(/^3$|^2$|^1$/)).toBeVisible({ timeout: 2_000 });
+    const countdown = frame.getByText(/^3$|^2$|^1$/);
+    await expect(countdown).toBeVisible({ timeout: 2_000 });
     await expect(frame.getByText("PRESS START")).toHaveCount(0, { timeout: 5_000 });
+    await expect(countdown).toHaveCount(0, { timeout: 5_000 });
 
     const speed = frame.locator(".ridge-rush > strong");
     const pedal = frame.getByRole("button", { name: "Pedal" });
