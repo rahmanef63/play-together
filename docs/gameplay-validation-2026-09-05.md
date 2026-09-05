@@ -127,3 +127,30 @@ owner's actual model/firmware is tested; capability mocks are not hardware certi
 Final held-input production check passed (43.8 seconds). The original 0.15.1 pipeline for
 `9e93ff3` completed verify, integration and deploy-managed successfully. The test correction
 changes only documentation and E2E code; deployed application bytes remain unchanged.
+
+## Phone scanner and launcher follow-up — 0.16.0
+
+Application source `01d8c01` was pushed to main and deployed to the public site. Before the fix,
+fresh plain/ASCII-hyphen/lowercase codes worked in the controlled production reproduction,
+but smart-dash and surrounding-space variants failed; the input truncated to nine characters.
+There was no in-app camera scanner. The exact cause of every original user attempt is unknown.
+
+The shared frontend/backend code grammar now normalizes phone input. Live camera and photo QR
+decoding run locally; only a valid first-party approval code is reviewed. Confirmation is a
+separate focused step and never automatic. The camera fixture uses a generated QR video stream,
+not the owner's physical phone. Actual camera permissions in the owner's browser remain a
+real-device check. Camera-ineligible embedded hosts retain photo/manual/browser-tab alternatives.
+
+The final source gates passed 279 unit/integration tests (two optional Redis cases skipped),
+31 controller/render cases and eight embed boundary scenarios. Fourteen affected built-browser
+cases passed locally using the real auth backend. On production, 16 affected cases and seven
+additional multiplayer/ops/recovery cases passed. One remaining room-admission test referenced
+the deliberately removed `.console-registry-card`; it now verifies the real manifest-derived
+`.library-controls` text instead. That complete production scenario then passed in 33.5 seconds.
+Thus all 24 browser scenarios were exercised successfully across the final public runs, not
+claimed as a single uninterrupted run. Game release bytes were unchanged.
+
+The first 0.16.0 GitHub run passed source verification but failed integration. Its detailed logs
+were unavailable through the current GitHub CLI/public log access. The obsolete room-admission
+selector was independently reproduced and corrected; a new CI run must confirm its own result.
+The follow-up commit only changes the test and this report, not deployed application bytes.

@@ -22,7 +22,8 @@ test("QR join, password rooms, shared display and mobile modes respect the pre-g
 
   try {
     await signUp(host, `Host ${runId}`, `host-${runId}@example.test`);
-    await expect(host.locator(".console-registry-card")).toContainText("Console");
+    // The game-first launcher summarizes real manifest controls below its selector.
+    await expect(host.locator(".library-controls")).toContainText("Analog stick");
     const publicRoomName = `Public ${runId}`;
     const publicCode = await createRoom(host, {
       name: publicRoomName,
