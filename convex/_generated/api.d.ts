@@ -9,6 +9,7 @@
  */
 
 import type * as _shared_authCapabilities from "../_shared/authCapabilities.js";
+import type * as _shared_authErrors from "../_shared/authErrors.js";
 import type * as _shared_emailShell from "../_shared/emailShell.js";
 import type * as _shared_gameCatalog from "../_shared/gameCatalog.js";
 import type * as _shared_gamePresentation from "../_shared/gamePresentation.js";
@@ -16,6 +17,7 @@ import type * as _shared_gameRelease from "../_shared/gameRelease.js";
 import type * as _shared_guards from "../_shared/guards.js";
 import type * as _shared_passwordCrypto from "../_shared/passwordCrypto.js";
 import type * as _shared_passwordPolicy from "../_shared/passwordPolicy.js";
+import type * as _shared_passwordProvider from "../_shared/passwordProvider.js";
 import type * as _shared_resendEmail from "../_shared/resendEmail.js";
 import type * as _shared_roomAdmission from "../_shared/roomAdmission.js";
 import type * as _shared_rooms_actions from "../_shared/rooms/actions.js";
@@ -52,6 +54,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   "_shared/authCapabilities": typeof _shared_authCapabilities;
+  "_shared/authErrors": typeof _shared_authErrors;
   "_shared/emailShell": typeof _shared_emailShell;
   "_shared/gameCatalog": typeof _shared_gameCatalog;
   "_shared/gamePresentation": typeof _shared_gamePresentation;
@@ -59,6 +62,7 @@ declare const fullApi: ApiFromModules<{
   "_shared/guards": typeof _shared_guards;
   "_shared/passwordCrypto": typeof _shared_passwordCrypto;
   "_shared/passwordPolicy": typeof _shared_passwordPolicy;
+  "_shared/passwordProvider": typeof _shared_passwordProvider;
   "_shared/resendEmail": typeof _shared_resendEmail;
   "_shared/roomAdmission": typeof _shared_roomAdmission;
   "_shared/rooms/actions": typeof _shared_rooms_actions;

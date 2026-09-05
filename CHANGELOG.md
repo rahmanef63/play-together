@@ -2,6 +2,12 @@
 
 All notable changes to Play Together are documented here. The project follows semantic versioning for the platform and immutable semantic versions for each game release.
 
+## [0.14.5] - 2026-09-05
+
+### Fixed
+
+- Normalize the real configured password authorizer before Convex Auth materialization. The SDK factory stores its implementation in `options`; wrapping the top-level placeholder alone was overwritten during configuration. Regression tests now pass the wrapped provider through the actual pinned SDK materializer, preserving validation, crypto, rate limiting and successful authorization.
+
 ## [0.14.4] - 2026-09-05
 
 ### Fixed

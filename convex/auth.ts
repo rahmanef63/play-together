@@ -7,9 +7,9 @@ import { ConvexError } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 import { authCapabilities } from "./_shared/authCapabilities";
-import { publicAuthFailure } from "./_shared/authErrors";
 import { hashSecret, verifySecret } from "./_shared/passwordCrypto";
 import { validateAccountPassword } from "./_shared/passwordPolicy";
+import { withPublicAuthErrors } from "./_shared/passwordProvider";
 import { sendPasswordResetEmail } from "./_shared/resendEmail";
 
 const resetEmail = {
@@ -25,36 +25,25 @@ const resetEmail = {
   generateVerificationToken: async () => randomNumericCode(8),
 };
 
-const passwordProvider = Password({
-  profile(params) {
-    const email = normalizeEmail(params.email);
-    const profile: Record<string, string> & { email: string } = { email };
-    if (params.flow === "signUp") {
-      const name = String(params.name ?? "").trim();
-      if (name.length < 2 || name.length > 48) {
-        throw new ConvexError({ code: "INVALID_NAME", message: "Name must be 2–48 characters" });
+const passwordProvider = withPublicAuthErrors(
+  Password({
+    profile(params) {
+      const email = normalizeEmail(params.email);
+      const profile: Record<string, string> & { email: string } = { email };
+      if (params.flow === "signUp") {
+        const name = String(params.name ?? "").trim();
+        if (name.length < 2 || name.length > 48) {
+          throw new ConvexError({ code: "INVALID_NAME", message: "Name must be 2–48 characters" });
+        }
+        profile.name = name;
       }
-      profile.name = name;
-    }
-    return profile;
-  },
-  reset: resetEmail,
-  validatePasswordRequirements: validateAccountPassword,
-  crypto: { hashSecret, verifySecret },
-});
-
-// Preserve the provider's rate limiting, validation and crypto; normalize failures only.
-const authorizePassword = passwordProvider.authorize;
-passwordProvider.authorize = async (params, ctx) => {
-  try {
-    return await authorizePassword(params, ctx);
-  } catch (reason) {
-    const failure = publicAuthFailure(reason, params.flow);
-    if (failure.data.code === "AUTH_UNAVAILABLE")
-      console.error("Unexpected password provider failure");
-    throw failure;
-  }
-};
+      return profile;
+    },
+    reset: resetEmail,
+    validatePasswordRequirements: validateAccountPassword,
+    crypto: { hashSecret, verifySecret },
+  }),
+);
 
 const { google: googleConfigured } = authCapabilities();
 const providers = googleConfigured ? [passwordProvider, Google] : [passwordProvider];
