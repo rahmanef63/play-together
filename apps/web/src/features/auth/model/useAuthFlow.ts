@@ -1,8 +1,9 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useAction, useQuery } from "convex/react";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { authErrorMessage } from "../../../shared/authErrors";
 import { api } from "../../../shared/convexApi";
-import { authErrorMessage } from "../../../shared/errors";
+import { isEmbedded, requestExternalGoogleSignIn } from "../../../shared/embedAuth";
 
 export type AuthMode = "signIn" | "signUp" | "forgot" | "reset";
 
@@ -11,6 +12,8 @@ export function useAuthFlow() {
   const requestPasswordReset = useAction(api.passwordReset.request);
   const authCapabilities = useQuery(api.auth.capabilities);
   const resetCapability = useQuery(api.passwordReset.capability);
+  const embedded = isEmbedded();
+  const autoStarted = useRef(false);
   const [mode, setMode] = useState<AuthMode>("signUp");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -38,26 +41,45 @@ export function useAuthFlow() {
         ...(mode === "signUp" ? { name: String(data.get("name") ?? "").trim() } : {}),
       });
     } catch (reason) {
-      setError(authErrorMessage(reason));
+      setError(authErrorMessage(reason, mode === "signUp" ? "signUp" : "signIn"));
     } finally {
       setBusy(false);
     }
   };
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = useCallback(async () => {
     if (authCapabilities?.google !== true) {
       setError("Google sign-in is not configured yet.");
       return;
     }
     setBusy(true);
     setError("");
+    setNotice("");
     try {
-      await signIn("google", { redirectTo: "/" });
+      if (embedded) {
+        requestExternalGoogleSignIn();
+        setNotice(
+          "Click Google login in browser above this preview. On an older preview, use Open production, then Continue with Google. Finish sign-in and continue playing in that browser tab; this preview uses a separate session.",
+        );
+        return;
+      }
+      await signIn("google", { redirectTo: "/?authCallback=google" });
     } catch (reason) {
-      setError(authErrorMessage(reason));
+      setError(authErrorMessage(reason, "google"));
+    } finally {
       setBusy(false);
     }
-  };
+  }, [authCapabilities?.google, embedded, signIn]);
+
+  useEffect(() => {
+    if (embedded || authCapabilities?.google === undefined || autoStarted.current) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("auth") !== "google") return;
+    autoStarted.current = true;
+    url.searchParams.delete("auth");
+    window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+    void signInWithGoogle();
+  }, [authCapabilities?.google, embedded, signInWithGoogle]);
 
   const submitResetRequest = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -112,6 +134,7 @@ export function useAuthFlow() {
 
   return {
     busy,
+    embedded,
     error,
     mode,
     notice,

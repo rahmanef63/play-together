@@ -8,6 +8,7 @@ import { GoogleAuthButton } from "./GoogleAuthButton";
 export function AuthForms({
   mode,
   busy,
+  embedded,
   error,
   notice,
   resetEmail,
@@ -21,6 +22,7 @@ export function AuthForms({
 }: {
   mode: AuthMode;
   busy: boolean;
+  embedded: boolean;
   error: string;
   notice: string;
   resetEmail: string;
@@ -55,7 +57,13 @@ export function AuthForms({
       )}
       {accountMode && (
         <>
-          <GoogleAuthButton enabled={googleEnabled} busy={busy} onClick={onGoogle} />
+          <GoogleAuthButton
+            enabled={googleEnabled}
+            busy={busy}
+            embedded={embedded}
+            onClick={onGoogle}
+          />
+          {notice && <FormMessage variant="notice">{notice}</FormMessage>}
           <form onSubmit={onAccount}>
             {mode === "signUp" && (
               <InputField

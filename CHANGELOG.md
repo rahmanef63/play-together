@@ -2,6 +2,15 @@
 
 All notable changes to Play Together are documented here. The project follows semantic versioning for the platform and immutable semantic versions for each game release.
 
+## [0.14.4] - 2026-09-05
+
+### Fixed
+
+- Embedded Google login no longer redirects its iframe into Google. It highlights the reviewed MSO host action; an explicit host-side button opens Google login in a browser tab. Older widgets fall back to Open production. Browser and embedded sessions are explicitly separate.
+- Password-provider failures use safe public codes for invalid credentials, rate limits, validation, account-linking restrictions and service failures. Unknown exceptions are not labelled as bad passwords.
+- Authentication UI uses allowlisted messages and preserves a bounded support reference instead of displaying raw Convex errors, server traces or OAuth URLs.
+- Rejected or cancelled OAuth callbacks remove callback parameters, show recovery actions and do not leave an unhandled promise or endless sign-in spinner.
+
 ## [0.14.3] - 2026-09-05
 
 ### Fixed

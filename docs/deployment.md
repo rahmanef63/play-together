@@ -201,3 +201,25 @@ streaming layer; the app renders directly in the user's browser through the MCP 
 A manual release from a verified commit still requires a real main-branch push, production build,
 CDN deployment, immutable Convex catalogue registration and public checks. A successful Git push
 alone does not deploy the managed app or register a newly built cartridge.
+
+### Google login from the embedded preview
+
+Google authorization must run in a normal browser tab, not the nested game iframe. The embedded
+button highlights the MSO Page's **Google login in browser** action. That action opens only the
+registry-owned `/?auth=google` path after the user clicks it; the top-level app then begins the
+ordinary Convex Auth Google flow. On a cached older Page, **Open production** remains the fallback.
+No Google page is proxied or automated, and no popup sandbox permission is added.
+
+The browser completes the OAuth callback at `/?authCallback=google`; the code is handled once,
+removed from the address bar and never sent to the chat host. Failed/cancelled exchanges show
+safe recovery UI. This flow intentionally continues gameplay in the browser tab. It does not
+silently copy or share sessions with storage-partitioned embeds. Email/password still works
+inside the preview. The external action contract is UI-only: no tokens, code, email or arbitrary
+URL can be supplied in `mso:app-auth-request`.
+
+Expected provider failures now become `ConvexError` public codes. Missing password accounts and
+wrong passwords share `INVALID_CREDENTIALS`; internal faults use `AUTH_UNAVAILABLE`. The client
+renders only allowlisted copy plus a hexadecimal request reference, never raw backend text.
+The original owner request `cc5881a9a2770a3f` was outside the accessible recent log chunk during
+this investigation; a fresh reproduction showed `InvalidAccountId` in `auth:signIn` and the same
+previous generic client error. Do not claim the original request was independently identified.

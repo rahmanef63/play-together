@@ -24,6 +24,7 @@ export function AuthPage() {
       <AuthForms
         mode={auth.mode}
         busy={auth.busy}
+        embedded={auth.embedded}
         error={auth.error}
         notice={auth.notice}
         resetEmail={auth.resetEmail}

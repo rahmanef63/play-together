@@ -18,7 +18,11 @@ export function AppProviders({ children }: { children: ReactNode }) {
       </main>
     );
   }
-  return <ConvexAuthProvider client={client}>{children}</ConvexAuthProvider>;
+  return (
+    <ConvexAuthProvider client={client} shouldHandleCode={false}>
+      {children}
+    </ConvexAuthProvider>
+  );
 }
 
 export function createConvexClient(url: string): ConvexReactClient {

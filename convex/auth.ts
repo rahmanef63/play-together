@@ -7,6 +7,7 @@ import { ConvexError } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 import { authCapabilities } from "./_shared/authCapabilities";
+import { publicAuthFailure } from "./_shared/authErrors";
 import { hashSecret, verifySecret } from "./_shared/passwordCrypto";
 import { validateAccountPassword } from "./_shared/passwordPolicy";
 import { sendPasswordResetEmail } from "./_shared/resendEmail";
@@ -42,6 +43,19 @@ const passwordProvider = Password({
   crypto: { hashSecret, verifySecret },
 });
 
+// Preserve the provider's rate limiting, validation and crypto; normalize failures only.
+const authorizePassword = passwordProvider.authorize;
+passwordProvider.authorize = async (params, ctx) => {
+  try {
+    return await authorizePassword(params, ctx);
+  } catch (reason) {
+    const failure = publicAuthFailure(reason, params.flow);
+    if (failure.data.code === "AUTH_UNAVAILABLE")
+      console.error("Unexpected password provider failure");
+    throw failure;
+  }
+};
+
 const { google: googleConfigured } = authCapabilities();
 const providers = googleConfigured ? [passwordProvider, Google] : [passwordProvider];
 
@@ -58,16 +72,11 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
       const email =
         typeof args.profile.email === "string" ? normalizeEmail(args.profile.email) : undefined;
       const existing = email ? await usersByEmail(ctx, email) : [];
-      if (existing.length > 1) {
-        throw new Error("Multiple accounts use this email. Contact support before signing in.");
-      }
+      if (existing.length > 1) throw new ConvexError({ code: "ACCOUNT_ACTION_REQUIRED" });
       const current = existing[0];
       if (current) {
-        if (args.type !== "oauth") {
-          throw new Error("Email already registered. Sign in instead of creating another account.");
-        }
-        if (!current.emailVerificationTime) {
-          throw new Error("This email belongs to a password account. Sign in with password first.");
+        if (args.type !== "oauth" || !current.emailVerificationTime) {
+          throw new ConvexError({ code: "ACCOUNT_ACTION_REQUIRED" });
         }
         const patch: Record<string, unknown> = {};
         if (!current.name && typeof args.profile.name === "string") patch.name = args.profile.name;
@@ -86,11 +95,7 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   },
 });
 
-export const capabilities = query({
-  args: {},
-  handler: () => ({ google: googleConfigured }),
-});
-
+export const capabilities = query({ args: {}, handler: () => ({ google: googleConfigured }) });
 export const loggedInUser = query({
   args: {},
   handler: async (ctx) => {
@@ -119,9 +124,7 @@ async function usersByEmail(ctx: GenericMutationCtx<AnyDataModel>, email: string
         withIndex: (
           index: "email",
           fn: (q: { eq: (field: "email", value: string) => unknown }) => unknown,
-        ) => {
-          take: (count: number) => Promise<User[]>;
-        };
+        ) => { take: (count: number) => Promise<User[]> };
       };
     }
   )

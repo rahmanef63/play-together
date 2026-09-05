@@ -3,10 +3,12 @@ import { Button } from "../../../shared/ui/Button";
 export function GoogleAuthButton({
   enabled,
   busy,
+  embedded,
   onClick,
 }: {
   enabled: boolean | undefined;
   busy: boolean;
+  embedded: boolean;
   onClick: () => void;
 }) {
   if (enabled !== true) return null;
@@ -14,8 +16,14 @@ export function GoogleAuthButton({
     <>
       <Button type="button" variant="outline" fullWidth busy={busy} onClick={onClick}>
         <GoogleIcon />
-        <span>Continue with Google</span>
+        <span>{embedded ? "Continue with Google in browser" : "Continue with Google"}</span>
       </Button>
+      {embedded && (
+        <p className="microcopy auth-copy">
+          Google requires a browser tab. After sign-in, continue playing in that tab; preview
+          sessions are separate.
+        </p>
+      )}
       <div className="auth-divider">
         <span>or use email</span>
       </div>
