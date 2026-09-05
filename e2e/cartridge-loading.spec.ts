@@ -32,11 +32,9 @@ test("active catalog exposes only the car game and two aircraft games", async ({
     await signUp(page, `Catalog QA ${runId}`, `catalog-${runId}@example.test`);
     const picker = page.locator('.create-panel select[name="game"] option');
     await expect(picker).toHaveCount(3);
-    expect(await picker.allTextContents()).toEqual([
-      "Flight Trainer · 0.2.6",
-      "Sky Strike · 0.2.6",
-      "Turbo Circuit · 0.9.2",
-    ]);
+    expect(await picker.allTextContents()).toEqual(
+      games.map((game) => `${game.title} · ${game.key.split("@")[1]}`).sort(),
+    );
     const previews = page.locator(".game-picker img");
     await expect(previews).toHaveCount(3);
     expect(

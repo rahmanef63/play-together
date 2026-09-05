@@ -1,3 +1,37 @@
+# Public production follow-up — 2026-09-05
+
+The source-only delivery boundary recorded below is historical. Gameplay and embed fixes were
+pushed to remote `main` and deployed to `https://game.rahmanef.com` during the follow-up session.
+Runtime commit: `358e391`. Public platform: **0.14.2**. Registered current cartridges:
+**Turbo Circuit 0.10.1**, **Flight Trainer 0.3.0**, **Sky Strike 0.3.0**.
+
+Verified against the public domain: all three game control/render scenarios including sound
+mute/unmute, the current three-cartridge picker, WebGL context-loss recovery, and controller/shared
+display reconnect with input after interrupted heartbeats. The combined recovery run hit its
+90-second test budget once; the unchanged reconnect assertions passed in an isolated 58.8-second
+run with a 150-second overall runner budget and tracing disabled. Do not describe the initial
+combined run as entirely green.
+
+Production realtime reported `ok: true`, distributed coordination and ready release control.
+The published manifest bytes matched local SHA-256 identities. New-room catalogue publication
+was performed explicitly in Convex; existing room pins and historical bytes were preserved.
+
+The current `pnpm verify` pipeline passed. The remaining GitHub integration failure was traced
+to an old picker-label expectation (0.2.6 / 0.9.2), not a failed game load. That assertion now
+reads current source manifest versions and its public browser scenario passed; the next GitHub
+run must independently establish CI status. Node 22 JSON import attributes were corrected too.
+
+Preview investigation reproduced the missing ancestor allowlist through ChatGPT → sandbox → MSO.
+Only `/embed` and its inner cartridge frame now allow the reviewed exact origins. Normal app
+framing remains restricted. The new MSO Page lifecycle/readiness code was checked with a synthetic
+MCP host and the actual public game at desktop and mobile widths. MSO runtime deployment is a
+separate release from this game; check its current toolset before claiming the server updated.
+
+Follow-up VPS logs: `/tmp/pt-verify-audio-62a831.log`, `/tmp/pt-public-e2e-audio-62a831.log`,
+`/tmp/pt-public-reconnect-isolated-62a831.log`, `/tmp/pt-public-catalog-62a831.log`.
+
+---
+
 # Gameplay validation — 2026-09-05
 
 ## Delivery boundary
