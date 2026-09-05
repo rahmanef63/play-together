@@ -2,6 +2,16 @@ import { readdir, readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
 describe("managed Vercel runtime configuration", () => {
+  it("keeps every fixed application deep link in the public rewrite table", async () => {
+    const config = JSON.parse(await readFile("vercel.json", "utf8"));
+    const app = await readFile("apps/web/src/app/App.tsx", "utf8");
+    const paths = [...app.matchAll(/path === "(\/[^"]+)"/g)].map((match) => match[1]);
+    expect(paths).toContain("/device");
+    for (const source of paths)
+      expect(config.rewrites).toContainEqual({ source, destination: "/index.html" });
+    expect(config.rewrites).toContainEqual({ source: "/embed/tv.html", destination: "/tv.html" });
+  });
+
   it("pins realtime to Singapore and hashes browser endpoint env into Turbo cache", async () => {
     const vercel = JSON.parse(await readFile("vercel.json", "utf8"));
     const turbo = JSON.parse(await readFile("turbo.json", "utf8"));

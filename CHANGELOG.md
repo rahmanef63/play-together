@@ -2,6 +2,11 @@
 
 All notable changes to Play Together are documented here. The project follows semantic versioning for the platform and immutable semantic versions for each game release.
 
+## [0.15.1] - 2026-09-05
+
+- Add the public `/device` SPA deep-link rewrite required when opening a QR URL from another device. Test every fixed App route against Vercel configuration.
+- Keep TV diagnostics within the reviewed `/embed` namespace when opened from an embedded screen.
+
 ## [0.15.0] - 2026-09-05
 
 ### Added

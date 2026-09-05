@@ -1,4 +1,5 @@
 import { displayCompatibilityMessage } from "../../shared/browserSupport";
+import { browserPathForNavigation } from "../../shared/navigation";
 import type { CurrentUser } from "../../shared/types";
 import { Button } from "../../shared/ui/Button";
 import { LiveGameView } from "./components/LiveGameView";
@@ -57,7 +58,17 @@ export function PlayPage({
           <a className="ds-button" href="/tv.html">
             TV compatibility check
           </a>
-          <Button type="button" onClick={play.switchRole}>
+          <Button
+            type="button"
+            onClick={() =>
+              window.location.assign(
+                browserPathForNavigation(
+                  `/play/${code}/controller?mode=remote`,
+                  window.location.pathname,
+                ),
+              )
+            }
+          >
             Use as remote
           </Button>
         </section>

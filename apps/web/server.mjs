@@ -68,7 +68,11 @@ async function handleRequest(request, response, context) {
     decodedPath = decodeURIComponent(url.pathname);
     candidate = resolveWebPath(
       context.root,
-      decodedPath === "/embed/game-frame.html" ? "/game-frame.html" : decodedPath,
+      decodedPath === "/embed/game-frame.html"
+        ? "/game-frame.html"
+        : decodedPath === "/embed/tv.html"
+          ? "/tv.html"
+          : decodedPath,
     );
   } catch (error) {
     sendPlain(

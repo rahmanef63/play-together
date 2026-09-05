@@ -57,6 +57,7 @@ describe("dedicated MCP embed boundary", () => {
     const root = await mkdtemp(join(tmpdir(), "pt-embed-policy-"));
     await writeFile(join(root, "index.html"), "<!doctype html><title>app shell</title>");
     await writeFile(join(root, "game-frame.html"), "<!doctype html><title>game frame</title>");
+    await writeFile(join(root, "tv.html"), "<!doctype html><title>tv help</title>");
     const server = createWebServer({ root });
     await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
     cleanups.push(async () => {
@@ -64,13 +65,15 @@ describe("dedicated MCP embed boundary", () => {
       await rm(root, { recursive: true });
     });
     const origin = `http://127.0.0.1:${server.address().port}`;
-    for (const path of ["/embed", "/embed/room/TEST", "/embed/game-frame.html"]) {
+    for (const path of ["/embed", "/embed/room/TEST", "/embed/game-frame.html", "/embed/tv.html"]) {
       const response = await fetch(origin + path);
       expect(response.status).toBe(200);
       expect(response.headers.get("x-frame-options")).toBeNull();
       expect(response.headers.get("content-security-policy")).toContain("https://chatgpt.com");
       expect(response.headers.get("cross-origin-resource-policy")).toBe("cross-origin");
-      expect(await response.text()).toContain(path.endsWith(".html") ? "game frame" : "app shell");
+      expect(await response.text()).toContain(
+        path.endsWith("tv.html") ? "tv help" : path.endsWith(".html") ? "game frame" : "app shell",
+      );
     }
     const normal = await fetch(origin + "/");
     expect(normal.headers.get("x-frame-options")).toBe("DENY");

@@ -66,7 +66,7 @@ export function AuthPage() {
             />
           )}
         </div>
-        <a className="auth-tv-help" href="/tv.html">
+        <a className="auth-tv-help" href={auth.embedded ? "/embed/tv.html" : "/tv.html"}>
           Playing on a TV? Check compatibility
         </a>
       </section>

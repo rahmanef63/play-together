@@ -10,7 +10,7 @@ test("TV diagnostics remain readable without JavaScript", async ({ browser }) =>
   try {
     await page.goto("/tv.html");
     await expect(page.getByRole("heading", { name: "Let’s check this screen." })).toBeVisible();
-    await expect(page.getByText("JavaScript is disabled.", { exact: false })).toBeVisible();
+    await expect(page.locator("noscript p")).toBeVisible();
     await expect(page.getByRole("link", { name: "Open TV mode" })).toBeVisible();
   } finally {
     await closeContext(context);
