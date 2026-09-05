@@ -2,6 +2,14 @@
 
 All notable changes to Play Together are documented here. The project follows semantic versioning for the platform and immutable semantic versions for each game release.
 
+## [0.14.3] - 2026-09-05
+
+### Fixed
+
+- Dedicated `/embed` routes now accept app-scoped HTTPS subdomains of `web-sandbox.oaiusercontent.com`, not only its apex hostname. The normal app and game-frame routes retain their anti-framing policy.
+- The embedded app sends its constant, public ready marker to its immediate parent instead of assuming the parent's runtime origin equals the domain declared in MCP metadata. The MSO receiver still validates source window and exact game origin; no credentials or player state are sent.
+- Browser regression coverage now uses the actual readiness module and exercises direct MSO, base sandbox, app-specific sandbox, lookalike hosts and unreviewed ancestor chains. CI runs this check before room E2E.
+
 ## [0.14.2] - 2026-09-05
 
 - Turbo Circuit 0.10.1 keeps the sound toggle responsive even when browser audio activation is pending; audio permission is explicitly delegated to the sandboxed game frame.

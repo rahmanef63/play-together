@@ -47,6 +47,17 @@ Gateway controls:
 
 The game frame is same-origin but sandboxed without parent DOM permission. Communication uses a narrow postMessage protocol. CSP blocks arbitrary default network/script behavior and the frame receives no product secrets.
 
+### Reviewed MCP preview namespace
+
+Only `/embed` and its leaf game-frame route accept the ChatGPT sandbox host family. The normal
+shell retains its strict anti-framing policy. Matching a sandbox hostname does not authenticate
+any user, permit reading the parent DOM, or expose application credentials. The lifecycle-ready
+message is a public constant sent only to the immediate parent; the receiver validates the source
+window and exact game origin. No authentication or game state is added to that message. See the
+[deployment contract](deployment.md#chatgpt--mso-embedded-production) and `pnpm test:embed` for
+positive and negative browser checks. Never fix a frame denial with global CSP removal or an
+arbitrary-URL proxy.
+
 ## Commercial template source
 
 - Paid template source never lives in the public Git repository.

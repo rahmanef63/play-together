@@ -178,11 +178,25 @@ Do not use `docker compose down -v` unless you intentionally want to delete loca
 ## ChatGPT / MSO embedded production
 
 The reviewed entry is `/embed`; navigation preserves that prefix, including `/embed/game-frame.html`.
-Only that namespace allows the exact MSO component, ChatGPT, and default ChatGPT sandbox origins.
-Every ancestor must match CSP, not only the immediate parent. Normal app pages remain protected.
-`apps/web/embed-policy.mjs` and Vercel configuration are tested for parity. The app sends a minimal
-`play-together:embed-ready` version-1 message to the exact MSO component parent after mounting a
-usable shell. Run `node scripts/verify-embed-boundary.mjs` to test both allowed and denied chains.
+Only that namespace allows the MSO component, ChatGPT, the default ChatGPT sandbox origin, and
+HTTPS app-scoped subdomains of `web-sandbox.oaiusercontent.com`. Allowing the sandbox apex does
+not allow its subdomains. Every ancestor must match CSP, not only the immediate parent. Normal
+app pages remain protected; `*.oaiusercontent.com`, arbitrary HTTPS origins and a bare wildcard
+are not permitted. This host-family policy allows rendering only; it is not an authentication grant.
+
+`apps/web/embed-policy.mjs` and Vercel configuration are tested for parity. After mounting a usable
+shell, the app sends only the constant `play-together:embed-ready` version-1 marker to its immediate
+parent, without assuming the parent's runtime origin equals the MCP metadata domain. This marker
+uses `targetOrigin: "*"` specifically because it contains no secrets, room, player or account state.
+The MSO receiver must still check `event.source === frame.contentWindow`, the exact game origin,
+message type and schema version. Do not add sensitive fields to this public marker.
+
+Run `pnpm test:embed` to execute the actual readiness module across allowed and denied nested
+chains. The fixtures cover direct MSO, default and app-scoped sandbox origins, spoofed suffixes,
+unreviewed outer/intermediate ancestors and the protected normal app. Fixture hostnames model
+host layouts; they are not evidence of the hostname used by a particular user's chat session.
+CI runs this before room E2E. Playwright is a verification tool, not the production rendering or
+streaming layer; the app renders directly in the user's browser through the MCP Page.
 
 A manual release from a verified commit still requires a real main-branch push, production build,
 CDN deployment, immutable Convex catalogue registration and public checks. A successful Git push

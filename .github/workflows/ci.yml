@@ -42,6 +42,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
+      - name: Verify ChatGPT nested embed security and readiness
+        run: pnpm test:embed
       - name: Bootstrap local production topology
         run: pnpm stack:bootstrap
       - name: Run browser multiplayer scenarios

@@ -1,9 +1,11 @@
 // A nested frame checks every ancestor, not only the immediate MSO component.
-// Keep this exact-origin list limited to the reviewed ChatGPT/MSO presentation chain.
+// ChatGPT-hosted components can use app-specific subdomains of its sandbox host.
+// Scope that host family to /embed only; this is framing permission, not auth trust.
 export const EMBED_ANCESTORS = Object.freeze([
   "https://mso-ui.rahmanef.com",
   "https://chatgpt.com",
   "https://web-sandbox.oaiusercontent.com",
+  "https://*.web-sandbox.oaiusercontent.com",
 ]);
 
 export function isEmbedPath(pathname) {

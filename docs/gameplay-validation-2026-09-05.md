@@ -85,3 +85,24 @@ Physical Xbox/PlayStation pads, mobile Bluetooth compatibility, prolonged multip
 - Current mappings and proposed games: `docs/gameplay-development.md`.
 
 Ridge Rush, Clash Arena and Sky Rescue are proposals only. No placeholder cartridge was published for those concepts.
+
+## Follow-up: manual embed failure at 12:19 UTC
+
+The owner reported that `game.rahmanef.com` still refused framing in ChatGPT. Live inspection
+confirmed platform 0.14.2 was deployed, contrary to the prior conversational summary. Earlier
+browser fixtures used the literal MSO origin and therefore did not prove app-scoped sandbox
+support. Reproduction against the real 0.14.2 app found two independent defects: an app-scoped
+sandbox ancestor was blocked by CSP, and adding that ancestor in the browser fixture still left
+the readiness message undelivered because its target origin was hard-coded.
+
+The 0.14.3 source fix accepts only the HTTPS `*.web-sandbox.oaiusercontent.com` family in the
+existing `/embed` namespace and sends a constant public readiness marker to the immediate parent.
+The receiving MSO Page still verifies the exact game origin and source window. No credentials,
+player state, iframe security bypass, remote browser or arbitrary-URL proxy was introduced.
+
+Verification before promotion: 194 default unit/integration passes with two optional Redis
+scenarios skipped, full `pnpm verify` exit 0, 31 controller/render browser cases, eight nested
+origin scenarios (including denied suffix-lookalikes and unreviewed ancestors). The readiness
+regression failed three cases before the fix and passed all eight afterward. Synthetic sandbox
+hostnames are fixture inputs, not a claim that the owner's actual browser origin was captured.
+This record describes source verification; production promotion needs its own live checks.

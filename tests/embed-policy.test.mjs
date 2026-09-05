@@ -22,7 +22,13 @@ describe("dedicated MCP embed boundary", () => {
     expect(policy).toContain("default-src 'none'; script-src 'self'");
     expect(policy.match(/frame-ancestors/g)).toHaveLength(1);
     for (const origin of EMBED_ANCESTORS) expect(policy).toContain(origin);
-    expect(policy).not.toContain("*");
+    const sources = policy.split("frame-ancestors ")[1].split(" ");
+    expect(sources.filter((source) => source.includes("*"))).toEqual([
+      "https://*.web-sandbox.oaiusercontent.com",
+    ]);
+    expect(sources).not.toContain("*");
+    expect(sources).not.toContain("https:");
+    expect(sources).not.toContain("https://*.oaiusercontent.com");
     expect(isEmbedPath("/embed")).toBe(true);
     expect(isEmbedPath("/embed/game-frame.html")).toBe(true);
     expect(isEmbedPath("/embedded")).toBe(false);
