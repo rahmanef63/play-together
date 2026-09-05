@@ -1,19 +1,3 @@
-:root {
-  font-size: 16px;
-  --color-bg: #0b1020;
-  --color-surface: #141d30;
-  --color-surface-raised: #202d46;
-  --color-surface-deep: #080d18;
-  --color-text: #e5edfc;
-  --color-text-strong: #ffffff;
-  --color-muted: #a7b5cc;
-  --color-border: rgba(179, 203, 241, 0.16);
-  --color-border-strong: rgba(179, 203, 241, 0.28);
-  --color-accent: #8dbdff;
-  --color-danger: #ff9b9b;
-  --color-teal: #66c5a5;
-  --focus-ring: 0 0 0 3px rgba(141, 189, 255, 0.32);
-}
 html,
 body,
 #root {
@@ -24,6 +8,12 @@ body,
 body {
   font: inherit;
   background: var(--color-bg);
+  color: var(--color-text);
+}
+button,
+input,
+select {
+  font-family: inherit;
 }
 button:focus-visible,
 a:focus-visible,
@@ -33,149 +23,126 @@ summary:focus-visible {
 }
 input,
 select {
-  background: var(--color-surface-deep);
-  color: var(--color-text-strong);
-}
-.console-home {
-  max-width: none;
-  grid-template-columns: minmax(0, 1fr);
-  padding: 18px 28px 24px;
-  grid-template-rows: 48px minmax(96px, 16vh) 44px minmax(0, 1fr);
-  gap: 12px;
-}
-.console-home > .topbar {
-  grid-row: 1;
-  min-height: 48px;
-}
-.console-home > .page-heading {
-  grid-row: 2;
-  padding: 14px 20px;
-  border-radius: 20px;
-  background: var(--color-surface);
-  align-items: center;
-  gap: 24px;
-}
-.console-home > .page-heading h1 {
-  font-size: clamp(26px, 3.5vw, 48px);
-  max-width: 17ch;
-  line-height: 1.04;
-}
-.console-home .console-hero-art {
-  opacity: 0.45;
-}
-.console-home > .console-panel-tabs {
-  grid-row: 3;
-  display: flex;
-  gap: 8px;
-  padding: 0;
-  margin: 0;
-  align-items: center;
-  border: 0;
-  background: transparent;
-}
-.console-home > .console-panel-tabs button {
-  min-height: 40px;
-  padding: 8px 26px;
-  background: transparent;
-  color: var(--color-muted);
-  border: 1px solid transparent;
-  border-radius: 999px;
-  font-weight: 750;
-}
-.console-home > .console-panel-tabs button.active {
+  min-height: 44px;
+  background: var(--color-surface-raised);
   color: var(--color-text-strong);
   border-color: var(--color-border-strong);
-  background: var(--color-surface-raised);
+  border-radius: 6px;
 }
-.console-home > .lobby-grid {
-  grid-row: 4;
-  display: block;
-  width: 100%;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
+input::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
 }
-.console-home--play .rooms-panel,
-.console-home--rooms .create-panel {
-  display: none;
+.field > span {
+  color: var(--color-text);
 }
-.console-home .create-panel,
-.console-home .rooms-panel {
-  height: 100%;
-  padding: 16px;
-  border-radius: 20px;
-}
-.console-home .create-panel form {
-  display: grid;
-  grid-template-columns: minmax(240px, 1.6fr) minmax(240px, 1fr);
-  column-gap: 28px;
-  align-content: start;
-}
-.console-home .create-panel form > .field {
-  grid-column: 2;
-}
-.console-home .create-panel form > .field:first-child {
-  grid-row: 1;
-}
-.console-home .create-panel form > .field:nth-child(2) {
-  grid-row: 2;
-}
-.console-home .console-library {
-  grid-column: 1;
-  grid-row: 1 / span 5;
-  min-width: 0;
-}
-.console-home .create-panel form > .form-row {
-  grid-column: 2;
-  grid-row: 3;
-}
-.console-home .create-panel form > .field:nth-last-child(2) {
-  grid-row: 4;
-}
-.console-home .create-panel form > .ds-button {
-  grid-column: 2;
-  grid-row: 5;
-  align-self: end;
-}
-.console-home .create-panel .game-picker {
-  grid-auto-columns: minmax(130px, 1fr);
-  gap: 12px;
-  min-height: 0;
-}
-.console-home .game-preview-card {
-  min-width: 0;
-  border-radius: 16px;
-  overflow: hidden;
-  transition:
-    transform 160ms,
-    border-color 160ms;
-}
-.console-home .game-preview-card img {
-  width: 100%;
-  height: 135px;
-  object-fit: cover;
-}
-.console-home .game-preview-card > span {
-  padding: 12px;
-}
-.console-home .game-preview-card small {
+.field small,
+.microcopy {
   color: var(--color-muted);
 }
-.console-home .console-control-chips {
-  max-height: 70px;
+.panel {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: none;
+  backdrop-filter: none;
+  border-radius: 8px;
+}
+.primary-button {
+  background: var(--color-accent);
+  color: #fff;
+  border-radius: 6px;
+  box-shadow: none;
+}
+.secondary-button,
+.ghost-button {
+  color: var(--color-text);
+  background: transparent;
+  border-radius: 6px;
+}
+.ds-button--outline {
+  border-color: var(--color-border-strong);
+}
+.form-error,
+.global-error {
+  color: #812632;
+  background: #fff0f1;
+  border-color: #e6bac1;
+}
+.form-notice {
+  color: #225539;
+  background: #ebf4ef;
+  border-color: #aac6b5;
+}
+.status-badge {
+  background: transparent;
+  color: var(--color-muted);
+  border-color: var(--color-border);
+  border-radius: 4px;
+}
+.brand-button {
+  color: var(--color-text-strong);
+  font-size: 16px;
+  letter-spacing: -0.02em;
+}
+.brand-button span {
+  background: none;
+  color: inherit;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 4px;
+}
+.avatar-button {
+  background: var(--color-text-strong);
+  color: var(--color-surface-raised);
+}
+.mobile-account__trigger {
+  background: var(--color-text-strong);
+  color: #fff;
+}
+.mobile-account__menu {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+.toast-card {
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(24, 36, 52, 0.16);
+}
+.toast-card--error .toast-copy strong {
+  color: var(--color-danger);
+}
+.toast-card--success .toast-copy strong {
+  color: var(--color-teal);
+}
+.centered-state > .auth-card {
+  max-height: calc(var(--viewport-block) - 48px);
   overflow: auto;
 }
-.console-home .join-inline {
-  max-width: 400px;
-  grid-template-columns: minmax(80px, 1fr) minmax(90px, 1fr) auto;
-}
-.console-home .join-inline input {
-  font-size: 12px;
-  padding: 9px;
-}
-.console-home .section-title {
-  margin-bottom: 12px;
-}
-.console-home .section-title h2 {
-  font-size: 19px;
+@media (max-width: 900px) {
+  .app-dock {
+    width: 100%;
+    bottom: 0;
+  }
+  .app-dock .app-dock__surface {
+    min-height: 68px;
+    padding-bottom: max(6px, var(--safe-bottom));
+    background: var(--color-surface);
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  .app-dock .app-dock__item {
+    color: var(--color-muted);
+    border-radius: 0;
+  }
+  .app-dock .app-dock__item--active {
+    background: transparent;
+    color: var(--color-accent);
+    box-shadow: inset 0 2px var(--color-accent);
+  }
+  .app-dock .app-dock__item span {
+    font-size: 10px;
+  }
 }

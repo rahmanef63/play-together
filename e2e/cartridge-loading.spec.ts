@@ -30,11 +30,14 @@ test("active catalog exposes only the car game and two aircraft games", async ({
   ] as const;
   try {
     await signUp(page, `Catalog QA ${runId}`, `catalog-${runId}@example.test`);
+    const setup = page.getByRole("button", { name: "Set up room", exact: true });
+    await setup.click();
     const picker = page.locator('.create-panel select[name="game"] option');
     await expect(picker).toHaveCount(3);
     expect(await picker.allTextContents()).toEqual(
       games.map((game) => `${game.title} · ${game.key.split("@")[1]}`).sort(),
     );
+    await page.getByRole("button", { name: "Back to library", exact: true }).click();
     const previews = page.locator(".game-picker img");
     await expect(previews).toHaveCount(3);
     expect(

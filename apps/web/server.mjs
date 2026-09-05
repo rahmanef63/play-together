@@ -20,6 +20,8 @@ const types = {
   ".svg": "image/svg+xml",
   ".webmanifest": "application/manifest+json; charset=utf-8",
   ".webp": "image/webp",
+  ".woff2": "font/woff2",
+  ".woff": "font/woff",
 };
 
 export function createWebServer(options = {}) {
@@ -154,7 +156,7 @@ function sendHeaders(
   response.setHeader("cross-origin-embedder-policy", "credentialless");
   response.setHeader(
     "permissions-policy",
-    "fullscreen=(self), gamepad=(self), accelerometer=(self), gyroscope=(self)",
+    "fullscreen=(self), gamepad=(self), accelerometer=(self), gyroscope=(self), camera=(self), microphone=()",
   );
   response.setHeader("referrer-policy", "strict-origin-when-cross-origin");
   response.setHeader("x-content-type-options", "nosniff");

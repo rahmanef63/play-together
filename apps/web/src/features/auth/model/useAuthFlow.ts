@@ -1,4 +1,5 @@
 import { useAuthActions } from "@convex-dev/auth/react";
+import { parseDeviceCode } from "@play-together/contracts";
 import { useAction, useQuery } from "convex/react";
 import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { authErrorDetails, authErrorMessage } from "../../../shared/authErrors";
@@ -17,7 +18,7 @@ export function useAuthFlow() {
   const resetCapability = useQuery(api.passwordReset.capability);
   const embedded = isEmbedded();
   const autoStarted = useRef(false);
-  const [mode, setMode] = useState<AuthMode>("signUp");
+  const [mode, setMode] = useState<AuthMode>(currentPath() === "/device" ? "signIn" : "signUp");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -72,9 +73,9 @@ export function useAuthFlow() {
         );
         return;
       }
-      const pair = new URLSearchParams(location.search).get("pair") ?? "";
+      const pair = parseDeviceCode(new URLSearchParams(location.search).get("pair"));
       const returnPath =
-        currentPath() === "/device" && /^[A-HJ-NP-Z2-9]{8}$/.test(pair)
+        currentPath() === "/device" && pair
           ? `/device?pair=${pair}&authCallback=google`
           : "/?authCallback=google";
       await signIn("google", { redirectTo: returnPath });

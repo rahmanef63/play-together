@@ -27,6 +27,18 @@ async function fixture() {
 }
 
 describe("device sign-in authorization", () => {
+  it.each(["-", "–", "—", "−", " ", " - "])(
+    "reviews a live challenge with phone separator %s",
+    async (separator) => {
+      const { t, owner, request } = await fixture();
+      const typed = ` ${request.code.slice(0, 4).toLowerCase()}${separator}${request.code.slice(4).toLowerCase()} `;
+      expect(await owner.action(api.deviceLogin.inspect, { code: typed })).toMatchObject({
+        label: "Living room TV",
+      });
+      expect((await t.run((ctx) => ctx.db.get(request.id)))?.state).toBe("pending");
+    },
+  );
+
   it("stores only digests and never puts the private proof in a public code", async () => {
     const { t, request, proofHash } = await fixture();
     expect(request.code).toMatch(/^[A-HJ-NP-Z2-9]{8}$/);

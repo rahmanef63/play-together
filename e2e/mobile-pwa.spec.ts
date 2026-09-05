@@ -22,6 +22,7 @@ test("mobile PWA shell uses full-width snap cards, native dock, and live submiss
     // Game previews are populated from the async published-game catalog. Wait for the real
     // rail instead of racing the skeleton-to-content transition before measuring layout.
     await expect(page.locator(".game-picker")).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator(".game-picker img").first()).toBeVisible({ timeout: 20_000 });
 
     const layout = await page.evaluate(() => {
       const rail = document.querySelector<HTMLElement>(".lobby-grid");
@@ -59,7 +60,7 @@ test("mobile PWA shell uses full-width snap cards, native dock, and live submiss
     expect(layout.gameScrollbar).toBe("none");
     expect(layout.dockPosition).toBe("fixed");
     expect(layout.dockBackground).not.toBe("rgba(0, 0, 0, 0)");
-    expect(layout.dockRadius).toBeGreaterThanOrEqual(20);
+    expect(layout.dockRadius).toBe(0); // Navigation is a fixed console edge, not a floating glass pill.
 
     await dock.getByRole("button", { name: /Rooms/ }).click();
     await expect(page).toHaveURL("/rooms");

@@ -3,68 +3,114 @@
   height: var(--viewport-block);
   min-height: 0;
   overflow: hidden;
-  grid-template-columns: minmax(0, 1fr) minmax(340px, 480px);
-  gap: clamp(24px, 5vw, 90px);
-  align-items: center;
-  padding: clamp(20px, 4vw, 70px);
-  background:
-    radial-gradient(ellipse at 15% 15%, var(--color-surface-raised), transparent 65%),
-    var(--color-bg);
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(360px, 0.88fr);
+  align-items: stretch;
+  padding: 0;
+  gap: 0;
+  background: var(--color-bg);
 }
 .console-auth .auth-hero {
-  min-width: 0;
-}
-.console-auth .brand-mark {
-  margin-bottom: 36px;
-  background: var(--color-accent);
-  color: var(--color-bg);
-  border-radius: 20px;
-}
-.console-auth h1 {
-  max-width: 11ch;
-  font-size: clamp(2.7rem, 6vw, 5.6rem);
-  line-height: 1.02;
-  letter-spacing: -0.045em;
-}
-.console-auth .auth-hero > p:not(.eyebrow) {
-  color: var(--color-muted);
-  max-width: 39ch;
-  font-size: 16px;
-}
-.auth-entry {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 50px 8vw;
+  min-width: 0;
+  background: var(--stage-bg);
+  color: var(--stage-text);
+}
+.auth-wordmark {
+  font-family: var(--font-display);
+  font-size: clamp(90px, 10vw, 170px);
+  line-height: 0.86;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin: 0 0 36px;
+}
+.auth-wordmark > span {
+  color: #aac1ff;
+}
+.console-auth .auth-hero h1 {
+  margin: 0 0 12px;
+  font-family: inherit;
+  font-size: 22px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.console-auth .auth-hero > p {
+  color: #a8b5c5;
+  font-size: 14px;
+  margin: 0;
+}
+.auth-hardware {
+  display: flex;
+  gap: 10px;
+  margin-top: 30px;
+}
+.auth-hardware span {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  font: 500 12px / 1 inherit;
+  color: #c8d2df;
+  border: 1px solid #516071;
+  border-radius: 50%;
+}
+.console-auth .auth-hero > a {
+  color: #a8b5c5;
+  font-size: 12px;
+  margin-top: 48px;
+  text-underline-offset: 4px;
+}
+.auth-entry {
   min-width: 0;
   min-height: 0;
-  max-height: 100%;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 32px clamp(22px, 4vw, 64px);
   overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: 24px;
-  background: var(--color-surface);
-  box-shadow: 0 24px 75px rgba(0, 0, 0, 0.22);
+}
+.auth-entry-heading {
+  padding: 16px 0 22px;
+  flex-shrink: 0;
+}
+.auth-entry-heading h2 {
+  font-size: 30px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+.auth-entry-heading p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-muted);
 }
 .auth-entry-tabs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  padding: 8px;
-  gap: 5px;
   flex-shrink: 0;
+  display: flex;
+  gap: 24px;
   border-bottom: 1px solid var(--color-border);
+  margin-bottom: 20px;
 }
 .auth-entry-tabs button {
-  min-height: 44px;
-  padding: 8px;
+  background: none;
   border: 0;
-  border-radius: 14px;
-  color: var(--color-muted);
-  background: transparent;
-  font-weight: 750;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 10px 0 14px;
+  min-height: 44px;
+  font-weight: 600;
   font-size: 13px;
+  color: var(--color-muted);
 }
 .auth-entry-tabs button[aria-pressed="true"] {
-  background: var(--color-surface-raised);
   color: var(--color-text-strong);
+  border-bottom-color: var(--color-accent);
 }
 .auth-entry-body {
   flex: 1;
@@ -74,98 +120,48 @@
   scrollbar-width: thin;
 }
 .console-auth .auth-card {
+  padding: 0;
   border: 0;
   border-radius: 0;
-  padding: 22px;
   background: transparent;
 }
 .console-auth .segmented {
-  margin-bottom: 16px;
+  background: var(--color-surface-deep);
+  border-radius: 6px;
+  padding: 3px;
+  margin-bottom: 18px;
+}
+.console-auth .segmented button {
+  border-radius: 4px;
+  min-height: 40px;
+  padding: 8px;
+  color: var(--color-muted);
+  font-size: 12px;
 }
 .console-auth .segmented button.active {
   background: var(--color-surface-raised);
+  color: var(--color-text-strong);
+  box-shadow: 0 1px 3px rgba(20, 30, 40, 0.12);
 }
 .console-auth .field {
-  margin-bottom: 13px;
+  margin-bottom: 14px;
 }
-.console-auth .field input {
+.console-auth input {
   min-height: 44px;
   padding: 10px 12px;
 }
 .auth-inline-error {
-  font-size: 12px;
-  color: var(--color-danger);
   margin: 8px 0;
+  color: var(--color-danger);
+  font-size: 12px;
 }
-@media (max-width: 900px) {
-  .console-auth {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(0, 1fr);
-    padding: 14px;
-    gap: 14px;
-  }
-  .console-auth .auth-hero {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-    margin: 0;
-    padding: 0;
-  }
-  .console-auth .brand-mark {
-    flex-shrink: 0;
-    width: 46px;
-    height: 46px;
-    margin: 0;
-    border-radius: 14px;
-  }
-  .console-auth .auth-hero h1 {
-    font-size: 27px;
-    max-width: 17ch;
-    margin: 0;
-  }
-  .console-auth .auth-hero .eyebrow,
-  .console-auth .auth-hero > p,
-  .console-auth .mode-strip {
-    display: none;
-  }
-  .auth-entry {
-    height: 100%;
-    width: min(100%, 560px);
-    justify-self: center;
-    border-radius: 20px;
-  }
-  .console-auth .auth-card {
-    padding: 16px;
-  }
-  .device-approval-page {
-    padding: 14px 14px calc(90px + var(--safe-bottom));
-  }
-}
-@media (orientation: landscape) and (max-height: 560px) {
-  .console-auth {
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 1fr);
-    grid-template-rows: minmax(0, 1fr);
-  }
-  .console-auth .auth-hero {
-    display: block;
-  }
-  .console-auth .auth-hero .brand-mark {
-    margin-bottom: 18px;
-  }
-  .console-auth .auth-hero h1 {
-    font-size: 38px;
-    max-width: 12ch;
-  }
-}
-
 .auth-tv-help {
-  display: block;
   flex-shrink: 0;
-  text-align: center;
-  padding: 10px 14px;
-  border-top: 1px solid var(--color-border);
+  display: block;
+  margin-top: 16px;
+  padding: 10px 0 0;
   color: var(--color-muted);
+  border-top: 1px solid var(--color-border);
   font-size: 11px;
   text-decoration: none;
 }

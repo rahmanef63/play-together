@@ -1,0 +1,171 @@
+.library-shell .create-panel {
+  height: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.console-library {
+  display: grid;
+  grid-template-rows: minmax(100px, 1fr) 90px 20px;
+  gap: 14px;
+  min-width: 0;
+  min-height: 0;
+}
+.game-stage {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  background: var(--stage-bg);
+  border-radius: 6px;
+}
+.game-stage__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.game-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(10, 18, 25, 0.94), rgba(10, 18, 25, 0.06) 70%);
+  pointer-events: none;
+}
+.game-stage__caption {
+  position: absolute;
+  z-index: 1;
+  left: 28px;
+  right: 28px;
+  bottom: 26px;
+  color: var(--stage-text);
+}
+.game-stage__caption h1 {
+  font-family: var(--font-display);
+  font-size: 64px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+.game-stage__caption p {
+  margin: 0;
+  font-size: 13px;
+  color: #e0e6ec;
+}
+.library-shell .game-picker {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(195px, 1fr);
+  grid-template-columns: none;
+  gap: 14px;
+  padding: 0 0 6px;
+  width: 100%;
+  min-width: 0;
+  overflow-y: hidden;
+}
+.library-shell .game-preview-card {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  min-width: 0;
+  height: 78px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text);
+  text-align: left;
+  scroll-snap-align: start;
+  transition:
+    border-color 160ms,
+    opacity 160ms;
+}
+.library-shell .game-preview-card img {
+  width: 80px;
+  height: 58px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.library-shell .game-preview-card > span {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+.library-shell .game-preview-card strong {
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 600;
+}
+.library-shell .game-preview-card small {
+  font-size: 11px;
+  color: var(--color-muted);
+}
+.library-shell .game-preview-card--active {
+  border-bottom-color: var(--color-accent);
+}
+.library-shell .game-preview-card:hover {
+  border-bottom-color: var(--color-muted);
+}
+.library-controls {
+  font-size: 11px;
+  color: var(--color-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+.library-shell .session-setup {
+  height: 100%;
+  min-height: 0;
+  padding: 8px 0 0 26px;
+  border: 0;
+  border-left: 1px solid var(--color-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.library-shell .session-setup .section-title {
+  margin-bottom: 20px;
+}
+.library-shell .session-setup h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.library-shell .session-setup form {
+  display: block;
+}
+.library-shell .session-setup .field {
+  margin-bottom: 13px;
+}
+.library-shell .session-setup .field > span {
+  font-size: 12px;
+  font-weight: 500;
+}
+.library-shell .session-setup input,
+.library-shell .session-setup select {
+  padding: 9px 10px;
+  font-size: 13px;
+  min-height: 40px;
+}
+.library-shell .session-setup .form-row {
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.library-start,
+.setup-back {
+  display: none;
+}

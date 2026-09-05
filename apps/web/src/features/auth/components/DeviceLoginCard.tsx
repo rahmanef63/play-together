@@ -1,7 +1,7 @@
+import { formatDeviceCode } from "@play-together/contracts";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 import { Button } from "../../../shared/ui/Button";
-import { formatDeviceCode } from "../model/deviceProof";
 import { useDeviceLogin } from "../model/useDeviceLogin";
 
 export function DeviceLoginCard() {
@@ -97,7 +97,8 @@ export function DeviceLoginCard() {
         </div>
       )}
       <p className="microcopy">
-        The QR is not a login token. Approval expires in five minutes and works once.
+        Keep this screen open. On your signed-in phone, open Pair device to scan or enter the code.
+        The code expires in five minutes.
       </p>
     </section>
   );

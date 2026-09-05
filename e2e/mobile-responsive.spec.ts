@@ -154,9 +154,22 @@ async function assertScrollContracts(page: Page) {
   for (let index = 0; index < (await snaps.count()); index += 1) {
     const style = await snaps.nth(index).evaluate((element) => {
       const computed = getComputedStyle(element);
-      return { overflowX: computed.overflowX, snap: computed.scrollSnapType };
+      return {
+        overflowX: computed.overflowX,
+        overflowY: computed.overflowY,
+        snap: computed.scrollSnapType,
+        verticalGameRail:
+          element.classList.contains("game-picker") &&
+          window.matchMedia("(max-height: 580px) and (min-width: 620px)").matches,
+      };
     });
-    expect(style.overflowX).toBe("auto");
-    expect(style.snap).toContain("x mandatory");
+    if (style.verticalGameRail) {
+      expect(style.overflowY).toBe("auto");
+      expect(style.overflowX).toBe("hidden");
+      expect(style.snap).toContain("y mandatory");
+    } else {
+      expect(style.overflowX).toBe("auto");
+      expect(style.snap).toContain("x mandatory");
+    }
   }
 }

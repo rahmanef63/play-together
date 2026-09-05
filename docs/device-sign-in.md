@@ -33,3 +33,32 @@ Expected account errors use concise safe messages. The notification has an expli
 - OAuth device-flow security considerations: https://www.rfc-editor.org/rfc/rfc8628
 - Convex mutation atomicity: https://docs.convex.dev/functions/mutation-functions
 - Convex testing limitations: https://docs.convex.dev/testing/convex-test
+
+## Phone scanner and manual entry (0.16.0)
+
+The authenticated `/device` page now offers **Scan QR with this phone**, followed by **Open
+camera**, and **Choose QR photo**. This uses the phone's own `getUserMedia` stream and the
+local jsQR decoder. It does not start Camoufox/Playwright on a server to access a user camera.
+It requests video only. The camera requires a secure context, browser permission and permission
+from every embedding ancestor; a child page cannot override a restrictive chat/webview host.
+In that case, open the first-party scanner in a normal browser or use photo/manual entry.
+
+The same parser accepts ASCII minus, Unicode smart dashes, whitespace, lowercase and NFKC
+full-width forms. Inputs are bounded to 256 characters to allow pasting a first-party QR URL
+without truncating the public code. The server still requires exactly 8 unambiguous code symbols.
+Unknown origins, room invitations, duplicate `pair` fields and malformed URLs are not followed.
+No session token or private requester proof is present in the QR.
+
+Review never grants access. It presents the matching-code confirmation as its own visible task.
+Changing the input invalidates the old review and the approve mutation uses the reviewed code,
+not whatever the user typed while an earlier request was pending. Expired/cancelled requests,
+missing authentication, rate limiting and connection failures have distinct safe explanations.
+
+Regression evidence: real production 0.15.1 accepted a fresh plain/ASCII-minus/lowercase code,
+but rejected an en-dash and truncated a spaced code to 9 characters. No camera/scan button existed.
+Those findings do not establish why the owner's particular plain-code attempt failed. Synthetic
+camera tests stream a generated QR through the real decoder, not a stubbed decoded answer;
+physical iOS/Android permission prompts and the owner's exact in-app browser are not certified.
+
+Camera documentation: https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+Decoder: https://github.com/cozmo/jsQR

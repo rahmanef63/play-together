@@ -1,21 +1,22 @@
+import { DEVICE_CODE_ALPHABET, parseDeviceCode } from "@play-together/contracts";
 import { ConvexError } from "convex/values";
 
 export const DEVICE_LOGIN_TTL_MS = 5 * 60_000;
 export const DEVICE_POLL_MS = 4_000;
-const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 export function normalizeDeviceCode(value: string): string {
-  const code = value.replace(/[ -]/g, "").toUpperCase();
-  if (!/^[A-HJ-NP-Z2-9]{8}$/.test(code)) throw new ConvexError({ code: "DEVICE_CODE_INVALID" });
+  const code = parseDeviceCode(value);
+  if (!code) throw new ConvexError({ code: "DEVICE_CODE_INVALID" });
   return code;
 }
 export function randomDeviceCode(): string {
   // Reject the biased tail instead of using modulo on every byte.
-  const limit = Math.floor(256 / CODE_ALPHABET.length) * CODE_ALPHABET.length;
+  const limit = Math.floor(256 / DEVICE_CODE_ALPHABET.length) * DEVICE_CODE_ALPHABET.length;
   let code = "";
   while (code.length < 8) {
     const bytes = crypto.getRandomValues(new Uint8Array(16));
     for (const byte of bytes)
-      if (byte < limit && code.length < 8) code += CODE_ALPHABET[byte % CODE_ALPHABET.length];
+      if (byte < limit && code.length < 8)
+        code += DEVICE_CODE_ALPHABET[byte % DEVICE_CODE_ALPHABET.length];
   }
   return code;
 }

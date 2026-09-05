@@ -2,6 +2,20 @@
 
 All notable changes to Play Together are documented here. The project follows semantic versioning for the platform and immutable semantic versions for each game release.
 
+## [0.16.0] - 2026-09-05
+
+### Phone pairing
+
+- Add an explicit rear-camera QR scanner and local image decoding fallback. Camera streams stop after a read, cancellation, hidden tab or unmount. No microphone, recording, image upload or automatic navigation from scanned content.
+- Share phone-safe code parsing between browser and backend. Accept ordinary/smart dashes, whitespace, lowercase and full-width characters without truncating an eight-character code to a nine-character raw input budget.
+- Separate session/network/rate-limit errors from expired requests, reject foreign and room-invite QR URLs, and bind consent to the code actually reviewed. Successful review becomes an explicit focused confirmation step.
+
+### Interface
+
+- Replace the rejected blue card stack with a silver-console launcher: real game viewport, cartridge selector and a plain setup column. Mobile separates the game library and setup task without adding a modal or page-level scroll.
+- Apply reviewed Taste Redesign, Impeccable craft/Operate and Anthropic frontend-design guidance. Keep product/design decisions in PRODUCT.md and DESIGN.md. Remove superseded lobby styles instead of retaining competing overrides.
+- Self-host Barlow Condensed for the boot wordmark and game titles. Keep runtime controls in the system UI font. Third-party asset licenses are served under /licenses.
+
 ## [0.15.1] - 2026-09-05
 
 - Add the public `/device` SPA deep-link rewrite required when opening a QR URL from another device. Test every fixed App route against Vercel configuration.

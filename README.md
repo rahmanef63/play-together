@@ -23,10 +23,11 @@ The source catalog targets three 3D cartridges: **Turbo Circuit 0.10.1**, **Flig
 
 ## Console home and device sign-in
 
-The home interface uses a one-viewport console layout with Play/Rooms tabs and a selectable game
-library. Use **QR sign-in** on a new screen and **Pair device** on an already-authenticated one.
+The home interface uses a one-viewport console layout with Play/Rooms tabs, a real game viewport
+and a horizontal cartridge selector. On phones, Set up room opens the focused setup task. Use **QR sign-in** on a new screen and **Pair device** on an already-authenticated one.
 Approval is explicit, short-lived, single-use and bound to the requesting browser. See
-[device sign-in](docs/device-sign-in.md). For older televisions, open `/tv.html` before assuming
+[device sign-in](docs/device-sign-in.md). The signed-in phone can scan with its camera, read a QR
+photo locally, or enter a code with ordinary/smart dashes and spaces. For older televisions, open `/tv.html` before assuming
 the built-in browser can run the current 3D engine. The lobby baseline and game-rendering
 requirements are separate; missing WebGL 2 cannot be fixed with a JavaScript polyfill.
 

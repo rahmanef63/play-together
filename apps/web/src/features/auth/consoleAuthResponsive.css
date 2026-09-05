@@ -1,0 +1,71 @@
+@media (max-width: 900px) {
+  .auth-page.console-auth {
+    grid-template-columns: 1fr;
+    grid-template-rows: calc(94px + var(--safe-top)) minmax(0, 1fr);
+    padding: 0;
+    gap: 0;
+  }
+  .console-auth .auth-hero {
+    padding: calc(18px + var(--safe-top)) 22px 18px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 20px;
+    align-items: center;
+    margin: 0;
+  }
+  .console-auth .auth-wordmark {
+    font-size: 32px;
+    margin: 0;
+    line-height: 0.9;
+  }
+  .console-auth .auth-hero h1 {
+    font-size: 16px;
+    margin: 0;
+    max-width: 15ch;
+    line-height: 1.25;
+  }
+  .console-auth .auth-hero > p,
+  .console-auth .auth-hardware,
+  .console-auth .auth-hero > a {
+    display: none;
+  }
+  .console-auth .auth-entry {
+    padding: 18px 22px 16px;
+  }
+  .console-auth .auth-entry-heading {
+    padding: 0 0 14px;
+  }
+  .console-auth .auth-entry-heading h2 {
+    font-size: 24px;
+  }
+  .console-auth .auth-entry-tabs {
+    margin-bottom: 14px;
+  }
+  .console-auth .auth-entry-tabs button {
+    padding-bottom: 12px;
+  }
+}
+@media (orientation: landscape) and (max-height: 560px) {
+  .auth-page.console-auth {
+    grid-template-columns: minmax(0, 0.65fr) minmax(340px, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .console-auth .auth-hero {
+    display: flex;
+    align-items: flex-start;
+    padding: 28px;
+  }
+  .console-auth .auth-wordmark {
+    font-size: 62px;
+    margin-bottom: 24px;
+  }
+  .console-auth .auth-entry {
+    padding: 16px 28px;
+  }
+  .console-auth .auth-entry-heading h2 {
+    font-size: 22px;
+  }
+  .console-auth .auth-entry-heading p {
+    display: none;
+  }
+}

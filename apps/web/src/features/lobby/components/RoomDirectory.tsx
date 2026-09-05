@@ -62,7 +62,6 @@ export function RoomDirectory({
   return (
     <ScrollablePanel
       className="rooms-panel rooms-panel-frame"
-      label="ROOM DIRECTORY"
       title={roomTab === "public" ? "Public rooms" : "My rooms"}
       meta={count}
       toolbar={toolbar}

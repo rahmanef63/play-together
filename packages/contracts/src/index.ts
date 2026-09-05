@@ -1,5 +1,6 @@
 export * from "./common.js";
 export * from "./console.js";
+export * from "./device-link.js";
 export * from "./manifest.js";
 export * from "./presentation.js";
 export * from "./realtime.js";

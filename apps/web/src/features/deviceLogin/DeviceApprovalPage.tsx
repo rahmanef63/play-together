@@ -1,115 +1,126 @@
-import { useAction } from "convex/react";
-import { type FormEvent, useState } from "react";
-import { authErrorMessage } from "../../shared/authErrors";
-import { api } from "../../shared/convexApi";
+import { formatDeviceCode, MAX_DEVICE_CODE_INPUT } from "@play-together/contracts";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { navigate } from "../../shared/navigation";
-import { useToast } from "../../shared/ToastProvider";
 import type { CurrentUser } from "../../shared/types";
 import { Button } from "../../shared/ui/Button";
 import { InputField } from "../../shared/ui/FormField";
+import { useDeviceApproval } from "./model/useDeviceApproval";
+
+const QrScanner = lazy(() =>
+  import("./scanner/QrScanner").then((module) => ({ default: module.QrScanner })),
+);
 
 export function DeviceApprovalPage({ user }: { user: CurrentUser }) {
-  const inspect = useAction(api.deviceLogin.inspect),
-    decide = useAction(api.deviceLogin.decide),
-    notify = useToast();
-  const [code, setCode] = useState(() => new URLSearchParams(location.search).get("pair") ?? "");
-  const [request, setRequest] = useState<{ label: string; expiresAt: number } | null>(null);
-  const [checked, setChecked] = useState(false),
-    [busy, setBusy] = useState(false),
-    [done, setDone] = useState<string | null>(null),
-    [error, setError] = useState("");
-  const normalized = code.replace(/[ -]/g, "").toUpperCase();
-  async function load(event: FormEvent) {
-    event.preventDefault();
-    setBusy(true);
-    setError("");
-    setRequest(null);
-    setChecked(false);
-    try {
-      const result = await inspect({ code: normalized });
-      if (!result) throw new Error("expired");
-      setRequest(result);
-    } catch {
-      setError("This code is invalid or expired. Generate a new one on the other device.");
-    } finally {
-      setBusy(false);
+  const approval = useDeviceApproval();
+  const [scanning, setScanning] = useState(false);
+  const { request, done, busy, checked, error, code } = approval;
+  const reviewRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (request) {
+      reviewRef.current?.focus({ preventScroll: true });
+      reviewRef.current?.scrollIntoView({ block: "nearest" });
     }
-  }
-  async function respond(approve: boolean) {
-    if (approve && !checked) return;
-    setBusy(true);
-    setError("");
-    try {
-      await decide({ code: normalized, approve });
-      setDone(approve ? "Device approved" : "Request declined");
-      notify({
-        title: approve ? "Device approved" : "Request declined",
-        description: approve
-          ? "Your other screen can now finish signing in."
-          : "No access was granted.",
-        tone: approve ? "success" : "info",
-      });
-    } catch (reason) {
-      setError(authErrorMessage(reason));
-    } finally {
-      setBusy(false);
-    }
-  }
+  }, [request]);
   return (
     <main className="device-approval-page">
-      <section className="panel device-approval-card">
-        <p className="eyebrow">DEVICE SIGN-IN</p>
+      <section className="device-approval-card">
+        <header className="pairing-header">
+          <button type="button" onClick={() => navigate("/")}>
+            Back to games
+          </button>
+          <span>{user.name}</span>
+        </header>
         <h1>{done ?? "Connect another screen"}</h1>
-        <p>
-          Signed in as <strong>{user.name}</strong>
-        </p>
         {done ? (
           <>
             <p>
               {done === "Device approved"
-                ? "Return to your other screen. This code can only be used once."
-                : "The other screen was not signed in."}
+                ? "Your other screen can now finish signing in. This code cannot be used again."
+                : "No access was granted to the other screen."}
             </p>
             <Button onClick={() => navigate("/")}>Back to games</Button>
           </>
         ) : (
           <>
-            <form onSubmit={load}>
-              <InputField
-                label="Code on the other screen"
-                name="pairCode"
-                autoComplete="off"
-                spellCheck={false}
-                value={code}
-                onChange={(event) => {
-                  setCode(event.target.value);
-                  setRequest(null);
-                  setChecked(false);
-                }}
-                minLength={8}
-                maxLength={9}
-                required
-              />
-              <Button type="submit" busy={busy}>
-                Review device
-              </Button>
-            </form>
-            {request && (
-              <section className="device-consent" aria-label="Approve new device">
-                <p className="eyebrow">CHECK BOTH SCREENS</p>
-                <h2>{request.label}</h2>
-                <strong className="device-code">
-                  {normalized.slice(0, 4)}-{normalized.slice(4)}
-                </strong>
+            {!request && (
+              <>
                 <p>
-                  This will sign the requesting screen into your account. Only approve a device you
-                  own or trust and can see now. Never approve a code someone sent you.
+                  Use this signed-in phone to approve a TV, computer or another browser. Keep that
+                  screen open.
+                </p>
+                {scanning ? (
+                  <Suspense fallback={<p role="status">Preparing scanner…</p>}>
+                    <QrScanner
+                      onClose={() => setScanning(false)}
+                      onRead={(value) => {
+                        setScanning(false);
+                        void approval.review(value);
+                      }}
+                    />
+                  </Suspense>
+                ) : (
+                  <button
+                    type="button"
+                    className="pair-scan-button"
+                    onClick={() => setScanning(true)}
+                  >
+                    Scan QR with this phone
+                  </button>
+                )}
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void approval.review();
+                  }}
+                  noValidate
+                >
+                  <InputField
+                    label="Or enter the sign-in code"
+                    hint="8 characters"
+                    name="pairCode"
+                    autoComplete="off"
+                    autoCapitalize="characters"
+                    spellCheck={false}
+                    placeholder="ABCD-EFGH"
+                    value={code}
+                    onChange={(event) => approval.update(event.target.value)}
+                    maxLength={MAX_DEVICE_CODE_INPUT}
+                    aria-describedby="pair-code-hint"
+                    aria-invalid={Boolean(error)}
+                  />
+                  <p id="pair-code-hint" className="pair-code-hint">
+                    Spaces, dashes and lowercase letters all work. Use the sign-in code, not a room
+                    code or support ID.
+                  </p>
+                  <Button type="submit" busy={busy}>
+                    Review device
+                  </Button>
+                </form>
+              </>
+            )}
+            {error && (
+              <p role="alert" className="form-error">
+                {error}
+              </p>
+            )}
+            {request && (
+              <section
+                className="device-consent"
+                aria-label="Approve new device"
+                ref={reviewRef}
+                tabIndex={-1}
+              >
+                <h2>{request.label}</h2>
+                <strong className="device-code">{formatDeviceCode(request.code)}</strong>
+                <p>
+                  This signs the other screen into your account. Only approve a device you control
+                  and can see now. Never approve a code sent by someone else.
                 </p>
                 <label className="device-confirm">
                   <input
                     type="checkbox"
                     checked={checked}
-                    onChange={(event) => setChecked(event.target.checked)}
+                    onChange={(event) => approval.setChecked(event.target.checked)}
                   />
                   The code matches my other screen.
                 </label>
@@ -117,24 +128,27 @@ export function DeviceApprovalPage({ user }: { user: CurrentUser }) {
                   <Button
                     busy={busy}
                     disabled={!checked || request.expiresAt <= Date.now()}
-                    onClick={() => void respond(true)}
+                    onClick={() => void approval.respond(true)}
                   >
                     Approve sign-in
                   </Button>
-                  <Button variant="outline" busy={busy} onClick={() => void respond(false)}>
+                  <Button
+                    variant="outline"
+                    busy={busy}
+                    onClick={() => void approval.respond(false)}
+                  >
                     Decline
                   </Button>
                 </div>
+                <button
+                  className="pair-change-code"
+                  type="button"
+                  onClick={() => approval.update(code)}
+                >
+                  Change code
+                </button>
               </section>
             )}
-            {error && (
-              <p role="alert" className="form-error">
-                {error}
-              </p>
-            )}
-            <button className="auth-link-button" type="button" onClick={() => navigate("/")}>
-              Back to games
-            </button>
           </>
         )}
       </section>

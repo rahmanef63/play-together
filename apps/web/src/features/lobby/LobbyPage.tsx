@@ -25,12 +25,11 @@ export function LobbyPage({
 
   return (
     <main
-      className={`app-shell app-shell--lobby console-home console-home--${panel}${panel === "rooms" ? " app-shell--rooms" : ""}`}
+      className={`app-shell app-shell--lobby library-shell console-home console-home--${panel}${panel === "rooms" ? " app-shell--rooms" : ""}`}
     >
       <LobbyHeader user={user} onSignOut={() => void signOut()} />
       <LobbyHeading
         user={user}
-        game={catalog.selectedGame}
         code={directory.joinCode}
         password={directory.joinPassword}
         busy={directory.busy}

@@ -38,7 +38,7 @@ test("an authenticated phone explicitly approves a QR request from an independen
     // A consumed code does not create a second authorization.
     await owner.goto(`/device?pair=${publicCode}`);
     await owner.getByRole("button", { name: "Review device" }).click();
-    await expect(owner.getByRole("alert")).toContainText("invalid or expired");
+    await expect(owner.getByRole("alert")).toContainText("expired");
   } finally {
     await closeContext(receiverContext);
     await closeContext(ownerContext);

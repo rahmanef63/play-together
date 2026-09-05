@@ -1,0 +1,132 @@
+@import "./scanner/scanner.css";
+.device-approval-page {
+  height: var(--viewport-block);
+  padding: 30px 24px 84px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.device-approval-card {
+  width: min(100%, 600px);
+  max-height: 100%;
+  padding: 24px 28px;
+  overflow: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+.pairing-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 28px;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.pairing-header button {
+  background: none;
+  border: 0;
+  padding: 4px 0;
+  color: var(--color-accent);
+  font-size: 12px;
+}
+.device-approval-card h1 {
+  font-size: 30px;
+  line-height: 1.13;
+  letter-spacing: -0.03em;
+  margin: 0 0 12px;
+}
+.device-approval-card p {
+  color: var(--color-muted);
+  line-height: 1.6;
+  font-size: 13px;
+}
+.pair-scan-button {
+  min-height: 48px;
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--color-text-strong);
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  font-weight: 600;
+  margin: 14px 0 24px;
+}
+.device-approval-card form {
+  padding: 12px 0 20px;
+}
+.device-approval-card [name="pairCode"] {
+  font-family: ui-monospace, monospace;
+  font-size: 22px;
+  letter-spacing: 0.08em;
+}
+.device-approval-card .pair-code-hint {
+  font-size: 11px;
+  margin: -6px 0 16px;
+}
+.device-consent {
+  border-top: 1px solid var(--color-border);
+  padding-top: 24px;
+}
+.device-consent h2 {
+  font-size: 22px;
+}
+.device-confirm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  font-size: 13px;
+}
+.device-confirm input {
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  accent-color: var(--color-accent);
+}
+.device-actions,
+.scanner-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+@media (max-width: 600px) {
+  .device-approval-page {
+    padding: max(16px, var(--safe-top)) 14px calc(84px + var(--safe-bottom));
+  }
+  .device-approval-card {
+    padding: 20px;
+    width: 100%;
+  }
+  .device-approval-card h1 {
+    font-size: 27px;
+  }
+  .qr-viewfinder {
+    height: 220px;
+  }
+}
+
+.pair-change-code {
+  display: block;
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font-size: 13px;
+}
+.device-consent:focus {
+  outline: none;
+}
+@media (max-width: 600px) {
+  .pairing-header {
+    padding-right: 36px;
+  }
+  .pairing-header span {
+    max-width: 55%;
+    overflow-wrap: anywhere;
+  }
+}

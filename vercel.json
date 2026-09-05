@@ -77,7 +77,7 @@
         },
         {
           "key": "Permissions-Policy",
-          "value": "fullscreen=(self), gamepad=(self), accelerometer=(self), gyroscope=(self)"
+          "value": "fullscreen=(self), gamepad=(self), accelerometer=(self), gyroscope=(self), camera=(self), microphone=()"
         },
         {
           "key": "Referrer-Policy",

@@ -1,0 +1,82 @@
+.qr-scanner {
+  margin: 20px 0;
+}
+.qr-scanner header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: baseline;
+}
+.qr-scanner h2 {
+  font-size: 17px;
+}
+.qr-scanner header button {
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font-size: 12px;
+}
+.qr-viewfinder {
+  height: 240px;
+  position: relative;
+  overflow: hidden;
+  background: var(--stage-bg);
+  border-radius: 6px;
+}
+.qr-viewfinder video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.qr-viewfinder > p {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  color: #fff;
+  text-align: center;
+  font-size: 13px;
+}
+.qr-scan-guide {
+  position: absolute;
+  inset: 20px calc(50% - 90px);
+  border: 1px solid #ccd8ea;
+  border-radius: 10px;
+  pointer-events: none;
+}
+.scanner-actions > button,
+.scanner-file {
+  min-height: 44px;
+  padding: 10px 16px;
+  font-size: 13px;
+}
+.scanner-file {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.scanner-file input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.scanner-error {
+  padding: 10px 0;
+  color: var(--color-danger);
+}
+.qr-scanner > a {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--color-accent);
+  font-size: 13px;
+}
+.device-approval-card .scanner-privacy {
+  font-size: 11px;
+  margin: 12px 0 0;
+}

@@ -1,0 +1,122 @@
+@media (max-width: 900px) {
+  .library-shell .create-panel {
+    display: block;
+  }
+  .console-library {
+    height: 100%;
+    grid-template-rows: minmax(100px, 1fr) 82px;
+    gap: 12px;
+  }
+  .library-controls {
+    display: none;
+  }
+  .game-stage__caption {
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+  }
+  .game-stage__caption h1 {
+    font-size: 48px;
+  }
+  .game-stage__caption p {
+    max-width: 26ch;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .library-start {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 16px;
+    padding: 0 24px;
+    min-height: 44px;
+    font-size: 13px;
+  }
+  .library-shell .game-picker {
+    grid-auto-columns: 185px;
+  }
+  .library-shell .game-preview-card {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 9px;
+    height: 72px;
+  }
+  .library-shell .game-preview-card img {
+    width: 64px;
+    height: 54px;
+  }
+  .library-shell .create-panel[data-setup="false"] .session-setup {
+    display: none;
+  }
+  .library-shell .create-panel[data-setup="true"] .console-library {
+    display: none;
+  }
+  .library-shell .session-setup {
+    padding: 10px 6px 0;
+    border: 0;
+  }
+  .library-shell .session-setup .section-title {
+    margin-bottom: 12px;
+  }
+  .library-shell .session-setup .panel-scroll__content {
+    padding-bottom: 14px;
+  }
+  .setup-back {
+    display: inline-flex;
+    min-height: 40px;
+    margin-bottom: 12px;
+    align-items: center;
+    background: none;
+    border: 0;
+    padding: 0;
+    color: var(--color-accent);
+    font-size: 13px;
+  }
+}
+@media (max-height: 580px) and (min-width: 620px) {
+  .app-shell--lobby.library-shell {
+    grid-template-rows: 34px 38px 30px minmax(0, 1fr);
+    padding-top: 6px;
+    gap: 6px;
+  }
+  .library-shell .page-heading .join-inline label span {
+    display: none;
+  }
+  .console-library {
+    grid-template-columns: minmax(0, 1fr) 220px;
+    grid-template-rows: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .library-shell .game-picker {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-snap-type: y mandatory;
+    gap: 4px;
+  }
+  .library-shell .game-preview-card {
+    flex: 0 0 54px;
+    height: 54px;
+  }
+  .library-shell .game-preview-card img {
+    height: 44px;
+  }
+  .game-stage__caption {
+    left: 18px;
+    bottom: 14px;
+  }
+  .game-stage__caption h1 {
+    font-size: 36px;
+  }
+  .game-stage__caption p {
+    display: none;
+  }
+  .library-start {
+    margin-top: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-preview-card {
+    transition: none;
+  }
+}

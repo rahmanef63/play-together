@@ -40,6 +40,8 @@ export async function createRoom(
     roomPassword?: string;
   },
 ): Promise<string> {
+  const setup = page.getByRole("button", { name: "Set up room", exact: true });
+  if (await setup.isVisible()) await setup.click();
   const form = page.locator(".create-panel form");
   const game = form.locator('select[name="game"]');
   await expect(game).toBeVisible();
