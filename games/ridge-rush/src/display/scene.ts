@@ -30,15 +30,15 @@ export function createRidgeScene(host: HTMLElement): RidgeScene {
   host.append(renderer.domElement);
   const scene = new THREE.Scene();
   renderer.setClearColor(0x8bc8dd);
-  scene.fog = new THREE.Fog(0x8bc8dd, 65, 250);
-  const camera = new THREE.PerspectiveCamera(62, 1, 0.1, 420);
+  scene.fog = new THREE.Fog(0x8bc8dd, 90, 430);
+  const camera = new THREE.PerspectiveCamera(62, 1, 0.1, 720);
   scene.add(new THREE.HemisphereLight(0xeaf8ff, 0x29432c, 2.4));
   const sun = new THREE.DirectionalLight(0xffe5b2, 2.2);
   sun.position.set(-18, 60, -30);
   scene.add(sun);
 
-  scene.add(ribbon(56, 0, 0, COURSE_LENGTH, 0x4c713f, -0.16));
-  scene.add(ribbon(10.6, 0, 0, FINISH_PROGRESS + 8, 0x795337, -0.04));
+  scene.add(ribbon(82, 0, 0, COURSE_LENGTH, 0x4c713f, -0.16));
+  scene.add(ribbon(9.8, 0, 0, FINISH_PROGRESS + 8, 0x795337, -0.04));
   scene.add(ribbon(3.6, SHORTCUT_CENTER, SHORTCUT_START, SHORTCUT_END, 0x99683d, 0.01));
   addMountainBackdrop(scene);
   addVegetation(scene);
@@ -65,7 +65,7 @@ function ribbon(
 ) {
   const vertices: number[] = [];
   const indices: number[] = [];
-  const step = 8;
+  const step = 5;
   let row = 0;
   for (let p = start; p <= end + 0.1; p = Math.min(end, p + step)) {
     const center = centerLine(p) + offset;
@@ -146,8 +146,8 @@ function addMountainBackdrop(scene: THREE.Scene) {
   const material = new THREE.MeshStandardMaterial({ color: 0x587157, roughness: 1 });
   for (const side of [-1, 1])
     for (let p = 120; p < COURSE_LENGTH; p += 180) {
-      const mountain = new THREE.Mesh(new THREE.ConeGeometry(24, 48, 7), material);
-      mountain.position.set(side * 44 + centerLine(p), courseElevation(p) + 18, p + 36);
+      const mountain = new THREE.Mesh(new THREE.ConeGeometry(18, 36, 7), material);
+      mountain.position.set(side * 42 + centerLine(p), courseElevation(p) + 14, p + 36);
       scene.add(mountain);
     }
 }

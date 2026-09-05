@@ -63,6 +63,7 @@ export function updateHud(hud: RidgeHud, state: RidgeViewState, me: RiderView | 
 function centerMessage(state: RidgeViewState, me: RiderView | undefined): string {
   if (me?.crashed && me.crashed > 0) return "RECOVERING";
   if (me?.finishedAt !== null && me?.finishedAt !== undefined) return "FINISH";
+  if (me && !me.grounded && me.airTimeMs > 140) return `AIR ${(me.airTimeMs / 1000).toFixed(1)}s`;
   if (state.phase === "countdown") return String(Math.max(1, Math.ceil(state.countdownMs / 1000)));
   if (state.phase === "lobby") {
     const humans = state.riders.filter((rider) => !rider.bot);

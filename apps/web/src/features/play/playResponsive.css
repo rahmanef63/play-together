@@ -49,12 +49,6 @@
   }
 }
 
-@media (max-width: 680px) {
-  .play-toolbar__actions .ghost-button:first-child:not(:last-child) {
-    display: none;
-  }
-}
-
 @media (max-width: 620px) {
   .play-toolbar {
     opacity: 0.68;
@@ -62,10 +56,6 @@
 }
 
 @media (max-width: 900px) {
-  .play-page--controller.play-page--remote .play-toolbar__role-switch {
-    display: none;
-  }
-
   .play-page--controller.play-page--remote .play-toolbar {
     grid-template-columns: auto minmax(0, 1fr) auto;
     opacity: 0.94;
@@ -98,10 +88,6 @@
     min-height: 34px;
     padding-inline: 10px;
     font-size: 0.72rem;
-  }
-
-  .play-page--controller.play-page--remote .play-toolbar__fullscreen {
-    max-width: 88px;
   }
 
   .play-page--controller.play-page--remote .device-frame {

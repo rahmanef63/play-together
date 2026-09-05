@@ -1,0 +1,91 @@
+.play-game-menu-layer {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  background: rgba(6, 8, 8, 0.18);
+}
+
+.play-game-menu {
+  position: absolute;
+  top: max(48px, calc(env(safe-area-inset-top) + 44px));
+  right: max(8px, env(safe-area-inset-right));
+  width: min(320px, calc(100vw - 16px));
+  padding: 10px;
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(234, 217, 174, 0.2);
+  border-radius: 16px;
+  background: rgba(18, 21, 21, 0.96);
+  color: #eee8df;
+  box-shadow: 0 20px 54px rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(16px);
+}
+
+.play-game-menu > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 3px 8px;
+  border-bottom: 1px solid rgba(234, 217, 174, 0.12);
+}
+
+.play-game-menu > header > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.play-game-menu > header strong,
+.play-game-menu > header span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.play-game-menu > header strong {
+  font-size: 0.94rem;
+}
+
+.play-game-menu > header span {
+  color: #a8a29a;
+  font:
+    650 0.68rem / 1.2 ui-monospace,
+    monospace;
+}
+
+.play-game-menu__actions {
+  display: grid;
+  gap: 6px;
+}
+
+.play-game-menu__actions .ghost-button {
+  width: 100%;
+  min-height: 42px;
+  justify-content: flex-start;
+  padding-inline: 12px;
+  background: rgba(255, 255, 255, 0.045);
+  color: inherit;
+}
+
+.play-game-menu > header .ghost-button {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+}
+@media (max-width: 620px) {
+  .play-game-menu-layer {
+    background: rgba(6, 8, 8, 0.28);
+  }
+
+  .play-game-menu {
+    top: auto;
+    right: max(5px, env(safe-area-inset-right));
+    bottom: max(5px, env(safe-area-inset-bottom));
+    left: max(5px, env(safe-area-inset-left));
+    width: auto;
+    max-height: min(74dvh, 560px);
+    overflow: auto;
+    border-radius: 20px;
+  }
+}

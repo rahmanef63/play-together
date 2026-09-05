@@ -59,6 +59,13 @@ test("Ridge Rush provides a distinct downhill race with optional advanced should
       await page.waitForTimeout(450);
       await page.keyboard.up("KeyC");
       await expect(sprint).toHaveAttribute("aria-pressed", "false");
+      await page.keyboard.down("KeyX");
+      try {
+        await expect(frame.getByText(/^AIR /)).toBeVisible({ timeout: 1_500 });
+      } finally {
+        await page.keyboard.up("KeyX");
+      }
+      await expect(frame.getByText(/^AIR /)).toHaveCount(0, { timeout: 2_500 });
     } finally {
       await page.keyboard.up("Space");
     }

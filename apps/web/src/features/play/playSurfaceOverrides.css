@@ -84,7 +84,6 @@
   top: max(50px, calc(env(safe-area-inset-top) + 44px));
 }
 
-/* Phone remote chrome stays outside the controller iframe and never steals control space. */
 .play-page--controller.play-page--remote .play-toolbar {
   min-height: 44px;
 }
@@ -96,4 +95,16 @@
   left: 0;
   width: auto;
   height: auto;
+}
+
+.play-page--display .play-toolbar,
+.play-page--controller.play-page--handheld .play-toolbar {
+  border-bottom: 0;
+  background: linear-gradient(to bottom, rgba(7, 9, 9, 0.46), rgba(7, 9, 9, 0));
+  pointer-events: none;
+}
+
+.play-page--display .play-toolbar .ghost-button,
+.play-page--controller.play-page--handheld .play-toolbar .ghost-button {
+  pointer-events: auto;
 }

@@ -78,6 +78,16 @@ test("simple remotes stay bounded in landscape and expose live status in portrai
       expect(geometry.controlsLeft).toBeGreaterThanOrEqual(-1);
       expect(geometry.controlsRight).toBeLessThanOrEqual(geometry.viewportWidth + 1);
       await expect(frame.getByText(game.visibleAction, { exact: true }).first()).toBeVisible();
+      await expect(page.locator(".play-toolbar__actions .ghost-button")).toHaveCount(1);
+      await page.getByRole("button", { name: "Menu", exact: true }).click();
+      const gameMenu = page.getByRole("dialog", { name: `${game.title} menu` });
+      await expect(gameMenu).toBeVisible();
+      await expect(
+        gameMenu.getByRole("button", { name: "Use this screen as display" }),
+      ).toBeVisible();
+      await expect(gameMenu.getByRole("button", { name: /Fullscreen/ })).toBeVisible();
+      await expect(gameMenu.getByRole("button", { name: "Room details" })).toBeVisible();
+      await gameMenu.getByRole("button", { name: "Close game menu" }).click();
 
       if (game.preset === "racing") {
         await page.screenshot({ path: testInfo.outputPath("turbo-remote-landscape.png") });
@@ -126,7 +136,6 @@ test("simple remotes stay bounded in landscape and expose live status in portrai
           expect(control.bottom).toBeLessThanOrEqual(portrait.viewportHeight + 1);
         }
         expect(portrait.item.width).toBeGreaterThanOrEqual(45);
-        await expect(page.locator(".play-toolbar__role-switch")).toBeHidden();
         await page.screenshot({ path: testInfo.outputPath("turbo-remote-portrait.png") });
         await page.setViewportSize({ width: 844, height: 390 });
       }

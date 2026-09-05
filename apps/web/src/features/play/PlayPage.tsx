@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { displayCompatibilityMessage } from "../../shared/browserSupport";
 import { browserPathForNavigation } from "../../shared/navigation";
 import type { CurrentUser } from "../../shared/types";
 import { Button } from "../../shared/ui/Button";
 import { LiveGameView } from "./components/LiveGameView";
+import { PlayGameMenu } from "./components/PlayGameMenu";
 import { PlayToolbar } from "./components/PlayToolbar";
 import { PregameMenu } from "./components/PregameMenu";
 import { useGameRuntime } from "./model/useGameRuntime";
@@ -18,6 +20,7 @@ export function PlayPage({
   user: CurrentUser;
 }) {
   const play = usePlayRoom(code, requestedRole, user);
+  const [gameMenuOpen, setGameMenuOpen] = useState(false);
   const compatibility =
     play.role === "controller" && play.mode !== "handheld" ? null : displayCompatibilityMessage();
   const runtime = useGameRuntime({
@@ -43,12 +46,27 @@ export function PlayPage({
         code={code}
         status={runtime.status}
         connection={runtime.connection}
+        onMenu={() => setGameMenuOpen(true)}
+      />
+      <PlayGameMenu
+        code={code}
+        gameTitle={play.room?.gameTitle ?? "Game"}
+        gameVersion={play.room?.gameVersion ?? ""}
+        open={gameMenuOpen}
         role={play.role}
         mode={play.mode}
         isPlaying={Boolean(play.isPlaying)}
         isHost={Boolean(play.isHost)}
-        onMenu={() => void play.openMenu()}
-        onInvite={() => play.setInviteOpen((value) => !value)}
+        inviteOpen={play.inviteOpen}
+        onClose={() => setGameMenuOpen(false)}
+        onInvite={() => {
+          play.setInviteOpen((value) => !value);
+          setGameMenuOpen(false);
+        }}
+        onReturnToGameMenu={() => {
+          setGameMenuOpen(false);
+          void play.openMenu();
+        }}
         onSwitchRole={play.switchRole}
       />
       {compatibility ? (

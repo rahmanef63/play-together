@@ -399,6 +399,21 @@
           "mode": "shared",
           "maxViewports": 1
         }
+      },
+      "status": "retired",
+      "retirementReason": "Superseded by Ridge Rush 0.2.0 with mountain-scale elevation, real vertical velocity/gravity, drop launches and physics-based landings; pinned 0.1.2 rooms remain valid."
+    },
+    {
+      "gameId": "ridge-rush",
+      "version": "0.2.0",
+      "title": "Ridge Rush",
+      "manifestPath": "/games/ridge-rush/0.2.0/manifest.json",
+      "manifestSha256": "dc1a49a59fad0effa8b52f9bce77e6960e4710c3b3b1c3220cbe57a8c23fa7cf",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
       }
     },
     {

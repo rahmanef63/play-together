@@ -8,8 +8,10 @@ export interface RiderView {
   speed: number;
   stamina: number;
   checkpoint: number;
-  airborne: number;
-  airTotal: number;
+  altitude: number;
+  verticalSpeed: number;
+  grounded: boolean;
+  airTimeMs: number;
   crashed: number;
   finishedAt: number | null;
   score: number;
@@ -35,7 +37,7 @@ export interface RiderPose {
   z: number;
   heading: number;
   lean: number;
-  air: number;
+  pitch: number;
 }
 
 export function isRidgeState(value: unknown): value is RidgeViewState {

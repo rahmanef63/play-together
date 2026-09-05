@@ -249,7 +249,7 @@
     },
     {
       "id": "ridge-rush",
-      "version": "0.1.2",
+      "version": "0.2.0",
       "title": "Ridge Rush",
       "description": "Original 3D point-to-point downhill mountain-bike racing with carving, braking, jumps, stamina sprinting, risky shortcuts, checkpoints and automatic crash rescue.",
       "modes": ["shared-screen", "handheld"],

@@ -11,13 +11,10 @@
     "tickRate": 60,
     "snapshotRate": 20
   },
-  "modes": ["shared-screen", "handheld"],
-  "presentation": {
-    "remoteDisplay": {
-      "mode": "shared",
-      "maxViewports": 1
-    }
-  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
   "runtimeDependencies": {
     "three": "0.185.1+pt1"
   },
@@ -61,10 +58,22 @@
             }
           },
           "keys": {
-            "up": ["ArrowUp", "KeyW"],
-            "down": ["ArrowDown", "KeyS"],
-            "left": ["ArrowLeft", "KeyA"],
-            "right": ["ArrowRight", "KeyD"]
+            "up": [
+              "ArrowUp",
+              "KeyW"
+            ],
+            "down": [
+              "ArrowDown",
+              "KeyS"
+            ],
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ]
           }
         },
         {
@@ -87,7 +96,9 @@
               "pedal": false
             }
           },
-          "keys": ["Space"]
+          "keys": [
+            "Space"
+          ]
         },
         {
           "id": "brake",
@@ -109,7 +120,10 @@
               "brake": false
             }
           },
-          "keys": ["ShiftLeft", "ShiftRight"]
+          "keys": [
+            "ShiftLeft",
+            "ShiftRight"
+          ]
         },
         {
           "id": "jump",
@@ -131,7 +145,9 @@
               "jump": false
             }
           },
-          "keys": ["KeyX"]
+          "keys": [
+            "KeyX"
+          ]
         },
         {
           "id": "rear-view",
@@ -153,7 +169,9 @@
               "rear": false
             }
           },
-          "keys": ["KeyY"]
+          "keys": [
+            "KeyY"
+          ]
         },
         {
           "id": "weight-left",
@@ -175,7 +193,9 @@
               "left": false
             }
           },
-          "keys": ["KeyQ"]
+          "keys": [
+            "KeyQ"
+          ]
         },
         {
           "id": "weight-right",
@@ -197,7 +217,9 @@
               "right": false
             }
           },
-          "keys": ["KeyE"]
+          "keys": [
+            "KeyE"
+          ]
         },
         {
           "id": "tuck",
@@ -219,7 +241,9 @@
               "tuck": false
             }
           },
-          "keys": ["KeyZ"]
+          "keys": [
+            "KeyZ"
+          ]
         },
         {
           "id": "sprint",
@@ -241,7 +265,9 @@
               "sprint": false
             }
           },
-          "keys": ["KeyC"]
+          "keys": [
+            "KeyC"
+          ]
         },
         {
           "id": "start",
@@ -257,7 +283,9 @@
               "action": "ready"
             }
           },
-          "keys": ["Enter"]
+          "keys": [
+            "Enter"
+          ]
         }
       ]
     }
@@ -267,5 +295,15 @@
     "keyboard": true,
     "gamepad": true,
     "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "d01ab5a40991522d162d68b19df9ca3adecf9e2457ea614f0b1747ed9019b8c7"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "3b082966dddbfb92c0665dd3c0957c2c9b4d3bc87a86410b68463c3002bc58d4"
+    }
   }
 }

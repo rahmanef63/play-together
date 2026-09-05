@@ -16,6 +16,7 @@
 @import "../features/room/roomInvite.css";
 @import "../features/play/playSurface.css";
 @import "../features/play/playSurfaceOverrides.css";
+@import "../features/play/playMenu.css";
 @import "../features/play/playResponsive.css";
 @import "../features/play/pregame.css";
 @import "../features/play/inviteQr.css";

@@ -45,7 +45,7 @@ export function LiveGameView({
           </div>
         </aside>
       )}
-      {displayRemote && (inviteOpen || remoteCount === 0) && (
+      {displayRemote && inviteOpen && (
         <aside className="live-invite" aria-label="Join this game">
           <RoomInviteQr code={code} compact />
           {inviteOpen && remoteCount > 0 && (

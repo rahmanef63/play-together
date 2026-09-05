@@ -12,6 +12,21 @@ All notable changes to Play Together are documented here. The project follows se
 - Render an original Three.js trail, bikes/riders, vegetation, rocks, ramps and checkpoint gates with chase/shared cameras and HUD for speed, position, course progress and stamina. No licensed characters, tracks, audio or art are reused.
 - Extend controller/browser verification to Ridge Rush across remote/handheld layouts and real authoritative 3D snapshots. Preserve all existing game release bytes.
 
+## [0.18.0] - 2026-09-06
+
+### Gameplay chrome
+
+- Collapse the in-game action stack into one persistent **Menu** button for every cartridge. Invite QR, role switching, fullscreen, room details and host return-to-menu actions now live inside that menu instead of covering the game view.
+- Stop auto-opening the large QR overlay merely because a shared display has zero controllers. Controller-count announcements remain accessible but no longer duplicate the compact toolbar status visually.
+- Let display/handheld toolbar chrome float transparently over gameplay while keeping the phone-remote toolbar outside its control surface.
+
+### Ridge Rush 0.2.0
+
+- Replace the shallow slope approximation with a mountain-scale route dropping about 176 m from start to finish, including a local climb, rollers, compressions and steeper downhill sectors.
+- Add authoritative altitude, vertical velocity, grounded state and 9.81 m/s² gravity. Ramp jumps and fast drop lips become ballistic motion; landing happens against the actual course height rather than an airtime timer.
+- Add grade-driven forward acceleration, aerodynamic tuck, braking priority, physical landing impacts and crash/rescue behavior. Camera look-ahead now follows future terrain elevation so descents read visually instead of being flattened by the chase camera.
+- Preserve Ridge Rush 0.1.0–0.1.2 bytes. 0.1.2 is retired for new rooms only; existing pinned rooms remain valid.
+
 ## [0.16.0] - 2026-09-05
 
 ### Phone pairing

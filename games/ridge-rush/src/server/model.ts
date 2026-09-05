@@ -1,4 +1,9 @@
-import { CHECKPOINTS, FINISH_PROGRESS } from "../shared/course.js";
+import {
+  BIKE_GROUND_OFFSET,
+  CHECKPOINTS,
+  courseElevation,
+  FINISH_PROGRESS,
+} from "../shared/course.js";
 
 export type Phase = "lobby" | "countdown" | "racing" | "finished";
 
@@ -25,8 +30,10 @@ export interface Rider {
   speed: number;
   stamina: number;
   checkpoint: number;
-  airborne: number;
-  airTotal: number;
+  altitude: number;
+  verticalSpeed: number;
+  grounded: boolean;
+  airTimeMs: number;
   crashed: number;
   finishedAt: number | null;
   score: number;
@@ -77,8 +84,10 @@ export function createRider(id: string, slot: number, bot = false): Rider {
     speed: 0,
     stamina: 100,
     checkpoint: 0,
-    airborne: 0,
-    airTotal: 0,
+    altitude: courseElevation(0) + BIKE_GROUND_OFFSET,
+    verticalSpeed: 0,
+    grounded: true,
+    airTimeMs: 0,
     crashed: 0,
     finishedAt: null,
     score: 0,

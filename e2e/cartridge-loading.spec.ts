@@ -10,7 +10,9 @@ import {
   turboCircuit,
 } from "./support/multiplayer";
 
-test("active catalog exposes the three established games and Ridge Rush", async ({ browser }) => {
+test("active catalog exposes four games and each game has one compact platform menu", async ({
+  browser,
+}) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
@@ -74,6 +76,12 @@ test("active catalog exposes the three established games and Ridge Rush", async 
       await expect(frame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible();
       await expect(frame.getByRole("button", { name: game.control })).toBeVisible();
       await expect(page.locator(".play-error")).toHaveCount(0);
+      await expect(page.locator(".play-toolbar__actions .ghost-button")).toHaveCount(1);
+      await page.getByRole("button", { name: "Menu", exact: true }).click();
+      const menu = page.getByRole("dialog", { name: `${game.title} menu` });
+      await expect(menu).toBeVisible();
+      await expect(menu.getByRole("button", { name: "Room details" })).toBeVisible();
+      await menu.getByRole("button", { name: "Close game menu" }).click();
       await page.getByRole("button", { name: /Room/ }).click();
       await expect(page).toHaveURL(new RegExp(`/room/${code}$`));
       await page.getByRole("button", { name: "Close room" }).click();

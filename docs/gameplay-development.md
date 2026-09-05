@@ -2,7 +2,7 @@
 
 ## Scope of the September 2026 gameplay pass
 
-The source catalogue targets Turbo Circuit 0.10.1, Flight Trainer 0.3.0, Sky Strike 0.3.0 and Ridge Rush 0.1.2. These are new immutable release identities, not edits to previously published cartridges. A source version does not prove that production has deployed it. Existing rooms remain pinned to their original manifest digest.
+The source catalogue targets Turbo Circuit 0.10.1, Flight Trainer 0.3.0, Sky Strike 0.3.0 and Ridge Rush 0.2.0. These are new immutable release identities, not edits to previously published cartridges. A source version does not prove that production has deployed it. Existing rooms remain pinned to their original manifest digest.
 
 The first three cartridges remain unchanged while Ridge Rush is now a playable original downhill-bike cartridge. Clash Arena and Sky Rescue below remain proposals; do not add placeholder cards for them.
 
@@ -66,9 +66,9 @@ The controller browser harness starts an isolated loopback Vite server, renders 
 
 Before production promotion, run the local-stack room E2E suite and verify newly published manifest SHA-256 values through the live catalogue. Do not silently upgrade in-progress rooms. Longer multiplayer sessions, mobile thermal throttling and real controller ergonomics remain manual playtest work.
 
-## Ridge Rush 0.1.2
+## Ridge Rush 0.2.0
 
-Ridge Rush is an original 1–4 player point-to-point downhill mountain-bike race with a procedural mountain trail and deterministic AI riders filling unused starting slots. The main route is forgiving enough for stick + A pedal + B brake, while a narrow faster shortcut, rough sections and ramps reward deliberate line choice. Missing a checkpoint or leaving the safe trail triggers an authoritative crash and recovery to the last valid checkpoint rather than allowing course skips.
+Ridge Rush is an original 1–4 player point-to-point downhill mountain-bike race with a mountain-scale procedural elevation profile and deterministic AI riders filling unused starting slots. Version 0.2.0 drops roughly 176 m from start to finish while still including a real local climb, compression, rollers, ramps and drop lips. Forward speed now receives a gravity component from trail grade; jumps and drop launches use absolute altitude, vertical velocity and 9.81 m/s² gravity until physical terrain contact. Hard landings can crash based on impact, lean and body position. The narrow shortcut, rough sections and checkpoint rescue remain authoritative, and pinned 0.1.x rooms keep their immutable release.
 
 The race uses START readiness, a three-second countdown, checkpoint scoring, finish order, automatic DNF grace after the first finish and all-player rematch readiness. Sprint drains stamina only while pedalling, brake overrides sprint, and stamina recovers between efforts. X can bunny-hop or take marked ramps; unstable high-speed landings can crash. L1/R1 weight shift, L2 tuck and R2 sprint add depth but are not mandatory for basic racing.
 

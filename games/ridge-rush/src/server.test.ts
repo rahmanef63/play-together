@@ -15,7 +15,7 @@ type Snapshot = {
   }>;
 };
 
-const context = { roomId: "room", gameId: "ridge-rush", gameVersion: "0.1.2", seed: 41 };
+const context = { roomId: "room", gameId: "ridge-rush", gameVersion: "0.2.0", seed: 41 };
 const snap = (game: Awaited<ReturnType<typeof createServerGame>>) => game.snapshot() as Snapshot;
 
 async function start(game: Awaited<ReturnType<typeof createServerGame>>, id = "p1") {
