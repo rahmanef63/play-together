@@ -63,6 +63,10 @@ export async function joinFromPublicCard(
   roomName: string,
   roomCode: string,
 ): Promise<void> {
+  await page
+    .locator(".console-panel-tabs")
+    .getByRole("button", { name: "Rooms", exact: true })
+    .click();
   const publicCard = page.locator(".room-card").filter({ hasText: roomName });
   await expect(publicCard).toBeVisible();
   await publicCard.getByRole("button", { name: "Join" }).click();

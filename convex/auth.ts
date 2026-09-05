@@ -7,6 +7,7 @@ import { ConvexError } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 import { authCapabilities } from "./_shared/authCapabilities";
+import { deviceLoginProvider } from "./_shared/deviceLoginProvider";
 import { hashSecret, verifySecret } from "./_shared/passwordCrypto";
 import { validateAccountPassword } from "./_shared/passwordPolicy";
 import { withPublicAuthErrors } from "./_shared/passwordProvider";
@@ -46,7 +47,9 @@ const passwordProvider = withPublicAuthErrors(
 );
 
 const { google: googleConfigured } = authCapabilities();
-const providers = googleConfigured ? [passwordProvider, Google] : [passwordProvider];
+const providers = googleConfigured
+  ? [passwordProvider, deviceLoginProvider, Google]
+  : [passwordProvider, deviceLoginProvider];
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers,

@@ -21,6 +21,15 @@ The source catalog targets three 3D cartridges: **Turbo Circuit 0.10.1**, **Flig
   <img src="docs/media/play-together-gameplay.gif" alt="Play Together shared-screen gameplay controlled from a mobile browser" width="100%" />
 </p>
 
+## Console home and device sign-in
+
+The home interface uses a one-viewport console layout with Play/Rooms tabs and a selectable game
+library. Use **QR sign-in** on a new screen and **Pair device** on an already-authenticated one.
+Approval is explicit, short-lived, single-use and bound to the requesting browser. See
+[device sign-in](docs/device-sign-in.md). For older televisions, open `/tv.html` before assuming
+the built-in browser can run the current 3D engine. The lobby baseline and game-rendering
+requirements are separate; missing WebGL 2 cannot be fixed with a JavaScript polyfill.
+
 ## Gameplay and controls
 
 Complex cartridge manifests can expose **L1, L2, R1 and R2** alongside ABXY controls. Touch, keyboard and standard-mapped physical gamepads share input ownership and focus-loss cleanup. Read the [gameplay development guide](docs/gameplay-development.md) for mappings, verification limits and the proposed original downhill/fighting cartridges.

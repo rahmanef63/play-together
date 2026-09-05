@@ -10,6 +10,9 @@
 
 import type * as _shared_authCapabilities from "../_shared/authCapabilities.js";
 import type * as _shared_authErrors from "../_shared/authErrors.js";
+import type * as _shared_deviceLoginPolicy from "../_shared/deviceLoginPolicy.js";
+import type * as _shared_deviceLoginProvider from "../_shared/deviceLoginProvider.js";
+import type * as _shared_deviceLoginSchema from "../_shared/deviceLoginSchema.js";
 import type * as _shared_emailShell from "../_shared/emailShell.js";
 import type * as _shared_gameCatalog from "../_shared/gameCatalog.js";
 import type * as _shared_gamePresentation from "../_shared/gamePresentation.js";
@@ -38,6 +41,9 @@ import type * as _shared_templates_validation from "../_shared/templates/validat
 import type * as _shared_templates_validators from "../_shared/templates/validators.js";
 import type * as _shared_ticketCrypto from "../_shared/ticketCrypto.js";
 import type * as auth from "../auth.js";
+import type * as crons from "../crons.js";
+import type * as deviceLogin from "../deviceLogin.js";
+import type * as deviceLoginInternals from "../deviceLoginInternals.js";
 import type * as games from "../games.js";
 import type * as http from "../http.js";
 import type * as passwordReset from "../passwordReset.js";
@@ -55,6 +61,9 @@ import type {
 declare const fullApi: ApiFromModules<{
   "_shared/authCapabilities": typeof _shared_authCapabilities;
   "_shared/authErrors": typeof _shared_authErrors;
+  "_shared/deviceLoginPolicy": typeof _shared_deviceLoginPolicy;
+  "_shared/deviceLoginProvider": typeof _shared_deviceLoginProvider;
+  "_shared/deviceLoginSchema": typeof _shared_deviceLoginSchema;
   "_shared/emailShell": typeof _shared_emailShell;
   "_shared/gameCatalog": typeof _shared_gameCatalog;
   "_shared/gamePresentation": typeof _shared_gamePresentation;
@@ -83,6 +92,9 @@ declare const fullApi: ApiFromModules<{
   "_shared/templates/validators": typeof _shared_templates_validators;
   "_shared/ticketCrypto": typeof _shared_ticketCrypto;
   auth: typeof auth;
+  crons: typeof crons;
+  deviceLogin: typeof deviceLogin;
+  deviceLoginInternals: typeof deviceLoginInternals;
   games: typeof games;
   http: typeof http;
   passwordReset: typeof passwordReset;

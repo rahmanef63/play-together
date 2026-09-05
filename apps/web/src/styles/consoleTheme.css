@@ -1,0 +1,181 @@
+:root {
+  font-size: 16px;
+  --color-bg: #0b1020;
+  --color-surface: #141d30;
+  --color-surface-raised: #202d46;
+  --color-surface-deep: #080d18;
+  --color-text: #e5edfc;
+  --color-text-strong: #ffffff;
+  --color-muted: #a7b5cc;
+  --color-border: rgba(179, 203, 241, 0.16);
+  --color-border-strong: rgba(179, 203, 241, 0.28);
+  --color-accent: #8dbdff;
+  --color-danger: #ff9b9b;
+  --color-teal: #66c5a5;
+  --focus-ring: 0 0 0 3px rgba(141, 189, 255, 0.32);
+}
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  font: inherit;
+  background: var(--color-bg);
+}
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+input,
+select {
+  background: var(--color-surface-deep);
+  color: var(--color-text-strong);
+}
+.console-home {
+  max-width: none;
+  grid-template-columns: minmax(0, 1fr);
+  padding: 18px 28px 24px;
+  grid-template-rows: 48px minmax(96px, 16vh) 44px minmax(0, 1fr);
+  gap: 12px;
+}
+.console-home > .topbar {
+  grid-row: 1;
+  min-height: 48px;
+}
+.console-home > .page-heading {
+  grid-row: 2;
+  padding: 14px 20px;
+  border-radius: 20px;
+  background: var(--color-surface);
+  align-items: center;
+  gap: 24px;
+}
+.console-home > .page-heading h1 {
+  font-size: clamp(26px, 3.5vw, 48px);
+  max-width: 17ch;
+  line-height: 1.04;
+}
+.console-home .console-hero-art {
+  opacity: 0.45;
+}
+.console-home > .console-panel-tabs {
+  grid-row: 3;
+  display: flex;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  border: 0;
+  background: transparent;
+}
+.console-home > .console-panel-tabs button {
+  min-height: 40px;
+  padding: 8px 26px;
+  background: transparent;
+  color: var(--color-muted);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-weight: 750;
+}
+.console-home > .console-panel-tabs button.active {
+  color: var(--color-text-strong);
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-raised);
+}
+.console-home > .lobby-grid {
+  grid-row: 4;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.console-home--play .rooms-panel,
+.console-home--rooms .create-panel {
+  display: none;
+}
+.console-home .create-panel,
+.console-home .rooms-panel {
+  height: 100%;
+  padding: 16px;
+  border-radius: 20px;
+}
+.console-home .create-panel form {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.6fr) minmax(240px, 1fr);
+  column-gap: 28px;
+  align-content: start;
+}
+.console-home .create-panel form > .field {
+  grid-column: 2;
+}
+.console-home .create-panel form > .field:first-child {
+  grid-row: 1;
+}
+.console-home .create-panel form > .field:nth-child(2) {
+  grid-row: 2;
+}
+.console-home .console-library {
+  grid-column: 1;
+  grid-row: 1 / span 5;
+  min-width: 0;
+}
+.console-home .create-panel form > .form-row {
+  grid-column: 2;
+  grid-row: 3;
+}
+.console-home .create-panel form > .field:nth-last-child(2) {
+  grid-row: 4;
+}
+.console-home .create-panel form > .ds-button {
+  grid-column: 2;
+  grid-row: 5;
+  align-self: end;
+}
+.console-home .create-panel .game-picker {
+  grid-auto-columns: minmax(130px, 1fr);
+  gap: 12px;
+  min-height: 0;
+}
+.console-home .game-preview-card {
+  min-width: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  transition:
+    transform 160ms,
+    border-color 160ms;
+}
+.console-home .game-preview-card img {
+  width: 100%;
+  height: 135px;
+  object-fit: cover;
+}
+.console-home .game-preview-card > span {
+  padding: 12px;
+}
+.console-home .game-preview-card small {
+  color: var(--color-muted);
+}
+.console-home .console-control-chips {
+  max-height: 70px;
+  overflow: auto;
+}
+.console-home .join-inline {
+  max-width: 400px;
+  grid-template-columns: minmax(80px, 1fr) minmax(90px, 1fr) auto;
+}
+.console-home .join-inline input {
+  font-size: 12px;
+  padding: 9px;
+}
+.console-home .section-title {
+  margin-bottom: 12px;
+}
+.console-home .section-title h2 {
+  font-size: 19px;
+}

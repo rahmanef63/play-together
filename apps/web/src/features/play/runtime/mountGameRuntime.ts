@@ -1,5 +1,6 @@
 import { type ConnectionStatus, RealtimeClient } from "@play-together/browser-runtime";
 import type { ControllerMode, RemoteDisplayPolicy } from "@play-together/contracts";
+import { secureChannelId } from "../../../shared/browserSupport";
 import { realtimeUrl } from "../../../shared/realtimeEndpoint";
 import type { TicketResponse } from "../../../shared/types";
 import {
@@ -40,7 +41,7 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
   let latestPresence: PresencePlayer[] = [];
   let currentPlayerId = "";
   const presentationPolicy = options.presentationPolicy;
-  const channel = crypto.randomUUID();
+  const channel = secureChannelId();
   const frame = createGameFrame(options.role, options.mode, channel);
   const performanceSampler =
     options.role === "display" || options.mode === "handheld"

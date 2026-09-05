@@ -1,14 +1,17 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useAction, useQuery } from "convex/react";
 import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import { authErrorMessage } from "../../../shared/authErrors";
+import { authErrorDetails, authErrorMessage } from "../../../shared/authErrors";
 import { api } from "../../../shared/convexApi";
 import { isEmbedded, requestExternalGoogleSignIn } from "../../../shared/embedAuth";
+import { currentPath } from "../../../shared/navigation";
+import { useToast } from "../../../shared/ToastProvider";
 
 export type AuthMode = "signIn" | "signUp" | "forgot" | "reset";
 
 export function useAuthFlow() {
   const { signIn } = useAuthActions();
+  const notify = useToast();
   const requestPasswordReset = useAction(api.passwordReset.request);
   const authCapabilities = useQuery(api.auth.capabilities);
   const resetCapability = useQuery(api.passwordReset.capability);
@@ -41,7 +44,13 @@ export function useAuthFlow() {
         ...(mode === "signUp" ? { name: String(data.get("name") ?? "").trim() } : {}),
       });
     } catch (reason) {
-      setError(authErrorMessage(reason, mode === "signUp" ? "signUp" : "signIn"));
+      const details = authErrorDetails(reason, mode === "signUp" ? "signUp" : "signIn");
+      setError(details.description);
+      notify({
+        ...details,
+        tone: "error",
+        action: { label: "Reset password", onClick: () => switchMode("forgot") },
+      });
     } finally {
       setBusy(false);
     }
@@ -63,13 +72,20 @@ export function useAuthFlow() {
         );
         return;
       }
-      await signIn("google", { redirectTo: "/?authCallback=google" });
+      const pair = new URLSearchParams(location.search).get("pair") ?? "";
+      const returnPath =
+        currentPath() === "/device" && /^[A-HJ-NP-Z2-9]{8}$/.test(pair)
+          ? `/device?pair=${pair}&authCallback=google`
+          : "/?authCallback=google";
+      await signIn("google", { redirectTo: returnPath });
     } catch (reason) {
-      setError(authErrorMessage(reason, "google"));
+      const details = authErrorDetails(reason, "google");
+      setError(details.description);
+      notify({ ...details, tone: "error" });
     } finally {
       setBusy(false);
     }
-  }, [authCapabilities?.google, embedded, signIn]);
+  }, [authCapabilities?.google, embedded, signIn, notify]);
 
   useEffect(() => {
     if (embedded || authCapabilities?.google === undefined || autoStarted.current) return;

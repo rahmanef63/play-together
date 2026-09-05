@@ -1,5 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useEffect, useRef, useState } from "react";
+import { navigate } from "./navigation";
 import type { CurrentUser } from "./types";
 import { Button } from "./ui/Button";
 
@@ -35,6 +36,17 @@ export function MobileAccountMenu({ user }: { user: CurrentUser }) {
             <strong>{user.name}</strong>
             {user.email && <span>{user.email}</span>}
           </div>
+          <Button
+            type="button"
+            variant="outline"
+            fullWidth
+            onClick={() => {
+              setOpen(false);
+              navigate("/device");
+            }}
+          >
+            Sign in another device
+          </Button>
           <Button
             type="button"
             variant="danger"

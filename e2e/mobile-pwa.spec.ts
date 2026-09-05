@@ -52,9 +52,9 @@ test("mobile PWA shell uses full-width snap cards, native dock, and live submiss
       };
     });
     expect(layout.createWidth).toBeGreaterThanOrEqual(layout.width - 32);
-    expect(layout.roomsWidth).toBeGreaterThanOrEqual(layout.width - 32);
-    expect(layout.railHeight).toBeGreaterThan(420);
-    expect(layout.railScrollWidth).toBeGreaterThan(layout.railWidth * 1.7);
+    expect(layout.roomsWidth).toBe(0); // Inactive panels are intentionally hidden behind explicit tabs.
+    expect(layout.railHeight).toBeGreaterThan(300);
+    expect(layout.railScrollWidth).toBeLessThanOrEqual(layout.railWidth + 1);
     expect(layout.gameRailScrollWidth).toBeGreaterThan(layout.gameRailWidth);
     expect(layout.gameScrollbar).toBe("none");
     expect(layout.dockPosition).toBe("fixed");

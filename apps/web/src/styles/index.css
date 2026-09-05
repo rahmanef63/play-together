@@ -46,3 +46,11 @@
 @import "../features/play/playTheme.css";
 @import "../shared/AppDockTheme.css";
 @import "../shared/ui/HorizontalSnap.css";
+
+@import "../shared/ToastProvider.css";
+@import "../features/auth/consoleAuth.css";
+
+@import "../features/lobby/consoleHome.css";
+@import "./consoleTheme.css";
+
+@import "./consoleResponsive.css";

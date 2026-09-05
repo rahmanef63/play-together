@@ -24,3 +24,6 @@ template-sources/
 
 # Generated engine vendor bundles
 apps/web/public/engine-vendors/
+
+# Local orchestration memory is not release source.
+.agent/

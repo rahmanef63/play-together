@@ -12,10 +12,12 @@
   },
   "dependencies": {
     "@convex-dev/auth": "0.0.95",
+    "@juggle/resize-observer": "3.4.0",
     "@play-together/browser-runtime": "workspace:*",
     "@play-together/contracts": "workspace:*",
     "@play-together/game-sdk": "workspace:*",
     "convex": "1.45.0",
+    "core-js": "3.50.0",
     "qrcode": "1.5.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",

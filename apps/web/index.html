@@ -13,10 +13,13 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/icon-192.png" />
     <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="stylesheet" href="/tv.css" />
     <title>Play Together</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><main class="boot-panel"><h1 id="boot-title">Starting Play Together…</h1><p id="boot-message">Connect your screens. Bring your friends.</p><a href="/tv.html">TV compatibility check</a><noscript>JavaScript is required. Please enable it or use another browser.</noscript></main></div>
+    <script src="/browser-check.js"></script>
+    <script type="module" src="/game-syntax-check.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

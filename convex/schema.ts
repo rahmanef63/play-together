@@ -1,9 +1,11 @@
 import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { deviceLoginTables } from "./_shared/deviceLoginSchema";
 
 export default defineSchema({
   ...authTables,
+  ...deviceLoginTables,
   games: defineTable({
     gameId: v.string(),
     version: v.string(),

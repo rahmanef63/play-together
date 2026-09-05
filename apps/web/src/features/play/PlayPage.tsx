@@ -1,3 +1,4 @@
+import { displayCompatibilityMessage } from "../../shared/browserSupport";
 import type { CurrentUser } from "../../shared/types";
 import { Button } from "../../shared/ui/Button";
 import { LiveGameView } from "./components/LiveGameView";
@@ -16,12 +17,14 @@ export function PlayPage({
   user: CurrentUser;
 }) {
   const play = usePlayRoom(code, requestedRole, user);
+  const compatibility =
+    play.role === "controller" && play.mode !== "handheld" ? null : displayCompatibilityMessage();
   const runtime = useGameRuntime({
     code,
     room: play.room,
     role: play.role,
     mode: play.mode,
-    isPlaying: Boolean(play.isPlaying),
+    isPlaying: Boolean(play.isPlaying) && !compatibility,
   });
 
   if (play.room === null)
@@ -47,7 +50,18 @@ export function PlayPage({
         onInvite={() => play.setInviteOpen((value) => !value)}
         onSwitchRole={play.switchRole}
       />
-      {!play.isPlaying ? (
+      {compatibility ? (
+        <section className="centered-state">
+          <h2>This screen needs another play mode</h2>
+          <p>{compatibility}</p>
+          <a className="ds-button" href="/tv.html">
+            TV compatibility check
+          </a>
+          <Button type="button" onClick={play.switchRole}>
+            Use as remote
+          </Button>
+        </section>
+      ) : !play.isPlaying ? (
         <PregameMenu
           code={code}
           room={play.room ?? undefined}

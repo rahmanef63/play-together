@@ -12,7 +12,8 @@ test("mobile auth remains vertically scrollable on short phone viewports", async
       await page.setViewportSize(viewport);
       await page.goto("/");
       await expect(page.getByRole("heading", { name: "Your phone is the console." })).toBeVisible();
-      const auth = page.locator(".auth-page");
+      const auth = page.locator(".auth-entry-body");
+      await expect(page.locator(".auth-page")).toHaveCSS("overflow-y", "hidden");
       await expect(auth).toHaveCSS("overflow-y", "auto");
       const before = await auth.evaluate((element) => ({
         clientHeight: element.clientHeight,
@@ -105,7 +106,7 @@ async function assertScrollContracts(page: Page) {
     expect(pageMetrics.main.bottom).toBeLessThanOrEqual(pageMetrics.viewportHeight + 1);
   }
 
-  const scrollAreas = page.locator("[data-scroll-viewport]");
+  const scrollAreas = page.locator("[data-scroll-viewport]:visible");
   for (let index = 0; index < (await scrollAreas.count()); index += 1) {
     const area = scrollAreas.nth(index);
     const metrics = await area.evaluate((element) => {
@@ -149,7 +150,7 @@ async function assertScrollContracts(page: Page) {
     }
   }
 
-  const snaps = page.locator(".horizontal-snap");
+  const snaps = page.locator(".horizontal-snap:visible");
   for (let index = 0; index < (await snaps.count()); index += 1) {
     const style = await snaps.nth(index).evaluate((element) => {
       const computed = getComputedStyle(element);

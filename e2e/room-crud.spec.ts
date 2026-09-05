@@ -25,6 +25,10 @@ test("hosts can list, edit, and delete their rooms from the lobby directory", as
 
     await page.getByRole("button", { name: "← Lobby" }).click();
     await expect(page).toHaveURL("/");
+    await page
+      .locator(".console-panel-tabs")
+      .getByRole("button", { name: "Rooms", exact: true })
+      .click();
     await page.getByRole("tab", { name: "My rooms" }).click();
     const card = page.locator(".room-card--owned").filter({ hasText: code });
     await expect(card).toBeVisible();
@@ -45,6 +49,10 @@ test("hosts can list, edit, and delete their rooms from the lobby directory", as
 
     await page.getByRole("tab", { name: "Public" }).click();
     await expect(page.locator(".room-card").filter({ hasText: editedName })).toHaveCount(0);
+    await page
+      .locator(".console-panel-tabs")
+      .getByRole("button", { name: "Rooms", exact: true })
+      .click();
     await page.getByRole("tab", { name: "My rooms" }).click();
     const editedCard = page.locator(".room-card--owned").filter({ hasText: code });
     await editedCard.getByRole("button", { name: "Delete" }).click();

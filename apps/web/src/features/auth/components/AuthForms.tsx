@@ -75,17 +75,31 @@ export function AuthForms({
                 required
               />
             )}
-            <InputField label="Email" name="email" type="email" autoComplete="email" required />
+            <InputField
+              label="Email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? "auth-field-error" : undefined}
+            />
             <InputField
               label="Password"
               name="password"
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? "auth-field-error" : undefined}
               type="password"
               autoComplete={mode === "signUp" ? "new-password" : "current-password"}
               minLength={8}
               maxLength={128}
               required
             />
-            {error && <FormMessage>{error}</FormMessage>}
+            {error && (
+              <p className="auth-inline-error" id="auth-field-error">
+                {error}
+              </p>
+            )}
             <Button type="submit" fullWidth busy={busy}>
               {busy ? "Connecting…" : mode === "signUp" ? "Create account" : "Sign in"}
             </Button>

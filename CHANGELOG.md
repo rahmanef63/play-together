@@ -2,6 +2,21 @@
 
 All notable changes to Play Together are documented here. The project follows semantic versioning for the platform and immutable semantic versions for each game release.
 
+## [0.15.0] - 2026-09-05
+
+### Added
+
+- Proof-bound QR sign-in with authenticated device review, explicit consent, decline, five-minute expiry, allocation/polling limits, one-time transactional consumption and bounded expiry cleanup.
+- Shared accessible toast notifications with concise messages, recovery actions, dismiss controls, collapsed diagnostic details and duplicate suppression.
+- Original console-inspired single-viewport home with selected-game artwork, a horizontal game library, Play/Rooms tabs, focused room controls and keyboard/TV-remote navigation.
+- A lightweight classic-script boot fallback and standalone `/tv.html` diagnostics. The shell targets Chrome 79-era syntax with selected platform polyfills and a `100vh` fallback. Display mode checks current game-engine syntax and WebGL 2 separately.
+
+### Safety and compatibility
+
+- QR codes contain a public approval code, never a session token or requester proof. Scanning/reviewing is not approval. Existing game releases remain immutable.
+- Current 3D cartridges still require their ES2022/WebGL 2 runtime. Older TV hardware is not certified by changing a browser user agent. Unsupported devices receive an explanation and safe alternatives rather than disabled security checks.
+- One-screen UI keeps long forms/lists in deliberate inner scroll regions, including short mobile viewports and virtual keyboard layouts.
+
 ## [0.14.5] - 2026-09-05
 
 ### Fixed

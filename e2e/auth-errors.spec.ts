@@ -7,11 +7,16 @@ test("invalid credentials are actionable and never expose raw backend errors", a
   await form.locator('[name="email"]').fill(`auth-negative-${Date.now()}@example.test`);
   await form.locator('[name="password"]').fill("Invalid-qa-password-123");
   await form.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(form.getByRole("alert")).toContainText("Email or password is incorrect");
-  await expect(form.getByRole("alert")).not.toContainText(
-    /Server Error|Called by client|InvalidAccountId|InvalidSecret/,
-  );
+  await expect(
+    page.locator(".toast-copy").getByText("Email or password is incorrect."),
+  ).toContainText("Email or password is incorrect");
+  await expect(
+    page.locator(".toast-copy").getByText("Email or password is incorrect."),
+  ).not.toContainText(/Server Error|Called by client|InvalidAccountId|InvalidSecret/);
   await expect(form.getByRole("button", { name: "Sign in", exact: true })).toBeEnabled();
+  await expect(page.locator(".toast-actions details")).not.toHaveAttribute("open", "");
+  await page.locator(".toast-card").getByRole("button", { name: "Reset password" }).click();
+  await expect(page.getByRole("heading", { name: "Send a reset code." })).toBeVisible();
 });
 
 test("cancelled Google callback offers a return path without restarting OAuth", async ({

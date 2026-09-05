@@ -2,6 +2,7 @@ import type { CurrentUser } from "../../../shared/types";
 import { AppTopbar } from "../../../shared/ui/AppTopbar";
 
 const LOBBY_ACTIONS = [
+  { label: "Pair device", href: "/device", className: "mobile-keep" },
   { label: "Templates", href: "/templates", className: "mobile-keep" },
   { label: "System", href: "/ops" },
 ] as const;

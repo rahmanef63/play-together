@@ -14,7 +14,8 @@
       "!!playwright-report",
       "!!convex/_generated",
       "!!.vercel",
-      "!!apps/web/public/engine-vendors"
+      "!!apps/web/public/engine-vendors",
+      "!!.agent"
     ]
   },
   "formatter": {

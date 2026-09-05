@@ -1,0 +1,148 @@
+/* Compact, original console-home treatment; desktop stays one screen and panels own overflow. */
+.console-home {
+  background:
+    radial-gradient(
+      circle at 72% 18%,
+      color-mix(in srgb, var(--accent) 16%, transparent),
+      transparent 30%
+    ),
+    linear-gradient(135deg, var(--color-bg), var(--color-surface-raised));
+}
+
+.console-home .topbar {
+  position: relative;
+  z-index: 2;
+}
+.console-home .page-heading {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 132px;
+  padding: clamp(16px, 3vh, 34px) 0 clamp(12px, 2vh, 22px);
+}
+
+.console-hero-copy {
+  position: relative;
+  z-index: 1;
+}
+.console-hero-meta {
+  margin: 8px 0 0;
+  color: var(--accent);
+  font:
+    700 0.7rem / 1 ui-monospace,
+    monospace;
+  letter-spacing: 0.12em;
+}
+.console-hero-art {
+  position: absolute;
+  z-index: -1;
+  right: 0;
+  top: 0;
+  width: min(43%, 500px);
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.42;
+  mask-image: linear-gradient(90deg, transparent, #000 30%);
+}
+
+.console-panel-tabs {
+  display: none;
+}
+.console-home .lobby-grid {
+  gap: 14px;
+}
+.console-home .create-panel,
+.console-home .rooms-panel {
+  border-color: color-mix(in srgb, var(--line) 76%, var(--accent));
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.18),
+    inset 0 1px rgba(255, 255, 255, 0.05);
+}
+.console-home .create-panel {
+  border-top: 2px solid var(--accent);
+}
+.console-home .game-picker {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(128px, 1fr);
+  grid-template-columns: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 3px 2px 9px;
+}
+.console-home .game-preview-card {
+  scroll-snap-align: start;
+  background: var(--color-surface-raised);
+}
+.console-home .game-preview-card--active {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--accent) 28%, transparent),
+    0 12px 24px rgba(0, 0, 0, 0.2);
+}
+.console-home .game-preview-card:focus-visible,
+.console-panel-tabs button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+  .console-home {
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+  }
+  .console-home .page-heading {
+    min-height: 0;
+    padding-bottom: 8px;
+  }
+  .console-home .console-hero-art {
+    width: 50%;
+    opacity: 0.28;
+  }
+  .console-panel-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    padding: 4px;
+    margin-bottom: 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xl);
+    background: var(--color-surface-raised);
+  }
+  .console-panel-tabs button {
+    min-height: 36px;
+    border: 0;
+    border-radius: var(--radius-md);
+    color: var(--muted);
+    background: transparent;
+    font-weight: 800;
+  }
+  .console-panel-tabs button.active {
+    color: var(--color-bg);
+    background: var(--accent);
+  }
+  .console-home .lobby-grid {
+    display: block;
+    overflow: hidden;
+  }
+  .console-home--play .rooms-panel,
+  .console-home--rooms .create-panel {
+    display: none;
+  }
+  .console-home .create-panel,
+  .console-home .rooms-panel {
+    height: 100%;
+  }
+}
+
+@media (max-width: 620px) {
+  .console-home .page-heading h1 {
+    max-width: 11ch;
+  }
+  .console-hero-art {
+    display: none;
+  }
+  .console-home .game-picker {
+    grid-auto-columns: minmax(155px, 70%);
+  }
+}

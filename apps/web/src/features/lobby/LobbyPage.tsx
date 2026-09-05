@@ -1,6 +1,7 @@
 import { useAuthActions } from "@convex-dev/auth/react";
+import { useEffect, useState } from "react";
 import type { CurrentUser } from "../../shared/types";
-import { HorizontalSnap } from "../../shared/ui/HorizontalSnap";
+
 import { CreateRoomPanel } from "./components/CreateRoomPanel";
 import { LobbyHeader } from "./components/LobbyHeader";
 import { LobbyHeading } from "./components/LobbyHeading";
@@ -18,12 +19,18 @@ export function LobbyPage({
   const { signOut } = useAuthActions();
   const catalog = useGameCatalog();
   const directory = useRoomDirectory(catalog.gameById);
+  const [panel, setPanel] = useState<"play" | "rooms">(focus === "rooms" ? "rooms" : "play");
+
+  useEffect(() => setPanel(focus === "rooms" ? "rooms" : "play"), [focus]);
 
   return (
-    <main className={`app-shell app-shell--lobby${focus === "rooms" ? " app-shell--rooms" : ""}`}>
+    <main
+      className={`app-shell app-shell--lobby console-home console-home--${panel}${panel === "rooms" ? " app-shell--rooms" : ""}`}
+    >
       <LobbyHeader user={user} onSignOut={() => void signOut()} />
       <LobbyHeading
         user={user}
+        game={catalog.selectedGame}
         code={directory.joinCode}
         password={directory.joinPassword}
         busy={directory.busy}
@@ -31,12 +38,28 @@ export function LobbyPage({
         onPasswordChange={directory.setJoinPassword}
         onJoin={() => void directory.onJoin()}
       />
+      <nav className="console-panel-tabs" aria-label="Lobby panels">
+        <button
+          type="button"
+          className={panel === "play" ? "active" : ""}
+          onClick={() => setPanel("play")}
+        >
+          Play
+        </button>
+        <button
+          type="button"
+          className={panel === "rooms" ? "active" : ""}
+          onClick={() => setPanel("rooms")}
+        >
+          Rooms
+        </button>
+      </nav>
       {directory.error && (
         <p className="global-error" role="alert">
           {directory.error}
         </p>
       )}
-      <HorizontalSnap className="lobby-grid" ariaLabel="Lobby panels">
+      <div className="lobby-grid">
         <CreateRoomPanel
           user={user}
           games={catalog.games}
@@ -68,7 +91,7 @@ export function LobbyPage({
           onDelete={(room) => void directory.onDelete(room)}
           onUpdate={(event, room) => void directory.onUpdate(event, room)}
         />
-      </HorizontalSnap>
+      </div>
     </main>
   );
 }

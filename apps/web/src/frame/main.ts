@@ -1,3 +1,4 @@
+import "../shared/browserPolyfills";
 import type { SnapshotMessage } from "@play-together/contracts";
 import { gameFeedback } from "./feedback/feedbackEngine";
 import { SnapshotFeedbackObserver } from "./feedback/snapshotFeedback";

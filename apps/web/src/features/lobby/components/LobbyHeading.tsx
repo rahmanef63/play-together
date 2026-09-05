@@ -1,8 +1,9 @@
-import type { CurrentUser } from "../../../shared/types";
+import type { CurrentUser, GameSummary } from "../../../shared/types";
 import { Button } from "../../../shared/ui/Button";
 
 export function LobbyHeading({
   user,
+  game,
   code,
   password,
   busy,
@@ -11,6 +12,7 @@ export function LobbyHeading({
   onJoin,
 }: {
   user: CurrentUser;
+  game: GameSummary | undefined;
   code: string;
   password: string;
   busy: boolean;
@@ -20,10 +22,19 @@ export function LobbyHeading({
 }) {
   return (
     <section className="page-heading">
-      <div>
+      <div className="console-hero-copy">
         <p className="eyebrow">WELCOME, {user.name.toUpperCase()}</p>
-        <h1>Find a spot to play together.</h1>
+        <h1>{game ? game.title : "Find a spot to play together."}</h1>
+        {game && <p className="console-hero-meta">SELECTED GAME · v{game.version}</p>}
       </div>
+      {game && (
+        <img
+          className="console-hero-art"
+          src={`/game-previews/${game.gameId}.png`}
+          alt=""
+          aria-hidden="true"
+        />
+      )}
       <div className="join-inline">
         <input
           aria-label="Room code"

@@ -223,3 +223,32 @@ renders only allowlisted copy plus a hexadecimal request reference, never raw ba
 The original owner request `cc5881a9a2770a3f` was outside the accessible recent log chunk during
 this investigation; a fresh reproduction showed `InvalidAccountId` in `auth:signIn` and the same
 previous generic client error. Do not claim the original request was independently identified.
+
+## Console UI, QR sign-in and television compatibility
+
+Platform 0.15.0 adds `deviceLogins`, internal transactional decision/claim operations and a
+bounded cleanup cron. Deploy the additive Convex schema/functions before the new frontend.
+Do not reset existing users, rooms, credentials, game versions or current room pins. QR creation
+is anonymous and rate-limited; approval requires existing authentication. See
+[the device sign-in contract](device-sign-in.md) and run `e2e/device-sign-in.spec.ts` using
+independent browser contexts. A requesting embedded screen uses its own private proof and
+receives a normal Play Together session; no auth credential passes through the chat host.
+
+The frontend build target is Chrome 79 / Firefox 78 / Safari 14 era, with curated polyfills for
+platform APIs used by the lobby and built-in remote controller. This is a syntax/feature target,
+not a guarantee that every TV exposing that version has the same capabilities. The immutable
+Three engine and existing game bundles remain ES2022 and need WebGL 2. Do not rewrite their
+published bytes to change compatibility. A display capability gate explains unsupported modes
+before mounting the engine; a remote-only controller does not need the 3D renderer.
+
+`/tv.html` and its classic ES5 diagnostic script are independent of React and ES modules. The
+main page has a classic-script boot guard and a static link to this help page if modern code
+cannot load. HTTP/TLS failures can prevent even this diagnostic page from arriving; never lower
+HTTPS security requirements to work around an obsolete TV. Check firmware and use a current
+external browser/HDMI source where necessary. Real television model/firmware testing is still
+required. Official engine matrices: https://webostv.developer.lge.com/develop/specifications/web-api-and-web-engine
+and https://developer.samsung.com/smarttv/develop/specifications/web-engine-specifications.html.
+
+User-agent strings only select large-screen ergonomics. Capability checks—not brand strings—
+control whether the renderer can start. The header, active panel and navigation stay inside one
+viewport; form/list content can scroll internally rather than shrinking required touch targets.

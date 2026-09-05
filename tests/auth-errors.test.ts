@@ -1,6 +1,6 @@
 import { ConvexError } from "convex/values";
 import { describe, expect, it } from "vitest";
-import { authErrorMessage } from "../apps/web/src/shared/authErrors";
+import { authErrorDetails, authErrorMessage } from "../apps/web/src/shared/authErrors";
 import { publicAuthFailure } from "../convex/_shared/authErrors";
 
 describe("safe auth failures", () => {
@@ -43,7 +43,10 @@ describe("safe auth failures", () => {
       ),
     );
     expect(text).toContain("Sign-in could not be completed");
-    expect(text).toContain("cc5881a9a2770a3f");
+    expect(text).not.toContain("cc5881a9a2770a3f");
+    expect(
+      authErrorDetails(new Error("[Request ID: cc5881a9a2770a3f] Server Error")).reference,
+    ).toBe("cc5881a9a2770a3f");
     expect(text).not.toMatch(/Server Error|CONVEX|Called by client/);
   });
   it("renders safe public codes, not arbitrary server messages", () => {

@@ -13,7 +13,8 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(rootPackage.version),
   },
   build: {
-    target: "es2022",
+    target: ["chrome79", "firefox78", "safari14"],
+    cssTarget: "chrome79",
     sourcemap: true,
     chunkSizeWarningLimit: 650,
     rollupOptions: {

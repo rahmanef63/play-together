@@ -3,6 +3,7 @@ import { lazy, type ReactNode, Suspense, useEffect, useState } from "react";
 import { AuthPage } from "../features/auth/AuthPage";
 import { LobbyPage } from "../features/lobby/LobbyPage";
 import { AppDock } from "../shared/AppDock";
+import { ConsoleNavigation } from "../shared/ConsoleNavigation";
 import { api } from "../shared/convexApi";
 import { notifyEmbedReady } from "../shared/embedReady";
 import { MobileAccountMenu } from "../shared/MobileAccountMenu";
@@ -10,6 +11,12 @@ import { currentPath, navigate } from "../shared/navigation";
 import { PwaUpdateToast } from "../shared/PwaUpdateToast";
 import { RouteSkeleton } from "../shared/Skeleton";
 import type { CurrentUser } from "../shared/types";
+
+const DeviceApprovalPage = lazy(() =>
+  import("../features/deviceLogin/DeviceApprovalPage").then((module) => ({
+    default: module.DeviceApprovalPage,
+  })),
+);
 
 const OpsPage = lazy(() =>
   import("../features/ops/OpsPage").then((module) => ({ default: module.OpsPage })),
@@ -52,11 +59,14 @@ export function App() {
   if (!isAuthenticated || !user) {
     return (
       <>
+        <ConsoleNavigation enabled />
         <AuthPage />
         <PwaUpdateToast />
       </>
     );
   }
+
+  if (path === "/device") return withAppChrome(<DeviceApprovalPage user={user} />, path, user);
 
   const playMatch = path.match(/^\/play\/([A-Z0-9]+)\/(controller|display|remote)$/i);
   const playCode = playMatch?.[1];
@@ -88,6 +98,7 @@ export function App() {
 function withAppChrome(page: ReactNode, path: string, user: CurrentUser) {
   return (
     <>
+      <ConsoleNavigation enabled />
       <Suspense fallback={<RouteSkeleton />}>{page}</Suspense>
       <MobileAccountMenu user={user} />
       <AppDock path={path} />

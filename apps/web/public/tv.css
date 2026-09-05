@@ -1,0 +1,69 @@
+html,
+body {
+  margin: 0;
+  background: #0b1020;
+  color: #f5f7fc;
+  font:
+    18px / 1.55 Arial,
+    sans-serif;
+}
+* {
+  box-sizing: border-box;
+}
+.tv-help {
+  width: 90%;
+  max-width: 960px;
+  max-height: 90vh;
+  overflow: auto;
+  margin: 5vh auto;
+  padding: 28px;
+  border: 1px solid #31405f;
+  border-radius: 20px;
+  background: #141d31;
+}
+.tv-help h1 {
+  font-size: 32px;
+  line-height: 1.15;
+  margin-top: 0;
+}
+.tv-help p {
+  color: #b9c4d9;
+}
+.tv-help a {
+  display: inline-block;
+  padding: 12px 20px;
+  margin: 8px 8px 8px 0;
+  border: 1px solid #7db7ff;
+  border-radius: 10px;
+  color: #fff;
+  text-decoration: none;
+}
+.tv-help a:focus {
+  outline: 3px solid #8fc2ff;
+  outline-offset: 3px;
+}
+.tv-help li {
+  margin: 8px 0;
+}
+.tv-help code {
+  font-size: 12px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  display: block;
+  color: #b9c4d9;
+}
+.boot-panel {
+  padding: 36px;
+  max-width: 720px;
+  margin: 10vh auto;
+}
+.boot-panel a {
+  color: #9cc7ff;
+}
+.boot-panel h1 {
+  font-size: 30px;
+}
+.boot-panel p {
+  line-height: 1.6;
+  color: #b9c4d9;
+}
