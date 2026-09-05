@@ -1,0 +1,91 @@
+/* Remote portrait: status/radar on top, compact usable controls below. */
+@media (orientation: portrait) {
+  .console-shell--remote {
+    padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+      max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+  }
+  .console-shell--remote .console-shell__chassis,
+  .console-shell--remote.console-shell--classic .console-shell__chassis,
+  .console-shell--remote.console-shell--racing .console-shell__chassis,
+  .console-shell--remote.console-shell--flight .console-shell__chassis {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 8px;
+    grid-template-rows: minmax(0, 1fr) minmax(190px, 40%);
+    gap: 8px;
+    border-radius: 20px;
+  }
+  .console-shell--remote .console-shell__telemetry {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 7px;
+    min-height: 0;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 15px;
+    background: #0d1014;
+    overflow: hidden;
+  }
+  .console-shell--remote .console-shell__controls {
+    border-radius: 14px;
+    background: #111419;
+  }
+  .console-shell--remote .builtin-controller,
+  .console-shell--remote .builtin-controller--racing,
+  .console-shell--remote .builtin-controller--flight {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 5px;
+    grid-template-columns: minmax(100px, 0.9fr) minmax(120px, 1.1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "left right"
+      "bottom bottom";
+    gap: 6px;
+  }
+  .console-shell--remote .builtin-controller__zone--top-left,
+  .console-shell--remote .builtin-controller__zone--top-right,
+  .console-shell--remote .builtin-controller__zone--bottom-left,
+  .console-shell--remote .builtin-controller__zone--bottom-right {
+    position: absolute;
+    z-index: 4;
+  }
+  .console-shell--remote .builtin-controller__zone--top-left {
+    left: 6px;
+    top: 5px;
+  }
+  .console-shell--remote .builtin-controller__zone--top-right {
+    right: 6px;
+    top: 5px;
+  }
+  .console-shell--remote .builtin-controller__zone--bottom-left {
+    left: 6px;
+    bottom: 5px;
+  }
+  .console-shell--remote .builtin-controller__zone--bottom-right {
+    right: 6px;
+    bottom: 5px;
+  }
+  .console-shell--remote .console-control--stick,
+  .console-shell--remote .console-control--dpad {
+    width: min(29vw, 118px);
+  }
+  .console-shell--remote .builtin-controller__zone--right {
+    grid-template-columns: repeat(2, minmax(48px, 64px));
+    justify-content: end;
+    gap: 5px;
+  }
+  .console-shell--remote .builtin-controller__zone--right .console-control--button {
+    min-height: 48px;
+    border-radius: 13px;
+  }
+  .console-shell--remote .console-control--button[data-face="l1"],
+  .console-shell--remote .console-control--button[data-face="r1"],
+  .console-shell--remote .console-control--button[data-face="l2"],
+  .console-shell--remote .console-control--button[data-face="r2"] {
+    width: 62px;
+    min-height: 30px;
+  }
+}

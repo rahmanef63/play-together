@@ -76,10 +76,7 @@
   .console-shell--remote .console-control--dpad {
     width: min(42vh, 27vw, 164px);
   }
-  .console-shell--remote
-    .console-control--button:not([data-face="l1"]):not([data-face="r1"]):not([data-face="l2"]):not(
-      [data-face="r2"]
-    ) {
+  .console-shell--remote .console-control--button {
     width: min(20vh, 13vw, 82px);
   }
   .console-shell--remote .console-control--button[data-semantic-label="true"] {

@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "turbo-circuit",
+    "version": "0.10.0",
+    "title": "Turbo Circuit",
+    "description": "Server-authoritative multiplayer kart racing with procedural 3D tracks, dynamic game audio, drafting, boost pads, coins, items, hazards and simplified phone controls.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "runtimeDependencies": {
+    "three": "0.185.1+pt1"
+  },
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "landscape",
+    "console": {
+      "renderer": "builtin",
+      "layout": "racing",
+      "controls": [
+        {
+          "id": "steer",
+          "kind": "stick",
+          "ariaLabel": "Steering and garage selection stick",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "steer": "$x",
+              "menuY": "$y"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "steer": 0,
+              "menuY": 0
+            }
+          },
+          "keys": {
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ],
+            "up": [
+              "ArrowUp",
+              "KeyW"
+            ],
+            "down": [
+              "ArrowDown",
+              "KeyS"
+            ]
+          }
+        },
+        {
+          "id": "gas",
+          "kind": "button",
+          "label": "A",
+          "displayLabel": "GAS",
+          "ariaLabel": "Accelerate",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "throttle": 1
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "throttle": 0
+            }
+          },
+          "keys": [
+            "ArrowUp",
+            "KeyW"
+          ]
+        },
+        {
+          "id": "brake",
+          "kind": "button",
+          "label": "B",
+          "displayLabel": "BRAKE",
+          "ariaLabel": "Brake",
+          "face": "b",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "brake": 1
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "brake": 0
+            }
+          },
+          "keys": [
+            "ArrowDown",
+            "KeyS"
+          ]
+        },
+        {
+          "id": "item",
+          "kind": "button",
+          "label": "X",
+          "displayLabel": "ITEM",
+          "ariaLabel": "Use item ability",
+          "face": "x",
+          "zone": "right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "item",
+              "direction": "forward"
+            }
+          },
+          "keys": [
+            "Space",
+            "Enter",
+            "KeyF"
+          ]
+        },
+        {
+          "id": "rear-view",
+          "kind": "button",
+          "label": "Y",
+          "displayLabel": "REAR",
+          "ariaLabel": "Hold rear view",
+          "face": "y",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "rearView": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "rearView": false
+            }
+          },
+          "keys": [
+            "KeyR"
+          ]
+        },
+        {
+          "id": "start",
+          "kind": "button",
+          "label": "START",
+          "displayLabel": "START",
+          "ariaLabel": "Start ready or pause",
+          "face": "start",
+          "zone": "bottom",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "start"
+            }
+          },
+          "keys": [
+            "Escape",
+            "KeyP",
+            "KeyG"
+          ]
+        },
+        {
+          "id": "camera",
+          "kind": "button",
+          "label": "L1",
+          "displayLabel": "CAMERA",
+          "ariaLabel": "Camera",
+          "face": "l1",
+          "zone": "top-left",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "camera"
+            }
+          },
+          "keys": [
+            "KeyC"
+          ]
+        },
+        {
+          "id": "drift",
+          "kind": "button",
+          "label": "R1",
+          "displayLabel": "DRIFT",
+          "ariaLabel": "Drift",
+          "face": "r1",
+          "zone": "top-right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "drift": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "drift": false
+            }
+          },
+          "keys": [
+            "ShiftLeft",
+            "ShiftRight"
+          ]
+        },
+        {
+          "id": "rescue",
+          "kind": "button",
+          "label": "L2",
+          "displayLabel": "RESCUE",
+          "ariaLabel": "Rescue",
+          "face": "l2",
+          "zone": "top-left",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "rescue"
+            }
+          },
+          "keys": [
+            "Backspace"
+          ]
+        },
+        {
+          "id": "rear-item",
+          "kind": "button",
+          "label": "R2",
+          "displayLabel": "REAR ITEM",
+          "ariaLabel": "Rear Item",
+          "face": "r2",
+          "zone": "top-right",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "item",
+              "direction": "backward"
+            }
+          },
+          "keys": [
+            "KeyV"
+          ]
+        }
+      ],
+      "initialState": {
+        "steer": 0,
+        "menuY": 0,
+        "throttle": 0,
+        "brake": 0,
+        "drift": false,
+        "rearView": false
+      }
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "7d44d117ed1fc11314de8bd2cd85663d4c62637a3efa4fbd8dc2212b7270e6b7"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "8e45264c8bc603e8c9230dc732d26b736ece018272b0a51209e777ce188e07b1"
+    }
+  }
+}

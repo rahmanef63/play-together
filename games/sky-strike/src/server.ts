@@ -10,10 +10,11 @@ import {
   makeBullet,
   makeMissile,
   parseInput,
-  resolveHit,
   steerMissile,
 } from "./server/combat.js";
 import { clamp, forward, respawnPlane, type State, spawnPlane, wrapAngle } from "./server/model.js";
+
+import { resolveHit } from "./server/projectileCollision.js";
 
 class SkyStrike implements ServerGame {
   readonly #state: State = {
@@ -51,6 +52,7 @@ class SkyStrike implements ServerGame {
     if (input) plane.input = input;
   }
   tick(_now: number, delta: number) {
+    if (!Number.isFinite(delta)) return;
     const ms = clamp(delta, 0, 50);
     const dt = ms / 1000;
     if (this.#state.phase === "round-over") {
@@ -60,12 +62,15 @@ class SkyStrike implements ServerGame {
     }
     for (const plane of this.#state.planes) this.#updatePlane(plane, ms, dt);
     for (const shot of this.#state.shots) {
-      shot.ttl -= ms;
-      steerMissile(shot, this.#state.planes, dt);
-      shot.x += shot.vx * dt;
-      shot.y += shot.vy * dt;
-      shot.z += shot.vz * dt;
-      resolveHit(shot, this.#state.planes);
+      if (shot.ttl <= 0) continue;
+      const from = { x: shot.x, y: shot.y, z: shot.z };
+      const shotDt = Math.min(dt, shot.ttl / 1000);
+      steerMissile(shot, this.#state.planes, shotDt);
+      shot.x += shot.vx * shotDt;
+      shot.y += shot.vy * shotDt;
+      shot.z += shot.vz * shotDt;
+      resolveHit(shot, this.#state.planes, from);
+      shot.ttl = Math.max(0, shot.ttl - ms);
     }
     this.#state.shots = this.#state.shots.filter((shot) => shot.ttl > 0);
     const victor = this.#state.planes.find((plane) => plane.kills >= 5);
@@ -78,10 +83,12 @@ class SkyStrike implements ServerGame {
   #updatePlane(plane: State["planes"][number], ms: number, dt: number) {
     if (plane.respawnMs > 0) {
       plane.respawnMs -= ms;
-      if (plane.respawnMs <= 0) respawnPlane(plane);
+      if (plane.respawnMs <= 0)
+        respawnPlane(plane, this.#state.planes.indexOf(plane), this.#state.planes.length);
       return;
     }
     if (plane.bot) botInput(plane, this.#state.planes);
+    plane.spawnProtectionMs = Math.max(0, plane.spawnProtectionMs - ms);
     plane.gunCd = Math.max(0, plane.gunCd - ms);
     plane.missileCd = Math.max(0, plane.missileCd - ms);
     plane.lockId = findLock(plane, this.#state.planes)?.id ?? null;
@@ -91,7 +98,18 @@ class SkyStrike implements ServerGame {
     );
     plane.pitch = clamp(plane.pitch + plane.input.pitch * 1.05 * dt, -0.72, 0.72);
     plane.roll += (plane.input.roll * 0.95 - plane.roll) * 3.4 * dt;
-    plane.speed += (24 + plane.input.throttle * 48 - plane.speed) * 1.7 * dt;
+    plane.afterburnerActive =
+      plane.input.afterburner && !plane.input.airbrake && plane.afterburnerFuel > 0.01;
+    plane.afterburnerFuel = clamp(
+      plane.afterburnerFuel +
+        (plane.afterburnerActive ? -0.22 : plane.input.afterburner ? 0 : 0.13) * dt,
+      0,
+      1,
+    );
+    const targetSpeed = plane.input.airbrake
+      ? 20
+      : 24 + plane.input.throttle * 48 + (plane.afterburnerActive ? 32 : 0);
+    plane.speed += (targetSpeed - plane.speed) * (plane.input.airbrake ? 3 : 1.7) * dt;
     const facing = forward(plane);
     plane.x += facing.x * plane.speed * dt;
     plane.y = clamp(plane.y + facing.y * plane.speed * dt, 6, 150);
@@ -114,7 +132,7 @@ class SkyStrike implements ServerGame {
     for (const plane of this.#state.planes) {
       plane.kills = 0;
       plane.deaths = 0;
-      respawnPlane(plane);
+      respawnPlane(plane, this.#state.planes.indexOf(plane), this.#state.planes.length);
     }
     this.#state.shots = [];
   }

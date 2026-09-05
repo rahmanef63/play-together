@@ -3,14 +3,14 @@
   "games": [
     {
       "id": "flight-trainer",
-      "version": "0.2.6",
+      "version": "0.3.0",
       "title": "Flight Trainer",
       "description": "A 3D flight-training simulator with throttle, pitch, roll, yaw, flaps, landing gear, stall/crash physics, instruments and checkpoint navigation.",
       "modes": ["shared-screen", "handheld"],
       "capabilities": {
         "touch": true,
         "keyboard": true,
-        "gamepad": false,
+        "gamepad": true,
         "motion": false
       },
       "presentation": {
@@ -108,7 +108,8 @@
                 "type": "toggle",
                 "field": "flaps"
               },
-              "displayLabel": "FLAPS"
+              "displayLabel": "FLAPS",
+              "keys": ["KeyF"]
             },
             {
               "id": "gear",
@@ -121,7 +122,8 @@
                 "type": "toggle",
                 "field": "gear"
               },
-              "displayLabel": "GEAR"
+              "displayLabel": "GEAR",
+              "keys": ["KeyG"]
             },
             {
               "id": "throttle-up",
@@ -161,20 +163,73 @@
               "id": "restart",
               "kind": "button",
               "label": "START",
-              "ariaLabel": "Restart flight",
+              "ariaLabel": "Restart flight from runway",
               "face": "start",
               "zone": "bottom",
               "press": {
                 "type": "pulse",
                 "values": {
-                  "restart": true
+                  "pitch": 0,
+                  "roll": 0,
+                  "yaw": 0,
+                  "throttle": 0,
+                  "flaps": false,
+                  "gear": true,
+                  "restart": true,
+                  "brake": false,
+                  "level": false
                 },
                 "releaseValues": {
                   "restart": false
                 },
                 "durationMs": 80
               },
-              "displayLabel": "RESTART"
+              "displayLabel": "RESTART",
+              "keys": ["KeyR"]
+            },
+            {
+              "id": "wheel-brake",
+              "kind": "button",
+              "label": "L2",
+              "displayLabel": "BRAKE",
+              "ariaLabel": "Brake",
+              "face": "l2",
+              "zone": "top-left",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "brake": true
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "brake": false
+                }
+              },
+              "keys": ["Space"]
+            },
+            {
+              "id": "level-assist",
+              "kind": "button",
+              "label": "R2",
+              "displayLabel": "LEVEL",
+              "ariaLabel": "Level",
+              "face": "r2",
+              "zone": "top-right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "level": true
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "level": false
+                }
+              },
+              "keys": ["ShiftLeft", "ShiftRight"]
             }
           ],
           "initialState": {
@@ -184,7 +239,9 @@
             "throttle": 0,
             "flaps": false,
             "gear": true,
-            "restart": false
+            "restart": false,
+            "brake": false,
+            "level": false
           }
         }
       },
@@ -192,14 +249,14 @@
     },
     {
       "id": "sky-strike",
-      "version": "0.2.6",
+      "version": "0.3.0",
       "title": "Sky Strike",
       "description": "A 3D arcade fighter dogfight with flight controls, cannon fire, homing missiles, lock-on, health, respawns and AI bandits.",
       "modes": ["shared-screen", "handheld"],
       "capabilities": {
         "touch": true,
         "keyboard": true,
-        "gamepad": false,
+        "gamepad": true,
         "motion": false
       },
       "presentation": {
@@ -319,6 +376,94 @@
               },
               "keys": ["Minus"],
               "displayLabel": "THR −"
+            },
+            {
+              "id": "yaw-left",
+              "kind": "button",
+              "label": "L1",
+              "displayLabel": "YAW L",
+              "ariaLabel": "Yaw L",
+              "face": "l1",
+              "zone": "top-left",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "yaw": -1
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "yaw": 0
+                }
+              },
+              "keys": ["KeyQ"]
+            },
+            {
+              "id": "yaw-right",
+              "kind": "button",
+              "label": "R1",
+              "displayLabel": "YAW R",
+              "ariaLabel": "Yaw R",
+              "face": "r1",
+              "zone": "top-right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "yaw": 1
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "yaw": 0
+                }
+              },
+              "keys": ["KeyE"]
+            },
+            {
+              "id": "airbrake",
+              "kind": "button",
+              "label": "L2",
+              "displayLabel": "AIRBRAKE",
+              "ariaLabel": "Airbrake",
+              "face": "l2",
+              "zone": "top-left",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "airbrake": true
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "airbrake": false
+                }
+              },
+              "keys": ["KeyZ"]
+            },
+            {
+              "id": "afterburner",
+              "kind": "button",
+              "label": "R2",
+              "displayLabel": "BOOST",
+              "ariaLabel": "Boost",
+              "face": "r2",
+              "zone": "top-right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "afterburner": true
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "afterburner": false
+                }
+              },
+              "keys": ["KeyC"]
             }
           ],
           "initialState": {
@@ -327,7 +472,9 @@
             "yaw": 0,
             "throttle": 0.65,
             "gun": false,
-            "missile": false
+            "missile": false,
+            "airbrake": false,
+            "afterburner": false
           }
         }
       },
@@ -335,14 +482,14 @@
     },
     {
       "id": "turbo-circuit",
-      "version": "0.9.2",
+      "version": "0.10.0",
       "title": "Turbo Circuit",
       "description": "Server-authoritative multiplayer kart racing with procedural 3D tracks, dynamic game audio, drafting, boost pads, coins, items, hazards and simplified phone controls.",
       "modes": ["shared-screen", "handheld"],
       "capabilities": {
         "touch": true,
         "keyboard": true,
-        "gamepad": false,
+        "gamepad": true,
         "motion": false
       },
       "presentation": {
@@ -483,6 +630,77 @@
                 }
               },
               "keys": ["Escape", "KeyP", "KeyG"]
+            },
+            {
+              "id": "camera",
+              "kind": "button",
+              "label": "L1",
+              "displayLabel": "CAMERA",
+              "ariaLabel": "Camera",
+              "face": "l1",
+              "zone": "top-left",
+              "press": {
+                "type": "send",
+                "payload": {
+                  "action": "camera"
+                }
+              },
+              "keys": ["KeyC"]
+            },
+            {
+              "id": "drift",
+              "kind": "button",
+              "label": "R1",
+              "displayLabel": "DRIFT",
+              "ariaLabel": "Drift",
+              "face": "r1",
+              "zone": "top-right",
+              "press": {
+                "type": "patch",
+                "values": {
+                  "drift": true
+                }
+              },
+              "release": {
+                "type": "patch",
+                "values": {
+                  "drift": false
+                }
+              },
+              "keys": ["ShiftLeft", "ShiftRight"]
+            },
+            {
+              "id": "rescue",
+              "kind": "button",
+              "label": "L2",
+              "displayLabel": "RESCUE",
+              "ariaLabel": "Rescue",
+              "face": "l2",
+              "zone": "top-left",
+              "press": {
+                "type": "send",
+                "payload": {
+                  "action": "rescue"
+                }
+              },
+              "keys": ["Backspace"]
+            },
+            {
+              "id": "rear-item",
+              "kind": "button",
+              "label": "R2",
+              "displayLabel": "REAR ITEM",
+              "ariaLabel": "Rear Item",
+              "face": "r2",
+              "zone": "top-right",
+              "press": {
+                "type": "send",
+                "payload": {
+                  "action": "item",
+                  "direction": "backward"
+                }
+              },
+              "keys": ["KeyV"]
             }
           ],
           "initialState": {

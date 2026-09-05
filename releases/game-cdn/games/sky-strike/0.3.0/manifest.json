@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "sky-strike",
+    "version": "0.3.0",
+    "title": "Sky Strike",
+    "description": "A 3D arcade fighter dogfight with flight controls, cannon fire, homing missiles, lock-on, health, respawns and AI bandits.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "runtimeDependencies": {
+    "three": "0.185.1+pt1"
+  },
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "landscape",
+    "console": {
+      "renderer": "builtin",
+      "layout": "flight",
+      "controls": [
+        {
+          "id": "flight-stick",
+          "kind": "stick",
+          "ariaLabel": "Flight stick",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "roll": "$x",
+              "pitch": "$y"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "roll": 0,
+              "pitch": 0
+            }
+          },
+          "keys": {
+            "up": [
+              "ArrowUp",
+              "KeyW"
+            ],
+            "down": [
+              "ArrowDown",
+              "KeyS"
+            ],
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ]
+          }
+        },
+        {
+          "id": "gun",
+          "kind": "button",
+          "label": "A",
+          "ariaLabel": "Fire cannon",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "gun": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "gun": false
+            }
+          },
+          "keys": [
+            "Space"
+          ],
+          "displayLabel": "CANNON"
+        },
+        {
+          "id": "missile",
+          "kind": "button",
+          "label": "B",
+          "ariaLabel": "Fire missile",
+          "face": "b",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "missile": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "missile": false
+            }
+          },
+          "keys": [
+            "ShiftLeft",
+            "ShiftRight"
+          ],
+          "displayLabel": "MISSILE"
+        },
+        {
+          "id": "throttle-up",
+          "kind": "button",
+          "label": "Y",
+          "ariaLabel": "Increase throttle",
+          "face": "y",
+          "zone": "top-right",
+          "press": {
+            "type": "increment",
+            "field": "throttle",
+            "delta": 0.1,
+            "min": 0,
+            "max": 1
+          },
+          "keys": [
+            "Equal"
+          ],
+          "displayLabel": "THR +"
+        },
+        {
+          "id": "throttle-down",
+          "kind": "button",
+          "label": "X",
+          "ariaLabel": "Decrease throttle",
+          "face": "x",
+          "zone": "bottom-right",
+          "press": {
+            "type": "increment",
+            "field": "throttle",
+            "delta": -0.1,
+            "min": 0,
+            "max": 1
+          },
+          "keys": [
+            "Minus"
+          ],
+          "displayLabel": "THR −"
+        },
+        {
+          "id": "yaw-left",
+          "kind": "button",
+          "label": "L1",
+          "displayLabel": "YAW L",
+          "ariaLabel": "Yaw L",
+          "face": "l1",
+          "zone": "top-left",
+          "press": {
+            "type": "patch",
+            "values": {
+              "yaw": -1
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "yaw": 0
+            }
+          },
+          "keys": [
+            "KeyQ"
+          ]
+        },
+        {
+          "id": "yaw-right",
+          "kind": "button",
+          "label": "R1",
+          "displayLabel": "YAW R",
+          "ariaLabel": "Yaw R",
+          "face": "r1",
+          "zone": "top-right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "yaw": 1
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "yaw": 0
+            }
+          },
+          "keys": [
+            "KeyE"
+          ]
+        },
+        {
+          "id": "airbrake",
+          "kind": "button",
+          "label": "L2",
+          "displayLabel": "AIRBRAKE",
+          "ariaLabel": "Airbrake",
+          "face": "l2",
+          "zone": "top-left",
+          "press": {
+            "type": "patch",
+            "values": {
+              "airbrake": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "airbrake": false
+            }
+          },
+          "keys": [
+            "KeyZ"
+          ]
+        },
+        {
+          "id": "afterburner",
+          "kind": "button",
+          "label": "R2",
+          "displayLabel": "BOOST",
+          "ariaLabel": "Boost",
+          "face": "r2",
+          "zone": "top-right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "afterburner": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "afterburner": false
+            }
+          },
+          "keys": [
+            "KeyC"
+          ]
+        }
+      ],
+      "initialState": {
+        "pitch": 0,
+        "roll": 0,
+        "yaw": 0,
+        "throttle": 0.65,
+        "gun": false,
+        "missile": false,
+        "airbrake": false,
+        "afterburner": false
+      }
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "bce079dba1eee6dc7b20fd65c5234935694e01e8ccd73122638dca6db2546b93"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "3127fcaf4a06b380d2c96d62dca8a7408d00a35e5f25392ed989008d7698e218"
+    }
+  }
+}

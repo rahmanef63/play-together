@@ -2,7 +2,26 @@
 
 All notable changes to Play Together are documented here. The project follows semantic versioning for the platform and immutable semantic versions for each game release.
 
-## [Unreleased]
+## [0.14.0] - 2026-09-05
+
+### Gameplay and controls
+
+- Added standard-mapped physical gamepad input, L1/L2/R1/R2 actions and labelled shoulder rows. Trigger actions are digital at a 0.5 threshold.
+- Fixed keyboard aliases, simultaneous touch ownership, opposing controls, focus/disconnect cleanup and stale pulse timers.
+- Turbo Circuit 0.10.0: gas-gated boost, brake priority, no minimum wall speed, finite input validation and advanced shoulder actions.
+- Flight Trainer 0.3.0: idle movement, persistent landing checks, safe-landing mission completion, duplicate landing score, restart, brake and level assist.
+- Sky Strike 0.3.0: swept projectile collision, nearest-target resolution, protected and separated respawns, fuel-limited boost, airbrake and round/respawn HUD.
+- Added simulation regressions and a real-browser controller layout/input harness; split responsive styling and telemetry by ownership.
+- Documented original downhill and fighting proposals, explicitly not shipped cartridges.
+
+### Release policy
+
+New cartridge identities preserve previous immutable releases and in-progress room pins. Production promotion is verified separately from source builds.
+
+## Historical development notes (Turbo Circuit 0.5.1, superseded)
+
+These earlier notes describe a retired control experiment. Current Turbo Circuit uses held A gas, B brake, X item and Y rear view.
+
 
 ### Added
 

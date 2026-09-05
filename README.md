@@ -6,7 +6,7 @@
 
 A version-isolated multiplayer platform for phone remotes, handheld play, and shared browser/TV displays. Each game ships as an independent cartridge; the platform owns discovery, rooms, pairing, realtime transport, device shells, and immutable release verification.
 
-The active catalog is intentionally focused on three 3D cartridges: **Turbo Circuit 0.9.2**, **Flight Trainer 0.2.6**, and **Sky Strike 0.2.6**. Historical releases for removed games stay byte-immutable but are retired from new-room selection.
+The source catalog targets three 3D cartridges: **Turbo Circuit 0.10.0**, **Flight Trainer 0.3.0**, and **Sky Strike 0.3.0**. Source versions do not imply that production or an already-open room has upgraded. Historical releases for removed games stay byte-immutable but are retired from new-room selection.
 
 [![CI](https://github.com/rahmanef63/play-together/actions/workflows/ci.yml/badge.svg)](https://github.com/rahmanef63/play-together/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -20,6 +20,10 @@ The active catalog is intentionally focused on three 3D cartridges: **Turbo Circ
 <p align="center">
   <img src="docs/media/play-together-gameplay.gif" alt="Play Together shared-screen gameplay controlled from a mobile browser" width="100%" />
 </p>
+
+## Gameplay and controls
+
+Complex cartridge manifests can expose **L1, L2, R1 and R2** alongside ABXY controls. Touch, keyboard and standard-mapped physical gamepads share input ownership and focus-loss cleanup. Read the [gameplay development guide](docs/gameplay-development.md) for mappings, verification limits and the proposed original downhill/fighting cartridges.
 
 ## Product flow
 

@@ -8,6 +8,12 @@ export function applyControlPatch(racer: Racer, payload: unknown): KartAction | 
   const data = payload as Record<string, unknown>;
   const action = readAction(data);
   if (action) return action;
+  for (const field of ["steer", "menuY", "throttle", "brake"] as const) {
+    const value = data[field];
+    if (value !== undefined && (typeof value !== "number" || !Number.isFinite(value))) return null;
+  }
+  for (const field of ["drift", "rearView"] as const)
+    if (data[field] !== undefined && typeof data[field] !== "boolean") return null;
   const input: InputState = { ...racer.input };
   if (typeof data.steer === "number") input.steer = clamp(data.steer, -1, 1);
   if (typeof data.menuY === "number") input.menuY = clamp(data.menuY, -1, 1);

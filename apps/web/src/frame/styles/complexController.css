@@ -1,0 +1,92 @@
+/* Complex cartridge controls: real shoulder row, stable face positions. */
+.console-shell .console-control--button[data-shoulder="true"] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  flex: 1 1 0;
+  min-width: 48px;
+  max-width: 104px;
+  min-height: 44px;
+  aspect-ratio: auto;
+  padding: 5px 4px;
+  border-radius: 12px;
+  touch-action: none;
+}
+.console-control--button[data-shoulder="true"] strong {
+  font:
+    850 14px / 1 ui-monospace,
+    monospace;
+}
+.console-control--button[data-shoulder="true"] small {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font:
+    750 8px / 1.1 system-ui,
+    sans-serif;
+}
+.console-control--button,
+.console-dpad__button {
+  touch-action: none;
+  user-select: none;
+}
+.console-shell .builtin-controller .builtin-controller__zone--face-cluster {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  width: min(100%, 204px);
+  height: min(100%, 204px);
+  justify-self: end;
+  justify-items: center;
+  align-items: center;
+  gap: 0;
+}
+.console-shell
+  .builtin-controller
+  .builtin-controller__zone--face-cluster
+  .console-control--button {
+  width: min(100%, 68px);
+  min-width: 44px;
+  min-height: 44px;
+  height: auto;
+  aspect-ratio: 1;
+}
+.console-shell .builtin-controller .builtin-controller__zone--face-cluster [data-face="a"] {
+  grid-area: 3 / 2;
+}
+.console-shell .builtin-controller .builtin-controller__zone--face-cluster [data-face="b"] {
+  grid-area: 2 / 3;
+}
+.console-shell .builtin-controller .builtin-controller__zone--face-cluster [data-face="x"] {
+  grid-area: 2 / 1;
+}
+.console-shell .builtin-controller .builtin-controller__zone--face-cluster [data-face="y"] {
+  grid-area: 1 / 2;
+}
+@media (orientation: portrait) {
+  .console-shell--remote .console-shell__chassis,
+  .console-shell--remote.console-shell--classic .console-shell__chassis,
+  .console-shell--remote.console-shell--racing .console-shell__chassis,
+  .console-shell--remote.console-shell--flight .console-shell__chassis {
+    grid-template-rows: minmax(90px, 1fr) minmax(260px, 45%);
+  }
+  .console-shell--remote .builtin-controller,
+  .console-shell--remote .builtin-controller--racing,
+  .console-shell--remote .builtin-controller--flight {
+    grid-template-rows: 44px minmax(0, 1fr) 44px;
+    grid-template-areas: "top-left top-right" "left right" "bottom bottom";
+  }
+  .console-shell--remote .builtin-controller__zone--top-left,
+  .console-shell--remote .builtin-controller__zone--top-right {
+    position: static;
+  }
+}
+
+.console-shell .console-control--button[data-face="start"],
+.console-shell .console-control--button[data-face="pause"],
+.console-shell .console-control--button[data-face="select"] {
+  min-height: 44px;
+}

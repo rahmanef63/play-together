@@ -76,6 +76,7 @@ class TurboCircuit implements ServerGame {
     if (beforeTrack !== this.#s.trackId) this.#s.pickups = createPickups(this.#s.trackId);
   }
   tick(_now: number, delta: number) {
+    if (!Number.isFinite(delta)) return;
     const ms = Math.max(0, Math.min(50, delta));
     if (this.#s.paused) return;
     const dt = ms / 1000;

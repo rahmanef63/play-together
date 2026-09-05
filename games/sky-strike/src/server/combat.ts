@@ -5,7 +5,16 @@ export function botInput(plane: Plane, planes: Plane[]): void {
     .filter((item) => !item.bot && item.respawnMs <= 0)
     .sort((a, b) => d3(plane, a) - d3(plane, b))[0];
   if (!target) {
-    plane.input = { pitch: 0, roll: 0.25, yaw: 0, throttle: 0.7, gun: false, missile: false };
+    plane.input = {
+      pitch: 0,
+      roll: 0.25,
+      yaw: 0,
+      throttle: 0.7,
+      gun: false,
+      missile: false,
+      airbrake: false,
+      afterburner: false,
+    };
     return;
   }
   const desired = Math.atan2(target.x - plane.x, target.z - plane.z);
@@ -18,6 +27,8 @@ export function botInput(plane: Plane, planes: Plane[]): void {
     yaw: clamp(-error * 0.45, -1, 1),
     pitch: clamp(pitchError * 1.8, -1, 1),
     throttle: 0.72,
+    airbrake: false,
+    afterburner: false,
     gun: Math.abs(error) < 0.11 && Math.abs(pitchError) < 0.09 && d3(plane, target) < 115,
     missile: Math.abs(error) < 0.28 && Math.abs(pitchError) < 0.2 && d3(plane, target) < 160,
   };
@@ -28,7 +39,7 @@ export function findLock(plane: Plane, planes: Plane[]): Plane | undefined {
   let best: Plane | undefined;
   let bestScore = Infinity;
   for (const target of planes) {
-    if (target.id === plane.id || target.respawnMs > 0) continue;
+    if (target.id === plane.id || target.respawnMs > 0 || target.spawnProtectionMs > 0) continue;
     const dx = target.x - plane.x;
     const dy = target.y - plane.y;
     const dz = target.z - plane.z;
@@ -94,22 +105,6 @@ export function steerMissile(shot: Shot, planes: Plane[], dt: number): void {
   shot.vy += ((dy / distance) * aim - shot.vy) * blend;
   shot.vz += ((dz / distance) * aim - shot.vz) * blend;
 }
-export function resolveHit(shot: Shot, planes: Plane[]): void {
-  for (const target of planes) {
-    if (target.id === shot.ownerId || target.respawnMs > 0) continue;
-    if (d3(shot, target) > (shot.kind === "missile" ? 5 : 2.5)) continue;
-    target.hp -= shot.kind === "missile" ? 48 : 11;
-    shot.ttl = 0;
-    if (target.hp <= 0) {
-      target.hp = 0;
-      target.deaths += 1;
-      target.respawnMs = 2500;
-      const owner = planes.find((plane) => plane.id === shot.ownerId);
-      if (owner) owner.kills += 1;
-    }
-    break;
-  }
-}
 
 export function parseInput(payload: unknown, current: InputState): InputState | null {
   if (typeof payload !== "object" || !payload) return null;
@@ -120,6 +115,8 @@ export function parseInput(payload: unknown, current: InputState): InputState | 
   }
   if (value.gun !== undefined && typeof value.gun !== "boolean") return null;
   if (value.missile !== undefined && typeof value.missile !== "boolean") return null;
+  if (value.airbrake !== undefined && typeof value.airbrake !== "boolean") return null;
+  if (value.afterburner !== undefined && typeof value.afterburner !== "boolean") return null;
   return {
     pitch: clamp(Number(value.pitch ?? current.pitch), -1, 1),
     roll: clamp(Number(value.roll ?? current.roll), -1, 1),
@@ -127,5 +124,7 @@ export function parseInput(payload: unknown, current: InputState): InputState | 
     throttle: clamp(Number(value.throttle ?? current.throttle), 0, 1),
     gun: Boolean(value.gun ?? current.gun),
     missile: Boolean(value.missile ?? current.missile),
+    airbrake: value.airbrake ?? current.airbrake,
+    afterburner: value.afterburner ?? current.afterburner,
   };
 }

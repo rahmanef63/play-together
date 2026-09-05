@@ -5,38 +5,10 @@ import type {
   ServerPlayer,
 } from "@play-together/game-sdk";
 
-interface InputState {
-  pitch: number;
-  roll: number;
-  yaw: number;
-  throttle: number;
-  flaps: boolean;
-  gear: boolean;
-  restart: boolean;
-}
-interface Aircraft {
-  id: string;
-  name: string;
-  x: number;
-  y: number;
-  z: number;
-  heading: number;
-  pitch: number;
-  roll: number;
-  airspeed: number;
-  verticalSpeed: number;
-  throttle: number;
-  flaps: boolean;
-  gearDown: boolean;
-  stall: boolean;
-  crashed: boolean;
-  landed: boolean;
-  missionComplete: boolean;
-  nextCheckpoint: number;
-  elapsedMs: number;
-  score: number;
-  input: InputState;
-}
+import { resolveGroundContact } from "./server/landing.js";
+
+import { type Aircraft, createAircraft, type InputState } from "./server/model.js";
+
 interface State {
   kind: "flight-trainer";
   runway: { x: number; zMin: number; zMax: number; width: number };
@@ -65,44 +37,19 @@ class FlightTrainer implements ServerGame {
   onJoin(p: ServerPlayer) {
     if (this.#s.aircraft.some((a) => a.id === p.id) || this.#s.aircraft.length >= 4) return;
     this.#s.aircraft.push(
-      this.#fresh(p.id, `PILOT ${this.#s.aircraft.length + 1}`, this.#s.aircraft.length),
+      createAircraft(p.id, `PILOT ${this.#s.aircraft.length + 1}`, this.#s.aircraft.length),
     );
   }
   onLeave(id: string) {
     this.#s.aircraft = this.#s.aircraft.filter((a) => a.id !== id);
-  }
-  #fresh(id: string, name: string, lane = 0): Aircraft {
-    return {
-      id,
-      name,
-      x: (lane - 1.5) * 3,
-      y: 1.2,
-      z: -145 - lane * 6,
-      heading: 0,
-      pitch: 0,
-      roll: 0,
-      airspeed: 0,
-      verticalSpeed: 0,
-      throttle: 0,
-      flaps: false,
-      gearDown: true,
-      stall: false,
-      crashed: false,
-      landed: false,
-      missionComplete: false,
-      nextCheckpoint: 0,
-      elapsedMs: 0,
-      score: 0,
-      input: { pitch: 0, roll: 0, yaw: 0, throttle: 0, flaps: false, gear: true, restart: false },
-    };
   }
   onInput(id: string, payload: unknown) {
     if (typeof payload !== "object" || !payload) return;
     const a = this.#s.aircraft.find((x) => x.id === id);
     if (!a) return;
     const p = payload as Partial<InputState>;
-    if (p.restart === true && a.crashed) {
-      const fresh = this.#fresh(a.id, a.name, this.#s.aircraft.indexOf(a));
+    if (p.restart === true) {
+      const fresh = createAircraft(a.id, a.name, this.#s.aircraft.indexOf(a));
       Object.assign(a, fresh);
       return;
     }
@@ -110,6 +57,8 @@ class FlightTrainer implements ServerGame {
       if (p[k] !== undefined && (typeof p[k] !== "number" || !Number.isFinite(p[k]!))) return;
     if (p.flaps !== undefined && typeof p.flaps !== "boolean") return;
     if (p.gear !== undefined && typeof p.gear !== "boolean") return;
+    if (p.brake !== undefined && typeof p.brake !== "boolean") return;
+    if (p.level !== undefined && typeof p.level !== "boolean") return;
     a.input = {
       pitch: clamp(Number(p.pitch ?? a.input.pitch), -1, 1),
       roll: clamp(Number(p.roll ?? a.input.roll), -1, 1),
@@ -118,28 +67,45 @@ class FlightTrainer implements ServerGame {
       flaps: Boolean(p.flaps ?? a.input.flaps),
       gear: Boolean(p.gear ?? a.input.gear),
       restart: false,
+      brake: p.brake ?? a.input.brake,
+      level: p.level ?? a.input.level,
     };
     a.flaps = a.input.flaps;
     a.gearDown = a.input.gear;
   }
   tick(_now: number, delta: number) {
+    if (!Number.isFinite(delta)) return;
     const ms = clamp(delta, 0, 50),
       dt = ms / 1000;
     for (const a of this.#s.aircraft) {
       if (a.crashed || a.missionComplete) continue;
       a.elapsedMs += ms;
       a.throttle += (a.input.throttle - a.throttle) * 2.2 * dt;
-      a.pitch = clamp(a.pitch + a.input.pitch * 0.6 * dt - a.pitch * 0.09 * dt, -0.52, 0.58);
-      a.roll = clamp(a.roll + a.input.roll * 0.95 * dt - a.roll * 0.16 * dt, -1.05, 1.05);
+      a.pitch = clamp(
+        a.pitch + (a.input.level ? -a.pitch * 2.8 : a.input.pitch * 0.6 - a.pitch * 0.09) * dt,
+        -0.52,
+        0.58,
+      );
+      a.roll = clamp(
+        a.roll + (a.input.level ? -a.roll * 3.5 : a.input.roll * 0.95 - a.roll * 0.16) * dt,
+        -1.05,
+        1.05,
+      );
       a.heading -= (Math.sin(a.roll) * 0.34 + a.input.yaw * 0.42) * dt;
       const drag = (a.flaps ? 7 : 0) + (a.gearDown && a.y > 2 ? 4 : 0);
-      const targetSpeed = 5 + a.throttle * 82 - drag;
+      const targetSpeed = Math.max(
+        0,
+        a.throttle * 82 - drag - (a.input.brake ? (a.y <= 1.21 ? 90 : 20) : 0),
+      );
       a.airspeed += (targetSpeed - a.airspeed) * (a.y <= 1.21 ? 1.2 : 0.72) * dt;
       a.airspeed = Math.max(0, a.airspeed);
       const stallSpeed = a.flaps ? 20 : 27;
       a.stall = a.y > 2.5 && a.airspeed < stallSpeed;
       if (a.stall) a.pitch = clamp(a.pitch - 0.42 * dt, -0.55, 0.58);
-      const wasAirborne = a.y > 1.35;
+      if (a.y > 1.35) {
+        a.airborne = true;
+        a.landed = false;
+      }
       const lift = Math.max(0, a.airspeed - stallSpeed) * 0.075 * Math.cos(a.roll);
       const climb = Math.sin(a.pitch) * a.airspeed * 0.62;
       const targetV = a.stall ? -9 : climb + lift - 2.5;
@@ -149,41 +115,14 @@ class FlightTrainer implements ServerGame {
       a.z += Math.cos(a.heading) * horizontal * dt;
       a.y += a.verticalSpeed * dt;
       if (a.y <= 1.2) {
-        const runway =
-          Math.abs(a.x) <= this.#s.runway.width / 2 &&
-          a.z >= this.#s.runway.zMin &&
-          a.z <= this.#s.runway.zMax;
-        if (wasAirborne) {
-          const safe =
-            runway &&
-            a.gearDown &&
-            Math.abs(a.verticalSpeed) < 6.2 &&
-            a.airspeed < 37 &&
-            Math.abs(a.roll) < 0.24 &&
-            Math.abs(a.pitch) < 0.3;
-          if (safe) {
-            a.landed = true;
-            a.score += 250;
-          } else {
-            a.crashed = true;
-            a.airspeed = 0;
-            a.verticalSpeed = 0;
-            a.y = 1.2;
-            continue;
-          }
-        }
-        a.y = 1.2;
-        a.verticalSpeed = 0;
+        resolveGroundContact(a, this.#s.runway, CPS.length);
+        if (a.crashed || a.missionComplete) continue;
         if (a.airspeed < 30 || a.pitch < 0.08) a.airspeed *= Math.max(0, 1 - 0.28 * dt);
       }
       const cp = CPS[a.nextCheckpoint];
       if (cp && d3(a, cp) < 14) {
         a.nextCheckpoint++;
         a.score += 100;
-        if (a.nextCheckpoint >= CPS.length) {
-          a.missionComplete = true;
-          a.score += Math.max(0, 600 - Math.floor(a.elapsedMs / 1000));
-        }
       }
       if (Math.abs(a.x) > 480 || Math.abs(a.z) > 480 || a.y > 260) {
         a.crashed = true;

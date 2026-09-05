@@ -5,6 +5,8 @@ export interface InputState {
   throttle: number;
   gun: boolean;
   missile: boolean;
+  airbrake: boolean;
+  afterburner: boolean;
 }
 export interface Plane {
   id: string;
@@ -24,6 +26,9 @@ export interface Plane {
   gunCd: number;
   missileCd: number;
   lockId: string | null;
+  spawnProtectionMs: number;
+  afterburnerFuel: number;
+  afterburnerActive: boolean;
   input: InputState;
 }
 export interface Shot {
@@ -80,12 +85,26 @@ export function spawnPlane(id: string, name: string, bot: boolean, index: number
     gunCd: 0,
     missileCd: 700 + index * 180,
     lockId: null,
-    input: { pitch: 0, roll: 0, yaw: 0, throttle: 0.65, gun: false, missile: false },
+    spawnProtectionMs: 1200,
+    afterburnerFuel: 1,
+    afterburnerActive: false,
+    input: {
+      pitch: 0,
+      roll: 0,
+      yaw: 0,
+      throttle: 0.65,
+      gun: false,
+      missile: false,
+      airbrake: false,
+      afterburner: false,
+    },
   };
 }
 
-export function respawnPlane(plane: Plane): void {
-  const a = (plane.deaths * 1.7 + plane.kills * 0.4) % (Math.PI * 2);
+export function respawnPlane(plane: Plane, slot: number, slots: number): void {
+  const a =
+    ((Math.PI * 2 * slot) / Math.max(1, slots) + plane.deaths * 1.7 + plane.kills * 0.4) %
+    (Math.PI * 2);
   plane.x = Math.cos(a) * 85;
   plane.z = Math.sin(a) * 85;
   plane.y = 42;
@@ -97,4 +116,8 @@ export function respawnPlane(plane: Plane): void {
   plane.respawnMs = 0;
   plane.gunCd = 500;
   plane.missileCd = 1200;
+  plane.spawnProtectionMs = 1200;
+  plane.afterburnerFuel = 1;
+  plane.afterburnerActive = false;
+  plane.lockId = null;
 }

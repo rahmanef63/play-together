@@ -1,6 +1,14 @@
 import type { ConsoleAction } from "@play-together/contracts";
 import type { BrowserGameContext } from "@play-together/game-sdk";
-import type { Cleanup, MutableState, Variables } from "./types";
+import type { MutableState, Variables } from "./types";
+
+const pulseTimers = new WeakMap<MutableState, Map<ConsoleAction, number>>();
+
+export function disposeActionTimers(state: MutableState): void {
+  const timers = pulseTimers.get(state);
+  if (timers) for (const timer of timers.values()) window.clearTimeout(timer);
+  pulseTimers.delete(state);
+}
 
 export function runAction(
   action: ConsoleAction,
@@ -30,37 +38,26 @@ export function runAction(
       context.sendInput({ ...state });
       break;
     }
-    case "pulse":
+    case "pulse": {
+      let timers = pulseTimers.get(state);
+      if (!timers) {
+        timers = new Map();
+        pulseTimers.set(state, timers);
+      }
+      const previous = timers.get(action);
+      if (previous !== undefined) window.clearTimeout(previous);
       Object.assign(state, resolveTemplate(action.values, variables));
       context.sendInput({ ...state });
-      window.setTimeout(() => {
+      const timer = window.setTimeout(() => {
+        timers.delete(action);
+        if (!timers.size) pulseTimers.delete(state);
         Object.assign(state, resolveTemplate(action.releaseValues, variables));
         context.sendInput({ ...state });
       }, action.durationMs);
+      timers.set(action, timer);
       break;
+    }
   }
-}
-
-export function bindKeys(keys: string[], down: () => void, up: () => void): Cleanup {
-  if (!keys.length) return () => undefined;
-  const keySet = new Set(keys);
-  const active = new Set<string>();
-  const keydown = (event: KeyboardEvent) => {
-    if (!(keySet.has(event.code) || keySet.has(event.key)) || active.has(event.code)) return;
-    active.add(event.code);
-    down();
-  };
-  const keyup = (event: KeyboardEvent) => {
-    if (!(keySet.has(event.code) || keySet.has(event.key))) return;
-    active.delete(event.code);
-    up();
-  };
-  window.addEventListener("keydown", keydown);
-  window.addEventListener("keyup", keyup);
-  return () => {
-    window.removeEventListener("keydown", keydown);
-    window.removeEventListener("keyup", keyup);
-  };
 }
 
 export function clamp(value: number, min: number, max: number): number {

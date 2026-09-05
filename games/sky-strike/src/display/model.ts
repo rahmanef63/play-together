@@ -14,6 +14,10 @@ export interface Plane {
   deaths: number;
   respawnMs: number;
   lockId: string | null;
+  spawnProtectionMs: number;
+  afterburnerFuel: number;
+  afterburnerActive: boolean;
+  missileCd: number;
 }
 export interface Shot {
   id: number;

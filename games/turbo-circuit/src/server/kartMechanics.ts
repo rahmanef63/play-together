@@ -26,7 +26,7 @@ export function updateHumanDriver(racer: Racer, state: RaceState, dt: number) {
   const nearestBefore = nearestTrackPoint(track, racer.x, racer.z),
     onTrack = nearestBefore.distance <= track.width * 0.55;
   const coinFactor = 1 + Math.min(10, racer.coins) * 0.008,
-    boosted = racer.boostTimer > 0,
+    boosted = racer.boostTimer > 0 && input.throttle > 0 && input.brake === 0,
     drag = onTrack ? 1.2 + racer.speed * 0.032 : 5.4 + racer.speed * 0.09;
   const accel =
       input.throttle * car.accel +
@@ -134,7 +134,7 @@ function enforceTrack(r: Racer, state: RaceState, dt: number) {
     align = Math.min(0.35, dt * 5.5),
     retention = 0.74 + 0.24 * Math.abs(Math.cos(diff));
   r.heading += diff * align;
-  r.speed = Math.max(5, r.speed * retention);
+  r.speed = Math.max(0, r.speed * retention);
   r.scraping = true;
 }
 function updateWrongWay(r: Racer, state: RaceState, dt: number) {

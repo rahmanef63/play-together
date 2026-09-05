@@ -1,7 +1,9 @@
 import type { BuiltinConsoleConfig, ConsoleControl, ConsoleZone } from "@play-together/contracts";
 import type { BrowserGameContext } from "@play-together/game-sdk";
+import { disposeActionTimers } from "./controller/actions";
 import { mountButton } from "./controller/button";
 import { mountDpad } from "./controller/dpad";
+import { mountGamepad, type PhysicalBindings } from "./controller/gamepad";
 import { mountStick } from "./controller/stick";
 import { mountTouchpad } from "./controller/touchpad";
 import type { Cleanup, MutableState } from "./controller/types";
@@ -41,13 +43,17 @@ export function mountBuiltinController(
   if (faceButtons.length === 4)
     zones.get("right")?.classList.add("builtin-controller__zone--face-cluster");
 
+  const bindings: PhysicalBindings = new Map();
   const cleanups = config.controls.flatMap((control) => {
     const zone = zones.get(physicalZoneForControl(control));
-    return zone ? [mountControl(zone, control, state, context)] : [];
+    return zone ? [mountControl(zone, control, state, context, bindings)] : [];
   });
   root.append(wrapper);
+  const stopGamepad = mountGamepad(config.controls, bindings);
   return () => {
+    stopGamepad();
     for (const cleanup of cleanups) cleanup();
+    disposeActionTimers(state);
     root.replaceChildren();
   };
 }
@@ -57,10 +63,11 @@ function mountControl(
   control: ConsoleControl,
   state: MutableState,
   context: BrowserGameContext,
+  bindings: PhysicalBindings,
 ): Cleanup {
-  if (control.kind === "button") return mountButton(zone, control, state, context);
-  if (control.kind === "dpad") return mountDpad(zone, control, state, context);
-  if (control.kind === "stick") return mountStick(zone, control, state, context);
+  if (control.kind === "button") return mountButton(zone, control, state, context, bindings);
+  if (control.kind === "dpad") return mountDpad(zone, control, state, context, bindings);
+  if (control.kind === "stick") return mountStick(zone, control, state, context, bindings);
   return mountTouchpad(zone, control, state, context);
 }
 

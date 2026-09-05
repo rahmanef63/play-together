@@ -1,0 +1,162 @@
+/* Handheld portrait: game-first screen with minimal overlay controls. */
+@media (orientation: portrait) {
+  .console-shell--handheld {
+    padding: 0;
+    background: #000;
+  }
+  .console-shell--handheld .console-shell__chassis {
+    position: relative;
+    display: block;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: #000;
+    box-shadow: none;
+  }
+  .console-shell--handheld .console-shell__screen {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .console-shell--handheld .console-shell__controls {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+    background: linear-gradient(
+      to bottom,
+      transparent 48%,
+      rgba(0, 0, 0, 0.18) 72%,
+      rgba(0, 0, 0, 0.52)
+    );
+  }
+  .console-shell--handheld .builtin-controller {
+    width: 100%;
+    height: 100%;
+    padding: max(8px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right))
+      max(12px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "top-left top-right"
+      "left right"
+      "bottom bottom";
+    align-items: end;
+  }
+  .console-shell--handheld .builtin-controller__zone {
+    pointer-events: auto;
+  }
+  .console-shell--handheld .builtin-controller__zone--left,
+  .console-shell--handheld .builtin-controller__zone--right {
+    align-items: end;
+    padding-bottom: 12px;
+  }
+  .console-shell--handheld .console-control--stick,
+  .console-shell--handheld .console-control--dpad {
+    width: min(30vw, 118px);
+    opacity: 0.82;
+  }
+  .console-shell--handheld .console-control--button {
+    width: min(15vw, 58px);
+    opacity: 0.88;
+  }
+}
+
+/* Handheld landscape: PSP-like body with the game screen centered between controls. */
+@media (orientation: landscape) {
+  .console-shell--handheld {
+    display: grid;
+    place-items: stretch;
+    padding: max(4px, env(safe-area-inset-top)) max(5px, env(safe-area-inset-right))
+      max(4px, env(safe-area-inset-bottom)) max(5px, env(safe-area-inset-left));
+    background: #090b0e;
+  }
+  .console-shell--handheld .console-shell__chassis {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: clamp(28px, 8vh, 52px);
+    background: linear-gradient(180deg, #24282d, #101216);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.06);
+  }
+  .console-shell--handheld .console-shell__screen {
+    position: absolute;
+    z-index: 1;
+    top: 7px;
+    bottom: 7px;
+    left: 20%;
+    right: 20%;
+    width: auto;
+    height: auto;
+    border: 3px solid #050608;
+    border-radius: 9px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+  .console-shell--handheld .console-shell__controls {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+  }
+  .console-shell--handheld .builtin-controller,
+  .console-shell--handheld .builtin-controller--racing,
+  .console-shell--handheld .builtin-controller--flight {
+    width: 100%;
+    height: 100%;
+    padding: 7px 10px;
+    grid-template-columns: minmax(100px, 20%) minmax(0, 60%) minmax(110px, 20%);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "top-left center top-right"
+      "left center right"
+      "bottom-left bottom bottom-right";
+    gap: 4px;
+  }
+  .console-shell--handheld .builtin-controller__zone {
+    pointer-events: auto;
+  }
+  .console-shell--handheld .builtin-controller__zone--center {
+    display: none;
+  }
+  .console-shell--handheld .console-control--stick,
+  .console-shell--handheld .console-control--dpad {
+    width: min(34vh, 16vw, 112px);
+  }
+  .console-shell--handheld .builtin-controller__zone--right {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(40px, 54px));
+    justify-content: end;
+    gap: 4px;
+  }
+  .console-shell--handheld .builtin-controller__zone--right .console-control--button {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+  }
+  .console-shell--handheld .console-control--button[data-face="l1"],
+  .console-shell--handheld .console-control--button[data-face="r1"],
+  .console-shell--handheld .console-control--button[data-face="l2"],
+  .console-shell--handheld .console-control--button[data-face="r2"] {
+    width: min(14vw, 86px);
+    min-height: 28px;
+  }
+  .console-shell--handheld .console-control--button[data-face="start"],
+  .console-shell--handheld .console-control--button[data-face="pause"],
+  .console-shell--handheld .console-control--button[data-face="select"] {
+    width: auto;
+    min-width: 56px;
+    min-height: 26px;
+    padding-inline: 8px;
+  }
+}

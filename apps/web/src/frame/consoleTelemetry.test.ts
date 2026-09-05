@@ -1,6 +1,6 @@
 import type { SnapshotMessage } from "@play-together/contracts";
 import { describe, expect, it } from "vitest";
-import { summarizeConsoleTelemetry } from "./consoleTelemetry";
+import { summarizeConsoleTelemetry } from "./telemetry/summarize";
 
 const snapshot = (state: unknown): SnapshotMessage => ({
   type: "snapshot",

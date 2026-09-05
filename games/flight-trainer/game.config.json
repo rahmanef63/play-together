@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "flight-trainer",
-    "version": "0.2.6",
+    "version": "0.3.0",
     "title": "Flight Trainer",
     "description": "A 3D flight-training simulator with throttle, pitch, roll, yaw, flaps, landing gear, stall/crash physics, instruments and checkpoint navigation.",
     "minPlayers": 1,
@@ -110,7 +110,8 @@
             "type": "toggle",
             "field": "flaps"
           },
-          "displayLabel": "FLAPS"
+          "displayLabel": "FLAPS",
+          "keys": ["KeyF"]
         },
         {
           "id": "gear",
@@ -123,7 +124,8 @@
             "type": "toggle",
             "field": "gear"
           },
-          "displayLabel": "GEAR"
+          "displayLabel": "GEAR",
+          "keys": ["KeyG"]
         },
         {
           "id": "throttle-up",
@@ -163,20 +165,73 @@
           "id": "restart",
           "kind": "button",
           "label": "START",
-          "ariaLabel": "Restart flight",
+          "ariaLabel": "Restart flight from runway",
           "face": "start",
           "zone": "bottom",
           "press": {
             "type": "pulse",
             "values": {
-              "restart": true
+              "pitch": 0,
+              "roll": 0,
+              "yaw": 0,
+              "throttle": 0,
+              "flaps": false,
+              "gear": true,
+              "restart": true,
+              "brake": false,
+              "level": false
             },
             "releaseValues": {
               "restart": false
             },
             "durationMs": 80
           },
-          "displayLabel": "RESTART"
+          "displayLabel": "RESTART",
+          "keys": ["KeyR"]
+        },
+        {
+          "id": "wheel-brake",
+          "kind": "button",
+          "label": "L2",
+          "displayLabel": "BRAKE",
+          "ariaLabel": "Brake",
+          "face": "l2",
+          "zone": "top-left",
+          "press": {
+            "type": "patch",
+            "values": {
+              "brake": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "brake": false
+            }
+          },
+          "keys": ["Space"]
+        },
+        {
+          "id": "level-assist",
+          "kind": "button",
+          "label": "R2",
+          "displayLabel": "LEVEL",
+          "ariaLabel": "Level",
+          "face": "r2",
+          "zone": "top-right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "level": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "level": false
+            }
+          },
+          "keys": ["ShiftLeft", "ShiftRight"]
         }
       ],
       "initialState": {
@@ -186,14 +241,16 @@
         "throttle": 0,
         "flaps": false,
         "gear": true,
-        "restart": false
+        "restart": false,
+        "brake": false,
+        "level": false
       }
     }
   },
   "capabilities": {
     "touch": true,
     "keyboard": true,
-    "gamepad": false,
+    "gamepad": true,
     "motion": false
   }
 }

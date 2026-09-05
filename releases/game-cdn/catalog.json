@@ -121,6 +121,19 @@
       }
     },
     {
+      "gameId": "flight-trainer",
+      "version": "0.3.0",
+      "title": "Flight Trainer",
+      "manifestPath": "/games/flight-trainer/0.3.0/manifest.json",
+      "manifestSha256": "4eaed4cc0881022b89203a7730a4dff468216aeeb9d6ddce43a2b4a60accc3e1",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
+    },
+    {
       "gameId": "maze-run",
       "version": "0.1.0",
       "title": "Maze Run",
@@ -423,6 +436,19 @@
       }
     },
     {
+      "gameId": "sky-strike",
+      "version": "0.3.0",
+      "title": "Sky Strike",
+      "manifestPath": "/games/sky-strike/0.3.0/manifest.json",
+      "manifestSha256": "8196b0f838506309ce236e98d16db6a51e7f30109c731fad3c0bbc63987d1952",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
+    },
+    {
       "gameId": "snake-arena",
       "version": "0.1.0",
       "title": "Snake Arena",
@@ -622,6 +648,19 @@
       "manifestSha256": "ba639439af442a16c03628ded390fb20511c70d4eac854faaab5168182537a33",
       "status": "retired",
       "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.10.0",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.10.0/manifest.json",
+      "manifestSha256": "d47cde5be6bd5559e8ab271d78175454b0967410da882540be85d6342016899b",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
     },
     {
       "gameId": "turbo-circuit",

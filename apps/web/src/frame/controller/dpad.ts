@@ -1,7 +1,9 @@
 import type { ConsoleControl } from "@play-together/contracts";
 import type { BrowserGameContext } from "@play-together/game-sdk";
 import { gameFeedback } from "../feedback/feedbackEngine";
-import { bindKeys, runAction } from "./actions";
+import type { PhysicalBindings } from "./gamepad";
+import { runHeldAction } from "./heldActions";
+import { bindPress } from "./press";
 import { directionGraphic, dpadBackdrop } from "./svg";
 import type { Cleanup, MutableState } from "./types";
 
@@ -10,6 +12,7 @@ export function mountDpad(
   control: Extract<ConsoleControl, { kind: "dpad" }>,
   state: MutableState,
   context: BrowserGameContext,
+  bindings: PhysicalBindings = new Map(),
 ): Cleanup {
   const pad = document.createElement("div");
   pad.className = "console-control console-control--dpad";
@@ -27,36 +30,21 @@ export function mountDpad(
     button.className = `console-dpad__button console-dpad__button--${direction}`;
     button.append(directionGraphic(direction));
     button.setAttribute("aria-label", `${control.ariaLabel} ${direction}`);
-    let pressed = false;
-    const down = (event?: PointerEvent) => {
-      if (pressed) return;
-      pressed = true;
-      if (event) button.setPointerCapture(event.pointerId);
-      gameFeedback.unlock();
-      gameFeedback.cue("control");
-      runAction(spec.press, state, context);
-      button.dataset.active = "true";
-    };
-    const up = () => {
-      if (!pressed) return;
-      pressed = false;
-      if (spec.release) runAction(spec.release, state, context);
-      delete button.dataset.active;
-    };
-    button.addEventListener("pointerdown", down);
-    button.addEventListener("pointerup", up);
-    button.addEventListener("pointercancel", up);
-    button.addEventListener("lostpointercapture", up);
-    window.addEventListener("blur", up);
-    const removeKeys = bindKeys(spec.keys ?? [], down, up);
+    const input = bindPress(button, spec.keys ?? [], (pressed) => {
+      if (pressed) {
+        gameFeedback.unlock();
+        gameFeedback.cue("control");
+      }
+      runHeldAction(spec, pressed, spec.press, spec.release, state, context);
+      if (pressed) button.dataset.active = "true";
+      else delete button.dataset.active;
+      button.setAttribute("aria-pressed", String(pressed));
+    });
+    const bindingId = `${control.id}:${direction}`;
+    bindings.set(bindingId, { button: input.setGamepad });
     cleanups.push(() => {
-      up();
-      removeKeys();
-      button.removeEventListener("pointerdown", down);
-      button.removeEventListener("pointerup", up);
-      button.removeEventListener("pointercancel", up);
-      button.removeEventListener("lostpointercapture", up);
-      window.removeEventListener("blur", up);
+      input.dispose();
+      bindings.delete(bindingId);
     });
     pad.append(button);
   }

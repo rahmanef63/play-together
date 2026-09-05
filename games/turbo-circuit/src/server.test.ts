@@ -108,3 +108,12 @@ describe("Turbo Circuit kart migration", () => {
     expect((game.snapshot() as any).raceMs).toBeGreaterThan(paused.raceMs);
   });
 });
+
+describe("Turbo Circuit tick validation", () => {
+  it("ignores invalid tick deltas", async () => {
+    const game = await startSolo();
+    const before = game.snapshot() as any;
+    await game.tick(9000, Number.NaN);
+    expect(game.snapshot()).toEqual(before);
+  });
+});

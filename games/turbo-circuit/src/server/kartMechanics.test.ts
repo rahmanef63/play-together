@@ -84,3 +84,38 @@ describe("kart corridor feedback", () => {
     expect(racer.wrongWayTimer).toBeGreaterThan(0.6);
   });
 });
+
+describe("kart boost and wall regressions", () => {
+  it("requires gas for boost power and lets braking override it", () => {
+    const idleBoost = fixture(),
+      idlePlain = fixture();
+    idleBoost.racer.boostTimer = 1;
+    idlePlain.racer.boostTimer = 0;
+    updateHumanDriver(idleBoost.racer, idleBoost.state, 0.05);
+    updateHumanDriver(idlePlain.racer, idlePlain.state, 0.05);
+    expect(idleBoost.racer.speed).toBeCloseTo(idlePlain.racer.speed, 8);
+
+    const brakingBoost = fixture(),
+      brakingPlain = fixture();
+    brakingBoost.racer.boostTimer = 1;
+    brakingBoost.racer.input.brake = 1;
+    brakingPlain.racer.input.brake = 1;
+    brakingBoost.racer.input.throttle = 1;
+    brakingPlain.racer.input.throttle = 1;
+    updateHumanDriver(brakingBoost.racer, brakingBoost.state, 0.05);
+    updateHumanDriver(brakingPlain.racer, brakingPlain.state, 0.05);
+    expect(brakingBoost.racer.speed).toBeCloseTo(brakingPlain.racer.speed, 8);
+  });
+
+  it("does not accelerate a stopped kart while it is pinned against a wall", () => {
+    const { racer, state, start } = fixture();
+    const rightX = Math.cos(start.heading),
+      rightZ = -Math.sin(start.heading);
+    racer.speed = 0;
+    racer.input.throttle = 0;
+    racer.x += rightX * (DEFAULT_TRACK.width / 2 + 3);
+    racer.z += rightZ * (DEFAULT_TRACK.width / 2 + 3);
+    updateHumanDriver(racer, state, 0.05);
+    expect(racer.speed).toBe(0);
+  });
+});
