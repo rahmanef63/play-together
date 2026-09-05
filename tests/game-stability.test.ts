@@ -14,7 +14,12 @@ describe("latest cartridge server stability", () => {
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name)
       .sort();
-    expect(gameDirectories).toEqual(["flight-trainer", "sky-strike", "turbo-circuit"]);
+    expect(gameDirectories).toEqual([
+      "flight-trainer",
+      "ridge-rush",
+      "sky-strike",
+      "turbo-circuit",
+    ]);
 
     for (const directory of gameDirectories) {
       const config = JSON.parse(

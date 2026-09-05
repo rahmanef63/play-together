@@ -359,6 +359,49 @@
       "retirementReason": "Catalog simplified to aircraft games and Turbo Circuit 0.8.0."
     },
     {
+      "gameId": "ridge-rush",
+      "version": "0.1.0",
+      "title": "Ridge Rush",
+      "manifestPath": "/games/ridge-rush/0.1.0/manifest.json",
+      "manifestSha256": "e64735859dfee67c2b64c046c0e2b151d50a17d3950b56f83bd195e436e709a3",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
+      "status": "retired",
+      "retirementReason": "Pre-release Ridge Rush candidate superseded before first production registration by 0.1.2 after final browser-engine compatibility verification."
+    },
+    {
+      "gameId": "ridge-rush",
+      "version": "0.1.1",
+      "title": "Ridge Rush",
+      "manifestPath": "/games/ridge-rush/0.1.1/manifest.json",
+      "manifestSha256": "d3db4987c1177779b99673b5f6c849c6d81029e066f52a90398d126955e14077",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
+      "status": "retired",
+      "retirementReason": "Pre-release Ridge Rush candidate superseded before first production registration by 0.1.2 after splitting renderer ownership without changing game mechanics."
+    },
+    {
+      "gameId": "ridge-rush",
+      "version": "0.1.2",
+      "title": "Ridge Rush",
+      "manifestPath": "/games/ridge-rush/0.1.2/manifest.json",
+      "manifestSha256": "5c0a9539f85502936c7ff6f6f293cd1e5bf3d9df3549ceec693e388d501ac15e",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
+    },
+    {
       "gameId": "sky-strike",
       "version": "0.1.0",
       "title": "Sky Strike",

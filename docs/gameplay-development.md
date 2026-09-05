@@ -2,9 +2,9 @@
 
 ## Scope of the September 2026 gameplay pass
 
-The source catalogue targets Turbo Circuit 0.10.1, Flight Trainer 0.3.0 and Sky Strike 0.3.0. These are new immutable release identities, not edits to previously published cartridges. A source version does not prove that production has deployed it. Existing rooms remain pinned to their original manifest digest.
+The source catalogue targets Turbo Circuit 0.10.1, Flight Trainer 0.3.0, Sky Strike 0.3.0 and Ridge Rush 0.1.2. These are new immutable release identities, not edits to previously published cartridges. A source version does not prove that production has deployed it. Existing rooms remain pinned to their original manifest digest.
 
-This pass improves the three current games. The downhill and fighting concepts below are proposals, not playable catalogue entries. Do not add placeholder game cards or market them as shipped.
+The first three cartridges remain unchanged while Ridge Rush is now a playable original downhill-bike cartridge. Clash Arena and Sky Rescue below remain proposals; do not add placeholder cards for them.
 
 ## Shared controls
 
@@ -15,6 +15,7 @@ Controllers are described by the cartridge manifest. Simple cartridges only show
 | Turbo Circuit | Gas / Brake / Forward item / Rear view | Camera | Drift | Rescue | Backward item | Ready, pause, rematch |
 | Flight Trainer | Flaps / Gear / Throttle down / Throttle up | Left rudder | Right rudder | Brake | Level assist | Restart from runway |
 | Sky Strike | Cannon / Missile / Throttle down / Throttle up | Left rudder | Right rudder | Airbrake | Afterburner | Not declared |
+| Ridge Rush | Pedal / Brake / Jump-pump / Rear view | Weight left | Weight right | Tuck | Stamina sprint | Ready / rematch |
 
 Turbo Circuit keeps its explicit hold-to-drive contract: A is gas, B is brake, X is the item and Y is rear view. Boost force requires gas and is suppressed while braking. Shoulder buttons do not remap A or B into trigger pedals.
 
@@ -27,6 +28,8 @@ Turbo: arrows/WASD steer and select in the garage, W/up gas, S/down brake, Space
 Flight Trainer: arrows/WASD yoke, Q/E rudder, F flaps, G gear, minus/equal throttle, Space brake, Shift level assist, R restart.
 
 Sky Strike: arrows/WASD flight stick, Q/E rudder, Space cannon, Shift missile, minus/equal throttle, Z airbrake, C afterburner.
+
+Ridge Rush: arrows/WASD steer/body shift, Space pedal, Shift brake, X jump/pump, Y rear view, Q/E weight shift, Z tuck, C sprint, Enter ready/rematch.
 
 ### Physical gamepad
 
@@ -63,15 +66,13 @@ The controller browser harness starts an isolated loopback Vite server, renders 
 
 Before production promotion, run the local-stack room E2E suite and verify newly published manifest SHA-256 values through the live catalogue. Do not silently upgrade in-progress rooms. Longer multiplayer sessions, mobile thermal throttling and real controller ergonomics remain manual playtest work.
 
-## Proposed next cartridge: Ridge Rush
+## Ridge Rush 0.1.2
 
-Working title only. An original downhill bicycle race for 2–4 players, with a short point-to-point mountain route rather than another kart circuit. Keep the excitement of steep descents, route choice and risky overtakes without borrowing another game's characters, names, sounds or course assets.
+Ridge Rush is an original 1–4 player point-to-point downhill mountain-bike race with a procedural mountain trail and deterministic AI riders filling unused starting slots. The main route is forgiving enough for stick + A pedal + B brake, while a narrow faster shortcut, rough sections and ramps reward deliberate line choice. Missing a checkpoint or leaving the safe trail triggers an authoritative crash and recovery to the last valid checkpoint rather than allowing course skips.
 
-The first playable slice should contain one well-tuned course, AI opponents for solo testing, bicycle braking and grip, stamina-limited pedalling/sprinting, weight shifting, small jumps, checkpoint rescue, finish order and rematch. A shortcut must trade time saved against a measurable handling risk. Landings need predictable feedback before adding elaborate tricks.
+The race uses START readiness, a three-second countdown, checkpoint scoring, finish order, automatic DNF grace after the first finish and all-player rematch readiness. Sprint drains stamina only while pedalling, brake overrides sprint, and stamina recovers between efforts. X can bunny-hop or take marked ramps; unstable high-speed landings can crash. L1/R1 weight shift, L2 tuck and R2 sprint add depth but are not mandatory for basic racing.
 
-Proposed controls: left stick steering/lean; A pedal; B brake; X jump/pump; Y rear view; L1/R1 weight shift; L2 tuck; R2 stamina-limited sprint; Start pause/ready. Treat this as a playtest hypothesis, not a frozen mapping. Avoid requiring more than two simultaneous touch actions for basic racing.
-
-Acceptance: a full race can be started, finished and replayed; AI can finish the route; checkpoint order prevents skipping; crashes restore the bicycle to a safe checkpoint; four players have stable frame pacing; the remote shows course progress, speed and stamina. Reuse platform rooms, input and release infrastructure, but keep bicycle physics in its own cartridge.
+The display is procedural Three.js geometry only: original bike/rider shapes, descending terrain, trail/shortcut ribbons, trees, rocks, ramps and gates. Handheld mode follows the local rider and supports rear view; shared display follows the leading connected human. Real device/controller ergonomics and longer thermal sessions still need physical playtesting.
 
 ## Proposed following cartridge: Clash Arena
 

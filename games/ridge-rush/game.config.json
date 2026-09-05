@@ -1,0 +1,271 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "ridge-rush",
+    "version": "0.1.2",
+    "title": "Ridge Rush",
+    "description": "Original 3D point-to-point downhill mountain-bike racing with carving, braking, jumps, stamina sprinting, risky shortcuts, checkpoints and automatic crash rescue.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": ["shared-screen", "handheld"],
+  "presentation": {
+    "remoteDisplay": {
+      "mode": "shared",
+      "maxViewports": 1
+    }
+  },
+  "runtimeDependencies": {
+    "three": "0.185.1+pt1"
+  },
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "landscape",
+    "console": {
+      "renderer": "builtin",
+      "layout": "racing",
+      "initialState": {
+        "steer": 0,
+        "body": 0,
+        "pedal": false,
+        "brake": false,
+        "jump": false,
+        "rear": false,
+        "left": false,
+        "right": false,
+        "tuck": false,
+        "sprint": false
+      },
+      "controls": [
+        {
+          "id": "steer",
+          "kind": "stick",
+          "ariaLabel": "Steer and shift body weight",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "steer": "$x",
+              "body": "$y"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "steer": 0,
+              "body": 0
+            }
+          },
+          "keys": {
+            "up": ["ArrowUp", "KeyW"],
+            "down": ["ArrowDown", "KeyS"],
+            "left": ["ArrowLeft", "KeyA"],
+            "right": ["ArrowRight", "KeyD"]
+          }
+        },
+        {
+          "id": "pedal",
+          "kind": "button",
+          "label": "A",
+          "displayLabel": "PEDAL",
+          "ariaLabel": "Pedal",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "pedal": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "pedal": false
+            }
+          },
+          "keys": ["Space"]
+        },
+        {
+          "id": "brake",
+          "kind": "button",
+          "label": "B",
+          "displayLabel": "BRAKE",
+          "ariaLabel": "Brake",
+          "face": "b",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "brake": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "brake": false
+            }
+          },
+          "keys": ["ShiftLeft", "ShiftRight"]
+        },
+        {
+          "id": "jump",
+          "kind": "button",
+          "label": "X",
+          "displayLabel": "JUMP",
+          "ariaLabel": "Jump or pump",
+          "face": "x",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "jump": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "jump": false
+            }
+          },
+          "keys": ["KeyX"]
+        },
+        {
+          "id": "rear-view",
+          "kind": "button",
+          "label": "Y",
+          "displayLabel": "REAR",
+          "ariaLabel": "Hold rear view",
+          "face": "y",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "rear": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "rear": false
+            }
+          },
+          "keys": ["KeyY"]
+        },
+        {
+          "id": "weight-left",
+          "kind": "button",
+          "label": "L1",
+          "displayLabel": "LEAN L",
+          "ariaLabel": "Weight shift left",
+          "face": "l1",
+          "zone": "top-left",
+          "press": {
+            "type": "patch",
+            "values": {
+              "left": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "left": false
+            }
+          },
+          "keys": ["KeyQ"]
+        },
+        {
+          "id": "weight-right",
+          "kind": "button",
+          "label": "R1",
+          "displayLabel": "LEAN R",
+          "ariaLabel": "Weight shift right",
+          "face": "r1",
+          "zone": "top-right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "right": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "right": false
+            }
+          },
+          "keys": ["KeyE"]
+        },
+        {
+          "id": "tuck",
+          "kind": "button",
+          "label": "L2",
+          "displayLabel": "TUCK",
+          "ariaLabel": "Aerodynamic tuck",
+          "face": "l2",
+          "zone": "top-left",
+          "press": {
+            "type": "patch",
+            "values": {
+              "tuck": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "tuck": false
+            }
+          },
+          "keys": ["KeyZ"]
+        },
+        {
+          "id": "sprint",
+          "kind": "button",
+          "label": "R2",
+          "displayLabel": "SPRINT",
+          "ariaLabel": "Stamina sprint",
+          "face": "r2",
+          "zone": "top-right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "sprint": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "sprint": false
+            }
+          },
+          "keys": ["KeyC"]
+        },
+        {
+          "id": "start",
+          "kind": "button",
+          "label": "START",
+          "displayLabel": "READY",
+          "ariaLabel": "Ready or request rematch",
+          "face": "start",
+          "zone": "bottom",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "ready"
+            }
+          },
+          "keys": ["Enter"]
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  }
+}

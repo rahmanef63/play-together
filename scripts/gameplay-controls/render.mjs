@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url";
 
 /** Exercise cartridge rendering with real authoritative snapshots, without an auth backend. */
 export async function verifyGameDisplays(page, root, artifactDirectory, results) {
-  for (const gameId of ["turbo-circuit", "flight-trainer", "sky-strike"]) {
+  for (const gameId of ["turbo-circuit", "flight-trainer", "sky-strike", "ridge-rush"]) {
     const config = JSON.parse(
       await readFile(resolve(root, "games", gameId, "game.config.json"), "utf8"),
     );
@@ -23,14 +23,16 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
     }
     for (let index = 0; index < 4; index++) {
       const id = `qa-${index}`;
-      if (gameId === "turbo-circuit") await game.onInput(id, { action: "ready" }, 1);
-      await game.onInput(
-        id,
+      if (gameId === "turbo-circuit" || gameId === "ridge-rush") {
+        await game.onInput(id, { action: "ready" }, 1);
+      }
+      const input =
         gameId === "flight-trainer"
           ? { throttle: 0.8, pitch: 0.5, roll: 0.05, flaps: true, gear: true }
-          : { throttle: 0.7, gun: true },
-        2,
-      );
+          : gameId === "ridge-rush"
+            ? { steer: 0.06, body: 0.18, pedal: true, sprint: true }
+            : { throttle: 0.7, gun: true };
+      await game.onInput(id, input, 2);
     }
     for (let tick = 0; tick < 160; tick++) await game.tick(tick * 50, 50);
     for (const viewport of [

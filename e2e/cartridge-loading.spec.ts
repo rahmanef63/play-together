@@ -3,13 +3,14 @@ import {
   closeContext,
   createRoom,
   flightTrainer,
+  ridgeRush,
   signUp,
   skyStrike,
   startGame,
   turboCircuit,
 } from "./support/multiplayer";
 
-test("active catalog exposes only the car game and two aircraft games", async ({ browser }) => {
+test("active catalog exposes the three established games and Ridge Rush", async ({ browser }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
@@ -27,19 +28,25 @@ test("active catalog exposes only the car game and two aircraft games", async ({
       control: "Toggle flaps",
       preset: "flight",
     },
+    {
+      key: ridgeRush,
+      title: "Ridge Rush",
+      control: "Ready or request rematch",
+      preset: "racing",
+    },
   ] as const;
   try {
     await signUp(page, `Catalog QA ${runId}`, `catalog-${runId}@example.test`);
     const setup = page.getByRole("button", { name: "Set up room", exact: true });
     await setup.click();
     const picker = page.locator('.create-panel select[name="game"] option');
-    await expect(picker).toHaveCount(3);
+    await expect(picker).toHaveCount(4);
     expect(await picker.allTextContents()).toEqual(
       games.map((game) => `${game.title} · ${game.key.split("@")[1]}`).sort(),
     );
     await page.getByRole("button", { name: "Back to library", exact: true }).click();
     const previews = page.locator(".game-picker img");
-    await expect(previews).toHaveCount(3);
+    await expect(previews).toHaveCount(4);
     expect(
       await previews.evaluateAll((images) =>
         images.every(

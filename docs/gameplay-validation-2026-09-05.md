@@ -154,3 +154,9 @@ The first 0.16.0 GitHub run passed source verification but failed integration. I
 were unavailable through the current GitHub CLI/public log access. The obsolete room-admission
 selector was independently reproduced and corrected; a new CI run must confirm its own result.
 The follow-up commit only changes the test and this report, not deployed application bytes.
+
+## Ridge Rush candidate — 2026-09-06
+
+Ridge Rush 0.1.0 was created as a new immutable cartridge rather than altering Turbo Circuit, Flight Trainer or Sky Strike. Game-level typecheck, 23 unit/integration scenarios and bundle build passed before the immutable release was minted. A source browser harness mounted the real Three.js display and declarative controller, advanced an authoritative four-rider race to mid-course, rendered a 755×690 game canvas, verified ten controls, and found no page errors or horizontal overflow at 844×390. The shared gameplay-controller harness was expanded to Ridge Rush and then passed 41 browser cases, including remote/handheld layouts at 320×568, 360×800, 844×390 and 1280×720 plus authoritative 3D display cases at 360×800 and 844×390.
+
+The first immutable Ridge Rush release remains byte-identical to the current game source: rebuilt display/server SHA-256 values match the published manifest entries. Existing game release bytes were not rewritten. Production registration still requires verified main-branch deployment and post-deploy browser checks; this paragraph records candidate evidence, not a production claim.

@@ -11,9 +11,10 @@ import { GAME_TOOL_DEFINITIONS } from "../scripts/game-tool-definitions.mjs";
 describe("game project tools", () => {
   it("lists and reads games without duplicating portal discovery", async () => {
     const result = await runGameTool("list", {});
-    expect(result.count).toBe(3);
+    expect(result.count).toBe(4);
     expect(result.games.map((game) => game.id).sort()).toEqual([
       "flight-trainer",
+      "ridge-rush",
       "sky-strike",
       "turbo-circuit",
     ]);

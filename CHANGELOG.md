@@ -2,6 +2,16 @@
 
 All notable changes to Play Together are documented here. The project follows semantic versioning for the platform and immutable semantic versions for each game release.
 
+## [0.17.0] - 2026-09-06
+
+### Ridge Rush
+
+- Add the first new active cartridge since the gameplay pass: an original point-to-point 3D downhill mountain-bike race for 1–4 players with deterministic AI filling open grid slots.
+- Basic touch racing uses stick steering plus A pedal and B brake. X jumps/pumps, Y holds rear view, L1/R1 shift weight, L2 tucks, R2 spends stamina for sprint, and START readies/rematches. Advanced shoulders are optional for completing a race.
+- Add a descending procedural mountain course with checkpoint anti-skip rules, a narrow faster shortcut, rough terrain, ramps, landing risk, crash recovery to the last valid checkpoint, finish order and a bounded post-finish grace period.
+- Render an original Three.js trail, bikes/riders, vegetation, rocks, ramps and checkpoint gates with chase/shared cameras and HUD for speed, position, course progress and stamina. No licensed characters, tracks, audio or art are reused.
+- Extend controller/browser verification to Ridge Rush across remote/handheld layouts and real authoritative 3D snapshots. Preserve all existing game release bytes.
+
 ## [0.16.0] - 2026-09-05
 
 ### Phone pairing

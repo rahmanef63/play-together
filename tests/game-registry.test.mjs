@@ -14,6 +14,7 @@ describe("game slice registry", () => {
     expect(registry.games).toHaveLength(discovered.length);
     expect(discovered.map((game) => game.id).sort()).toEqual([
       "flight-trainer",
+      "ridge-rush",
       "sky-strike",
       "turbo-circuit",
     ]);
