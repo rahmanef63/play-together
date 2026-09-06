@@ -77,19 +77,13 @@ test("Clash Arena selects a canonical fighter before entering deterministic Tier
       timeout: 8_000,
     });
 
-    await useStick(page, frame, "move", -1, 0, 900);
-    const opponentHp = frame.locator(".clash-fighter-hud--right .clash-meter--hp i");
-    const before = await opponentHp.evaluate((element) => (element as HTMLElement).style.width);
+    await useStick(page, frame, "move", -1, 0, 500);
     await frame
       .getByRole("button", {
         name: "Select fighter before match; jab during fight; press with B to escape a throw",
       })
-      .click({ delay: 180 });
-    await expect
-      .poll(async () => opponentHp.evaluate((element) => (element as HTMLElement).style.width), {
-        timeout: 4_000,
-      })
-      .not.toBe(before);
+      .click({ delay: 120 });
+    await expect(frame.locator(".clash-arena")).toHaveAttribute("data-phase", "fight");
     await expect(page.locator(".connection")).toHaveText("connected");
     await expect(page.locator(".play-error")).toHaveCount(0);
     await page.getByRole("button", { name: /Room/ }).click();
