@@ -57,7 +57,7 @@ try {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const local = `http://127.0.0.1:${server.address().port}`;
   browser = await chromium.launch({
-    executablePath: process.env.CHROME_PATH ?? "/usr/bin/google-chrome",
+    executablePath: process.env.CHROME_PATH || undefined,
     args: ["--no-sandbox", "--disable-dev-shm-usage"],
   });
   for (const scenario of cases) {

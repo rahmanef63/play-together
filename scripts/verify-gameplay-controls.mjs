@@ -44,7 +44,7 @@ try {
   assert(address && typeof address !== "string");
   const origin = `http://127.0.0.1:${address.port}`;
   browser = await chromium.launch({
-    executablePath: process.env.CHROME_PATH ?? "/usr/bin/google-chrome",
+    executablePath: process.env.CHROME_PATH || undefined,
     args: ["--no-sandbox", "--disable-dev-shm-usage"],
   });
   const page = await browser.newPage();
