@@ -19,6 +19,7 @@ interface RuntimeCallbacks {
   onError: (message: string) => void;
   onRemotePlan: (count: number, layout: RemoteDisplayLayout) => void;
   onStatus: (message: string) => void;
+  onSystemMenu: () => void;
 }
 
 interface RuntimeOptions extends RuntimeCallbacks {
@@ -96,7 +97,8 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
           { type: "snapshot", channel, snapshot: client.latestSnapshot },
           "*",
         );
-    } else if (message.type === "error")
+    } else if (message.type === "system-menu") options.onSystemMenu();
+    else if (message.type === "error")
       options.onError(
         typeof message.message === "string" ? message.message : "Game surface failed",
       );

@@ -5,6 +5,10 @@ import { mountButton } from "./controller/button";
 import { mountDpad } from "./controller/dpad";
 import { mountGamepad, type PhysicalBindings } from "./controller/gamepad";
 import { mountStick } from "./controller/stick";
+import {
+  type ControllerSystemOptions,
+  mountControllerSystemActions,
+} from "./controller/systemActions";
 import { mountTouchpad } from "./controller/touchpad";
 import type { Cleanup, MutableState } from "./controller/types";
 
@@ -23,6 +27,7 @@ export function mountBuiltinController(
   root: HTMLElement,
   config: BuiltinConsoleConfig,
   context: BrowserGameContext,
+  system?: ControllerSystemOptions,
 ): Cleanup {
   root.replaceChildren();
   const state: MutableState = structuredClone(config.initialState ?? {});
@@ -48,10 +53,14 @@ export function mountBuiltinController(
     const zone = zones.get(physicalZoneForControl(control));
     return zone ? [mountControl(zone, control, state, context, bindings)] : [];
   });
+  const disposeSystem = system
+    ? mountControllerSystemActions(wrapper, zones, config, system)
+    : undefined;
   root.append(wrapper);
   const stopGamepad = mountGamepad(config.controls, bindings);
   return () => {
     stopGamepad();
+    disposeSystem?.();
     for (const cleanup of cleanups) cleanup();
     disposeActionTimers(state);
     root.replaceChildren();

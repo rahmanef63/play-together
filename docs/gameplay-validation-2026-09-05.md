@@ -187,3 +187,24 @@ Final source state uses Ridge Rush 0.3.2 and Clash Arena 0.1.3. `pnpm verify` co
 A full local production-topology browser suite then passed **26/26** scenarios, including the new Clash Arena match, Ridge Rush extreme downhill run, five-game catalog, QR/camera sign-in, recovery, remote layouts, split-screen, room admission/CRUD, mobile and TV checks. Because the repository-pinned Convex image is not currently pullable from GHCR on this VPS, this local stack used only an already-cached older Convex image through a task-local Compose override; production Compose pins were not edited. The QA stack, volume/network, generated local auth/admin material and temporary bootstrap/override files were removed after the run.
 
 All release files already tracked on `origin/main` remain byte-identical. Ridge Rush 0.3.2 manifest SHA-256 is `4f4e1d3f4779100f5366667a5596b55aae4bc19191bdab113dc4b27544917920`; Clash Arena 0.1.3 is `077cde55f3312d5b1feb483a2149906c9223d7a9823123f08ae0c7cf3de6143e`. Existing Three ABI `0.185.1+pt1` is preserved for the established games; new Ridge/Clash releases use additive ABI `0.185.1+pt2`. Production promotion is still a separate main-branch CI/deploy requirement at this point in the record.
+
+
+## Play Together 0.20.0 source quality candidate — 2026-09-06
+
+Source candidates are Turbo Circuit 0.11.0, Flight Trainer 0.4.0, Sky Strike 0.4.0, Ridge Rush 0.4.0 and Clash Arena 0.2.0. The shared controller now owns responsive How To/Menu placement and native-gesture suppression for hold controls. Source-browser QA passed **52/52 Chromium cases** across five games, four viewports, remote/handheld modes, hold-selection/context-menu cancellation, hidden/explicit advanced shoulders, Menu bridging, keyboard alias/focus cleanup and ten authoritative live 3D render cases with no runtime errors.
+
+Visual QA was performed before immutable releases were minted. Corrections included Flight third-person framing after an initial camera-clipping result, removal of a foreground Clash arena pillar, larger/articulated fighters, stronger Ridge snow/rock contrast and terrain-grounded dressing, and a more readable Sky chase silhouette. The source pass adds `three@0.185.1+pt3` instead of expanding pt1/pt2; earlier ABI artifacts remain immutable. Production is not claimed by this candidate paragraph until main CI/deploy and public browser checks pass.
+
+
+### Final local gate — Play Together 0.20.0
+
+The final immutable-release browser harness passed **52/52** cases after source QA was replaced by release bytes. The full isolated production-like room suite passed **26/26** scenarios, including responsive Menu/How To placement, controller/handheld menu bridging, hidden advanced shoulders, Ridge Rush, Clash Arena, QR/camera pairing, recovery, split-screen, mobile and TV paths. `pnpm verify` and the separate 8-scenario embed boundary check completed with exit 0; security source scan and dependency audit reported no known high-severity vulnerabilities. Five launcher previews were recaptured from the local production-like stack. The repository-pinned Convex image was still denied by GHCR, so local QA used an already-cached Convex image only through a task-local compose override; no production pin changed and all task QA containers/network/volume/auth material were removed.
+
+Final manifest SHA-256 values:
+- turbo-circuit@0.11.0: `b8bc201fa835066cf30a90bfb3a35b55e75126510ba4af853b0a74029be169d3`
+- flight-trainer@0.4.0: `b313f6bc0cc7cd7a9cac5c8eab0b401b145cd2d606383d39cfbf3599d46f44ca`
+- sky-strike@0.4.0: `22b88e3c0f9a330576740b90cf3350ebc13865475efab0052e576ec5793c7c07`
+- ridge-rush@0.4.0: `b7e90b54456508b51d1c941431b2dc94b2b349ce820892bfc2d7852e0ea17184`
+- clash-arena@0.2.0: `2704da421375e8510819f4a43512e2fc9e79056c3d67c8eb1d83f0e0e22664b1`
+
+All release paths tracked on `origin/main` before this pass remain byte-unchanged; only the five new semantic versions are added. The source and all five new manifests use additive Three ABI `0.185.1+pt3`; pt1 and pt2 remain separate historical ABI surfaces. Production remains a separate claim until the main CI/deploy-managed workflow and public-domain browser suite succeed.

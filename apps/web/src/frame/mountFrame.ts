@@ -59,7 +59,11 @@ export async function mountFrame(
     const context = createContext();
     const disposeDisplay = displayModule.mountDisplay(surface.screen, context);
     const disposeController = builtinConsole
-      ? mountBuiltinController(surface.controls, builtinConsole, context)
+      ? mountBuiltinController(surface.controls, builtinConsole, context, {
+          gameTitle: manifest.game.title,
+          gameDescription: manifest.game.description,
+          onMenu: () => state.post({ type: "system-menu" }),
+        })
       : await mountLegacyController(
           surface.controls,
           message,
@@ -83,7 +87,11 @@ export async function mountFrame(
       ? mountConsoleTelemetry(surface.telemetry, manifest, context)
       : undefined;
     const disposeController = builtinConsole
-      ? mountBuiltinController(surface.controls, builtinConsole, context)
+      ? mountBuiltinController(surface.controls, builtinConsole, context, {
+          gameTitle: manifest.game.title,
+          gameDescription: manifest.game.description,
+          onMenu: () => state.post({ type: "system-menu" }),
+        })
       : await mountLegacyController(
           surface.controls,
           message,

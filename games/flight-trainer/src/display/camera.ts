@@ -20,30 +20,24 @@ export function updateFlightCameraAndHud(
     z: Math.cos(pose.heading) * Math.cos(pose.pitch),
   };
   const right = { x: -Math.cos(pose.heading), y: 0, z: Math.sin(pose.heading) };
-  const desiredCamera =
-    mode === "handheld"
-      ? new THREE.Vector3(pose.x, pose.y + 1.05, pose.z)
-      : new THREE.Vector3(
-          pose.x - facing.x * 18,
-          pose.y + 7 - facing.y * 4,
-          pose.z - facing.z * 18,
-        );
-  const desiredTarget =
-    mode === "handheld"
-      ? new THREE.Vector3(
-          pose.x + facing.x * 45,
-          pose.y + 1 + facing.y * 45,
-          pose.z + facing.z * 45,
-        )
-      : new THREE.Vector3(pose.x + facing.x * 10, pose.y + facing.y * 8, pose.z + facing.z * 10);
-  const desiredUp =
-    mode === "handheld"
-      ? new THREE.Vector3(
-          right.x * Math.sin(pose.roll),
-          Math.cos(pose.roll),
-          right.z * Math.sin(pose.roll),
-        )
-      : new THREE.Vector3(0, 1, 0);
+  const chase = mode === "handheld" ? 17 : 20;
+  const desiredCamera = new THREE.Vector3(
+    pose.x - facing.x * chase + right.x * pose.roll * 0.9,
+    pose.y + (mode === "handheld" ? 6.2 : 7.5) - facing.y * (mode === "handheld" ? 3.2 : 4),
+    pose.z - facing.z * chase + right.z * pose.roll * 0.9,
+  );
+  const lookAhead = mode === "handheld" ? 14 : 10;
+  const desiredTarget = new THREE.Vector3(
+    pose.x + facing.x * lookAhead,
+    pose.y + 0.7 + facing.y * lookAhead * 0.75,
+    pose.z + facing.z * lookAhead,
+  );
+  const bank = mode === "handheld" ? pose.roll * 0.4 : 0;
+  const desiredUp = new THREE.Vector3(
+    right.x * Math.sin(bank),
+    Math.cos(bank),
+    right.z * Math.sin(bank),
+  );
 
   if (!ready) {
     view.camera.position.copy(desiredCamera);
@@ -55,6 +49,12 @@ export function updateFlightCameraAndHud(
     target.lerp(desiredTarget, smoothing(12, dt));
     up.lerp(desiredUp, smoothing(10, dt)).normalize();
   }
+  view.camera.fov = THREE.MathUtils.lerp(
+    view.camera.fov,
+    (mode === "handheld" ? 60 : 62) + Math.min(7, me.airspeed * 0.06),
+    smoothing(3, dt),
+  );
+  view.camera.updateProjectionMatrix();
   view.camera.up.copy(up);
   view.camera.lookAt(target);
 

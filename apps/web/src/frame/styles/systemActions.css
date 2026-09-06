@@ -1,0 +1,178 @@
+/* Platform-owned controller actions live next to Start instead of floating over gameplay. */
+.console-system-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+}
+.console-system-button {
+  appearance: none;
+  min-height: 34px;
+  padding: 6px 11px;
+  border: 1px solid #59636d;
+  border-radius: 999px;
+  background: #171c22;
+  color: var(--console-text);
+  box-shadow:
+    inset 0 1px 0 #ffffff14,
+    0 3px 0 #07090b;
+  font:
+    850 9px / 1 ui-monospace,
+    monospace;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.console-system-button:active {
+  transform: translateY(2px);
+  box-shadow: inset 0 1px 4px #0008;
+}
+.console-system-button:focus-visible {
+  outline: 2px solid var(--console-accent);
+  outline-offset: 2px;
+}
+
+.builtin-controller[data-advanced-controls="false"] [data-shoulder="true"] {
+  display: none;
+}
+.builtin-controller[data-advanced-controls="false"] [data-advanced-only="true"] {
+  display: none;
+}
+
+.console-how-to {
+  position: absolute;
+  z-index: 50;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(8px, 2vmin, 18px);
+  background: rgba(4, 7, 10, 0.82);
+  backdrop-filter: blur(9px);
+  pointer-events: auto;
+}
+.console-how-to[hidden] {
+  display: none;
+}
+.console-how-to__panel {
+  width: min(92%, 540px);
+  max-height: 92%;
+  overflow: auto;
+  padding: clamp(14px, 2.5vmin, 22px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  background: #11171eef;
+  color: #eef2f6;
+  box-shadow: 0 22px 72px #000a;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.console-how-to__panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.console-how-to .console-system-button {
+  min-height: 40px;
+}
+.console-how-to__panel > header strong {
+  font: 900 clamp(14px, 2.6vmin, 20px) / 1.1 system-ui;
+  letter-spacing: 0.02em;
+}
+.console-how-to__panel > p {
+  margin: 10px 0 14px;
+  color: #b9c4cf;
+  font: 650 12px / 1.45 system-ui;
+}
+.console-how-to__panel > small {
+  display: block;
+  margin-top: 12px;
+  color: #8d99a6;
+  font: 600 10px / 1.45 system-ui;
+}
+.console-how-to__legend {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+.console-how-to__legend > b {
+  color: #9fb2c4;
+  font: 850 9px / 1 system-ui;
+  letter-spacing: 0.11em;
+}
+.console-how-to__legend > div {
+  display: grid;
+  grid-template-columns: 68px 1fr;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  border-top: 1px solid #ffffff12;
+}
+.console-how-to__legend kbd {
+  display: inline-grid;
+  place-items: center;
+  min-height: 24px;
+  padding: 3px 7px;
+  border: 1px solid #ffffff2b;
+  border-radius: 7px;
+  background: #242d37;
+  color: #fff;
+  font:
+    850 10px / 1 ui-monospace,
+    monospace;
+}
+.console-how-to__legend span {
+  font: 650 11px / 1.3 system-ui;
+  color: #dce4ec;
+}
+.console-how-to__legend[data-advanced-legend="true"] {
+  opacity: 0.72;
+}
+.builtin-controller[data-advanced-controls="true"]
+  .console-how-to__legend[data-advanced-legend="true"] {
+  opacity: 1;
+}
+
+/* Landscape: Menu / How To share the same row as Start. */
+@media (orientation: landscape) {
+  .builtin-controller__zone--bottom[data-system-actions="true"] {
+    width: max-content;
+    min-width: 210px;
+    justify-self: center;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow: visible;
+  }
+  .builtin-controller__zone--bottom[data-system-actions="true"] > .console-control--button,
+  .builtin-controller__zone--bottom[data-system-actions="true"] > .console-system-actions {
+    flex: 0 0 auto;
+  }
+  .console-system-actions {
+    order: 2;
+  }
+}
+/* Portrait: system actions sit above Start, keeping the bottom thumb target centered. */
+@media (orientation: portrait) {
+  .builtin-controller__zone--bottom {
+    flex-direction: column;
+    gap: 5px;
+  }
+  .console-system-actions {
+    order: -1;
+    width: 100%;
+  }
+  .console-system-button {
+    min-height: 30px;
+    padding: 5px 9px;
+  }
+  .console-how-to__panel {
+    width: min(96%, 430px);
+    max-height: 86%;
+  }
+}

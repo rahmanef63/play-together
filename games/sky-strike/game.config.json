@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "sky-strike",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "title": "Sky Strike",
     "description": "A 3D arcade fighter dogfight with flight controls, cannon fire, homing missiles, lock-on, health, respawns and AI bandits.",
     "minPlayers": 1,
@@ -13,7 +13,7 @@
   },
   "modes": ["shared-screen", "handheld"],
   "runtimeDependencies": {
-    "three": "0.185.1+pt1"
+    "three": "0.185.1+pt3"
   },
   "presentation": {
     "remoteDisplay": {

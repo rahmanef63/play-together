@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { chromium } from "@playwright/test";
+import { verifyControllerLifecycle } from "./gameplay-controls/lifecycle.mjs";
 import { measureControls } from "./gameplay-controls/measure.mjs";
 import { verifyGameDisplays } from "./gameplay-controls/render.mjs";
 
@@ -50,7 +51,13 @@ try {
     await import("/src/frame/styles/index.css");
     const { mountConsoleShell } = await import("/src/frame/consoleShell.ts");
     const { mountBuiltinController } = await import("/src/frame/builtinController.ts");
-    window.qa = { mountConsoleShell, mountBuiltinController, inputs: [], dispose: () => {} };
+    window.qa = {
+      mountConsoleShell,
+      mountBuiltinController,
+      inputs: [],
+      menus: 0,
+      dispose: () => {},
+    };
   });
   for (const gameId of [
     "turbo-circuit",
@@ -89,6 +96,11 @@ try {
                 sendInput: (input) => window.qa.inputs.push(input),
                 subscribe: () => () => {},
               },
+              {
+                gameTitle: config.game.title,
+                gameDescription: config.game.description,
+                onMenu: () => window.qa.menus++,
+              },
             );
             window.qa.inputs = [];
             window.qa.dispose = () => {
@@ -113,50 +125,7 @@ try {
   const flight = JSON.parse(
     await readFile(resolve(root, "games/flight-trainer/game.config.json"), "utf8"),
   );
-  await page.evaluate((config) => {
-    window.qa.dispose();
-    const shell = window.qa.mountConsoleShell(document.getElementById("game-root"), {
-      mode: "remote",
-      preset: "flight",
-      title: "Input lifecycle test",
-    });
-    const dispose = window.qa.mountBuiltinController(shell.controls, config.controller.console, {
-      playerId: "qa",
-      mode: "remote",
-      sendInput: (input) => window.qa.inputs.push(input),
-      subscribe: () => () => {},
-    });
-    window.qa.inputs = [];
-    window.qa.dispose = () => {
-      dispose();
-      shell.dispose();
-    };
-  }, flight);
-  await page.keyboard.down("q");
-  await page.keyboard.down("e");
-  await page.keyboard.up("e");
-  assert.equal(
-    await page.evaluate(() => window.qa.inputs.at(-1)?.yaw),
-    -1,
-    "releasing opposite shoulder must preserve held rudder",
-  );
-  await page.keyboard.up("q");
-  await page.keyboard.down("ArrowLeft");
-  await page.keyboard.down("a");
-  await page.keyboard.up("ArrowLeft");
-  assert.equal(
-    await page.evaluate(() => window.qa.inputs.at(-1)?.roll),
-    -1,
-    "releasing one alias must not neutralize the held alias",
-  );
-  await page.evaluate(() => window.dispatchEvent(new Event("blur")));
-  assert.equal(
-    await page.evaluate(() => window.qa.inputs.at(-1)?.roll),
-    0,
-    "blur must neutralize the stick",
-  );
-  await page.keyboard.up("a");
-  results.push({ name: "browser-keyboard-alias-opposing-shoulder-blur", issues: [] });
+  await verifyControllerLifecycle(page, flight, results);
   await page.evaluate(() => window.qa.dispose());
   await verifyGameDisplays(page, root, artifactDirectory, results);
   assert.deepEqual(errors, [], "browser runtime errors");

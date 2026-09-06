@@ -1,4 +1,5 @@
 import type { DisplayGameModule } from "@play-together/game-sdk";
+import * as THREE from "three";
 import { createArena } from "./display/arena.js";
 import { fighterMesh, pose } from "./display/fighters.js";
 import { hud, makeHud } from "./display/hud.js";
@@ -43,6 +44,22 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, context) =
         if (m) pose(m, f, dt);
       }
       hud(ui, state);
+    }
+    if (state?.fighters.length) {
+      const xs = state.fighters.map((f) => f.x),
+        center = (Math.min(...xs) + Math.max(...xs)) / 2,
+        first = xs[0] ?? 0,
+        second = xs[1] ?? first,
+        spread = Math.min(4, Math.max(0, Math.abs(first - second) - 1));
+      const impact = state.fighters.some(
+        (fighter) => fighter.stun > 0 && fighter.flash.includes("HIT"),
+      );
+      const shake = impact ? Math.sin(now * 0.08) * 0.07 : 0;
+      view.camera.position.lerp(
+        new THREE.Vector3(center + shake, 4.35 + spread * 0.1, 8.6 + spread * 0.32),
+        Math.min(1, dt * 3),
+      );
+      view.camera.lookAt(center, 1.0 + shake * 0.4, 0);
     }
     view.renderer.render(view.scene, view.camera);
   };

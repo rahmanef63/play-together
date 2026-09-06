@@ -8,13 +8,14 @@ import {
   smoothAngle,
   smoothing,
 } from "./display/model.js";
+import { createProjectile, updateShots } from "./display/projectiles.js";
 import { createJet, createSkyScene } from "./display/scene.js";
 
 export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   root.replaceChildren();
   const view = createSkyScene(root);
   const planes = new Map<string, THREE.Group>();
-  const shots = new Map<number, THREE.Mesh>();
+  const shots = new Map<number, THREE.Group>();
   const poses = new Map<string, PlanePose>();
   const shotPoses = new Map<number, THREE.Vector3>();
   let state: SkyState | null = null;
@@ -48,10 +49,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
       }
     for (const shot of state.shots)
       if (!shots.has(shot.id)) {
-        const mesh = new THREE.Mesh(
-          new THREE.SphereGeometry(shot.kind === "missile" ? 0.35 : 0.13, 8, 6),
-          new THREE.MeshBasicMaterial({ color: shot.kind === "missile" ? 0xff5630 : 0xfff38a }),
-        );
+        const mesh = createProjectile(shot.kind);
         shots.set(shot.id, mesh);
         shotPoses.set(shot.id, new THREE.Vector3(shot.x, shot.y, shot.z));
         view.scene.add(mesh);
@@ -152,20 +150,20 @@ function updatePlanes(
     mesh.rotation.y = pose.heading;
     mesh.rotation.x = -pose.pitch;
     mesh.rotation.z = -pose.roll;
-  }
-}
-function updateShots(
-  state: SkyState,
-  meshes: Map<number, THREE.Mesh>,
-  poses: Map<number, THREE.Vector3>,
-  dt: number,
-) {
-  const alpha = smoothing(18, dt);
-  for (const shot of state.shots) {
-    const mesh = meshes.get(shot.id);
-    const pose = poses.get(shot.id);
-    if (!mesh || !pose) continue;
-    pose.lerp(new THREE.Vector3(shot.x, shot.y, shot.z), alpha);
-    mesh.position.copy(pose);
+    const parts = mesh.userData.parts as
+      | {
+          leftAileron: THREE.Object3D;
+          rightAileron: THREE.Object3D;
+          rudder: THREE.Object3D;
+          exhaust: THREE.Object3D;
+        }
+      | undefined;
+    if (parts) {
+      parts.leftAileron.rotation.z = plane.roll * -0.35;
+      parts.rightAileron.rotation.z = plane.roll * 0.35;
+      parts.rudder.rotation.y = Math.sin(plane.heading) * 0.1;
+      const boost = plane.afterburnerActive ? 1.8 : 0.65 + plane.speed * 0.012;
+      parts.exhaust.scale.z = boost;
+    }
   }
 }

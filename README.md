@@ -6,7 +6,7 @@
 
 A version-isolated multiplayer platform for phone remotes, handheld play, and shared browser/TV displays. Each game ships as an independent cartridge; the platform owns discovery, rooms, pairing, realtime transport, device shells, and immutable release verification.
 
-The source catalog targets five active 3D cartridges: **Turbo Circuit 0.10.1**, **Flight Trainer 0.3.0**, **Sky Strike 0.3.0**, the extreme downhill-bike racer **Ridge Rush 0.3.2**, and the original 1v1 fighter **Clash Arena 0.1.3**. Source versions do not imply that production or an already-open room has upgraded. Historical releases for removed games stay byte-immutable but are retired from new-room selection.
+The source catalog targets five active 3D cartridges: **Turbo Circuit 0.11.0**, **Flight Trainer 0.4.0**, **Sky Strike 0.4.0**, the extreme downhill-bike racer **Ridge Rush 0.4.0**, and the original 1v1 fighter **Clash Arena 0.2.0**. Source versions do not imply that production or an already-open room has upgraded. Historical releases for removed games stay byte-immutable but are retired from new-room selection.
 
 [![CI](https://github.com/rahmanef63/play-together/actions/workflows/ci.yml/badge.svg)](https://github.com/rahmanef63/play-together/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -33,7 +33,7 @@ requirements are separate; missing WebGL 2 cannot be fixed with a JavaScript pol
 
 ## Gameplay and controls
 
-The default Play Together controller is deliberately **Tier 0: one left stick + ABXY + Menu/Start**. L1/L2/R1/R2 are not recommended by default and only belong in a game when playtesting proves the extra inputs are genuinely necessary. Ridge Rush 0.3.2 and Clash Arena 0.1.3 both ship with Tier 0 mobile controls. Touch, keyboard and standard-mapped physical gamepads share input ownership and focus-loss cleanup. Read the [gameplay development guide](docs/gameplay-development.md) for the controller-tier contract and per-game mappings.
+The default Play Together controller is deliberately **Tier 0: one left stick + ABXY + Menu/Start**. L1/L2/R1/R2 are not recommended by default and only belong in a game when playtesting proves the extra inputs are genuinely necessary. Ridge Rush 0.4.0 and Clash Arena 0.2.0 both ship with Tier 0 mobile controls. Menu and How To are platform actions placed beside Start in landscape and above Start in portrait; hold controls suppress text selection/callouts. Advanced shoulders remain hidden by default. Touch, keyboard and standard-mapped physical gamepads share input ownership and focus-loss cleanup. Read the [gameplay development guide](docs/gameplay-development.md) for the controller-tier contract and per-game mappings.
 
 ## Product flow
 
@@ -48,7 +48,7 @@ The platform never decides how a concrete game works. A game never owns QR pairi
 
 ## Runtime metadata
 
-The live engine has no hardcoded game list or mechanic map. Convex is the durable playable release/presentation catalog; host release policy distinguishes active/retired/blocked versions, while Redis only mirrors blocked identities transiently for immediate cross-instance revocation. Each immutable manifest owns controller/modules/assets/runtime dependencies, and the frame is a generic verified interpreter. `game-registry.json` exists for tooling/previews only. Large shared browser libraries use versioned engine ABI surfaces such as `three@0.185.1+pt1`, so 3D cartridges stay small without weakening SHA verification.
+The live engine has no hardcoded game list or mechanic map. Convex is the durable playable release/presentation catalog; host release policy distinguishes active/retired/blocked versions, while Redis only mirrors blocked identities transiently for immediate cross-instance revocation. Each immutable manifest owns controller/modules/assets/runtime dependencies, and the frame is a generic verified interpreter. `game-registry.json` exists for tooling/previews only. Large shared browser libraries use versioned engine ABI surfaces such as `three@0.185.1+pt3`, so 3D cartridges stay small without weakening SHA verification.
 
 ## Architecture at a glance
 

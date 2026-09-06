@@ -7,6 +7,7 @@ describe("engine runtime compatibility policy", () => {
       three: {
         "0.185.1+pt1": { url: "/vendor-pt1.js", sha256: "abc" },
         "0.185.1+pt2": { url: "/vendor-pt2.js", sha256: "def" },
+        "0.185.1+pt3": { url: "/vendor-pt3.js", sha256: "ghi" },
       },
     },
   };
@@ -17,6 +18,9 @@ describe("engine runtime compatibility policy", () => {
     ).not.toThrow();
     expect(() =>
       assertSupportedRuntimeDependencies({ three: "0.185.1+pt2" }, catalog),
+    ).not.toThrow();
+    expect(() =>
+      assertSupportedRuntimeDependencies({ three: "0.185.1+pt3" }, catalog),
     ).not.toThrow();
     expect(() => assertSupportedRuntimeDependencies({ three: "999.0.0" }, catalog)).toThrow(
       /unsupported game runtime dependency/i,

@@ -12,6 +12,8 @@ export type ViewFighter = {
   stun: number;
   airborne: number;
   flash: string;
+  moveFrame: number;
+  blockStun: number;
 };
 export type ArenaState = {
   kind: "clash-arena";

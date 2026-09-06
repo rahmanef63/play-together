@@ -25,13 +25,24 @@ export function addMountainTerrain(scene: THREE.Scene): void {
 }
 function terrainSegment(start: number, end: number, color: number): THREE.Mesh {
   const vertices: number[] = [],
+    colors: number[] = [],
     indices: number[] = [],
+    base = new THREE.Color(color),
     step = 18;
   let row = 0;
   for (let p = start; p <= end + 0.1; p = Math.min(end, p + step)) {
     for (const offset of OFFSETS) {
       const x = centerLine(p) + offset;
       vertices.push(x, terrainHeight(p, x), p);
+      const rough = 0.82 + 0.18 * (0.5 + 0.5 * Math.sin(p * 0.037 + offset * 0.31));
+      const edgeShade = 1 - Math.min(0.25, Math.abs(offset) * 0.0022);
+      const exposedRock = courseSurface(p) === "snow" && Math.abs(offset) > 8;
+      const surfaceColor = exposedRock ? new THREE.Color(0x667078) : base;
+      colors.push(
+        surfaceColor.r * rough * edgeShade,
+        surfaceColor.g * rough * edgeShade,
+        surfaceColor.b * rough * edgeShade,
+      );
     }
     if (row > 0) {
       const columns = OFFSETS.length;
@@ -48,11 +59,18 @@ function terrainSegment(start: number, end: number, color: number): THREE.Mesh {
   }
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+  geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geometry.setIndex(indices);
   geometry.computeVertexNormals();
   return new THREE.Mesh(
     geometry,
-    new THREE.MeshStandardMaterial({ color, roughness: 1, metalness: 0, flatShading: false }),
+    new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      vertexColors: true,
+      roughness: 1,
+      metalness: 0,
+      flatShading: false,
+    }),
   );
 }
 export function trailRibbon(

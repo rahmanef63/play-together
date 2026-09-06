@@ -112,40 +112,56 @@ export class VehicleRenderer {
   }
 }
 function animateKart(visual: KartVisual, racer: Racer, dt: number) {
-  const wheelSpin = racer.speed * dt * 1.7;
-  for (const wheel of visual.wheels) wheel.rotation.x += wheelSpin;
+  const speed = Math.abs(racer.speed),
+    pulse = performance.now() * 0.001;
+  for (const wheel of visual.wheels) wheel.rotation.x += racer.speed * dt * 1.7;
   for (const wheel of visual.frontWheels)
     wheel.rotation.y = THREE.MathUtils.lerp(
       wheel.rotation.y,
       -racer.steering * 0.42,
       smoothing(12, dt),
     );
-  const targetRoll = racer.drifting ? racer.steering * 0.22 : racer.steering * 0.08;
+  const drift = racer.drifting ? 1 : 0,
+    brake = racer.scraping ? 1 : 0;
   visual.body.rotation.z = THREE.MathUtils.lerp(
     visual.body.rotation.z,
-    targetRoll,
+    racer.steering * (drift ? 0.25 : 0.09),
     smoothing(9, dt),
   );
+  visual.body.rotation.x = THREE.MathUtils.lerp(
+    visual.body.rotation.x,
+    brake * 0.075 - Math.min(speed / 70, 1) * 0.038,
+    smoothing(7, dt),
+  );
+  visual.body.position.y =
+    0.03 + Math.sin(pulse * (7 + speed * 0.08)) * (0.012 + speed * 0.00035) + drift * 0.018;
   visual.steeringWheel.rotation.z = THREE.MathUtils.lerp(
     visual.steeringWheel.rotation.z,
     -racer.steering * 0.74,
     smoothing(13, dt),
   );
   for (const flame of visual.exhaustFlames) {
-    flame.visible = racer.boostTimer > 0;
-    if (flame.visible) {
-      const pulse = 0.82 + Math.abs(Math.sin(performance.now() * 0.025)) * 0.46;
-      flame.scale.set(pulse, pulse, pulse);
-    }
+    flame.visible = racer.boostTimer > 0 || speed > 28;
+    if (flame.visible)
+      flame.scale.setScalar(0.55 + Math.min(1.15, speed / 42) + Math.sin(pulse * 30) * 0.12);
+  }
+  const dusty = racer.drifting || racer.scraping || speed > 42;
+  for (const puff of visual.dust) {
+    puff.visible = dusty;
+    if (!dusty) continue;
+    const material = puff.material as THREE.MeshBasicMaterial;
+    material.opacity = racer.drifting ? 0.55 : 0.22;
+    const swell = 0.7 + Math.abs(Math.sin(pulse * 8 + puff.position.x)) * (0.55 + speed * 0.008);
+    puff.scale.set(swell * 1.4, swell * 0.55, swell * 1.9);
   }
   for (const spark of visual.driftSparks) {
     spark.visible = racer.driftTier > 0;
     if (!spark.visible) continue;
-    const material = spark.material as THREE.MeshBasicMaterial;
-    material.color.setHex(racer.driftTier === 2 ? 0xf97316 : 0x38bdf8);
+    (spark.material as THREE.MeshBasicMaterial).color.setHex(
+      racer.driftTier === 2 ? 0xf97316 : 0x38bdf8,
+    );
     spark.rotation.x += dt * 23;
     spark.rotation.y += dt * 29;
-    const pulse = 0.75 + Math.abs(Math.sin(performance.now() * 0.03)) * 0.55;
-    spark.scale.set(pulse, pulse, pulse);
+    spark.scale.setScalar(0.75 + Math.abs(Math.sin(pulse * 30)) * 0.55);
   }
 }

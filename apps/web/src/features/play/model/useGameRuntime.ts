@@ -13,12 +13,14 @@ export function useGameRuntime({
   role,
   mode,
   isPlaying,
+  onSystemMenu,
 }: {
   code: string;
   room: RoomDetails | null | undefined;
   role: RemoteRole;
   mode: ControllerMode;
   isPlaying: boolean;
+  onSystemMenu: () => void;
 }) {
   const issueTicket = useAction(api.tickets.issue);
   const mountRef = useRef<HTMLDivElement>(null);
@@ -55,8 +57,9 @@ export function useGameRuntime({
         setDisplayLayout(layout);
       },
       onStatus: setStatus,
+      onSystemMenu,
     });
-  }, [code, isPlaying, issueTicket, mode, role, room?.gameTitle, presentationPolicy]);
+  }, [code, isPlaying, issueTicket, mode, role, room?.gameTitle, presentationPolicy, onSystemMenu]);
 
   return { connection, displayLayout, error, mountRef, remoteCount, status };
 }

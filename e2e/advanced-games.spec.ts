@@ -78,10 +78,9 @@ test("all active 3D cartridges expose distinct shared-console controls and live 
           ["rescue", "l2"],
           ["rear-item", "r2"],
         ]) {
-          await expect(controller.locator(`[data-control-id="${id}"]`)).toHaveAttribute(
-            "data-face",
-            face,
-          );
+          const shoulder = controller.locator(`[data-control-id="${id}"]`);
+          await expect(shoulder).toHaveAttribute("data-face", face);
+          await expect(shoulder).toBeHidden();
         }
         const sound = frame.getByRole("button", { name: "Toggle race sound" });
         await expect(sound).toHaveText("SOUND ON");

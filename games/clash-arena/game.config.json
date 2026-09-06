@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "clash-arena",
-    "version": "0.1.3",
+    "version": "0.2.0",
     "title": "Clash Arena",
     "description": "Original 1v1 arena fighter: read guard direction, manage meter, escape throws and choose your timing.",
     "minPlayers": 1,
@@ -19,7 +19,7 @@
     }
   },
   "runtimeDependencies": {
-    "three": "0.185.1+pt2"
+    "three": "0.185.1+pt3"
   },
   "controller": {
     "supportsRemote": true,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createServerGame } from "./server.js";
 
-const context = { roomId: "ring", gameId: "clash-arena", gameVersion: "0.1.3", seed: 17 };
+const context = { roomId: "ring", gameId: "clash-arena", gameVersion: "0.2.0", seed: 17 };
 type Snapshot = {
   phase: string;
   timerMs: number;

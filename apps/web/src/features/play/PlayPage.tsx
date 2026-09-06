@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { displayCompatibilityMessage } from "../../shared/browserSupport";
 import { browserPathForNavigation } from "../../shared/navigation";
 import type { CurrentUser } from "../../shared/types";
@@ -21,6 +21,7 @@ export function PlayPage({
 }) {
   const play = usePlayRoom(code, requestedRole, user);
   const [gameMenuOpen, setGameMenuOpen] = useState(false);
+  const openSystemMenu = useCallback(() => setGameMenuOpen(true), []);
   const compatibility =
     play.role === "controller" && play.mode !== "handheld" ? null : displayCompatibilityMessage();
   const runtime = useGameRuntime({
@@ -29,6 +30,7 @@ export function PlayPage({
     role: play.role,
     mode: play.mode,
     isPlaying: Boolean(play.isPlaying) && !compatibility,
+    onSystemMenu: openSystemMenu,
   });
 
   if (play.room === null)
@@ -47,6 +49,7 @@ export function PlayPage({
         status={runtime.status}
         connection={runtime.connection}
         onMenu={() => setGameMenuOpen(true)}
+        showMenu={play.role === "display"}
       />
       <PlayGameMenu
         code={code}

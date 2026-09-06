@@ -42,6 +42,21 @@
           "mode": "shared",
           "maxViewports": 1
         }
+      },
+      "status": "retired",
+      "retirementReason": "Superseded by Clash Arena 0.2.0 articulated fighter, safer HUD, impact feedback, closer framing and arena presentation pass; immutable bytes remain preserved for pinned rooms."
+    },
+    {
+      "gameId": "clash-arena",
+      "version": "0.2.0",
+      "title": "Clash Arena",
+      "manifestPath": "/games/clash-arena/0.2.0/manifest.json",
+      "manifestSha256": "2704da421375e8510819f4a43512e2fc9e79056c3d67c8eb1d83f0e0e22664b1",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
       }
     },
     {
@@ -169,6 +184,21 @@
       "title": "Flight Trainer",
       "manifestPath": "/games/flight-trainer/0.3.0/manifest.json",
       "manifestSha256": "4eaed4cc0881022b89203a7730a4dff468216aeeb9d6ddce43a2b4a60accc3e1",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      },
+      "status": "retired",
+      "retirementReason": "Superseded by Flight Trainer 0.4.0 aircraft model, animation, chase-camera and lighting pass; immutable bytes remain preserved for pinned rooms."
+    },
+    {
+      "gameId": "flight-trainer",
+      "version": "0.4.0",
+      "title": "Flight Trainer",
+      "manifestPath": "/games/flight-trainer/0.4.0/manifest.json",
+      "manifestSha256": "b313f6bc0cc7cd7a9cac5c8eab0b401b145cd2d606383d39cfbf3599d46f44ca",
       "presentation": {
         "remoteDisplay": {
           "mode": "per-player",
@@ -502,6 +532,21 @@
           "mode": "shared",
           "maxViewports": 1
         }
+      },
+      "status": "retired",
+      "retirementReason": "Superseded by Ridge Rush 0.4.0 consistent HUD, articulated rider/bike animation, terrain detail, particles and controller-system quality pass; immutable bytes remain preserved for pinned rooms."
+    },
+    {
+      "gameId": "ridge-rush",
+      "version": "0.4.0",
+      "title": "Ridge Rush",
+      "manifestPath": "/games/ridge-rush/0.4.0/manifest.json",
+      "manifestSha256": "b7e90b54456508b51d1c941431b2dc94b2b349ce820892bfc2d7852e0ea17184",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
       }
     },
     {
@@ -587,6 +632,21 @@
       "title": "Sky Strike",
       "manifestPath": "/games/sky-strike/0.3.0/manifest.json",
       "manifestSha256": "8196b0f838506309ce236e98d16db6a51e7f30109c731fad3c0bbc63987d1952",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      },
+      "status": "retired",
+      "retirementReason": "Superseded by Sky Strike 0.4.0 jet model, control-surface, afterburner/projectile and camera presentation pass; immutable bytes remain preserved for pinned rooms."
+    },
+    {
+      "gameId": "sky-strike",
+      "version": "0.4.0",
+      "title": "Sky Strike",
+      "manifestPath": "/games/sky-strike/0.4.0/manifest.json",
+      "manifestSha256": "22b88e3c0f9a330576740b90cf3350ebc13865475efab0052e576ec5793c7c07",
       "presentation": {
         "remoteDisplay": {
           "mode": "per-player",
@@ -814,6 +874,21 @@
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.10.1/manifest.json",
       "manifestSha256": "8344177efaf52f86fbe78716b14bf040a02ec67a7b01780d7d0bb9be31abd5d2",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      },
+      "status": "retired",
+      "retirementReason": "Superseded by Turbo Circuit 0.11.0 3D animation, lighting and controller-system quality pass; immutable bytes remain preserved for pinned rooms."
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.11.0",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.11.0/manifest.json",
+      "manifestSha256": "b8bc201fa835066cf30a90bfb3a35b55e75126510ba4af853b0a74029be169d3",
       "presentation": {
         "remoteDisplay": {
           "mode": "per-player",

@@ -10,28 +10,29 @@ export interface FlightScene {
   horizonLine: HTMLElement;
   rings: THREE.Mesh[];
 }
-
+const mat = (color: number, metalness = 0.15) =>
+  new THREE.MeshStandardMaterial({ color, roughness: 0.42, metalness });
 export function createFlightScene(root: HTMLElement): FlightScene {
-  const host = document.createElement("section");
+  const host = document.createElement("section"),
+    canvas = document.createElement("canvas"),
+    hud = document.createElement("div"),
+    top = document.createElement("div"),
+    middle = document.createElement("div"),
+    bottom = document.createElement("div"),
+    horizon = document.createElement("div"),
+    horizonLine = document.createElement("div"),
+    wings = document.createElement("div");
   host.style.cssText =
     "position:relative;width:100%;height:100%;min-height:320px;overflow:hidden;background:#87ceeb";
-  const canvas = document.createElement("canvas");
   canvas.style.cssText = "width:100%;height:100%;display:block";
-  const hud = document.createElement("div");
   hud.style.cssText =
-    "position:absolute;inset:0;pointer-events:none;color:white;font:800 13px system-ui;text-shadow:0 2px 4px #000;padding:12px;display:grid;grid-template-rows:auto 1fr auto";
-  const top = document.createElement("div");
-  const middle = document.createElement("div");
-  const bottom = document.createElement("div");
+    "position:absolute;inset:0;pointer-events:none;color:#f8fbff;font:800 13px system-ui;text-shadow:0 2px 5px #001;padding:12px;display:grid;grid-template-rows:auto 1fr auto;letter-spacing:.04em";
   middle.style.cssText = "display:grid;place-items:center";
   bottom.style.cssText = "display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:8px";
-  const horizon = document.createElement("div");
   horizon.style.cssText =
-    "width:116px;height:116px;border:3px solid #e2e8f0;border-radius:50%;overflow:hidden;position:relative;background:linear-gradient(#4ea4dc 0 50%,#7c5b35 50%);box-shadow:0 0 0 2px #0008";
-  const horizonLine = document.createElement("div");
+    "width:116px;height:116px;border:2px solid #e2e8f0;border-radius:50%;overflow:hidden;position:relative;background:linear-gradient(#4ea4dc 0 50%,#775735 50%);box-shadow:0 0 0 2px #001a,0 8px 20px #0018";
   horizonLine.style.cssText =
     "position:absolute;left:-30%;right:-30%;top:50%;height:3px;background:white;transform-origin:center";
-  const wings = document.createElement("div");
   wings.style.cssText = "position:absolute;left:18%;right:18%;top:49%;border-top:3px solid #facc15";
   horizon.append(horizonLine, wings);
   middle.append(horizon);
@@ -44,86 +45,49 @@ export function createFlightScene(root: HTMLElement): FlightScene {
     powerPreference: "high-performance",
   });
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.04;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.setClearColor(0x88cfee);
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0xb9dcf0, 180, 650);
+  scene.fog = new THREE.Fog(0xb9dcf0, 150, 650);
   const camera = new THREE.PerspectiveCamera(66, 1, 0.1, 1000);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x4d5e33, 2.25));
-  const sun = new THREE.DirectionalLight(0xffffff, 2.1);
+  scene.add(new THREE.HemisphereLight(0xe8f7ff, 0x40522d, 2.1));
+  const sun = new THREE.DirectionalLight(0xfff3d6, 2.8);
   sun.position.set(-100, 180, -80);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(1024, 1024);
   scene.add(sun);
-  const rings = addFlightWorld(scene);
-  return { host, renderer, scene, camera, top, bottom, horizonLine, rings };
+  return { host, renderer, scene, camera, top, bottom, horizonLine, rings: addFlightWorld(scene) };
 }
-
-export function createPlaneMesh(color: number) {
-  const group = new THREE.Group();
-  const material = new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0.15 });
-  const dark = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.35, metalness: 0.2 });
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.6, 5.2, 12), material);
-  body.rotation.x = Math.PI / 2;
-  group.add(body);
-  const wing = new THREE.Mesh(new THREE.BoxGeometry(7, 0.12, 1.05), material);
-  wing.position.z = -0.2;
-  group.add(wing);
-  const tail = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.1, 0.7), material);
-  tail.position.z = -2.25;
-  group.add(tail);
-  const fin = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.2, 0.8), material);
-  fin.position.set(0, 0.55, -2.2);
-  group.add(fin);
-  const canopy = new THREE.Mesh(
-    new THREE.SphereGeometry(0.55, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2),
-    dark,
-  );
-  canopy.scale.set(1, 0.75, 1.25);
-  canopy.position.set(0, 0.5, 0.55);
-  group.add(canopy);
-  return group;
-}
-
 function addFlightWorld(scene: THREE.Scene): THREE.Mesh[] {
-  const terrain = new THREE.Mesh(
-    new THREE.PlaneGeometry(1000, 1000, 1, 1),
-    new THREE.MeshStandardMaterial({ color: 0x567a35, roughness: 1 }),
-  );
+  const terrain = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000), mat(0x567a35));
   terrain.rotation.x = -Math.PI / 2;
-  terrain.position.y = -0.02;
+  terrain.receiveShadow = true;
   scene.add(terrain);
-  const runway = new THREE.Mesh(
-    new THREE.PlaneGeometry(22, 130),
-    new THREE.MeshStandardMaterial({ color: 0x30343b, roughness: 0.95 }),
-  );
+  const runway = new THREE.Mesh(new THREE.PlaneGeometry(22, 130), mat(0x30343b));
   runway.rotation.x = -Math.PI / 2;
   runway.position.set(0, 0.02, -110);
+  runway.receiveShadow = true;
   scene.add(runway);
-  const markMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const white = new THREE.MeshBasicMaterial({ color: 0xffffff });
   for (let z = -166; z < -50; z += 12) {
-    const marker = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 6), markMat);
-    marker.rotation.x = -Math.PI / 2;
-    marker.position.set(0, 0.04, z);
-    scene.add(marker);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 6), white);
+    m.rotation.x = -Math.PI / 2;
+    m.position.set(0, 0.04, z);
+    scene.add(m);
   }
-  for (const x of [-10.3, 10.3])
-    for (let z = -170; z < -46; z += 8) {
-      const light = new THREE.Mesh(
-        new THREE.SphereGeometry(0.16, 6, 4),
-        new THREE.MeshBasicMaterial({ color: 0xeaf8ff }),
-      );
-      light.position.set(x, 0.18, z);
-      scene.add(light);
-    }
-  const mountainMat = new THREE.MeshStandardMaterial({ color: 0x53633d, roughness: 1 });
-  for (let i = 0; i < 34; i++) {
-    const a = i * 1.91;
-    const radius = 150 + (i % 8) * 28;
-    const height = 30 + (i % 7) * 10;
-    const mountain = new THREE.Mesh(
-      new THREE.ConeGeometry(20 + (i % 5) * 5, height, 7),
-      mountainMat,
-    );
-    mountain.position.set(Math.cos(a) * radius, height / 2, Math.sin(a) * radius - 15);
-    scene.add(mountain);
+  const rock = mat(0x53633d);
+  for (let i = 0; i < 42; i++) {
+    const a = i * 1.91,
+      r = 150 + (i % 8) * 28,
+      h = 25 + (i % 7) * 11,
+      m = new THREE.Mesh(new THREE.ConeGeometry(14 + (i % 5) * 5, h, 7), rock);
+    m.position.set(Math.cos(a) * r, h / 2, Math.sin(a) * r - 15);
+    m.castShadow = true;
+    scene.add(m);
   }
   const ringMaterial = new THREE.MeshBasicMaterial({
     color: 0x22d3ee,
@@ -137,10 +101,10 @@ function addFlightWorld(scene: THREE.Scene): THREE.Mesh[] {
     { x: -92, y: 56, z: 82 },
     { x: -72, y: 38, z: -18 },
     { x: 0, y: 16, z: -78 },
-  ].map((point) => {
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(8, 0.45, 10, 40), ringMaterial.clone());
-    ring.position.set(point.x, point.y, point.z);
-    scene.add(ring);
-    return ring;
+  ].map((p) => {
+    const r = new THREE.Mesh(new THREE.TorusGeometry(8, 0.45, 10, 40), ringMaterial.clone());
+    r.position.set(p.x, p.y, p.z);
+    scene.add(r);
+    return r;
   });
 }

@@ -2,6 +2,24 @@
 
 All notable changes to Play Together are documented here. The project follows semantic versioning for the platform and immutable semantic versions for each game release.
 
+## [0.20.0] - 2026-09-06
+
+### Controller and game UI
+
+- Move platform **How To** and **Menu** into every controller surface with Start: beside Start in landscape and above it in portrait. Controller/handheld views no longer duplicate a floating toolbar Menu.
+- Generate How To directly from each cartridge manifest, keep L1/L2/R1/R2 hidden by default, and expose advanced controls only on explicit request.
+- Prevent text selection, drag, context menu, callout and tap-highlight artifacts on hold controls while retaining keyboard/pointer focus-loss cleanup.
+- Rework Ridge Rush HUD into one consistent mountain-race visual language for position, grade/surface/checkpoints, speed, progress, stamina, airtime and results.
+
+### 3D presentation pass
+
+- **Ridge Rush 0.4.0:** articulated rider/bike pedalling and suspension, surface-aware dust/snow particles, vertex-varied terrain, tire lines, cliff markers, terrain-grounded vegetation and boulders, stronger lighting/shadows and snow/rock contrast.
+- **Turbo Circuit 0.11.0:** richer kart silhouette, chassis pitch/roll/suspension/drift animation, exhaust/dust/sparks, improved engine-load audio response and ACES/soft-shadow track presentation.
+- **Flight Trainer 0.4.0:** rebuilt procedural aircraft with animated propeller, ailerons, elevator, rudder and gear, denser runway/mountain world, soft shadows and corrected third-person chase framing.
+- **Sky Strike 0.4.0:** rebuilt jet silhouette with moving control surfaces, animated afterburner, projectile trails, sea/island/cloud depth cues and closer combat camera.
+- **Clash Arena 0.2.0:** articulated multi-segment fighters, state-driven attack/guard/stun/airborne poses, impact feedback, safer DOM HUD, closer combat framing and unobstructed neon arena composition.
+- Add immutable Three.js ABI `three@0.185.1+pt3` for the expanded visual surface while preserving pt1/pt2 bytes for older pinned releases.
+
 ## [0.19.0] - 2026-09-06
 
 ### Ridge Rush 0.3.2

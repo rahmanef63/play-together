@@ -2,7 +2,7 @@
 
 ## Current source catalogue
 
-The source catalogue targets Turbo Circuit 0.10.1, Flight Trainer 0.3.0, Sky Strike 0.3.0, Ridge Rush 0.3.2 and Clash Arena 0.1.3. Published cartridge bytes are immutable; source versions do not prove production promotion, and existing rooms remain pinned to their exact manifest digest.
+The source catalogue targets Turbo Circuit 0.11.0, Flight Trainer 0.4.0, Sky Strike 0.4.0, Ridge Rush 0.4.0 and Clash Arena 0.2.0. Published cartridge bytes are immutable; source versions do not prove production promotion, and existing rooms remain pinned to their exact manifest digest.
 
 ## Controller tiers
 
@@ -22,8 +22,13 @@ Existing older cartridges may still expose shoulder actions; that history is not
 | Turbo Circuit | steer + A gas / B brake / X item / Y rear | legacy L1/R1/L2/R2 advanced actions |
 | Flight Trainer | flight stick + ABXY aircraft actions | legacy shoulder rudder/brake/assist |
 | Sky Strike | flight stick + ABXY combat/throttle | legacy shoulder rudder/airbrake/boost |
-| Ridge Rush 0.3.2 | steer/body stick + A pedal / B brake / X jump / Y rear | none |
-| Clash Arena 0.1.3 | movement/guard stick + A jab / B kick / X launch-or-low / Y meter Surge | none |
+| Ridge Rush 0.4.0 | steer/body stick + A pedal / B brake / X jump / Y rear | none |
+| Clash Arena 0.2.0 | movement/guard stick + A jab / B kick / X launch-or-low / Y meter Surge | none |
+
+
+### Shared system actions and hold behavior
+
+The frame owns **How To** and **Menu** next to Start instead of duplicating floating gameplay chrome. Landscape lays these actions beside Start; portrait stacks them above Start. The How To sheet is generated from the manifest so it stays game-specific. Shoulder shortcuts remain hidden until the user explicitly reveals advanced controls. Hold controls disable selection, drag, context-menu and touch-callout browser behavior while preserving pointer/key ownership until release or focus loss.
 
 ### Ridge Rush keyboard
 
@@ -37,7 +42,7 @@ Arrows/WASD move. Hold away to high guard; crouch-away guards low. J is A/jab, K
 
 Standard-mapped browser gamepads retain radial stick deadzones and safe focus/disconnect cleanup. Unknown mappings are ignored rather than guessed. Games that only declare Tier 0 do not render shoulder buttons on mobile even though a physical pad may have them.
 
-## Ridge Rush 0.3.2
+## Ridge Rush 0.4.0
 
 Ridge Rush is an original 1–4 player extreme mountain-bike descent. The 3.6 km course drops about **980 m** from start to finish, opens with sustained 30–50° chutes, contains multiple later 25°+ sectors, a real local climb, cliffside singletrack, off-camber sections, rock/snow/mud/dirt grip changes, a narrow shortcut, natural drop lips, ramps and deterministic AI riders.
 
@@ -45,7 +50,7 @@ The authoritative bike simulation tracks forward and lateral velocity, altitude,
 
 The renderer uses an actual procedural mountain mesh rather than a flat road ribbon. Cliff-side terrain can fall more than 100 m below the trail, opposite walls rise around chutes, trail camber is visible, and the chase camera keeps the local rider as the anchor while speed/grade influence FOV. The visuals are original low-poly geometry; no reference-game characters, courses, branding, audio or art are reused.
 
-## Clash Arena 0.1.3
+## Clash Arena 0.2.0
 
 Clash Arena is an original deterministic 1v1 arena fighter with two original fighters, **Nova Rin** and **Kite Vale**, one procedural arena, a 60-second round clock and best-of-three match flow. A solo player receives a deterministic CPU opponent; a second human can occupy the other fighter slot.
 

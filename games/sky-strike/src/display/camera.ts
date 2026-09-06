@@ -19,10 +19,10 @@ export function updateSkyCameraAndHud(
     z: Math.cos(pose.heading) * Math.cos(pose.pitch),
   };
   const right = { x: -Math.cos(pose.heading), z: Math.sin(pose.heading) };
-  const chase = mode === "handheld" ? 13 : 19;
+  const chase = mode === "handheld" ? 9.2 : 17;
   const desiredCamera = new THREE.Vector3(
     pose.x - facing.x * chase + right.x * pose.roll * 2,
-    pose.y + 5 - facing.y * 5,
+    pose.y + (mode === "handheld" ? 3.7 : 5.4) - facing.y * 4,
     pose.z - facing.z * chase + right.z * pose.roll * 2,
   );
   const desiredTarget = new THREE.Vector3(
@@ -38,6 +38,12 @@ export function updateSkyCameraAndHud(
     view.camera.position.lerp(desiredCamera, smoothing(8, dt));
     target.lerp(desiredTarget, smoothing(11, dt));
   }
+  view.camera.fov = THREE.MathUtils.lerp(
+    view.camera.fov,
+    (mode === "handheld" ? 56 : 62) + Math.min(9, me.speed * 0.04),
+    smoothing(3, dt),
+  );
+  view.camera.updateProjectionMatrix();
   view.camera.lookAt(target);
   const lock = state.planes.find((plane) => plane.id === me.lockId);
   const winner = state.planes.find((plane) => plane.id === state.winnerId);

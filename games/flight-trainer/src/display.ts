@@ -1,5 +1,6 @@
 import type { DisplayGameModule } from "@play-together/game-sdk";
 import * as THREE from "three";
+import { createPlaneMesh } from "./display/aircraftMesh.js";
 import { updateFlightCameraAndHud } from "./display/camera.js";
 import {
   type AircraftPose,
@@ -8,7 +9,7 @@ import {
   smoothAngle,
   smoothing,
 } from "./display/model.js";
-import { createFlightScene, createPlaneMesh } from "./display/scene.js";
+import { createFlightScene } from "./display/scene.js";
 
 export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   root.replaceChildren();
@@ -135,5 +136,16 @@ function updateAircraft(
     mesh.rotation.y = pose.heading;
     mesh.rotation.x = -pose.pitch;
     mesh.rotation.z = -pose.roll;
+    const parts = mesh.userData.parts as
+      | Record<string, THREE.Object3D | THREE.Object3D[]>
+      | undefined;
+    if (parts) {
+      (parts.propeller as THREE.Object3D).rotation.z += dt * (18 + aircraft.throttle * 85);
+      (parts.leftAileron as THREE.Object3D).rotation.z = aircraft.roll * -0.35;
+      (parts.rightAileron as THREE.Object3D).rotation.z = aircraft.roll * 0.35;
+      (parts.elevator as THREE.Object3D).rotation.x = aircraft.pitch * 0.5;
+      (parts.rudder as THREE.Object3D).rotation.y = Math.sin(aircraft.heading) * 0.08;
+      for (const gear of parts.gear as THREE.Object3D[]) gear.visible = aircraft.gearDown;
+    }
   }
 }

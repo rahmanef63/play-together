@@ -33,7 +33,10 @@ export function bindPress(
     button.setPointerCapture(event.pointerId);
     latch.set(`pointer:${event.pointerId}`, true);
   };
-  const up = (event: PointerEvent) => latch.set(`pointer:${event.pointerId}`, false);
+  const up = (event: PointerEvent) => {
+    event.preventDefault();
+    latch.set(`pointer:${event.pointerId}`, false);
+  };
   const accessibleDown = (event: KeyboardEvent) => {
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
@@ -44,6 +47,8 @@ export function bindPress(
     event.preventDefault();
     latch.set("focused-key", false);
   };
+  const blockNativeGesture = (event: Event) => event.preventDefault();
+  button.draggable = false;
   const reset = () => latch.reset();
   const hidden = () => {
     if (document.hidden) reset();
@@ -53,6 +58,9 @@ export function bindPress(
     () => latch.set("keyboard", true),
     () => latch.set("keyboard", false),
   );
+  button.addEventListener("contextmenu", blockNativeGesture);
+  button.addEventListener("selectstart", blockNativeGesture);
+  button.addEventListener("dragstart", blockNativeGesture);
   button.addEventListener("pointerdown", down);
   button.addEventListener("pointerup", up);
   button.addEventListener("pointercancel", up);
@@ -67,6 +75,9 @@ export function bindPress(
     dispose: () => {
       reset();
       removeKeys();
+      button.removeEventListener("contextmenu", blockNativeGesture);
+      button.removeEventListener("selectstart", blockNativeGesture);
+      button.removeEventListener("dragstart", blockNativeGesture);
       button.removeEventListener("pointerdown", down);
       button.removeEventListener("pointerup", up);
       button.removeEventListener("pointercancel", up);

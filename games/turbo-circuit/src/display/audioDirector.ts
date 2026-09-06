@@ -15,6 +15,7 @@ interface AudioMemory {
   rescue: number;
   finished: boolean;
   speed: number;
+  braking: boolean;
 }
 export class AudioDirector {
   readonly #synth = new TurboAudioSynth();
@@ -36,6 +37,8 @@ export class AudioDirector {
     this.#synth.updateEngine(
       racer.speed / Math.max(1, carById(racer.carId).topSpeed),
       state.phase === "racing" && !state.paused,
+      previous ? racer.speed - previous.speed : 0,
+      racer.scraping,
     );
     if (previous) {
       if (state.phase === "countdown" && step > 0 && step !== previous.countdown)
@@ -77,6 +80,7 @@ export class AudioDirector {
       rescue: racer.rescueCooldown,
       finished: racer.finished,
       speed: racer.speed,
+      braking: racer.scraping,
     };
   }
   reset() {

@@ -144,5 +144,28 @@ function animateBike(
     rear.rotation.z -= (speed * dt) / 0.42;
     rear.position.y = 0.43 + rearCompression * 0.1;
   }
-  if (frame) frame.position.y = (frontCompression + rearCompression) * 0.025;
+  if (frame) {
+    frame.position.y = (frontCompression + rearCompression) * 0.025;
+    const phase = performance.now() * 0.004 + speed * 0.07;
+    const pedal = Math.sin(phase) * Math.min(0.65, 0.18 + speed * 0.012);
+    const crank = frame.getObjectByName("crank");
+    const leftLeg = frame.getObjectByName("left-leg");
+    const rightLeg = frame.getObjectByName("right-leg");
+    const leftArm = frame.getObjectByName("left-arm");
+    const rightArm = frame.getObjectByName("right-arm");
+    const body = frame.getObjectByName("rider-body");
+    if (crank) crank.rotation.x += speed * dt * 0.75;
+    if (leftLeg) leftLeg.rotation.x = 0.3 + pedal;
+    if (rightLeg) rightLeg.rotation.x = 0.3 - pedal;
+    const armFlex = 0.88 + (frontCompression - rearCompression) * 0.8;
+    if (leftArm) {
+      leftArm.rotation.x = armFlex;
+      leftArm.rotation.z = -0.2;
+    }
+    if (rightArm) {
+      rightArm.rotation.x = armFlex;
+      rightArm.rotation.z = 0.2;
+    }
+    if (body) body.rotation.x = (frontCompression - rearCompression) * 0.08;
+  }
 }

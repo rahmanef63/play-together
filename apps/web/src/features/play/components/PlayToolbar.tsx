@@ -7,11 +7,13 @@ export function PlayToolbar({
   status,
   connection,
   onMenu,
+  showMenu,
 }: {
   code: string;
   status: string;
   connection: ConnectionStatus;
   onMenu: () => void;
+  showMenu: boolean;
 }) {
   return (
     <header className="play-toolbar">
@@ -23,9 +25,11 @@ export function PlayToolbar({
         <span className={`connection connection--${connection}`}>{connection}</span>
       </div>
       <div className="play-toolbar__actions">
-        <Button variant="ghost" type="button" onClick={onMenu} aria-haspopup="dialog">
-          Menu
-        </Button>
+        {showMenu && (
+          <Button variant="ghost" type="button" onClick={onMenu} aria-haspopup="dialog">
+            Menu
+          </Button>
+        )}
       </div>
     </header>
   );

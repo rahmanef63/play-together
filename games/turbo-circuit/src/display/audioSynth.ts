@@ -1,3 +1,4 @@
+import { playNoise } from "./audioNoise.js";
 export class TurboAudioSynth {
   #ctx: AudioContext | null = null;
   #engine: OscillatorNode | null = null;
@@ -20,7 +21,7 @@ export class TurboAudioSynth {
     if (enabled) await this.unlock();
     else this.stopEngine();
   }
-  updateEngine(speedRatio: number, active: boolean) {
+  updateEngine(speedRatio: number, active: boolean, acceleration = 0, braking = false) {
     if (!this.#enabled || !this.#ctx || this.#ctx.state !== "running") return;
     if (!active) {
       this.#engineGain?.gain.setTargetAtTime(0.0001, this.#ctx.currentTime, 0.08);
@@ -30,8 +31,17 @@ export class TurboAudioSynth {
     if (!this.#engine || !this.#engineGain) return;
     const ratio = Math.max(0, Math.min(1.35, Math.abs(speedRatio))),
       now = this.#ctx.currentTime;
-    this.#engine.frequency.setTargetAtTime(45 + ratio * 150, now, 0.05);
-    this.#engineGain.gain.setTargetAtTime(0.025 + Math.min(0.052, ratio * 0.04), now, 0.05);
+    const load = Math.max(-1, Math.min(1, acceleration / 3));
+    this.#engine.frequency.setTargetAtTime(
+      45 + ratio * 150 + load * 20 - (braking ? 13 : 0),
+      now,
+      0.05,
+    );
+    this.#engineGain.gain.setTargetAtTime(
+      0.022 + Math.min(0.055, ratio * 0.04) + Math.max(0, load) * 0.008,
+      now,
+      0.05,
+    );
   }
   countdown(final = false) {
     this.#sweep(
@@ -61,11 +71,11 @@ export class TurboAudioSynth {
     this.#sweep("triangle", 260, 105, 0.3, 0.12);
   }
   crash() {
-    this.#noise(0.16, 0.13, 650);
+    if (this.#ctx) playNoise(this.#ctx, 0.16, 0.13, 650);
     this.#sweep("square", 145, 48, 0.34, 0.2);
   }
   wallHit() {
-    this.#noise(0.09, 0.09, 1050);
+    if (this.#ctx) playNoise(this.#ctx, 0.09, 0.09, 1050);
     this.#sweep("square", 180, 95, 0.12, 0.1);
   }
   spin() {
@@ -81,7 +91,7 @@ export class TurboAudioSynth {
     this.#sweep("sine", 260, 650, 0.42, 0.13, true);
   }
   scrape() {
-    this.#noise(0.11, 0.045, 2200);
+    if (this.#ctx) playNoise(this.#ctx, 0.11, 0.045, 2200);
     this.#sweep("triangle", 360, 220, 0.22, 0.04);
   }
   rescue() {
@@ -171,25 +181,6 @@ export class TurboAudioSynth {
     gain.connect(this.#ctx.destination);
     oscillator.start(startAt);
     oscillator.stop(stopAt);
-  }
-  #noise(duration: number, volume: number, lowpass: number) {
-    if (!this.#ready() || !this.#ctx) return;
-    const count = Math.max(64, Math.floor(this.#ctx.sampleRate * duration)),
-      buffer = this.#ctx.createBuffer(1, count, this.#ctx.sampleRate),
-      data = buffer.getChannelData(0);
-    for (let index = 0; index < count; index++)
-      data[index] = (Math.random() * 2 - 1) * (1 - index / count);
-    const source = this.#ctx.createBufferSource(),
-      filter = this.#ctx.createBiquadFilter(),
-      gain = this.#ctx.createGain();
-    source.buffer = buffer;
-    filter.type = "lowpass";
-    filter.frequency.value = lowpass;
-    gain.gain.value = volume;
-    source.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.#ctx.destination);
-    source.start();
   }
   #ready() {
     return Boolean(this.#enabled && this.#ctx && this.#ctx.state === "running");

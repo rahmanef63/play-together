@@ -7,6 +7,7 @@ export interface KartVisual {
   wheels: THREE.Group[];
   frontWheels: THREE.Group[];
   exhaustFlames: THREE.Mesh[];
+  dust: THREE.Mesh[];
   driftSparks: THREE.Mesh[];
   steeringWheel: THREE.Mesh;
   carId: string;
@@ -26,6 +27,15 @@ export function createKartModel(car: CarSpec): KartVisual {
   const chassis = mesh(new THREE.BoxGeometry(dimensions.width, 0.62, dimensions.length), bodyMat);
   chassis.position.y = 0.65;
   body.add(chassis);
+  const splitter = mesh(new THREE.BoxGeometry(dimensions.width * 1.12, 0.1, 0.62), dark);
+  splitter.position.set(0, 0.34, dimensions.length * 0.49);
+  body.add(splitter);
+  for (const side of [-1, 1]) {
+    const pod = mesh(new THREE.BoxGeometry(0.42, 0.45, dimensions.length * 0.48), bodyMat);
+    pod.position.set(side * dimensions.width * 0.55, 0.54, -0.08);
+    pod.rotation.z = side * -0.035;
+    body.add(pod);
+  }
   const nose = mesh(new THREE.CylinderGeometry(0.56, dimensions.width * 0.48, 1.35, 12), bodyMat);
   nose.rotation.x = Math.PI / 2;
   nose.position.set(0, 0.58, dimensions.length * 0.54);
@@ -33,6 +43,7 @@ export function createKartModel(car: CarSpec): KartVisual {
   addSpoiler(body, dimensions, bodyMat);
   const exhaustFlames = addExhaust(body, dimensions, metal),
     { wheels, frontWheels } = addWheels(body, dimensions, dark, metal),
+    dust = addDust(body, dimensions),
     driftSparks = addDriftSparks(body, dimensions);
   addDriver(body, car);
   body.position.y = 0.03;
@@ -49,6 +60,7 @@ export function createKartModel(car: CarSpec): KartVisual {
     wheels,
     frontWheels,
     exhaustFlames,
+    dust,
     driftSparks,
     steeringWheel,
     carId: car.id,
@@ -127,6 +139,20 @@ function addWheels(
   }
   return { wheels, frontWheels };
 }
+function addDust(group: THREE.Group, d: { width: number; length: number }) {
+  const dust: THREE.Mesh[] = [];
+  for (const x of [-d.width * 0.52, d.width * 0.52]) {
+    const puff = new THREE.Mesh(
+      new THREE.SphereGeometry(0.36, 7, 5),
+      new THREE.MeshBasicMaterial({ color: 0xd8d1bb, transparent: true, opacity: 0.42 }),
+    );
+    puff.position.set(x, 0.3, -d.length * 0.46);
+    puff.visible = false;
+    group.add(puff);
+    dust.push(puff);
+  }
+  return dust;
+}
 function addDriftSparks(group: THREE.Group, d: { width: number; length: number }) {
   const sparks: THREE.Mesh[] = [];
   for (const x of [-d.width * 0.62, d.width * 0.62]) {
@@ -165,5 +191,8 @@ function mesh(
   geometry: THREE.BufferGeometry,
   material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial,
 ) {
-  return new THREE.Mesh(geometry, material);
+  const object = new THREE.Mesh(geometry, material);
+  object.castShadow = true;
+  object.receiveShadow = true;
+  return object;
 }

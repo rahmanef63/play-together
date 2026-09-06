@@ -1,0 +1,15 @@
+.builtin-controller,
+.builtin-controller *,
+.console-control,
+.console-control *,
+.console-dpad__button,
+.console-dpad__button * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.console-control--button,
+.console-dpad__button {
+  touch-action: none;
+}

@@ -93,13 +93,14 @@ async function signUp(page, name, email) {
   await form.locator('input[name="email"]').fill(email);
   await form.locator('input[name="password"]').fill(password);
   await form.getByRole("button", { name: "Create account" }).click();
-  await page
-    .getByRole("heading", { name: "Find a spot to play together." })
-    .waitFor({ timeout: 20_000 });
+  await page.locator(".app-shell--lobby").waitFor({ state: "visible", timeout: 20_000 });
 }
 
 async function createRoom(page, game) {
+  const setup = page.getByRole("button", { name: "Set up room", exact: true });
+  if (await setup.isVisible()) await setup.click();
   const form = page.locator(".create-panel form");
+  await form.waitFor({ state: "visible", timeout: 20_000 });
   await form.locator('select[name="game"]').selectOption(game.key);
   await form.locator('input[name="name"]').fill(`${game.title} Preview ${runId}`);
   await form.locator('select[name="visibility"]').selectOption("private");

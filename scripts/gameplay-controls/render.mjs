@@ -82,6 +82,11 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
             shell.controls,
             config.controller.console,
             context,
+            {
+              gameTitle: config.game.title,
+              gameDescription: config.game.description,
+              onMenu: () => window.qa.menus++,
+            },
           );
           window.qa.inputs = [];
           window.qa.snapshot = (message) => {

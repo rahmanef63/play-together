@@ -73,6 +73,49 @@
           "WebGLRenderer"
         ],
         "sha256": "2b2d630311b6ee7c331d59697c90621cc5a0de8ba6548f92d4ecfc63b775daca"
+      },
+      "0.185.1+pt3": {
+        "packageVersion": "0.185.1",
+        "url": "/engine-vendors/three@0.185.1+pt3.js",
+        "exports": [
+          "ACESFilmicToneMapping",
+          "BoxGeometry",
+          "BufferGeometry",
+          "CapsuleGeometry",
+          "Color",
+          "ConeGeometry",
+          "CylinderGeometry",
+          "DirectionalLight",
+          "DodecahedronGeometry",
+          "DoubleSide",
+          "Float32BufferAttribute",
+          "Fog",
+          "FogExp2",
+          "Group",
+          "HemisphereLight",
+          "LinearFilter",
+          "Material",
+          "MathUtils",
+          "Mesh",
+          "MeshBasicMaterial",
+          "MeshStandardMaterial",
+          "Object3D",
+          "PCFSoftShadowMap",
+          "PerspectiveCamera",
+          "PlaneGeometry",
+          "RingGeometry",
+          "SRGBColorSpace",
+          "Scene",
+          "SphereGeometry",
+          "Sprite",
+          "SpriteMaterial",
+          "Texture",
+          "TextureLoader",
+          "TorusGeometry",
+          "Vector3",
+          "WebGLRenderer"
+        ],
+        "sha256": "a7185c93c8e6a2c97aed11cfa8dc6c557529633d4cb631def92843e26aa093de"
       }
     }
   }

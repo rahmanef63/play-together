@@ -2,6 +2,7 @@ import type { DisplayGameModule } from "@play-together/game-sdk";
 import * as THREE from "three";
 import { createBike } from "./display/bike.js";
 import { createPose, updateCamera, updateRiderMeshes } from "./display/camera.js";
+import { RidgeEffects } from "./display/effects.js";
 import { createHud, updateHud } from "./display/hud.js";
 import { isRidgeState, type RiderPose, type RidgeViewState } from "./display/model.js";
 import { createRidgeScene } from "./display/scene.js";
@@ -12,6 +13,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, context) =
   root.replaceChildren();
   const hud = createHud(root);
   const view = createRidgeScene(hud.host);
+  const effects = new RidgeEffects(view.scene);
   const bikes = new Map<string, THREE.Group>();
   const poses = new Map<string, RiderPose>();
   let state: RidgeViewState | null = null;
@@ -64,6 +66,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, context) =
     previous = now;
     if (state) {
       updateRiderMeshes(state, bikes, poses, dt);
+      effects.update(state, poses, dt);
       const me =
         state.riders.find((rider) => rider.id === context.playerId && !rider.bot) ??
         state.riders[0];
@@ -90,6 +93,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, context) =
     view.scene.traverse((object) => {
       if (object instanceof THREE.Mesh) disposeMesh(object);
     });
+    effects.dispose();
     view.renderer.dispose();
     root.replaceChildren();
   };

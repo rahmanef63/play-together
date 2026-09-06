@@ -43,7 +43,7 @@ test("Ridge Rush provides a distinct downhill race with Tier 0 controls and extr
     await expect(frame.getByText("PRESS START")).toHaveCount(0, { timeout: 5_000 });
     await expect(countdown).toHaveCount(0, { timeout: 5_000 });
 
-    const speed = frame.locator(".ridge-rush > strong");
+    const speed = frame.locator(".ridge-hud__speed > strong");
     const pedal = frame.getByRole("button", { name: "Pedal" });
     await pedal.focus();
     await page.keyboard.down("Space");

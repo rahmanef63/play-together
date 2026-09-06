@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "ridge-rush",
-    "version": "0.3.2",
+    "version": "0.4.0",
     "title": "Ridge Rush",
     "description": "Extreme 3D mountain-bike descent with cliffside singletrack, deep vertical drops, gravity, wheel-weight transfer, surface grip, jumps, checkpoints and deterministic rivals.",
     "minPlayers": 1,
@@ -19,7 +19,7 @@
     }
   },
   "runtimeDependencies": {
-    "three": "0.185.1+pt2"
+    "three": "0.185.1+pt3"
   },
   "controller": {
     "supportsRemote": true,

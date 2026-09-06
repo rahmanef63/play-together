@@ -22,11 +22,22 @@ export function createTrackScene(canvas: HTMLCanvasElement) {
     powerPreference: "high-performance",
   });
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.06;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene(),
     camera = new THREE.PerspectiveCamera(62, 1, 0.1, 600);
   scene.add(new THREE.HemisphereLight(0xffffff, 0x40352b, 2));
   const sun = new THREE.DirectionalLight(0xfff1dd, 2.2);
   sun.position.set(-55, 95, -40);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(1024, 1024);
+  sun.shadow.camera.left = -100;
+  sun.shadow.camera.right = 100;
+  sun.shadow.camera.top = 100;
+  sun.shadow.camera.bottom = -100;
   scene.add(sun);
   return { renderer, scene, camera };
 }
@@ -66,6 +77,7 @@ function createGround(track: TrackSpec) {
   );
   mesh.rotation.x = -Math.PI / 2;
   mesh.position.y = -0.05;
+  mesh.receiveShadow = true;
   return mesh;
 }
 function createRoad(track: TrackSpec) {
@@ -102,7 +114,9 @@ function createRoad(track: TrackSpec) {
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
   geometry.computeVertexNormals();
-  return new THREE.Mesh(geometry, createRoadMaterial(track.palette.road));
+  const road = new THREE.Mesh(geometry, createRoadMaterial(track.palette.road));
+  road.receiveShadow = true;
+  return road;
 }
 function disposeMaterial(material: DisposableMaterial) {
   material.map?.dispose();

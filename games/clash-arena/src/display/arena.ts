@@ -1,40 +1,64 @@
 import * as THREE from "three";
 export function createArena() {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x080b18);
-  scene.fog = new THREE.Fog(0x080b18, 10, 30);
-  const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 80);
-  camera.position.set(0, 7, 13);
-  camera.lookAt(0, 0, 0);
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  scene.background = new THREE.Color(0x050713);
+  scene.fog = new THREE.Fog(0x050713, 9, 34);
+  const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 80);
+  camera.position.set(0, 6.4, 13);
+  camera.lookAt(0, 1, 0);
+  const renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    powerPreference: "high-performance",
+  });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.08;
   renderer.shadowMap.enabled = true;
-  scene.add(new THREE.HemisphereLight(0x8cc8ff, 0x16081b, 2));
-  const key = new THREE.DirectionalLight(0xffb35c, 3);
-  key.position.set(-5, 8, 5);
-  key.castShadow = true;
-  scene.add(key);
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  scene.add(new THREE.HemisphereLight(0x91c9ff, 0x130719, 2.1));
+  for (const [color, x, z, power] of [
+    [0xffa45d, -5, 7, 3.4],
+    [0x627dff, 6, -3, 2.2],
+  ] as const) {
+    const l = new THREE.DirectionalLight(color, power);
+    l.position.set(x, 8, z);
+    l.castShadow = true;
+    l.shadow.mapSize.set(1024, 1024);
+    scene.add(l);
+  }
   const floor = new THREE.Mesh(
-    new THREE.CylinderGeometry(6.7, 7.7, 0.5, 48),
-    new THREE.MeshStandardMaterial({ color: 0x1c2541, metalness: 0.45, roughness: 0.38 }),
+    new THREE.CylinderGeometry(6.7, 7.8, 0.5, 64),
+    new THREE.MeshStandardMaterial({ color: 0x172342, metalness: 0.55, roughness: 0.31 }),
   );
   floor.receiveShadow = true;
   scene.add(floor);
-  const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(4.2, 0.06, 8, 64),
-    new THREE.MeshBasicMaterial({ color: 0x5eead4 }),
-  );
-  ring.rotation.x = Math.PI / 2;
-  ring.position.y = 0.28;
-  scene.add(ring);
-  for (let i = 0; i < 12; i++) {
-    const pillar = new THREE.Mesh(
-      new THREE.BoxGeometry(0.22, 3, 0.22),
-      new THREE.MeshStandardMaterial({ color: 0x26365e, emissive: 0x101c3c }),
+  for (const r of [2.15, 4.25]) {
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(r, 0.045, 6, 64),
+      new THREE.MeshBasicMaterial({
+        color: r < 3 ? 0x67e8f9 : 0x8b5cf6,
+        transparent: true,
+        opacity: 0.7,
+      }),
     );
-    const a = (i * Math.PI) / 6;
-    pillar.position.set(Math.cos(a) * 6, 1.5, Math.sin(a) * 6);
-    scene.add(pillar);
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = 0.28;
+    scene.add(ring);
+  }
+  for (let i = 0; i < 12; i++) {
+    const a = (i * Math.PI) / 6,
+      p = new THREE.Mesh(
+        new THREE.BoxGeometry(0.28, 3.6, 0.28),
+        new THREE.MeshStandardMaterial({
+          color: 0x273b70,
+          emissive: 0x111d48,
+          emissiveIntensity: 1.4,
+        }),
+      );
+    p.position.set(Math.cos(a) * 6.25, 1.8, Math.sin(a) * 6.25);
+    p.castShadow = true;
+    scene.add(p);
   }
   return { scene, camera, renderer };
 }

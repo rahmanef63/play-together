@@ -1,114 +1,106 @@
 import { CHECKPOINTS, courseSurface, gradeDegrees, progressRatio } from "../shared/course.js";
 import type { RiderView, RidgeViewState } from "./model.js";
-
 export interface RidgeHud {
   host: HTMLElement;
   title: HTMLElement;
   speed: HTMLElement;
+  unit: HTMLElement;
   place: HTMLElement;
+  meta: HTMLElement;
   progress: HTMLElement;
   stamina: HTMLElement;
   center: HTMLElement;
   results: HTMLElement;
 }
-
 export function createHud(root: HTMLElement): RidgeHud {
   const host = document.createElement("section");
   host.className = "ridge-rush";
-  host.style.cssText =
-    "width:100%;height:100%;position:relative;overflow:hidden;background:#132d27;color:#fff;font-family:system-ui,sans-serif";
-  const top = document.createElement("div");
-  top.style.cssText =
-    "position:absolute;z-index:3;left:14px;right:14px;top:12px;display:flex;justify-content:space-between;gap:12px;pointer-events:none;text-shadow:0 1px 3px #000";
-  const title = document.createElement("strong");
-  const place = document.createElement("strong");
-  top.append(title, place);
-  const speed = document.createElement("strong");
-  speed.style.cssText =
-    "position:absolute;z-index:3;right:18px;bottom:24px;font-size:clamp(28px,7vw,72px);font-variant-numeric:tabular-nums;text-shadow:0 2px 4px #000";
-  const meters = document.createElement("div");
-  meters.style.cssText =
-    "position:absolute;z-index:3;left:16px;right:16px;bottom:16px;display:grid;gap:5px;pointer-events:none";
-  const progressTrack = meter("#facc15");
-  const staminaTrack = meter("#34d399");
-  const progress = progressTrack.firstElementChild as HTMLElement;
-  const stamina = staminaTrack.firstElementChild as HTMLElement;
+  const style = document.createElement("style");
+  style.textContent = CSS;
+  const top = div("ridge-hud__top"),
+    brand = div("ridge-hud__brand"),
+    title = document.createElement("strong"),
+    meta = document.createElement("span"),
+    place = document.createElement("strong");
+  brand.append(title, meta);
+  top.append(brand, place);
+  const speedCard = div("ridge-hud__speed"),
+    speed = document.createElement("strong"),
+    unit = document.createElement("span");
+  unit.textContent = "KM/H";
+  speedCard.append(speed, unit);
+  const meters = div("ridge-hud__meters"),
+    progressTrack = meter("progress"),
+    staminaTrack = meter("stamina");
+  const progress = progressTrack.querySelector("i") as HTMLElement,
+    stamina = staminaTrack.querySelector("i") as HTMLElement;
   meters.append(progressTrack, staminaTrack);
-  const center = document.createElement("div");
-  center.style.cssText =
-    "position:absolute;z-index:4;inset:0;display:grid;place-items:center;pointer-events:none;text-align:center;font-weight:900;font-size:clamp(32px,10vw,96px);text-shadow:0 3px 8px #000";
-  const results = document.createElement("div");
-  results.style.cssText =
-    "position:absolute;z-index:5;inset:12% 12%;display:none;align-content:center;gap:8px;padding:clamp(16px,4vw,34px);background:#0b1715e8;border:1px solid #ffffff38;border-radius:14px;overflow:auto";
-  host.append(top, speed, meters, center, results);
+  const center = div("ridge-hud__center"),
+    results = div("ridge-hud__results");
+  host.append(style, top, speedCard, meters, center, results);
   root.replaceChildren(host);
-  return { host, title, speed, place, progress, stamina, center, results };
+  return { host, title, speed, unit, place, meta, progress, stamina, center, results };
 }
-
-export function updateHud(hud: RidgeHud, state: RidgeViewState, me: RiderView | undefined): void {
-  const place = me ? state.riders.findIndex((rider) => rider.id === me.id) + 1 : 0;
-  hud.title.textContent = me
-    ? `RIDGE RUSH · ${Math.max(0, Math.round(gradeDegrees(me.progress)))}° · ${courseSurface(me.progress).toUpperCase()} · CP ${Math.min(me.checkpoint + 1, CHECKPOINTS.length)}/${CHECKPOINTS.length}`
-    : "RIDGE RUSH";
-  hud.place.textContent = me ? `${ordinal(place)} / ${state.riders.length}` : "WAITING";
-  hud.speed.textContent = me ? `${Math.round(me.speed * 3.6)} km/h` : "0 km/h";
-  hud.progress.style.width = `${Math.round(progressRatio(me?.progress ?? 0) * 100)}%`;
-  hud.stamina.style.width = `${Math.round(me?.stamina ?? 0)}%`;
-  hud.center.textContent = centerMessage(state, me);
+export function updateHud(h: RidgeHud, state: RidgeViewState, me: RiderView | undefined) {
+  const place = me ? state.riders.findIndex((r) => r.id === me.id) + 1 : 0,
+    grade = me ? Math.max(0, Math.round(gradeDegrees(me.progress))) : 0;
+  h.title.textContent = "RIDGE RUSH";
+  h.meta.textContent = me
+    ? `${grade}°  ·  ${courseSurface(me.progress).toUpperCase()}  ·  CP ${Math.min(me.checkpoint + 1, CHECKPOINTS.length)}/${CHECKPOINTS.length}`
+    : "EXTREME DESCENT";
+  h.place.textContent = me ? `${ordinal(place)} / ${state.riders.length}` : "WAITING";
+  h.speed.textContent = String(me ? Math.round(me.speed * 3.6) : 0);
+  h.progress.style.width = `${Math.round(progressRatio(me?.progress ?? 0) * 100)}%`;
+  h.stamina.style.width = `${Math.round(me?.stamina ?? 0)}%`;
+  h.center.textContent = centerMessage(state, me);
   const finished = state.phase === "finished";
-  hud.results.style.display = finished ? "grid" : "none";
-  if (finished) renderResults(hud.results, state);
+  h.results.hidden = !finished;
+  if (finished) renderResults(h.results, state);
 }
-
-function centerMessage(state: RidgeViewState, me: RiderView | undefined): string {
+function centerMessage(state: RidgeViewState, me?: RiderView) {
   if (me?.crashed && me.crashed > 0) return "RECOVERING";
-  if (me?.finishedAt !== null && me?.finishedAt !== undefined) return "FINISH";
+  if (me?.finishedAt != null) return "FINISH";
   if (me && !me.grounded && me.airTimeMs > 140) return `AIR ${(me.airTimeMs / 1000).toFixed(1)}s`;
   if (state.phase === "countdown") return String(Math.max(1, Math.ceil(state.countdownMs / 1000)));
-  if (state.phase === "lobby") {
-    const humans = state.riders.filter((rider) => !rider.bot);
-    return humans.length && humans.every((rider) => rider.ready) ? "READY" : "PRESS START";
-  }
+  if (state.phase === "lobby")
+    return state.riders.filter((r) => !r.bot).every((r) => r.ready) ? "READY" : "PRESS START";
   return "";
 }
-
-function renderResults(host: HTMLElement, state: RidgeViewState): void {
+function renderResults(host: HTMLElement, state: RidgeViewState) {
   host.replaceChildren();
   const heading = document.createElement("strong");
   heading.textContent = "RIDGE COMPLETE";
-  heading.style.cssText = "font-size:clamp(24px,6vw,56px);letter-spacing:-.03em";
   host.append(heading);
-  state.riders.forEach((rider, index) => {
-    const row = document.createElement("div");
-    row.style.cssText =
-      "display:grid;grid-template-columns:3ch 1fr auto;gap:10px;padding:8px 0;border-top:1px solid #ffffff22;font-weight:700";
-    const time = rider.finishedAt === null ? "DNF" : `${(rider.finishedAt / 1000).toFixed(2)}s`;
-    row.append(text(`${index + 1}.`), text(rider.name), text(time));
+  state.riders.forEach((r, index) => {
+    const row = div("ridge-result");
+    row.append(
+      text(`${index + 1}.`),
+      text(r.name),
+      text(r.finishedAt == null ? "DNF" : `${(r.finishedAt / 1000).toFixed(2)}s`),
+    );
     host.append(row);
   });
   const note = document.createElement("small");
   note.textContent = "Press START on every connected controller for a rematch.";
-  note.style.opacity = "0.72";
   host.append(note);
 }
-
-function meter(color: string): HTMLElement {
-  const track = document.createElement("div");
-  track.style.cssText =
-    "height:5px;max-width:42%;background:#0008;border:1px solid #fff2;overflow:hidden";
-  const fill = document.createElement("span");
-  fill.style.cssText = `display:block;height:100%;width:0;background:${color};transition:width 90ms linear`;
+function meter(kind: string) {
+  const track = div(`ridge-meter ridge-meter--${kind}`),
+    fill = document.createElement("i");
   track.append(fill);
   return track;
 }
-
-function ordinal(value: number): string {
-  if (value === 1) return "1ST";
-  if (value === 2) return "2ND";
-  if (value === 3) return "3RD";
-  return `${value}TH`;
+function div(className: string) {
+  const el = document.createElement("div");
+  el.className = className;
+  return el;
 }
-
-function text(value: string): Text {
+function text(value: string) {
   return document.createTextNode(value);
 }
+function ordinal(value: number) {
+  return value === 1 ? "1ST" : value === 2 ? "2ND" : value === 3 ? "3RD" : `${value}TH`;
+}
+const CSS = `
+.ridge-rush{width:100%;height:100%;position:relative;overflow:hidden;background:#17252b;color:#f7f5ee;font-family:system-ui,sans-serif}.ridge-hud__top{position:absolute;z-index:4;left:14px;right:14px;top:12px;display:flex;justify-content:space-between;align-items:start;gap:12px;pointer-events:none;text-shadow:0 2px 6px #000}.ridge-hud__brand{display:grid;gap:2px;padding:8px 10px;border-left:3px solid #f7b955;background:#091015b8;backdrop-filter:blur(6px)}.ridge-hud__brand strong{font:950 15px/1 system-ui;letter-spacing:.08em}.ridge-hud__brand span{font:750 9px/1.2 ui-monospace,monospace;color:#d7d8d3}.ridge-hud__top>strong{padding:8px 10px;background:#091015b8;font:950 13px/1 ui-monospace,monospace}.ridge-hud__speed{position:absolute;z-index:4;right:16px;bottom:20px;display:grid;justify-items:end;padding:8px 10px;background:#091015b8;border-right:3px solid #f7b955;pointer-events:none}.ridge-hud__speed strong{font:1000 clamp(34px,8vw,76px)/.82 ui-monospace,monospace;letter-spacing:-.08em}.ridge-hud__speed span{font:850 9px/1 system-ui;letter-spacing:.16em;color:#d6d9d8}.ridge-hud__meters{position:absolute;z-index:4;left:16px;bottom:18px;width:min(44%,320px);display:grid;gap:7px;pointer-events:none}.ridge-meter{height:7px;background:#071015b8;border:1px solid #ffffff25;overflow:hidden}.ridge-meter i{display:block;height:100%;width:0;transition:width 90ms linear}.ridge-meter--progress i{background:#f7b955}.ridge-meter--stamina i{background:#5ee3a4}.ridge-hud__center{position:absolute;z-index:5;inset:0;display:grid;place-items:center;pointer-events:none;text-align:center;font:1000 clamp(30px,9vw,90px)/1 system-ui;letter-spacing:-.04em;text-shadow:0 4px 14px #000}.ridge-hud__results{position:absolute;z-index:8;inset:12% 12%;display:grid;align-content:center;gap:8px;padding:clamp(16px,4vw,34px);background:#07100feF;border:1px solid #ffffff35;overflow:auto}.ridge-hud__results[hidden]{display:none}.ridge-hud__results>strong{font:1000 clamp(24px,6vw,54px)/1 system-ui}.ridge-result{display:grid;grid-template-columns:3ch 1fr auto;gap:10px;padding:8px 0;border-top:1px solid #ffffff22;font-weight:800}.ridge-hud__results small{color:#a8b0ae}@media(max-width:600px){.ridge-hud__brand{padding:6px 8px}.ridge-hud__brand span{font-size:8px}.ridge-hud__meters{width:40%}.ridge-hud__speed{bottom:16px;right:12px}}
+`;

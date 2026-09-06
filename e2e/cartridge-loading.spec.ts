@@ -83,8 +83,52 @@ test("active catalog exposes five games and each game has one compact platform m
       await expect(frame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible();
       await expect(frame.getByRole("button", { name: game.control })).toBeVisible();
       await expect(page.locator(".play-error")).toHaveCount(0);
-      await expect(page.locator(".play-toolbar__actions .ghost-button")).toHaveCount(1);
-      await page.getByRole("button", { name: "Menu", exact: true }).click();
+      await expect(page.locator(".play-toolbar__actions .ghost-button")).toHaveCount(0);
+      const howTo = frame.getByRole("button", { name: "How to play" });
+      const systemMenu = frame.getByRole("button", { name: "Open game menu" });
+      await expect(howTo).toBeVisible();
+      await expect(systemMenu).toBeVisible();
+      await howTo.click();
+      const instructions = frame.getByRole("dialog", { name: `${game.title} how to play` });
+      await expect(instructions).toBeVisible();
+      await expect(instructions.getByText("CORE CONTROLS", { exact: true })).toBeVisible();
+      await instructions.getByRole("button", { name: "Close how to play" }).click();
+      const portrait = await frame.locator("body").evaluate(() => {
+        const start = document.querySelector<HTMLElement>(
+          '[data-face="start"],[data-face="pause"]',
+        );
+        const actions = document.querySelector<HTMLElement>(".console-system-actions");
+        if (!actions) throw new Error("System actions missing");
+        const a = actions.getBoundingClientRect(),
+          s = start?.getBoundingClientRect();
+        return {
+          actions: { top: a.top, bottom: a.bottom, left: a.left, right: a.right },
+          start: s ? { top: s.top, bottom: s.bottom } : null,
+        };
+      });
+      if (portrait.start)
+        expect(portrait.actions.bottom).toBeLessThanOrEqual(portrait.start.top + 3);
+      await page.setViewportSize({ width: 844, height: 390 });
+      const landscape = await frame.locator("body").evaluate(() => {
+        const start = document.querySelector<HTMLElement>(
+          '[data-face="start"],[data-face="pause"]',
+        );
+        const actions = document.querySelector<HTMLElement>(".console-system-actions");
+        if (!actions) throw new Error("System actions missing");
+        const a = actions.getBoundingClientRect(),
+          s = start?.getBoundingClientRect();
+        return {
+          actionCenterY: a.top + a.height / 2,
+          startCenterY: s ? s.top + s.height / 2 : null,
+          viewportWidth: innerWidth,
+          right: a.right,
+        };
+      });
+      if (landscape.startCenterY !== null)
+        expect(Math.abs(landscape.actionCenterY - landscape.startCenterY)).toBeLessThan(30);
+      expect(landscape.right).toBeLessThanOrEqual(landscape.viewportWidth + 1);
+      await page.setViewportSize({ width: 390, height: 844 });
+      await systemMenu.click();
       const menu = page.getByRole("dialog", { name: `${game.title} menu` });
       await expect(menu).toBeVisible();
       await expect(menu.getByRole("button", { name: "Room details" })).toBeVisible();
