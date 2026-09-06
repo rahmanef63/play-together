@@ -54,6 +54,31 @@ test("Ridge Rush provides a distinct downhill race with Tier 0 controls and extr
           timeout: 8_000,
         })
         .toBeGreaterThan(28);
+
+      // Measure braking while the rider is known to be rolling. A later jump may
+      // legitimately hard-land/crash to zero, which must not invalidate this control assertion.
+      const rollingSpeed = Number.parseInt((await speed.textContent()) ?? "0", 10);
+      expect(rollingSpeed).toBeGreaterThan(28);
+      const brake = frame.getByRole("button", { name: "Brake" });
+      await brake.focus();
+      await page.keyboard.down("ShiftLeft");
+      try {
+        await expect(brake).toHaveAttribute("aria-pressed", "true");
+        await expect
+          .poll(() => speed.textContent().then((text) => Number.parseInt(text ?? "0", 10)), {
+            timeout: 4_000,
+          })
+          .toBeLessThan(rollingSpeed);
+      } finally {
+        await page.keyboard.up("ShiftLeft");
+      }
+      await expect(brake).toHaveAttribute("aria-pressed", "false");
+      await expect
+        .poll(() => speed.textContent().then((text) => Number.parseInt(text ?? "0", 10)), {
+          timeout: 6_000,
+        })
+        .toBeGreaterThan(28);
+
       await page.keyboard.down("KeyX");
       try {
         await expect(frame.getByText(/^AIR /)).toBeVisible({ timeout: 1_500 });
@@ -63,18 +88,6 @@ test("Ridge Rush provides a distinct downhill race with Tier 0 controls and extr
       await expect(frame.getByText(/^AIR /)).toHaveCount(0, { timeout: 2_500 });
     } finally {
       await page.keyboard.up("Space");
-    }
-    const rollingSpeed = Number.parseInt((await speed.textContent()) ?? "0", 10);
-    await frame.getByRole("button", { name: "Brake" }).focus();
-    await page.keyboard.down("ShiftLeft");
-    try {
-      await expect
-        .poll(() => speed.textContent().then((text) => Number.parseInt(text ?? "0", 10)), {
-          timeout: 4_000,
-        })
-        .toBeLessThan(rollingSpeed);
-    } finally {
-      await page.keyboard.up("ShiftLeft");
     }
     await expect(frame.getByText(/1ST|2ND|3RD|4TH/)).toBeVisible();
     await expect(page.locator(".connection")).toHaveText("connected");

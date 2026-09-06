@@ -208,3 +208,8 @@ Final manifest SHA-256 values:
 - clash-arena@0.2.0: `2704da421375e8510819f4a43512e2fc9e79056c3d67c8eb1d83f0e0e22664b1`
 
 All release paths tracked on `origin/main` before this pass remain byte-unchanged; only the five new semantic versions are added. The source and all five new manifests use additive Three ABI `0.185.1+pt3`; pt1 and pt2 remain separate historical ABI surfaces. Production remains a separate claim until the main CI/deploy-managed workflow and public-domain browser suite succeed.
+
+
+### CI Ridge brake assertion correction — Play Together 0.20.0
+
+The first 0.20.0 GitHub integration run passed source verification but its browser suite reported one Ridge Rush failure on both attempts. GitHub reporter exposed the exact assertion: the test sampled `rollingSpeed` after a jump, while the authoritative physics intentionally permits a hard landing to crash the rider to speed zero; the test then asked for braking to reduce `0` below `0`. The game physics and immutable Ridge Rush 0.4.0 bytes are unchanged. The E2E now verifies braking from a proven >28 km/h rolling state before the risky jump, waits for acceleration to recover, and then independently verifies airtime/landing.
