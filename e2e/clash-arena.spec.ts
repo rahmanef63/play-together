@@ -46,8 +46,12 @@ test("Clash Arena selects a canonical fighter before entering deterministic Tier
     const selectFlow = frame.locator('.clash-flow[data-phase="select"]');
     await expect(selectFlow).toBeVisible();
     await expect(selectFlow.getByText("CHOOSE YOUR FIGHTER")).toBeVisible();
-    await expect(selectFlow.getByText("NOVA RIN", { exact: true })).toBeVisible();
-    await expect(selectFlow.getByText("KITE VALE", { exact: true })).toBeVisible();
+    await expect(selectFlow.locator('.clash-flow__card[data-character="nova-rin"]')).toContainText(
+      "NOVA RIN",
+    );
+    await expect(selectFlow.locator('.clash-flow__card[data-character="kite-vale"]')).toContainText(
+      "KITE VALE",
+    );
     await expect(selectFlow.getByText("CPU", { exact: true })).toBeVisible();
     const p1 = selectFlow.locator(".clash-flow__slot").first();
     const initialCharacter = await p1.getAttribute("data-character");

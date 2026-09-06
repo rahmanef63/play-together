@@ -21,7 +21,7 @@ test("active catalog exposes five games and each game has one compact platform m
     {
       key: clashArena,
       title: "Clash Arena",
-      control: "Jab; press with B to escape a throw",
+      control: "Select fighter before match; jab during fight; press with B to escape a throw",
       preset: "classic",
     },
     {
