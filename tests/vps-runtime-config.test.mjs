@@ -73,6 +73,7 @@ describe("VPS production runtime configuration", () => {
     expect(deployer).toContain('"--typecheck",');
     expect(deployer).toContain('"enable",');
     expect(deployer).toContain('"pnpm", "install", "--frozen-lockfile"');
-    expect(deployer).toContain('"--filter=@play-together/security"');
+    expect(deployer).toContain('"@play-together/contracts", "build"');
+    expect(deployer).toContain('"@play-together/security", "build"');
   });
 });
