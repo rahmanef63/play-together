@@ -42,7 +42,7 @@ function advanceGrounded(
   dt: number,
 ): VerticalResult {
   const ramp = jumpAt(rider.progress),
-    manual = rider.input.jump && rider.jumpReady && rider.speed > 7;
+    manual = (rider.jumpQueued || rider.input.jump) && rider.jumpReady && rider.speed > 7;
   const travelled = Math.max(0.01, rider.progress - previousProgress);
   const expected = previousGround + courseSlope(previousProgress) * travelled;
   const terrainFallsAway = nextGround < expected - 0.16;
@@ -64,6 +64,7 @@ function advanceGrounded(
   rider.suspensionFront = 0;
   rider.suspensionRear = 0;
   if (manual) {
+    rider.jumpQueued = false;
     rider.jumpReady = false;
     rider.stamina = clamp(rider.stamina - (ramp ? 4 : 2), 0, 100);
   }

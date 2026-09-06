@@ -12,14 +12,7 @@ import {
   surfaceSpeedFactor,
   trailHalfWidth,
 } from "../shared/course.js";
-import {
-  brakeForce,
-  pedalForce,
-  resolveLanding,
-  startTrick,
-  tryAttack,
-  updateContext,
-} from "./mechanics.js";
+import { brakeForce, pedalForce, resolveLanding, updateContext } from "./mechanics.js";
 import { clamp, type Rider } from "./model.js";
 import { advanceVertical, groundHeight, groundPitch } from "./vertical.js";
 
@@ -30,15 +23,8 @@ export interface AdvanceResult {
   crashed: boolean;
   finished: boolean;
 }
-export function advanceRider(
-  rider: Rider,
-  dt: number,
-  elapsedMs: number,
-  rivals: Rider[] = [],
-): AdvanceResult {
+export function advanceRider(rider: Rider, dt: number, elapsedMs: number): AdvanceResult {
   updateContext(rider, elapsedMs, dt);
-  startTrick(rider);
-  tryAttack(rider, rivals);
   const result = { checkpoint: false, crashed: false, finished: false };
   if (rider.finishedAt !== null) return result;
   if (!rider.input.jump) rider.jumpReady = true;
@@ -147,6 +133,7 @@ export function crashRider(rider: Rider): void {
   rider.currentTrick = "";
   rider.pendingStyle = 0;
   rider.combo = 0;
+  rider.jumpQueued = false;
 }
 export function rescueRider(rider: Rider): void {
   const checkpoint = rider.checkpoint > 0 ? CHECKPOINTS[rider.checkpoint - 1] : 0;
@@ -161,6 +148,7 @@ export function rescueRider(rider: Rider): void {
   rider.pitch = groundPitch(rider.progress, rider.lane);
   rider.airTimeMs = 0;
   rider.offTrailMs = 0;
+  rider.jumpQueued = false;
 }
 export function updateBotInput(rider: Rider, seed: number): void {
   const personality = ((seed * 17 + rider.slot * 13) % 31) / 31,

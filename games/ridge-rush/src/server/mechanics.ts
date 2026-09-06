@@ -1,4 +1,4 @@
-import { clamp, type Rider } from "./model.js";
+import { clamp, type Rider, type RiderInput } from "./model.js";
 
 const SPRINT_WINDOW_MAX = 700;
 
@@ -9,55 +9,29 @@ export function registerPedalEdge(rider: Rider, nextPedal: boolean, now: number)
   rider.pedalTappedAt = now;
 }
 
-export function updateContext(rider: Rider, _now: number, dt: number): void {
-  rider.sprintMs =
-    rider.input.pedal && rider.stamina > 0 ? Math.max(0, rider.sprintMs - dt * 1000) : 0;
-  rider.sprinting = rider.sprintMs > 0 && rider.input.pedal && rider.stamina > 0;
-  rider.rearView = rider.input.attack && rider.input.body < -0.8;
-  rider.powerslide =
-    rider.input.brake &&
-    Math.abs(rider.input.steer) > 0.58 &&
-    rider.speed > 7.5 &&
-    rider.input.body < 0.55;
-  rider.frontBrake = rider.input.brake && rider.input.body > 0.45;
-  rider.hitFeedback = Math.max(0, rider.hitFeedback - dt * 1000);
-  rider.attackCooldown = Math.max(0, rider.attackCooldown - dt * 1000);
-}
-
-export function startTrick(rider: Rider): void {
-  const pressed = rider.input.jump && !rider.jumpWasDown;
-  rider.jumpWasDown = rider.input.jump;
-  if (!pressed || rider.grounded || rider.combo >= 3) return;
-  rider.currentTrick = trickName(rider.input.steer, rider.input.body);
-  rider.combo += 1;
-  rider.pendingStyle += trickValue(rider.input.steer, rider.input.body) * rider.combo;
-}
-
-export function resolveLanding(rider: Rider, landed: boolean, crashed: boolean): void {
-  if (!landed && !crashed) return;
-  if (crashed) {
-    rider.pendingStyle = 0;
-    rider.combo = 0;
-  } else if (rider.pendingStyle) {
-    rider.score += rider.pendingStyle;
-    rider.pendingStyle = 0;
-    rider.combo = 0;
+export function registerJumpEdge(rider: Rider, next: RiderInput): void {
+  if (!next.jump || rider.input.jump || rider.crashed > 0 || rider.finishedAt !== null) return;
+  if (rider.grounded) {
+    if (rider.jumpReady && rider.speed > 7) rider.jumpQueued = true;
+    return;
   }
-  rider.currentTrick = "";
+  if (rider.combo >= 3) return;
+  rider.currentTrick = trickName(next.steer, next.body);
+  rider.combo += 1;
+  rider.pendingStyle += trickValue(next.steer, next.body) * rider.combo;
 }
 
-export function tryAttack(rider: Rider, rivals: Rider[]): void {
-  const pressed = rider.input.attack && !rider.attackWasDown;
-  rider.attackWasDown = rider.input.attack;
+export function registerAttackEdge(rider: Rider, next: RiderInput, rivals: Rider[]): void {
   if (
-    !pressed ||
-    rider.rearView ||
+    !next.attack ||
+    rider.input.attack ||
+    next.body < -0.8 ||
     rider.attackCooldown > 0 ||
     rider.crashed > 0 ||
     rider.finishedAt !== null
   )
     return;
-  const selectedSide = Math.abs(rider.input.steer) > 0.25 ? -Math.sign(rider.input.steer) : 0;
+  const selectedSide = Math.abs(next.steer) > 0.25 ? -Math.sign(next.steer) : 0;
   const rival = rivals
     .filter((other) => other !== rider && other.crashed <= 0 && other.finishedAt === null)
     .filter(
@@ -80,6 +54,34 @@ export function tryAttack(rider: Rider, rivals: Rider[]): void {
   rider.hitFeedback = 320;
   rider.score += 50;
   rider.stamina = clamp(rider.stamina + 4, 0, 100);
+}
+
+export function updateContext(rider: Rider, _now: number, dt: number): void {
+  rider.sprintMs =
+    rider.input.pedal && rider.stamina > 0 ? Math.max(0, rider.sprintMs - dt * 1000) : 0;
+  rider.sprinting = rider.sprintMs > 0 && rider.input.pedal && rider.stamina > 0;
+  rider.rearView = rider.input.attack && rider.input.body < -0.8;
+  rider.powerslide =
+    rider.input.brake &&
+    Math.abs(rider.input.steer) > 0.58 &&
+    rider.speed > 7.5 &&
+    rider.input.body < 0.55;
+  rider.frontBrake = rider.input.brake && rider.input.body > 0.45;
+  rider.hitFeedback = Math.max(0, rider.hitFeedback - dt * 1000);
+  rider.attackCooldown = Math.max(0, rider.attackCooldown - dt * 1000);
+}
+
+export function resolveLanding(rider: Rider, landed: boolean, crashed: boolean): void {
+  if (!landed && !crashed) return;
+  if (crashed) {
+    rider.pendingStyle = 0;
+    rider.combo = 0;
+  } else if (rider.pendingStyle) {
+    rider.score += rider.pendingStyle;
+    rider.pendingStyle = 0;
+    rider.combo = 0;
+  }
+  rider.currentTrick = "";
 }
 
 export function brakeForce(rider: Rider, grip: number): number {

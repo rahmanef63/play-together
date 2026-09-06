@@ -56,12 +56,11 @@ export function snapshotRiders(state: RidgeState) {
       ({
         input: _input,
         jumpReady: _jumpReady,
+        jumpQueued: _jumpQueued,
         offTrailMs: _offTrailMs,
         sprintMs: _sprintMs,
         attackCooldown: _attackCooldown,
         pedalTappedAt: _pedalTappedAt,
-        jumpWasDown: _jumpWasDown,
-        attackWasDown: _attackWasDown,
         ...rider
       }) => ({ ...rider }),
     )

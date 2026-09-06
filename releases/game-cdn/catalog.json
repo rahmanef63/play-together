@@ -622,6 +622,21 @@
           "mode": "shared",
           "maxViewports": 1
         }
+      },
+      "status": "retired",
+      "retirementReason": "Pre-production immutable candidate superseded by Ridge Rush 0.5.5, which moves hop/trick and rider-contact rising edges to authoritative onInput handling so fast release/re-press gestures cannot be lost between simulation ticks."
+    },
+    {
+      "gameId": "ridge-rush",
+      "version": "0.5.5",
+      "title": "Ridge Rush",
+      "manifestPath": "/games/ridge-rush/0.5.5/manifest.json",
+      "manifestSha256": "234dec01363f5987dc0748d93fddb4876478401e3031566993fdf505835c8423",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
       }
     },
     {

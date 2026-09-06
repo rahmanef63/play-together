@@ -1,6 +1,14 @@
 # Changelog
 
-## [0.21.0] - 2026-09-06
+## [0.21.0]
+
+### Ridge Rush 0.5.5
+
+- Move hop/trick and rider-contact detection to authoritative input edges so fast release/re-press gestures cannot be lost between simulation ticks.
+- Queue a valid ground hop edge until the next simulation tick; airborne X edges now style immediately, while Y contact edges remain distinct from body-back rear view.
+- Supersedes the 0.5.4 pre-production candidate after GitHub integration reproduced a release/press trick edge being missed before a hard landing.
+
+ - 2026-09-06
 
 ### Ridge Rush 0.5.4
 

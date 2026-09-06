@@ -36,6 +36,7 @@ export interface Rider {
   rescueCount: number;
   offTrailMs: number;
   jumpReady: boolean;
+  jumpQueued: boolean;
   sprintMs: number;
   sprinting: boolean;
   powerslide: boolean;
@@ -46,8 +47,6 @@ export interface Rider {
   hitFeedback: number;
   attackCooldown: number;
   pedalTappedAt: number;
-  jumpWasDown: boolean;
-  attackWasDown: boolean;
   input: RiderInput;
 }
 export interface RidgeState {
@@ -92,6 +91,7 @@ export function createRider(id: string, slot: number, bot = false): Rider {
     rescueCount: 0,
     offTrailMs: 0,
     jumpReady: true,
+    jumpQueued: false,
     sprintMs: 0,
     sprinting: false,
     powerslide: false,
@@ -102,8 +102,6 @@ export function createRider(id: string, slot: number, bot = false): Rider {
     hitFeedback: 0,
     attackCooldown: 0,
     pedalTappedAt: -1000,
-    jumpWasDown: false,
-    attackWasDown: false,
     input: emptyInput(),
   };
 }

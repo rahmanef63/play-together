@@ -11,13 +11,10 @@
     "tickRate": 60,
     "snapshotRate": 20
   },
-  "modes": ["shared-screen", "handheld"],
-  "presentation": {
-    "remoteDisplay": {
-      "mode": "shared",
-      "maxViewports": 1
-    }
-  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
   "runtimeDependencies": {
     "three": "0.185.1+pt3"
   },
@@ -57,10 +54,22 @@
             }
           },
           "keys": {
-            "up": ["ArrowUp", "KeyW"],
-            "down": ["ArrowDown", "KeyS"],
-            "left": ["ArrowLeft", "KeyA"],
-            "right": ["ArrowRight", "KeyD"]
+            "up": [
+              "ArrowUp",
+              "KeyW"
+            ],
+            "down": [
+              "ArrowDown",
+              "KeyS"
+            ],
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ]
           }
         },
         {
@@ -83,7 +92,9 @@
               "pedal": false
             }
           },
-          "keys": ["Space"]
+          "keys": [
+            "Space"
+          ]
         },
         {
           "id": "brake",
@@ -105,7 +116,10 @@
               "brake": false
             }
           },
-          "keys": ["ShiftLeft", "ShiftRight"]
+          "keys": [
+            "ShiftLeft",
+            "ShiftRight"
+          ]
         },
         {
           "id": "jump",
@@ -127,7 +141,9 @@
               "jump": false
             }
           },
-          "keys": ["KeyX"]
+          "keys": [
+            "KeyX"
+          ]
         },
         {
           "id": "attack-look",
@@ -149,7 +165,9 @@
               "attack": false
             }
           },
-          "keys": ["KeyY"]
+          "keys": [
+            "KeyY"
+          ]
         },
         {
           "id": "start",
@@ -165,7 +183,9 @@
               "action": "ready"
             }
           },
-          "keys": ["Enter"]
+          "keys": [
+            "Enter"
+          ]
         }
       ]
     }
@@ -175,5 +195,15 @@
     "keyboard": true,
     "gamepad": true,
     "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "5904ff6c271b064e3a3582356af4f8e5eec91badedc14fc49a0165303d8881e3"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "1c0f0669f94fd612a7198b9ed2e239b87c4a0d4c65bb962e70b3eb4c2bb11857"
+    }
   }
 }

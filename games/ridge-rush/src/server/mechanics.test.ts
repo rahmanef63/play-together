@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   brakeForce,
+  registerAttackEdge,
+  registerJumpEdge,
   registerPedalEdge,
   resolveLanding,
-  startTrick,
-  tryAttack,
   updateContext,
 } from "./mechanics.js";
 import { createRider } from "./model.js";
@@ -62,20 +62,28 @@ describe("Ridge Rush classic downhill mechanics", () => {
     expect(rider.frontBrake).toBe(false);
   });
 
-  it("chains up to three directional air styles and banks them only on a clean landing", () => {
+  it("queues a valid ground hop edge even if release arrives before the next tick", () => {
+    const rider = createRider("hop-edge", 0);
+    rider.speed = 12;
+    const press = { ...rider.input, jump: true };
+    registerJumpEdge(rider, press);
+    expect(rider.jumpQueued).toBe(true);
+    rider.input = { ...press, jump: false };
+    expect(rider.jumpQueued).toBe(true);
+  });
+
+  it("chains directional air styles from input edges and banks them only on a clean landing", () => {
     const rider = createRider("style", 0);
     rider.grounded = false;
-    rider.input.steer = -1;
-    rider.input.jump = true;
-    startTrick(rider);
+    const left = { ...rider.input, steer: -1, jump: true };
+    registerJumpEdge(rider, left);
+    rider.input = left;
     expect(rider.currentTrick).toBe("LEFT SPIN");
     expect(rider.combo).toBe(1);
-    rider.input.jump = false;
-    startTrick(rider);
-    rider.input.body = 1;
-    rider.input.steer = 0;
-    rider.input.jump = true;
-    startTrick(rider);
+    rider.input = { ...rider.input, jump: false };
+    const front = { ...rider.input, steer: 0, body: 1, jump: true };
+    registerJumpEdge(rider, front);
+    rider.input = front;
     expect(rider.currentTrick).toBe("FRONT ARC");
     expect(rider.combo).toBe(2);
     const pending = rider.pendingStyle;
@@ -88,8 +96,9 @@ describe("Ridge Rush classic downhill mechanics", () => {
   it("cancels pending style on a crash", () => {
     const rider = createRider("crash-style", 0);
     rider.grounded = false;
-    rider.input.jump = true;
-    startTrick(rider);
+    const press = { ...rider.input, jump: true };
+    registerJumpEdge(rider, press);
+    rider.input = press;
     expect(rider.pendingStyle).toBeGreaterThan(0);
     resolveLanding(rider, false, true);
     expect(rider.score).toBe(0);
@@ -97,15 +106,14 @@ describe("Ridge Rush classic downhill mechanics", () => {
     expect(rider.combo).toBe(0);
   });
 
-  it("uses Y for a close-range strike on the selected visual side", () => {
+  it("uses Y input edge for a close-range strike on the selected visual side", () => {
     const rider = createRider("attacker", 0),
       rival = createRider("rival", 1);
     Object.assign(rider, { lane: 0, progress: 100, speed: 20 });
     Object.assign(rival, { lane: 1.2, progress: 102, speed: 20 });
-    rider.input.steer = -1;
-    rider.input.attack = true;
-    updateContext(rider, 100, 0.016);
-    tryAttack(rider, [rider, rival]);
+    const press = { ...rider.input, steer: -1, attack: true };
+    registerAttackEdge(rider, press, [rider, rival]);
+    rider.input = press;
     expect(rival.speed).toBeLessThan(20);
     expect(rival.lateralVelocity).toBeGreaterThan(0);
     expect(rider.score).toBe(50);
@@ -117,10 +125,10 @@ describe("Ridge Rush classic downhill mechanics", () => {
       rival = createRider("rival", 1);
     Object.assign(rider, { lane: 0, progress: 100, speed: 20 });
     Object.assign(rival, { lane: 1, progress: 101, speed: 20 });
-    rider.input.body = -1;
-    rider.input.attack = true;
+    const press = { ...rider.input, body: -1, attack: true };
+    registerAttackEdge(rider, press, [rider, rival]);
+    rider.input = press;
     updateContext(rider, 100, 0.016);
-    tryAttack(rider, [rider, rival]);
     expect(rider.rearView).toBe(true);
     expect(rival.speed).toBe(20);
   });
