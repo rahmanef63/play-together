@@ -1,41 +1,76 @@
-import { createFighter, emptyInput, type State } from "./model.js";
-export function syncBot(s: State): void {
-  const humans = s.fighters.filter((f) => !f.bot);
-  if (humans.length === 1 && !s.fighters.some((f) => f.bot))
-    s.fighters.push(createFighter("orbit-bot", humans[0]?.side === 0 ? 1 : 0, true));
+import { characterName, createFighter, type Fighter, type State } from "./model.js";
+
+export function syncBot(state: State): void {
+  const humans = state.fighters.filter((fighter) => !fighter.bot);
+  if (humans.length !== 1 || state.fighters.some((fighter) => fighter.bot)) return;
+  const side = humans[0]?.side === 0 ? 1 : 0;
+  const character = state.seed % 2 === 0 ? "nova-rin" : "kite-vale";
+  state.fighters.push(createFighter("orbit-bot", side, true, character));
 }
-export function resetRound(s: State): void {
-  if (s.fighters.some((f) => f.wins >= 2)) {
-    s.phase = "match-over";
-    s.event = "MATCH OVER — START REMATCH";
+
+export function beginIntro(state: State, label = `ROUND ${state.round}`): void {
+  state.phase = "intro";
+  state.introMs = 2_200;
+  state.event = label;
+  for (const fighter of state.fighters) {
+    fighter.buffer = null;
+    fighter.bufferFrames = 0;
+    fighter.move = null;
+  }
+}
+
+export function resetRound(state: State): void {
+  if (state.fighters.some((fighter) => fighter.wins >= 2)) {
+    state.phase = "match-over";
+    state.event = "MATCH OVER";
     return;
   }
-  s.round++;
-  s.phase = "fight";
-  s.timerMs = 60000;
-  s.winnerId = null;
-  for (const f of s.fighters) {
-    const fresh = createFighter(f.id, f.side, f.bot);
-    fresh.wins = f.wins;
-    Object.assign(f, fresh);
-  }
-  s.event = `ROUND ${s.round}`;
+  state.round += 1;
+  state.timerMs = 60_000;
+  state.winnerId = null;
+  for (const fighter of state.fighters) resetFighter(fighter, true);
+  beginIntro(state);
 }
-export function rematch(s: State): void {
-  s.round = 1;
-  s.phase = "fight";
-  s.timerMs = 60000;
-  s.winnerId = null;
-  for (const f of s.fighters) {
-    const fresh = createFighter(f.id, f.side, f.bot);
-    Object.assign(f, fresh);
-  }
-  s.event = "REMATCH";
+
+export function rematch(state: State): void {
+  state.round = 1;
+  state.timerMs = 60_000;
+  state.winnerId = null;
+  for (const fighter of state.fighters) resetFighter(fighter, false);
+  beginIntro(state, "REMATCH");
 }
-export function start(s: State): void {
-  if (s.fighters.length >= 2 && s.phase === "lobby") {
-    s.phase = "fight";
-    s.event = "FIGHT";
+
+export function select(
+  state: State,
+  id: string,
+  direction: number,
+  confirm: boolean,
+  back: boolean,
+): void {
+  const fighter = state.fighters.find((candidate) => candidate.id === id && !candidate.bot);
+  if (!fighter) return;
+  if (back) {
+    fighter.ready = false;
+    state.event = `${fighter.name} SELECTING`;
+  }
+  if (!fighter.ready && direction !== 0) {
+    fighter.character = fighter.character === "nova-rin" ? "kite-vale" : "nova-rin";
+    fighter.name = characterName(fighter.character);
+    state.event = `${fighter.name} SELECTED`;
+  }
+  if (confirm) {
+    fighter.ready = true;
+    state.event = `${fighter.name} READY`;
+  }
+  if (state.fighters.length === 2 && state.fighters.every((candidate) => candidate.ready)) {
+    beginIntro(state, "VERSUS");
   }
 }
-export { emptyInput };
+
+function resetFighter(fighter: Fighter, preserveWins: boolean): void {
+  const wins = preserveWins ? fighter.wins : 0;
+  const fresh = createFighter(fighter.id, fighter.side, fighter.bot, fighter.character);
+  fresh.wins = wins;
+  fresh.ready = true;
+  Object.assign(fighter, fresh);
+}

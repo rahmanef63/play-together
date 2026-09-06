@@ -1,5 +1,11 @@
 export type Button = "a" | "b" | "x" | "y";
+export type CharacterId = "nova-rin" | "kite-vale";
 export type Move = "jab" | "sweep" | "kick" | "launcher" | "throw" | "special" | null;
+
+export const characters: readonly CharacterId[] = ["nova-rin", "kite-vale"];
+export const characterName = (character: CharacterId) =>
+  character === "nova-rin" ? "NOVA RIN" : "KITE VALE";
+
 export interface Input {
   x: number;
   y: number;
@@ -9,9 +15,12 @@ export interface Input {
   yButton: boolean;
   start: boolean;
 }
+
 export interface Fighter {
   id: string;
   name: string;
+  character: CharacterId;
+  ready: boolean;
   bot: boolean;
   side: number;
   hp: number;
@@ -32,17 +41,20 @@ export interface Fighter {
   juggle: number;
   flash: string;
 }
+
 export interface State {
   kind: "clash-arena";
-  phase: "lobby" | "fight" | "round-over" | "match-over";
+  phase: "select" | "intro" | "fight" | "round-over" | "match-over";
   round: number;
   timerMs: number;
   resetMs: number;
+  introMs: number;
   winnerId: string | null;
   fighters: Fighter[];
   event: string;
   seed: number;
 }
+
 export const emptyInput = (): Input => ({
   x: 0,
   y: 0,
@@ -53,10 +65,18 @@ export const emptyInput = (): Input => ({
   start: false,
 });
 export const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
-export function createFighter(id: string, side: number, bot = false): Fighter {
+
+export function createFighter(
+  id: string,
+  side: number,
+  bot = false,
+  character: CharacterId = side ? "kite-vale" : "nova-rin",
+): Fighter {
   return {
     id,
-    name: `${side === 0 ? "NOVA RIN" : "KITE VALE"}${bot ? " · CPU" : ""}`,
+    name: `${characterName(character)}${bot ? " · CPU" : ""}`,
+    character,
+    ready: bot,
     bot,
     side,
     hp: 100,
@@ -78,17 +98,21 @@ export function createFighter(id: string, side: number, bot = false): Fighter {
     flash: "",
   };
 }
+
 export function createState(seed: number): State {
   return {
     kind: "clash-arena",
-    phase: "lobby",
+    phase: "select",
     round: 1,
-    timerMs: 60000,
+    timerMs: 60_000,
     resetMs: 0,
+    introMs: 0,
     winnerId: null,
     fighters: [],
-    event: "READY",
+    event: "CHOOSE YOUR FIGHTER",
     seed,
   };
 }
-export const canAct = (f: Fighter) => f.stun <= 0 && f.blockStun <= 0 && f.move === null;
+
+export const canAct = (fighter: Fighter) =>
+  fighter.stun <= 0 && fighter.blockStun <= 0 && fighter.move === null;

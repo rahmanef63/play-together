@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -15,8 +15,18 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
     const config = JSON.parse(
       await readFile(resolve(root, "games", gameId, "game.config.json"), "utf8"),
     );
-    const release = resolve(root, "releases/game-cdn/games", gameId, config.game.version);
-    const { createServerGame } = await import(pathToFileURL(resolve(release, "server.js")).href);
+    const releaseServer = resolve(
+      root,
+      "releases/game-cdn/games",
+      gameId,
+      config.game.version,
+      "server.js",
+    );
+    const draftServer = resolve(root, "games", gameId, "dist/server.js");
+    const serverPath = await access(releaseServer)
+      .then(() => releaseServer)
+      .catch(() => draftServer);
+    const { createServerGame } = await import(pathToFileURL(serverPath).href);
     const game = await createServerGame({
       roomId: "isolated-render-qa",
       gameId,
@@ -27,6 +37,15 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
     for (let index = 0; index < playerCount; index++) {
       const id = `qa-${index}`;
       await game.onJoin({ id, connectedAt: 0 });
+    }
+    if (gameId === "clash-arena") {
+      for (let index = 0; index < playerCount; index++) {
+        const id = `qa-${index}`;
+        await game.onInput(id, { a: true }, 1);
+        await game.onInput(id, { a: false }, 2);
+      }
+      for (let tick = 0; tick < 44; tick++) await game.tick(tick * 50, 50);
+      assert.equal(game.snapshot().phase, "fight", "Clash QA must leave character select");
     }
     for (let index = 0; index < playerCount; index++) {
       const id = `qa-${index}`;
@@ -41,7 +60,7 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
             : gameId === "clash-arena"
               ? { x: index === 0 ? -0.7 : 0.7, a: index === 0, b: index === 1 }
               : { throttle: 0.7, gun: true };
-      await game.onInput(id, input, 2);
+      await game.onInput(id, input, gameId === "clash-arena" ? 3 : 2);
     }
     for (let tick = 0; tick < 160; tick++) await game.tick(tick * 50, 50);
     for (const viewport of [
@@ -154,6 +173,11 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
         assert.equal(
           await page.locator(".clash-arena").getAttribute("data-fighter-asset-format"),
           "glb",
+        );
+        assert.equal(
+          await page.locator(".clash-arena").getAttribute("data-phase"),
+          "fight",
+          "Clash gameplay QA must render combat after character selection",
         );
       }
       const name = `${gameId}-gameplay-${viewport.width}x${viewport.height}`;

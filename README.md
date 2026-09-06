@@ -6,7 +6,7 @@
 
 A version-isolated multiplayer platform for phone remotes, handheld play, and shared browser/TV displays. Each game ships as an independent cartridge; the platform owns discovery, rooms, pairing, realtime transport, device shells, and immutable release verification.
 
-The source catalog targets five active 3D cartridges: **Turbo Circuit 0.11.0**, **Flight Trainer 0.4.0**, **Sky Strike 0.4.0**, the extreme downhill-bike racer **Ridge Rush 0.5.7**, and the original 1v1 fighter **Clash Arena 0.3.0**. Source versions do not imply that production or an already-open room has upgraded. Historical releases for removed games stay byte-immutable but are retired from new-room selection.
+The source catalog targets five active 3D cartridges: **Turbo Circuit 0.11.0**, **Flight Trainer 0.4.0**, **Sky Strike 0.4.0**, the extreme downhill-bike racer **Ridge Rush 0.5.7**, and the original 1v1 fighter **Clash Arena 0.4.0**. Source versions do not imply that production or an already-open room has upgraded. Historical releases for removed games stay byte-immutable but are retired from new-room selection.
 
 [![CI](https://github.com/rahmanef63/play-together/actions/workflows/ci.yml/badge.svg)](https://github.com/rahmanef63/play-together/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -37,7 +37,7 @@ Playable visuals are not concept-art placeholders. 3D player characters/vehicles
 
 ## Gameplay and controls
 
-The default Play Together controller is deliberately **Tier 0: one left stick + ABXY + Menu/Start**. L1/L2/R1/R2 are not recommended by default and only belong in a game when playtesting proves the extra inputs are genuinely necessary. Ridge Rush 0.5.7 and Clash Arena 0.3.0 both ship with Tier 0 mobile controls. Menu and How To are platform actions placed beside Start in landscape and above Start in portrait; hold controls suppress text selection/callouts. Advanced shoulders remain hidden by default. Touch, keyboard and standard-mapped physical gamepads share input ownership and focus-loss cleanup. Read the [gameplay development guide](docs/gameplay-development.md) for the controller-tier contract and per-game mappings.
+The default Play Together controller is deliberately **Tier 0: one left stick + ABXY + Menu/Start**. L1/L2/R1/R2 are not recommended by default and only belong in a game when playtesting proves the extra inputs are genuinely necessary. Ridge Rush 0.5.7 and Clash Arena 0.4.0 both ship with Tier 0 mobile controls; Clash Arena uses them for character select as well as match play. Menu and How To are platform actions placed beside Start in landscape and above Start in portrait; hold controls suppress text selection/callouts. Advanced shoulders remain hidden by default. Touch, keyboard and standard-mapped physical gamepads share input ownership and focus-loss cleanup. Read the [gameplay development guide](docs/gameplay-development.md) for the controller-tier contract and per-game mappings.
 
 ## Product flow
 

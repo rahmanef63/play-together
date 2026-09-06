@@ -2,6 +2,14 @@
 
 ## [0.22.0] - 2026-09-06
 
+### Clash Arena 0.4.0 — character select and match flow
+
+- Add authoritative character selection for Nova Rin and Kite Vale, with each room snapshot carrying the chosen fighter before combat begins.
+- Tier 0 controls now drive select semantics: stick changes selection, A confirms, B returns/cancels, and Start readies or advances the shared flow.
+- Add versus, round, result, and rematch overlays around the best-of-three match loop.
+- Keep the manifest-declared GLB fighter identity canonical across select, combat, and results instead of introducing parallel presentation assets.
+- Retire Clash Arena 0.3.0 from new-room selection while preserving its immutable historical rooms.
+
 ### Clash Arena 0.3.0 — real character assets
 
 - Replace the normal runtime capsule/sphere fighters with two original asset-backed GLB characters: **Nova Rin** and **Kite Vale**.

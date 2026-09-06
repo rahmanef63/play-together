@@ -72,6 +72,21 @@
           "mode": "shared",
           "maxViewports": 1
         }
+      },
+      "status": "retired",
+      "retirementReason": "Superseded by Clash Arena 0.4.0, which adds authoritative character select, versus/round flow, match-result/rematch presentation, and character-driven GLB identity while preserving the Tier 0 combat model."
+    },
+    {
+      "gameId": "clash-arena",
+      "version": "0.4.0",
+      "title": "Clash Arena",
+      "manifestPath": "/games/clash-arena/0.4.0/manifest.json",
+      "manifestSha256": "ae9207402ed5c6f40b74edd8baa9914586991bf70e1f88023373f0f86d0a09de",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
       }
     },
     {

@@ -3,9 +3,9 @@
   "games": [
     {
       "id": "clash-arena",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "title": "Clash Arena",
-      "description": "Original 1v1 arena fighter with asset-backed 3D characters, directional guard, meter, throw escape and deterministic combat.",
+      "description": "Original 1v1 arena fighter with character select, asset-backed 3D fighters, directional guard, meter, throw escape and deterministic combat.",
       "modes": ["shared-screen", "handheld"],
       "capabilities": {
         "touch": true,
@@ -39,7 +39,7 @@
             {
               "id": "move",
               "kind": "stick",
-              "ariaLabel": "Move; hold away to guard high, crouch plus away to guard low",
+              "ariaLabel": "Choose fighter before match; move and guard during fight",
               "zone": "left",
               "action": {
                 "type": "patch",
@@ -66,8 +66,8 @@
               "id": "jab",
               "kind": "button",
               "label": "A",
-              "displayLabel": "JAB / ESCAPE",
-              "ariaLabel": "Jab; press with B to escape a throw",
+              "displayLabel": "SELECT / JAB",
+              "ariaLabel": "Select fighter before match; jab during fight; press with B to escape a throw",
               "face": "a",
               "zone": "right",
               "press": {
@@ -88,8 +88,8 @@
               "id": "kick",
               "kind": "button",
               "label": "B",
-              "displayLabel": "KICK / ESCAPE",
-              "ariaLabel": "Kick; press with A to escape a throw",
+              "displayLabel": "BACK / KICK",
+              "ariaLabel": "Unready during fighter select; kick during fight; press with A to escape a throw",
               "face": "b",
               "zone": "right",
               "press": {
@@ -154,8 +154,8 @@
               "id": "start",
               "kind": "button",
               "label": "START",
-              "displayLabel": "REMATCH",
-              "ariaLabel": "Request rematch after match",
+              "displayLabel": "READY / REMATCH",
+              "ariaLabel": "Confirm fighter before match; request rematch after match",
               "face": "start",
               "zone": "bottom",
               "press": {

@@ -11,13 +11,10 @@
     "tickRate": 60,
     "snapshotRate": 20
   },
-  "modes": ["shared-screen", "handheld"],
-  "presentation": {
-    "remoteDisplay": {
-      "mode": "shared",
-      "maxViewports": 1
-    }
-  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
   "runtimeDependencies": {
     "three": "0.185.1+pt3"
   },
@@ -58,10 +55,22 @@
             }
           },
           "keys": {
-            "up": ["ArrowUp", "KeyW"],
-            "down": ["ArrowDown", "KeyS"],
-            "left": ["ArrowLeft", "KeyA"],
-            "right": ["ArrowRight", "KeyD"]
+            "up": [
+              "ArrowUp",
+              "KeyW"
+            ],
+            "down": [
+              "ArrowDown",
+              "KeyS"
+            ],
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ]
           }
         },
         {
@@ -84,7 +93,9 @@
               "a": false
             }
           },
-          "keys": ["KeyJ"]
+          "keys": [
+            "KeyJ"
+          ]
         },
         {
           "id": "kick",
@@ -106,7 +117,9 @@
               "b": false
             }
           },
-          "keys": ["KeyK"]
+          "keys": [
+            "KeyK"
+          ]
         },
         {
           "id": "strike",
@@ -128,7 +141,9 @@
               "xButton": false
             }
           },
-          "keys": ["KeyL"]
+          "keys": [
+            "KeyL"
+          ]
         },
         {
           "id": "surge",
@@ -150,7 +165,9 @@
               "yButton": false
             }
           },
-          "keys": ["KeyI"]
+          "keys": [
+            "KeyI"
+          ]
         },
         {
           "id": "start",
@@ -172,7 +189,9 @@
               "start": false
             }
           },
-          "keys": ["Enter"]
+          "keys": [
+            "Enter"
+          ]
         }
       ]
     }
@@ -182,5 +201,29 @@
     "keyboard": true,
     "gamepad": true,
     "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "ec983151baf7896eb7d4f0131370b2a03ddc434d2dfc180b897383a49773ea47"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "aab8449adcd2cca1d82e28150e16a7247a0e6ea6bcd02f13fdcf5749041f14e2"
+    }
+  },
+  "assets": {
+    "fighter.nova-rin": {
+      "url": "./assets/nova-rin.glb",
+      "sha256": "6aebc1c75f461445b02e7c68fbe08f4ea71a0a78d231274517b16ec26c650bec",
+      "contentType": "model/gltf-binary",
+      "bytes": 105152
+    },
+    "fighter.kite-vale": {
+      "url": "./assets/kite-vale.glb",
+      "sha256": "261e889c002181a91680873fc6a993bbba1d0f5a4f9555150fc17f999535c2e6",
+      "contentType": "model/gltf-binary",
+      "bytes": 117600
+    }
   }
 }
