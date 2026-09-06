@@ -53,7 +53,7 @@
     "web:build:check": "node scripts/check-web-build.mjs",
     "workspace:build": "node scripts/run-workspace-build.mjs",
     "engine:vendors": "node scripts/build-engine-vendors.mjs",
-    "test:embed": "node scripts/verify-embed-boundary.mjs",
+    "test:embed": "pnpm turbo run build --filter=@play-together/security && node scripts/verify-embed-boundary.mjs",
     "assets:check": "node scripts/check-game-assets.mjs",
     "production:build": "pnpm production:web:build && turbo run build --filter=@play-together/realtime",
     "vps:deploy": "node scripts/deploy-vps.mjs",
