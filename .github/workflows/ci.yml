@@ -50,10 +50,20 @@ jobs:
         run: pnpm test:e2e
       - name: Collect container logs
         if: failure()
-        run: docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin logs --tail=250
+        run: |
+          if [ -f .env ]; then
+            docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin logs --tail=250
+          else
+            echo "Integration stack was not bootstrapped; no container logs to collect."
+          fi
       - name: Stop integration stack
         if: always()
-        run: pnpm stack:down
+        run: |
+          if [ -f .env ]; then
+            pnpm stack:down
+          else
+            echo "Integration stack was not bootstrapped; nothing to stop."
+          fi
 
   prepare-production:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

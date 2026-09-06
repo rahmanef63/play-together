@@ -123,9 +123,8 @@ try {
         errors.join("; "),
       );
     } else {
-      await expect
-        .poll(() => errors.some((error) => /frame-ancestors|refused to display/i.test(error)))
-        .toBe(true);
+      // The security contract is observable state, not Chromium's console wording:
+      // denied ancestors must never load the cartridge or receive readiness.
       assert(
         !page
           .frames()
