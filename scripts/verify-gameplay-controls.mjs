@@ -55,6 +55,7 @@ try {
       mountConsoleShell,
       mountBuiltinController,
       inputs: [],
+      statuses: [],
       menus: 0,
       dispose: () => {},
     };

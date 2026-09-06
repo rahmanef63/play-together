@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.22.0] - 2026-09-06
+
+### Clash Arena 0.3.0 — real character assets
+
+- Replace the normal runtime capsule/sphere fighters with two original asset-backed GLB characters: **Nova Rin** and **Kite Vale**.
+- Each fighter ships as a deterministic generated GLB 2.0 file with a named `pt-humanoid-v1` articulated rig, five material slots, and `idle`, `guard`, `jab`, `kick`, `hit`, and `victory` animation clips.
+- The browser renderer loads only manifest-declared, SHA-256 verified character assets and drives the same rig from authoritative combat snapshots.
+- Add a repository-wide playable-asset contract: 3D playable entities use real runtime model assets; 2D playable entities use spritesheet atlases plus explicit animation metadata. `pnpm assets:check` is now part of `pnpm verify`.
+- Launcher/runtime QA now fails unless both Clash fighters actually mount as GLB assets; concept art is not accepted as proof of implementation.
+
 ## [0.21.0]
 
 ### Ridge Rush 0.5.7

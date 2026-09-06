@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "dimension": "3d",
+  "playableAssets": [
+    {
+      "id": "nova-rin",
+      "kind": "character",
+      "runtimeAsset": "fighter.nova-rin",
+      "format": "glb",
+      "rig": "pt-humanoid-v1",
+      "requiredNodes": [
+        "root",
+        "hips",
+        "spine",
+        "chest",
+        "head",
+        "upper_arm.L",
+        "upper_arm.R",
+        "thigh.L",
+        "thigh.R"
+      ],
+      "requiredAnimations": ["idle", "guard", "jab", "kick", "hit", "victory"]
+    },
+    {
+      "id": "kite-vale",
+      "kind": "character",
+      "runtimeAsset": "fighter.kite-vale",
+      "format": "glb",
+      "rig": "pt-humanoid-v1",
+      "requiredNodes": [
+        "root",
+        "hips",
+        "spine",
+        "chest",
+        "head",
+        "upper_arm.L",
+        "upper_arm.R",
+        "thigh.L",
+        "thigh.R"
+      ],
+      "requiredAnimations": ["idle", "guard", "jab", "kick", "hit", "victory"]
+    }
+  ],
+  "generator": "tools/generate-characters.mjs"
+}

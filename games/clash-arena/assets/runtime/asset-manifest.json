@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "assets": {
+    "fighter.nova-rin": {
+      "file": "nova-rin.glb",
+      "contentType": "model/gltf-binary"
+    },
+    "fighter.kite-vale": {
+      "file": "kite-vale.glb",
+      "contentType": "model/gltf-binary"
+    }
+  }
+}

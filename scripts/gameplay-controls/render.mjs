@@ -59,6 +59,11 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
           });
           const listeners = new Set();
           let latest = { type: "snapshot", tick: 160, serverTime: 8000, state };
+          const runtimeAssetManifest = await fetch(
+            `/@fs/${root}/games/${config.game.id}/assets/runtime/asset-manifest.json`,
+          )
+            .then((response) => (response.ok ? response.json() : null))
+            .catch(() => null);
           const context = {
             playerId: "qa-0",
             mode: "handheld",
@@ -70,9 +75,15 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
             },
             getLatestSnapshot: () => latest,
             loadAsset: async (name) => {
-              throw new Error(`Unexpected external QA asset: ${name}`);
+              const entry = runtimeAssetManifest?.assets?.[name];
+              if (!entry) throw new Error(`Unexpected external QA asset: ${name}`);
+              const response = await fetch(
+                `/@fs/${root}/games/${config.game.id}/assets/runtime/${entry.file}`,
+              );
+              if (!response.ok) throw new Error(`QA asset failed: ${name}`);
+              return response.blob();
             },
-            setStatus: () => {},
+            setStatus: (status) => window.qa.statuses.push(String(status)),
           };
           const { mountDisplay } = await import(
             `/@fs/${root}/games/${config.game.id}/src/display.ts`
@@ -89,6 +100,7 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
             },
           );
           window.qa.inputs = [];
+          window.qa.statuses = [];
           window.qa.snapshot = (message) => {
             latest = message;
             for (const listener of listeners) listener(message);
@@ -120,6 +132,30 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
         canvases.some((canvas) => canvas.width > 8 && canvas.height > 8),
         `No rendered game canvas: ${gameId}`,
       );
+      if (gameId === "clash-arena") {
+        try {
+          await page.waitForFunction(
+            () =>
+              document.querySelector(".clash-arena")?.getAttribute("data-fighter-assets") === "2",
+            null,
+            { timeout: 5000 },
+          );
+        } catch {
+          const debug = await page.evaluate(() => ({
+            statuses: window.qa.statuses,
+            nodes: [...document.querySelectorAll(".clash-arena")].map((node) => ({
+              assets: node.getAttribute("data-fighter-assets"),
+              format: node.getAttribute("data-fighter-asset-format"),
+              html: node.outerHTML.slice(0, 180),
+            })),
+          }));
+          throw new Error(`Clash GLB fighters did not mount: ${JSON.stringify(debug)}`);
+        }
+        assert.equal(
+          await page.locator(".clash-arena").getAttribute("data-fighter-asset-format"),
+          "glb",
+        );
+      }
       const name = `${gameId}-gameplay-${viewport.width}x${viewport.height}`;
       await page.screenshot({ path: resolve(artifactDirectory, `${name}.png`) });
       results.push({ name, canvases, issues: [] });

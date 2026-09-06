@@ -2,7 +2,7 @@
 
 ## Current source catalogue
 
-The source catalogue targets Turbo Circuit 0.11.0, Flight Trainer 0.4.0, Sky Strike 0.4.0, Ridge Rush 0.5.7 and Clash Arena 0.2.0. Published cartridge bytes are immutable; source versions do not prove production promotion, and existing rooms remain pinned to their exact manifest digest.
+The source catalogue targets Turbo Circuit 0.11.0, Flight Trainer 0.4.0, Sky Strike 0.4.0, Ridge Rush 0.5.7 and Clash Arena 0.3.0. Published cartridge bytes are immutable; source versions do not prove production promotion, and existing rooms remain pinned to their exact manifest digest.
 
 ## Controller tiers
 
@@ -23,7 +23,7 @@ Existing older cartridges may still expose shoulder actions; that history is not
 | Flight Trainer | flight stick + ABXY aircraft actions | legacy shoulder rudder/brake/assist |
 | Sky Strike | flight stick + ABXY combat/throttle | legacy shoulder rudder/airbrake/boost |
 | Ridge Rush 0.5.7 | stick steer/body + A pedal/sprint / B brake/slide / X hop/trick / Y attack/look | none |
-| Clash Arena 0.2.0 | movement/guard stick + A jab / B kick / X launch-or-low / Y meter Surge | none |
+| Clash Arena 0.3.0 | movement/guard stick + A jab / B kick / X launch-or-low / Y meter Surge | none |
 
 
 ### Shared system actions and hold behavior
@@ -52,7 +52,7 @@ The renderer uses an actual procedural mountain mesh rather than a flat road rib
 
 Ridge Rush 0.5.7 also fixes the controller/camera conventions exposed by real handheld playtesting. Left input now maps to visual-left motion in the chase camera. Rider ground height follows lane camber rather than the trail center plane, and the chase camera follows the course corridor and clamps above the actual procedural terrain so it cannot tunnel beneath a cliff mesh. The control grammar borrows genre ideas rather than licensed content: PS1-era downhill racers used stick steering, pedal, trick and separate front/rear braking, while Downhill Domination used stick lean/steer, pedal, double-tap sprint, bunny hop, braking/powerslide, combat, camera/look-back and airborne tricks. Ridge Rush compresses those ideas into Tier 0 stick+ABXY context actions instead of exposing L1/L2/R1/R2 on mobile.
 
-## Clash Arena 0.2.0
+## Clash Arena 0.3.0
 
 Clash Arena is an original deterministic 1v1 arena fighter with two original fighters, **Nova Rin** and **Kite Vale**, one procedural arena, a 60-second round clock and best-of-three match flow. A solo player receives a deterministic CPU opponent; a second human can occupy the other fighter slot.
 

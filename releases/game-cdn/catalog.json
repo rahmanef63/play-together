@@ -57,6 +57,21 @@
           "mode": "shared",
           "maxViewports": 1
         }
+      },
+      "status": "retired",
+      "retirementReason": "Superseded by Clash Arena 0.3.0, which replaces prototype runtime primitives with verified asset-backed GLB fighters Nova Rin and Kite Vale."
+    },
+    {
+      "gameId": "clash-arena",
+      "version": "0.3.0",
+      "title": "Clash Arena",
+      "manifestPath": "/games/clash-arena/0.3.0/manifest.json",
+      "manifestSha256": "14fa3f5ada5640b2ba572f0092e3e152d243153d5b5768e224c874cc2994298c",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
       }
     },
     {

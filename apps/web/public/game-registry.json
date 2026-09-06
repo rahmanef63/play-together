@@ -3,9 +3,9 @@
   "games": [
     {
       "id": "clash-arena",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "title": "Clash Arena",
-      "description": "Original 1v1 arena fighter: read guard direction, manage meter, escape throws and choose your timing.",
+      "description": "Original 1v1 arena fighter with asset-backed 3D characters, directional guard, meter, throw escape and deterministic combat.",
       "modes": ["shared-screen", "handheld"],
       "capabilities": {
         "touch": true,

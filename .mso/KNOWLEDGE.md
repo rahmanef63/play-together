@@ -13,6 +13,14 @@
 - Platform-owned **How To** and **Menu** actions belong in the controller surface with Start: beside Start in landscape, above Start in portrait. Do not float duplicate system buttons over gameplay on a controller/handheld screen.
 - Hold controls are interaction surfaces, not selectable text: disable text selection, native drag/callout/context-menu artifacts, and preserve press ownership until pointer/key release or focus loss.
 
+## Playable asset contract
+- Do not use concept art as a substitute for runtime gameplay assets.
+- A 3D playable character/rider/vehicle must use a real versioned runtime model asset, normally GLB, with a committed deterministic generator, manifest SHA-256, stable named rig when articulated, and declared required animation clips.
+- A 2D playable character/object must use a spritesheet atlas plus JSON frame/pivot/animation metadata rather than unrelated standalone images.
+- Menu, character-select, gameplay, result screen, and launcher preview should reuse the same runtime character identity/model family instead of maintaining a fake parallel visual source of truth.
+- Debug/procedural primitives remain acceptable for environment dressing, particles, collision visualization, or bounded error fallback, but not as the normal finished playable character once that character is asset-backed.
+- `pnpm assets:check` is the repository verification gate for opted-in asset configs. Changing a playable model/rig/material/spritesheet/animation requires a new immutable game version.
+
 ## Ridge Rush control grammar
 - Ridge uses **stick + ABXY + Start**, no default shoulders.
 - Stick horizontal = steer; vertical = rider body weight. Physical left must always read as visual-left in the chase camera.
@@ -26,9 +34,10 @@
 - Prioritize gameplay quality over catalog breadth.
 - Ridge Rush should feel like an extreme mountain descent: steep cliffside sections, large vertical drops, visible valleys, strong gravity/airtime/landing physics, route choice, switchbacks, rock chutes and camera composition that sells height. Avoid a flat road with fake speed bonuses.
 - Clash Arena should begin as an original 1v1 deterministic 2.5D/3D fighter with two original fighters, one arena, best-of-three rounds, spacing/timing/counterplay, stick + ABXY baseline, and no shoulder buttons by default.
+- Clash Arena's current fighter identities are **Nova Rin** and **Kite Vale**; their runtime model assets, not generated concept images, are the canonical visual implementation.
 - Each active 3D game should maintain readable game-specific models, camera framing, lighting/depth cues, and state-driven animation/effects; do not leave functional gameplay represented by static placeholder-like geometry when a lightweight procedural animation can communicate it.
-- Do not copy licensed Downhill Domination/Tekken characters, names, assets, moves, sounds or arenas; use only original designs and mechanics.
+- Do not copy licensed Downhill Domination/Tekken/Street Fighter characters, names, assets, moves, sounds or arenas; use only original designs and mechanics.
 
 ## Release policy
-- Every published game version is immutable. New gameplay changes mint new versions; old rooms stay pinned to their existing manifest digest.
+- Every published game version is immutable. New gameplay or asset changes mint new versions; old rooms stay pinned to their existing manifest digest.
 - The user primarily tests public production, so verified main-branch deployment and production browser checks are required before calling a gameplay release complete.
