@@ -91,7 +91,17 @@ jobs:
         shell: bash
         run: printf %s "$RESEND_API_KEY" | pnpm exec convex env set RESEND_API_KEY --prod
       - name: Deploy Convex Cloud production
-        run: pnpm exec convex deploy --typecheck enable --message "$GITHUB_SHA"
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            if pnpm exec convex deploy --typecheck enable --message "$GITHUB_SHA"; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              sleep $((attempt * 5))
+            fi
+          done
+          exit 1
 
   verify-production:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
