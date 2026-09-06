@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
@@ -9,6 +9,8 @@ const envFile =
   process.env.VPS_ENV_FILE || join(homedir(), ".config/play-together/vps-production.env");
 const stateFile =
   process.env.VPS_DEPLOY_STATE_FILE || join(homedir(), ".local/state/play-together/deployed-sha");
+const stateDirectory = dirname(stateFile);
+const convexEnvironmentFile = join(stateDirectory, "convex-production.env");
 const requiredJobs = ["verify", "integration", "prepare-production"];
 
 run("git", ["fetch", "--quiet", "origin", "main"]);
@@ -42,13 +44,34 @@ for (const name of requiredJobs) {
   }
 }
 
+const convexUrl = await readEnvironmentValue(envFile, "VITE_CONVEX_URL");
+const convexDeployment = convexDeploymentFromUrl(convexUrl);
+await mkdir(stateDirectory, { recursive: true });
+await writeFile(convexEnvironmentFile, `CONVEX_DEPLOYMENT=prod:${convexDeployment}\n`, {
+  mode: 0o600,
+});
+await chmod(convexEnvironmentFile, 0o600);
+
 run("git", ["reset", "--hard", target]);
 run("git", ["clean", "-fdx"]);
+run("corepack", ["pnpm", "install", "--frozen-lockfile", "--prefer-offline"]);
+run("corepack", ["pnpm", "--filter", "@play-together/contracts", "build"]);
+run("corepack", [
+  "pnpm",
+  "exec",
+  "convex",
+  "deploy",
+  "--env-file",
+  convexEnvironmentFile,
+  "--typecheck",
+  "enable",
+  "--message",
+  target,
+]);
 run(process.execPath, [resolve(root, "scripts/deploy-vps.mjs")], {
   ...process.env,
   VPS_ENV_FILE: envFile,
 });
-await mkdir(dirname(stateFile), { recursive: true });
 await writeFile(stateFile, `${target}\n`, { mode: 0o600 });
 console.log(`VPS deployed CI-approved revision ${target}.`);
 
@@ -71,6 +94,36 @@ async function readOptional(path) {
   } catch {
     return "";
   }
+}
+
+async function readEnvironmentValue(path, name) {
+  const content = await readFile(path, "utf8");
+  for (const rawLine of content.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith("#")) continue;
+    const separator = line.indexOf("=");
+    if (separator < 1 || line.slice(0, separator).trim() !== name) continue;
+    let value = line.slice(separator + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    if (value) return value;
+  }
+  throw new Error(`${name} is missing from the VPS environment file`);
+}
+
+function convexDeploymentFromUrl(value) {
+  const url = new URL(value);
+  const suffix = ".convex.cloud";
+  if (url.protocol !== "https:" || !url.hostname.endsWith(suffix)) {
+    throw new Error("VITE_CONVEX_URL must be a managed Convex Cloud URL");
+  }
+  const deployment = url.hostname.slice(0, -suffix.length);
+  if (!/^[a-z0-9-]+$/.test(deployment)) throw new Error("Invalid Convex deployment name");
+  return deployment;
 }
 
 function output(command, args) {

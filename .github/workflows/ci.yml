@@ -69,12 +69,9 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [verify, integration]
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     permissions:
       contents: read
-    env:
-      CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
@@ -85,23 +82,10 @@ jobs:
           node-version: 22.23.2
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Build Convex workspace dependencies
-        run: pnpm --filter @play-together/contracts build
-      - name: Sync transactional email secret
-        shell: bash
-        run: printf %s "$RESEND_API_KEY" | pnpm exec convex env set RESEND_API_KEY --prod
-      - name: Deploy Convex Cloud production
-        shell: bash
+      - name: Validate Convex production sources
         run: |
-          for attempt in 1 2 3; do
-            if pnpm exec convex deploy --typecheck enable --message "$GITHUB_SHA"; then
-              exit 0
-            fi
-            if [ "$attempt" -lt 3 ]; then
-              sleep $((attempt * 5))
-            fi
-          done
-          exit 1
+          pnpm --filter @play-together/contracts build
+          pnpm typecheck:convex
 
   verify-production:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

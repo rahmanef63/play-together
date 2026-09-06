@@ -86,9 +86,9 @@ The VPS watcher never deploys an arbitrary new `main` commit immediately. It que
 2. `integration`
 3. `prepare-production`
 
-`prepare-production` deploys backward-compatible Convex functions first. Only then may the VPS watcher reset its dedicated production checkout to that exact SHA and run `pnpm vps:deploy`. The `verify-production` CI job waits until `/api/health.revision` equals its own `GITHUB_SHA`, then verifies realtime, registers immutable manifests, and runs production browser scenarios.
+`prepare-production` is a credential-free production-source validation gate; it does not mutate Convex or the VPS. Only after all three jobs are green may the VPS watcher reset its dedicated production checkout to that exact SHA. The watcher installs the locked workspace, deploys the Convex functions from the VPS owner’s authenticated Convex CLI context, and only then runs `pnpm vps:deploy`. The `verify-production` CI job waits until `/api/health.revision` equals its own `GITHUB_SHA`, then verifies realtime, registers immutable manifests, and runs production browser scenarios.
 
-This design needs no broad SSH credential in GitHub Actions and prevents a failing verify/integration commit from being auto-deployed by the VPS poller.
+This design needs neither a broad SSH credential nor a Convex deploy key in GitHub Actions. A failing verify/integration/prepare gate cannot be auto-deployed, and a failed VPS-side Convex deploy prevents the container revision from advancing.
 
 ### Ticket verification boundary
 
@@ -128,7 +128,7 @@ The VPS receives `REDIS_URL` only through its private env file. CI temporarily u
 
 ## Convex Cloud
 
-Production and development use separate Convex deployments. Never make production the implicit CLI target. Production operations should use an explicit deploy key or `--prod` option.
+Production and development use separate Convex deployments. Interactive environment operations should use `--prod` explicitly. The CI-gated VPS watcher runs `convex deploy` only from its isolated production checkout after the exact main SHA has passed GitHub gates; Convex CLI semantics target that project’s default production deployment for `deploy`.
 
 Convex-owned values are generated in `.env.convex.production.example`; Google OAuth has the safer two-variable `.env.convex.google.example`. Place these server values in the production Convex deployment rather than exposing them through Vite/browser variables. `.env.production.example` is only the aggregate production/CI inventory.
 
@@ -187,8 +187,8 @@ Checkout is provider-agnostic. A payment system can POST a signed fulfillment ev
 
 1. Push the exact release commit to `main`.
 2. GitHub Actions runs `verify` and local-stack `integration`.
-3. `prepare-production` deploys backward-compatible Convex schema/functions.
-4. The VPS CI-gated watcher sees those three successful jobs and deploys the exact `origin/main` SHA.
+3. `prepare-production` validates the production Convex sources without production credentials or mutations.
+4. The VPS CI-gated watcher sees those three successful jobs, deploys Convex Cloud from the exact `origin/main` SHA, then deploys that same SHA to the VPS containers.
 5. `verify-production` waits until `/api/health.revision` equals that SHA and verifies distributed realtime readiness.
 6. CI registers immutable manifests against `https://game.rahmanef.com` and reconciles Redis release control.
 7. CI runs production browser E2E.

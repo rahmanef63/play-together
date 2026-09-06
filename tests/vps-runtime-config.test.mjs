@@ -53,4 +53,22 @@ describe("VPS production runtime configuration", () => {
     expect(vercelAdapter).toContain('import "./prepare-production-output.mjs"');
     expect(productionOutput).toContain('resolve(releaseRoot, "games")');
   });
+
+  it("keeps GitHub as a gate while the VPS performs the Convex and container deployment", async () => {
+    const workflow = await readFile(".github/workflows/ci.yml", "utf8");
+    const deployer = await readFile("scripts/ci-gated-vps-deploy.mjs", "utf8");
+    const prepareJob = workflow.slice(
+      workflow.indexOf("  prepare-production:"),
+      workflow.indexOf("  verify-production:"),
+    );
+    expect(prepareJob).toContain("Validate Convex production sources");
+    expect(prepareJob).not.toContain("CONVEX_DEPLOY_KEY");
+    expect(prepareJob).not.toContain("RESEND_API_KEY");
+    expect(prepareJob).not.toContain("convex deploy");
+    expect(deployer).toContain('"convex",');
+    expect(deployer).toContain('"deploy",');
+    expect(deployer).toContain('"--typecheck",');
+    expect(deployer).toContain('"enable",');
+    expect(deployer).toContain('"pnpm", "install", "--frozen-lockfile"');
+  });
 });
