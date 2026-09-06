@@ -236,3 +236,8 @@ GitHub integration for the 0.5.4 main candidate passed 25/26 browser scenarios b
 ### Ridge Rush 0.5.6 airtime/feedback fix
 
 The 0.5.5 input-edge implementation still failed only the CI visual trick assertion while the other 25 browser scenarios passed. The runner observed AIR 0.2–0.6s followed by RECOVERING: the generic bunny hop had only about a 0.6-second relative-airtime window, and `currentTrick` was cleared by landing/crash before a 20 Hz snapshot could render it. Version 0.5.6 raises the generic hop separation impulse from 2.8 to 4.8 m/s and keeps trick feedback for 850 ms across landing/crash snapshots. Pending style points and combo still cancel on crash; only visual acknowledgement persists.
+
+
+### Ridge Rush 0.5.7 remote sprint tolerance
+
+GitHub integration for 0.5.6 again passed 25/26 browser scenarios, but failed at the earlier SPRINT acknowledgement on both attempts. The controller still emits true→false→true correctly; the remaining variance is delivery time at the authoritative worker. Version 0.5.7 widens the two-edge server window from 700 ms to 1500 ms. This does not accept key repeat or a held key because `registerPedalEdge` requires a new rising edge; a unit test also proves a second press after the window does not sprint.

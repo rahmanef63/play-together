@@ -1,6 +1,6 @@
 import { clamp, type Rider, type RiderInput } from "./model.js";
 
-const SPRINT_WINDOW_MAX = 700;
+const SPRINT_WINDOW_MAX = 1500;
 
 export function registerPedalEdge(rider: Rider, nextPedal: boolean, now: number): void {
   if (!nextPedal || rider.input.pedal) return;

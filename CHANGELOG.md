@@ -2,6 +2,11 @@
 
 ## [0.21.0]
 
+### Ridge Rush 0.5.7
+
+- Widen authoritative double-tap sprint recognition to 1.5 seconds so remote/CI delivery jitter cannot turn an intentional quick double-tap into two unrelated pedal presses.
+- Recognition still requires two distinct rising edges; held keys, repeats and a second press after the 1.5-second window do not arm sprint.
+
 ### Ridge Rush 0.5.6
 
 - Increase the generic bunny-hop separation impulse so non-ramp hops provide roughly a one-second arcade trick window instead of about 0.6 seconds.

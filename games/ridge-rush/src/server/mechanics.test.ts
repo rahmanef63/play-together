@@ -25,6 +25,20 @@ describe("Ridge Rush classic downhill mechanics", () => {
     expect(rider.sprintMs).toBeGreaterThan(1_000);
   });
 
+  it("keeps double-tap sprint tolerant of remote delivery jitter but still expires", () => {
+    const rider = createRider("remote-sprint", 0);
+    registerPedalEdge(rider, true, 1_000);
+    rider.input.pedal = true;
+    rider.input.pedal = false;
+    registerPedalEdge(rider, true, 2_350);
+    expect(rider.sprintMs).toBeGreaterThan(0);
+    rider.input.pedal = true;
+    rider.input.pedal = false;
+    rider.sprintMs = 0;
+    registerPedalEdge(rider, true, 4_000);
+    expect(rider.sprintMs).toBe(0);
+  });
+
   it("accepts two distinct pedal edges that arrive in one server tick", () => {
     const rider = createRider("batched-sprint", 0);
     registerPedalEdge(rider, true, 1_000);
