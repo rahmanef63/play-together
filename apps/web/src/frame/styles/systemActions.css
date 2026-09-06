@@ -26,8 +26,13 @@
   touch-action: manipulation;
   -webkit-user-select: none;
   user-select: none;
+  -webkit-user-drag: none;
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
+}
+.console-system-button * {
+  pointer-events: none;
+  -webkit-user-drag: none;
 }
 .console-system-button:active {
   transform: translateY(2px);

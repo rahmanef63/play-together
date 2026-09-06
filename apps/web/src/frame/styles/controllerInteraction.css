@@ -6,10 +6,15 @@
 .console-dpad__button * {
   -webkit-user-select: none;
   user-select: none;
+  -webkit-user-drag: none;
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
 }
 .console-control--button,
 .console-dpad__button {
   touch-action: none;
+}
+.console-control--button > *,
+.console-dpad__button > * {
+  pointer-events: none;
 }

@@ -3,7 +3,10 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { chromium } from "@playwright/test";
-import { verifyControllerLifecycle } from "./gameplay-controls/lifecycle.mjs";
+import {
+  verifyControllerLifecycle,
+  verifyMobileTouchHold,
+} from "./gameplay-controls/lifecycle.mjs";
 import { measureControls } from "./gameplay-controls/measure.mjs";
 import { verifyGameDisplays } from "./gameplay-controls/render.mjs";
 
@@ -122,11 +125,11 @@ try {
       }
     }
   }
-  // Real DOM keyboard and physical-pad adapter share the same controller state.
   const flight = JSON.parse(
     await readFile(resolve(root, "games/flight-trainer/game.config.json"), "utf8"),
   );
   await verifyControllerLifecycle(page, flight, results);
+  await verifyMobileTouchHold(browser, origin, flight, results);
   await page.evaluate(() => window.qa.dispose());
   await verifyGameDisplays(page, root, artifactDirectory, results);
   assert.deepEqual(errors, [], "browser runtime errors");
