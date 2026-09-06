@@ -42,6 +42,7 @@ export interface Rider {
   powerslide: boolean;
   frontBrake: boolean;
   currentTrick: string;
+  trickFeedbackMs: number;
   pendingStyle: number;
   combo: number;
   hitFeedback: number;
@@ -97,6 +98,7 @@ export function createRider(id: string, slot: number, bot = false): Rider {
     powerslide: false,
     frontBrake: false,
     currentTrick: "",
+    trickFeedbackMs: 0,
     pendingStyle: 0,
     combo: 0,
     hitFeedback: 0,

@@ -85,12 +85,17 @@ describe("Ridge Rush classic downhill mechanics", () => {
     registerJumpEdge(rider, front);
     rider.input = front;
     expect(rider.currentTrick).toBe("FRONT ARC");
+    expect(rider.trickFeedbackMs).toBe(850);
     expect(rider.combo).toBe(2);
     const pending = rider.pendingStyle;
+    rider.grounded = true;
     resolveLanding(rider, true, false);
     expect(rider.score).toBe(pending);
     expect(rider.combo).toBe(0);
     expect(rider.pendingStyle).toBe(0);
+    expect(rider.currentTrick).toBe("FRONT ARC");
+    updateContext(rider, 2_000, 0.9);
+    expect(rider.currentTrick).toBe("");
   });
 
   it("cancels pending style on a crash", () => {
@@ -100,10 +105,13 @@ describe("Ridge Rush classic downhill mechanics", () => {
     registerJumpEdge(rider, press);
     rider.input = press;
     expect(rider.pendingStyle).toBeGreaterThan(0);
+    rider.grounded = true;
     resolveLanding(rider, false, true);
     expect(rider.score).toBe(0);
     expect(rider.pendingStyle).toBe(0);
     expect(rider.combo).toBe(0);
+    expect(rider.currentTrick).toBe("TABLE STYLE");
+    expect(rider.trickFeedbackMs).toBeGreaterThan(0);
   });
 
   it("uses Y input edge for a close-range strike on the selected visual side", () => {

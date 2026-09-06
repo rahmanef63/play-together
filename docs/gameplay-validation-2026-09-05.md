@@ -231,3 +231,8 @@ The final sprint timing is based on measured transport behavior rather than a br
 ### Ridge Rush 0.5.5 CI edge fix
 
 GitHub integration for the 0.5.4 main candidate passed 25/26 browser scenarios but reproduced the air-style edge issue on both attempts: after AIR 0.2–0.6s, the second X press was not observed before a hard landing changed HUD state to RECOVERING. The input transport itself was valid; this was the same class of tick-boundary race previously fixed for sprint. Version 0.5.5 moves hop/trick and contact-action rising edges into `onInput`, queues valid ground hops across ticks, and keeps continuous steering/braking in the simulation tick. No assertion or landing physics was weakened.
+
+
+### Ridge Rush 0.5.6 airtime/feedback fix
+
+The 0.5.5 input-edge implementation still failed only the CI visual trick assertion while the other 25 browser scenarios passed. The runner observed AIR 0.2–0.6s followed by RECOVERING: the generic bunny hop had only about a 0.6-second relative-airtime window, and `currentTrick` was cleared by landing/crash before a 20 Hz snapshot could render it. Version 0.5.6 raises the generic hop separation impulse from 2.8 to 4.8 m/s and keeps trick feedback for 850 ms across landing/crash snapshots. Pending style points and combo still cancel on crash; only visual acknowledgement persists.

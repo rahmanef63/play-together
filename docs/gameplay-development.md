@@ -2,7 +2,7 @@
 
 ## Current source catalogue
 
-The source catalogue targets Turbo Circuit 0.11.0, Flight Trainer 0.4.0, Sky Strike 0.4.0, Ridge Rush 0.5.5 and Clash Arena 0.2.0. Published cartridge bytes are immutable; source versions do not prove production promotion, and existing rooms remain pinned to their exact manifest digest.
+The source catalogue targets Turbo Circuit 0.11.0, Flight Trainer 0.4.0, Sky Strike 0.4.0, Ridge Rush 0.5.6 and Clash Arena 0.2.0. Published cartridge bytes are immutable; source versions do not prove production promotion, and existing rooms remain pinned to their exact manifest digest.
 
 ## Controller tiers
 
@@ -22,7 +22,7 @@ Existing older cartridges may still expose shoulder actions; that history is not
 | Turbo Circuit | steer + A gas / B brake / X item / Y rear | legacy L1/R1/L2/R2 advanced actions |
 | Flight Trainer | flight stick + ABXY aircraft actions | legacy shoulder rudder/brake/assist |
 | Sky Strike | flight stick + ABXY combat/throttle | legacy shoulder rudder/airbrake/boost |
-| Ridge Rush 0.5.5 | stick steer/body + A pedal/sprint / B brake/slide / X hop/trick / Y attack/look | none |
+| Ridge Rush 0.5.6 | stick steer/body + A pedal/sprint / B brake/slide / X hop/trick / Y attack/look | none |
 | Clash Arena 0.2.0 | movement/guard stick + A jab / B kick / X launch-or-low / Y meter Surge | none |
 
 
@@ -42,7 +42,7 @@ Arrows/WASD move. Hold away to high guard; crouch-away guards low. J is A/jab, K
 
 Standard-mapped browser gamepads retain radial stick deadzones and safe focus/disconnect cleanup. Unknown mappings are ignored rather than guessed. Games that only declare Tier 0 do not render shoulder buttons on mobile even though a physical pad may have them.
 
-## Ridge Rush 0.5.5
+## Ridge Rush 0.5.6
 
 Ridge Rush is an original 1–4 player extreme mountain-bike descent. The 3.6 km course drops about **980 m** from start to finish, opens with sustained 30–50° chutes, contains multiple later 25°+ sectors, a real local climb, cliffside singletrack, off-camber sections, rock/snow/mud/dirt grip changes, a narrow shortcut, natural drop lips, ramps and deterministic AI riders.
 
@@ -50,7 +50,7 @@ The authoritative bike simulation tracks forward and lateral velocity, altitude,
 
 The renderer uses an actual procedural mountain mesh rather than a flat road ribbon. Cliff-side terrain can fall more than 100 m below the trail, opposite walls rise around chutes, trail camber is visible, and the chase camera keeps the local rider as the anchor while speed/grade influence FOV. The visuals are original low-poly geometry; no reference-game characters, courses, branding, audio or art are reused.
 
-Ridge Rush 0.5.5 also fixes the controller/camera conventions exposed by real handheld playtesting. Left input now maps to visual-left motion in the chase camera. Rider ground height follows lane camber rather than the trail center plane, and the chase camera follows the course corridor and clamps above the actual procedural terrain so it cannot tunnel beneath a cliff mesh. The control grammar borrows genre ideas rather than licensed content: PS1-era downhill racers used stick steering, pedal, trick and separate front/rear braking, while Downhill Domination used stick lean/steer, pedal, double-tap sprint, bunny hop, braking/powerslide, combat, camera/look-back and airborne tricks. Ridge Rush compresses those ideas into Tier 0 stick+ABXY context actions instead of exposing L1/L2/R1/R2 on mobile.
+Ridge Rush 0.5.6 also fixes the controller/camera conventions exposed by real handheld playtesting. Left input now maps to visual-left motion in the chase camera. Rider ground height follows lane camber rather than the trail center plane, and the chase camera follows the course corridor and clamps above the actual procedural terrain so it cannot tunnel beneath a cliff mesh. The control grammar borrows genre ideas rather than licensed content: PS1-era downhill racers used stick steering, pedal, trick and separate front/rear braking, while Downhill Domination used stick lean/steer, pedal, double-tap sprint, bunny hop, braking/powerslide, combat, camera/look-back and airborne tricks. Ridge Rush compresses those ideas into Tier 0 stick+ABXY context actions instead of exposing L1/L2/R1/R2 on mobile.
 
 ## Clash Arena 0.2.0
 

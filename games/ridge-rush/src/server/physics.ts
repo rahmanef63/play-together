@@ -130,7 +130,6 @@ export function crashRider(rider: Rider): void {
   rider.sprintMs = 0;
   rider.sprinting = false;
   rider.powerslide = false;
-  rider.currentTrick = "";
   rider.pendingStyle = 0;
   rider.combo = 0;
   rider.jumpQueued = false;

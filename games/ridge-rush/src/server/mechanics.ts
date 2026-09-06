@@ -17,6 +17,7 @@ export function registerJumpEdge(rider: Rider, next: RiderInput): void {
   }
   if (rider.combo >= 3) return;
   rider.currentTrick = trickName(next.steer, next.body);
+  rider.trickFeedbackMs = 850;
   rider.combo += 1;
   rider.pendingStyle += trickValue(next.steer, next.body) * rider.combo;
 }
@@ -68,6 +69,8 @@ export function updateContext(rider: Rider, _now: number, dt: number): void {
     rider.input.body < 0.55;
   rider.frontBrake = rider.input.brake && rider.input.body > 0.45;
   rider.hitFeedback = Math.max(0, rider.hitFeedback - dt * 1000);
+  rider.trickFeedbackMs = Math.max(0, rider.trickFeedbackMs - dt * 1000);
+  if (rider.trickFeedbackMs === 0 && rider.grounded) rider.currentTrick = "";
   rider.attackCooldown = Math.max(0, rider.attackCooldown - dt * 1000);
 }
 
@@ -81,7 +84,7 @@ export function resolveLanding(rider: Rider, landed: boolean, crashed: boolean):
     rider.pendingStyle = 0;
     rider.combo = 0;
   }
-  rider.currentTrick = "";
+  if (rider.trickFeedbackMs <= 0) rider.currentTrick = "";
 }
 
 export function brakeForce(rider: Rider, grip: number): number {

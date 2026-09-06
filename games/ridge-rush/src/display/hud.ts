@@ -58,10 +58,10 @@ export function updateHud(h: RidgeHud, state: RidgeViewState, me: RiderView | un
   if (finished) renderResults(h.results, state);
 }
 function centerMessage(state: RidgeViewState, me?: RiderView) {
+  if (me?.currentTrick && me.trickFeedbackMs > 0)
+    return `${me.currentTrick} · ${me.pendingStyle} PTS${me.combo > 1 ? ` · x${me.combo}` : ""}`;
   if (me?.crashed && me.crashed > 0) return "RECOVERING";
   if (me?.finishedAt != null) return "FINISH";
-  if (me?.currentTrick)
-    return `${me.currentTrick} · ${me.pendingStyle} PTS${me.combo > 1 ? ` · x${me.combo}` : ""}`;
   if (me && !me.grounded && me.airTimeMs > 140) return `AIR ${(me.airTimeMs / 1000).toFixed(1)}s`;
   if (me?.hitFeedback && me.hitFeedback > 0) return "CONTACT";
   if (me?.powerslide) return "POWER SLIDE";

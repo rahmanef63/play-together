@@ -27,6 +27,7 @@ export interface RiderView {
   powerslide: boolean;
   frontBrake: boolean;
   currentTrick: string;
+  trickFeedbackMs: number;
   pendingStyle: number;
   combo: number;
   hitFeedback: number;

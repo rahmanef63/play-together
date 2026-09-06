@@ -2,6 +2,12 @@
 
 ## [0.21.0]
 
+### Ridge Rush 0.5.6
+
+- Increase the generic bunny-hop separation impulse so non-ramp hops provide roughly a one-second arcade trick window instead of about 0.6 seconds.
+- Keep trick-name feedback alive for 850 ms across landing/crash snapshots while still cancelling pending style points on a crash.
+- Supersedes 0.5.5 after GitHub integration showed the authoritative trick edge could arrive correctly but be hidden by a hard landing before the next display snapshot.
+
 ### Ridge Rush 0.5.5
 
 - Move hop/trick and rider-contact detection to authoritative input edges so fast release/re-press gestures cannot be lost between simulation ticks.

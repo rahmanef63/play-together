@@ -57,7 +57,7 @@ function advanceGrounded(
   }
   const tangent = courseSlope(previousProgress) * rider.speed;
   const preload = Math.max(0, -rider.input.body) * 1.25;
-  rider.verticalSpeed = tangent + (manual ? (ramp?.impulse ?? 2.8) + preload : 0);
+  rider.verticalSpeed = tangent + (manual ? (ramp?.impulse ?? 4.8) + preload : 0);
   rider.altitude = Math.max(nextGround + 0.05, previousGround);
   rider.grounded = false;
   rider.airTimeMs = 0;

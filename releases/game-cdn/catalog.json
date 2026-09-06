@@ -637,6 +637,21 @@
           "mode": "shared",
           "maxViewports": 1
         }
+      },
+      "status": "retired",
+      "retirementReason": "Pre-production immutable candidate superseded by Ridge Rush 0.5.6 with a longer generic bunny-hop trick window and persistent trick feedback across landing/crash snapshots."
+    },
+    {
+      "gameId": "ridge-rush",
+      "version": "0.5.6",
+      "title": "Ridge Rush",
+      "manifestPath": "/games/ridge-rush/0.5.6/manifest.json",
+      "manifestSha256": "dfc839a76e4f00505bde40b856dbda6ca35afb16891c3bab01cfd75d22f4b5e0",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
       }
     },
     {
