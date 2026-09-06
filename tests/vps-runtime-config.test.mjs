@@ -65,6 +65,9 @@ describe("VPS production runtime configuration", () => {
     expect(prepareJob).not.toContain("CONVEX_DEPLOY_KEY");
     expect(prepareJob).not.toContain("RESEND_API_KEY");
     expect(prepareJob).not.toContain("convex deploy");
+    expect(workflow).not.toContain("vars.MANAGED_PRODUCTION_URL");
+    expect(workflow).toContain('from "./scripts/environment/ci-tooling.mjs"');
+    expect(workflow).toContain('entry.name==="E2E_BASE_URL"');
     expect(deployer).toContain('"convex",');
     expect(deployer).toContain('"deploy",');
     expect(deployer).toContain('"--typecheck",');
