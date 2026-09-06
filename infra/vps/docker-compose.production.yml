@@ -1,0 +1,84 @@
+name: play-together-vps
+
+services:
+  realtime:
+    build:
+      context: ../..
+      dockerfile: apps/realtime/Dockerfile
+    expose: ["8787"]
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8787
+      REALTIME_CONNECT_PATH: /api/realtime
+      REDIS_URL: ${REDIS_URL:?Set the existing managed REDIS_URL in the VPS deployment environment}
+      REQUIRE_DISTRIBUTED_COORDINATION: "true"
+      TICKET_VERIFIER_CONVEX_URL: ${VITE_CONVEX_URL:?Set VITE_CONVEX_URL in the VPS deployment environment}
+      TICKET_VERIFIER_TIMEOUT_MS: ${TICKET_VERIFIER_TIMEOUT_MS:-5000}
+      JOIN_TICKET_SECRET: ${JOIN_TICKET_SECRET:-}
+      JOIN_TICKET_SECRET_NEXT: ${JOIN_TICKET_SECRET_NEXT:-}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:?Set ALLOWED_ORIGINS in the VPS deployment environment}
+      GAME_MODULE_ORIGINS: ${GAME_MODULE_ORIGINS:?Set GAME_MODULE_ORIGINS in the VPS deployment environment}
+      GAME_MODULE_FETCH_ORIGIN_MAP: ${GAME_MODULE_FETCH_ORIGIN_MAP:-{"https://game.rahmanef.com":"http://web:8080"}}
+      ALLOW_INSECURE_GAME_ORIGINS: "false"
+      ROOM_IDLE_TIMEOUT_MS: ${ROOM_IDLE_TIMEOUT_MS:-30000}
+      MAX_PAYLOAD_BYTES: ${MAX_PAYLOAD_BYTES:-65536}
+      MODULE_CACHE_DIR: ${MODULE_CACHE_DIR:-/tmp/play-together/game-modules}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8787/healthz').then(r=>{if(!r.ok)process.exit(1)})"]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+    restart: unless-stopped
+    networks: [dokploy-network]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=dokploy-network
+      - traefik.http.routers.play-together-realtime.rule=Host(`${VPS_HOST:-game.rahmanef.com}`) && PathPrefix(`/api/realtime`)
+      - traefik.http.routers.play-together-realtime.entrypoints=websecure
+      - traefik.http.routers.play-together-realtime.priority=100
+      - traefik.http.routers.play-together-realtime.tls=true
+      - traefik.http.routers.play-together-realtime.tls.certresolver=letsencrypt
+      - traefik.http.services.play-together-realtime.loadbalancer.server.port=8787
+
+  web:
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_CONVEX_URL: ${VITE_CONVEX_URL:?Set VITE_CONVEX_URL before the VPS build}
+        VITE_REALTIME_URL: ${VITE_REALTIME_URL:-}
+    expose: ["8080"]
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8080
+      APP_REVISION: ${APP_REVISION:-unknown}
+      TICKET_VERIFIER_CONVEX_URL: ${VITE_CONVEX_URL:?Set VITE_CONVEX_URL in the VPS deployment environment}
+      TICKET_VERIFIER_TIMEOUT_MS: ${TICKET_VERIFIER_TIMEOUT_MS:-5000}
+      TEMPLATE_DOWNLOAD_SECRET: ${TEMPLATE_DOWNLOAD_SECRET:-}
+      TEMPLATE_DOWNLOAD_SECRET_NEXT: ${TEMPLATE_DOWNLOAD_SECRET_NEXT:-}
+      BLOB_READ_WRITE_TOKEN: ${BLOB_READ_WRITE_TOKEN:?Set BLOB_READ_WRITE_TOKEN in the VPS deployment environment}
+    depends_on:
+      realtime: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8080/api/health').then(r=>{if(!r.ok)process.exit(1)})"]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+    restart: unless-stopped
+    networks: [dokploy-network]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=dokploy-network
+      - traefik.http.routers.play-together-web.rule=Host(`${VPS_HOST:-game.rahmanef.com}`)
+      - traefik.http.routers.play-together-web.entrypoints=websecure
+      - traefik.http.routers.play-together-web.tls=true
+      - traefik.http.routers.play-together-web.tls.certresolver=letsencrypt
+      - traefik.http.routers.play-together-web-http.rule=Host(`${VPS_HOST:-game.rahmanef.com}`)
+      - traefik.http.routers.play-together-web-http.entrypoints=web
+      - traefik.http.routers.play-together-web-http.middlewares=redirect-to-https@file
+      - traefik.http.routers.play-together-web-http.service=play-together-web
+      - traefik.http.services.play-together-web.loadbalancer.server.port=8080
+
+networks:
+  dokploy-network:
+    external: true

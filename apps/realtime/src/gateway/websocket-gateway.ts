@@ -1,12 +1,12 @@
 import type { IncomingMessage, Server } from "node:http";
 import { clientMessageSchema, type TicketClaims } from "@play-together/contracts";
-import { verifyTicket } from "@play-together/security";
 import { type WebSocket, WebSocketServer } from "ws";
 import type { GatewayConfig } from "../config.js";
 import { RELEASE_BLOCK_RESPONSE } from "../features/releases/release-block-response.js";
 import { ReleaseBlockedError } from "../features/releases/release-control.js";
 import type { RoomManager } from "../features/rooms/room-manager.js";
 import type { TicketReplayGuard } from "../features/tickets/replay-guard.js";
+import { createTicketVerifier, type TicketVerifier } from "../features/tickets/ticket-verifier.js";
 import { monitorWebSocketLiveness } from "./websocket-liveness.js";
 
 interface WebSocketGatewayOptions {
@@ -19,6 +19,7 @@ interface WebSocketGatewayOptions {
 
 export function attachWebSocketGateway(options: WebSocketGatewayOptions): WebSocketServer {
   const { server, config, rooms, replayGuard, releaseControlReady } = options;
+  const ticketVerifier = createTicketVerifier(config);
   const websocketServer = new WebSocketServer({
     noServer: true,
     maxPayload: config.maxPayloadBytes,
@@ -31,7 +32,9 @@ export function attachWebSocketGateway(options: WebSocketGatewayOptions): WebSoc
 
   server.on("upgrade", (request, socket, head) => {
     void releaseControlReady
-      .then(() => upgrade(request, socket, head, websocketServer, config, replayGuard))
+      .then(() =>
+        upgrade(request, socket, head, websocketServer, config, replayGuard, ticketVerifier),
+      )
       .catch(() => rejectUpgrade(socket, "503 Service Unavailable"));
   });
 
@@ -106,6 +109,7 @@ async function upgrade(
   websocketServer: WebSocketServer,
   config: GatewayConfig,
   replayGuard: TicketReplayGuard,
+  ticketVerifier: TicketVerifier,
 ): Promise<void> {
   try {
     const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
@@ -120,7 +124,7 @@ async function upgrade(
     const encodedTicket = offeredProtocols.find((value) => value.startsWith("ptt."));
     const ticket = encodedTicket?.slice(4);
     if (!ticket || ticket.length > 8_192) throw new Error("Ticket required");
-    const claims = verifyTicket(ticket, config.ticketSecret);
+    const claims = await ticketVerifier.verify(ticket);
     if (!replayGuard.consume(claims.jti, claims.exp)) throw new Error("Ticket already used");
     websocketServer.handleUpgrade(request, socket, head, (websocket) => {
       websocketServer.emit("connection", websocket, request, claims);

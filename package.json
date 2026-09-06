@@ -40,7 +40,7 @@
     "stack:down": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin down --remove-orphans",
     "stack:config": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin config --quiet",
     "game:previews": "node scripts/capture-game-previews.mjs",
-    "vercel:build": "pnpm prepare:web && pnpm game:publish && turbo run build --filter=@play-together/realtime --filter=@play-together/web && pnpm web:build:check && node scripts/prepare-vercel-output.mjs",
+    "vercel:build": "pnpm production:build",
     "template:pack": "node scripts/package-game-template.mjs",
     "template:publish": "node scripts/publish-template.mjs",
     "game:registry": "node scripts/generate-game-registry.mjs",
@@ -54,7 +54,11 @@
     "workspace:build": "node scripts/run-workspace-build.mjs",
     "engine:vendors": "node scripts/build-engine-vendors.mjs",
     "test:embed": "node scripts/verify-embed-boundary.mjs",
-    "assets:check": "node scripts/check-game-assets.mjs"
+    "assets:check": "node scripts/check-game-assets.mjs",
+    "production:build": "pnpm production:web:build && turbo run build --filter=@play-together/realtime",
+    "vps:deploy": "node scripts/deploy-vps.mjs",
+    "production:web:build": "pnpm prepare:web && pnpm game:publish && turbo run build --filter=@play-together/web && pnpm web:build:check && node scripts/prepare-production-output.mjs",
+    "vps:watch": "node scripts/ci-gated-vps-deploy.mjs"
   },
   "dependencies": {
     "@auth/core": "0.41.3",

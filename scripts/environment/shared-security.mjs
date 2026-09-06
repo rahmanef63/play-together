@@ -6,8 +6,21 @@ export const sharedSecurity = [
     local: "<generate-48-byte-base64url>",
     production: "<generate-48-byte-base64url>",
     secret: true,
-    description: "Shared by Convex ticket issuance and realtime verification.",
+    description:
+      "Signs realtime tickets inside Convex; local/legacy runtimes may verify directly, while the primary VPS delegates verification back to Convex.",
     source: "Generate locally with pnpm env:local; create a separate production secret",
+  },
+  {
+    name: "JOIN_TICKET_SECRET_NEXT",
+    group: "Shared security",
+    scope: "runtime",
+    local: "<optional-secondary-join-ticket-secret>",
+    production: "<optional-secondary-join-ticket-secret>",
+    secret: true,
+    description:
+      "Optional secondary join-ticket verification key used only during zero-downtime secret rotation.",
+    source:
+      "Generated during a planned rotation; verifier-only, never used by Convex to issue tickets",
   },
   {
     name: "GAME_PUBLISH_TOKEN",
@@ -26,8 +39,21 @@ export const sharedSecurity = [
     local: "<generate-at-least-32-bytes>",
     production: "<generate-at-least-32-bytes>",
     secret: true,
-    description: "Signs private template download tickets.",
+    description:
+      "Signs private template download tickets inside Convex; the primary VPS delegates verification back to Convex.",
     source: "Project configuration / platform integration",
+  },
+  {
+    name: "TEMPLATE_DOWNLOAD_SECRET_NEXT",
+    group: "Shared security",
+    scope: "runtime",
+    local: "<optional-secondary-template-ticket-secret>",
+    production: "<optional-secondary-template-ticket-secret>",
+    secret: true,
+    description:
+      "Optional secondary paid-template ticket verification key used during zero-downtime secret rotation.",
+    source:
+      "Generated during a planned rotation; verifier-only, never used by Convex to issue tickets",
   },
   {
     name: "TEMPLATE_PUBLISH_TOKEN",

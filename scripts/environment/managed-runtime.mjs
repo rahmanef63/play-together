@@ -1,12 +1,45 @@
 export const managedRuntime = [
   {
+    name: "TICKET_VERIFIER_CONVEX_URL",
+    group: "Managed production runtime",
+    scope: "runtime",
+    local: "<optional-convex-ticket-verifier-url>",
+    production: "<production-convex-deployment-url>",
+    secret: false,
+    description:
+      "Server-side Convex deployment used by VPS gateways to verify signed realtime and template tickets without copying their HMAC secrets onto the VPS.",
+    source: "Primary Convex Cloud deployment URL",
+  },
+  {
+    name: "TICKET_VERIFIER_TIMEOUT_MS",
+    group: "Managed production runtime",
+    scope: "runtime",
+    local: "5000",
+    production: "5000",
+    secret: false,
+    description:
+      "Fail-closed timeout for one-time Convex ticket verification during realtime/template authorization.",
+    source: "Project runtime policy",
+  },
+  {
+    name: "APP_REVISION",
+    group: "Managed production runtime",
+    scope: "runtime",
+    local: "unknown",
+    production: "<injected-deployment-git-sha>",
+    secret: false,
+    description: "Exact Git revision reported by the VPS production health endpoint.",
+    source: "Injected by scripts/deploy-vps.mjs",
+  },
+  {
     name: "REDIS_URL",
     group: "Managed production runtime",
     scope: "production",
-    production: "<vercel-redis-connection-url>",
+    production: "<managed-redis-connection-url>",
     secret: true,
     description: "Cross-function room coordination and release-control Redis connection.",
-    source: "Vercel project → Storage/Marketplace Redis integration",
+    source:
+      "Existing managed Redis integration → private VPS env and CI release-control verification",
   },
   {
     name: "BLOB_READ_WRITE_TOKEN",
@@ -14,8 +47,9 @@ export const managedRuntime = [
     scope: "production",
     production: "<vercel-private-blob-token>",
     secret: true,
-    description: "Private template package Blob credential.",
-    source: "Vercel project → Storage → Blob",
+    description:
+      "Private template package Blob credential; retained as an external storage dependency during the VPS compute cutover.",
+    source: "Existing Vercel Blob store → private VPS env",
   },
   {
     name: "REQUIRE_DISTRIBUTED_COORDINATION",
@@ -24,7 +58,8 @@ export const managedRuntime = [
     local: "false",
     production: "true",
     secret: false,
-    description: "Fails production realtime startup when distributed coordination is unavailable.",
+    description:
+      "Fails production realtime startup when Redis coordination/release-control is unavailable.",
     source: "Project configuration / platform integration",
   },
   {

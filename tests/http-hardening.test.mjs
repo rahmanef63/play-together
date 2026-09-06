@@ -45,6 +45,16 @@ describe("static HTTP boundaries", () => {
     const health = await rawRequest(port, "/healthz");
     expect(health.status).toBe(200);
     expect(health.headers["access-control-allow-origin"]).toBeUndefined();
+    const publicHealth = await rawRequest(port, "/api/health");
+    expect(publicHealth.status).toBe(200);
+    expect(JSON.parse(publicHealth.body)).toMatchObject({
+      ok: true,
+      service: "play-together",
+      runtime: "vps-managed",
+      version: "0.22.0",
+      revision: "unknown",
+    });
+    expect((await rawRequest(port, "/api/templates/download")).status).toBe(404);
   });
 
   it("serves only contained game assets with explicit cross-origin headers", async () => {

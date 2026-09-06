@@ -9,7 +9,9 @@ ARG VITE_CONVEX_URL
 ARG VITE_REALTIME_URL
 ENV VITE_CONVEX_URL=$VITE_CONVEX_URL
 ENV VITE_REALTIME_URL=$VITE_REALTIME_URL
-RUN pnpm turbo run build --filter=@play-together/web
+# This is platform-neutral: it produces the same web, realtime, release and env output for VPS or rollback builds.
+RUN pnpm production:web:build
+RUN pnpm --filter @play-together/web deploy --prod --legacy /runtime
 
 FROM node:22.23.2-bookworm-slim@sha256:83f487e0a63425e5b4d146fb5e5be574bcbe1b7b843d3ebafdd95eaf7767a7e5 AS runtime
 ENV NODE_ENV=production
@@ -17,7 +19,9 @@ ENV HOST=0.0.0.0
 ENV PORT=8080
 WORKDIR /app
 COPY --from=build --chown=node:node /workspace/apps/web/dist ./dist
-COPY --chown=node:node apps/web/server.mjs apps/web/embed-policy.mjs ./
+COPY --from=build --chown=node:node /workspace/package.json ./package.json
+COPY --from=build --chown=node:node /runtime/node_modules ./node_modules
+COPY --from=build --chown=node:node /workspace/apps/web/server.mjs /workspace/apps/web/embed-policy.mjs /workspace/apps/web/runtime-api.mjs /workspace/apps/web/template-download.mjs ./
 USER node
 EXPOSE 8080
 CMD ["node", "server.mjs"]

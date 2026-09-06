@@ -14,6 +14,7 @@
     "@play-together/contracts": "workspace:*",
     "@play-together/game-sdk": "workspace:*",
     "@play-together/security": "workspace:*",
+    "convex": "1.45.0",
     "redis": "^6.2.1",
     "ws": "8.21.3"
   },

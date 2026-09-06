@@ -5,6 +5,9 @@ export interface GatewayConfig {
   port: number;
   connectPath: string;
   ticketSecret: string;
+  ticketSecrets: readonly string[];
+  ticketVerifierConvexUrl: string | undefined;
+  ticketVerifierTimeoutMs: number;
   allowedOrigins: ReadonlySet<string>;
   moduleOrigins: ReadonlySet<string>;
   moduleOriginMap: ReadonlyMap<string, string>;
@@ -39,10 +42,35 @@ function list(value: string | undefined): Set<string> {
 }
 
 export function loadConfig(environment: NodeJS.ProcessEnv = process.env): GatewayConfig {
-  const ticketSecret = environment.JOIN_TICKET_SECRET ?? "";
-  if (Buffer.byteLength(ticketSecret) < 32) {
-    throw new Error("JOIN_TICKET_SECRET must contain at least 32 bytes");
+  const ticketVerifierConvexUrl = environment.TICKET_VERIFIER_CONVEX_URL?.trim() || undefined;
+  if (ticketVerifierConvexUrl) {
+    const parsed = new URL(ticketVerifierConvexUrl);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      throw new Error("TICKET_VERIFIER_CONVEX_URL must use http or https");
+    }
   }
+  const ticketVerifierTimeoutMs = Number(environment.TICKET_VERIFIER_TIMEOUT_MS ?? 5_000);
+  if (
+    !Number.isFinite(ticketVerifierTimeoutMs) ||
+    ticketVerifierTimeoutMs < 500 ||
+    ticketVerifierTimeoutMs > 15_000
+  ) {
+    throw new Error("TICKET_VERIFIER_TIMEOUT_MS must be between 500 and 15000");
+  }
+  const ticketSecret = environment.JOIN_TICKET_SECRET?.trim() ?? "";
+  if (ticketSecret && Buffer.byteLength(ticketSecret) < 32) {
+    throw new Error("JOIN_TICKET_SECRET must contain at least 32 bytes when set");
+  }
+  if (!ticketVerifierConvexUrl && Buffer.byteLength(ticketSecret) < 32) {
+    throw new Error("JOIN_TICKET_SECRET or TICKET_VERIFIER_CONVEX_URL is required");
+  }
+  const nextTicketSecret = environment.JOIN_TICKET_SECRET_NEXT?.trim() ?? "";
+  if (nextTicketSecret && Buffer.byteLength(nextTicketSecret) < 32) {
+    throw new Error("JOIN_TICKET_SECRET_NEXT must contain at least 32 bytes when set");
+  }
+  const ticketSecrets = [ticketSecret, nextTicketSecret].filter(
+    (secret, index, values) => secret && values.indexOf(secret) === index,
+  );
   const allowedOrigins = list(environment.ALLOWED_ORIGINS);
   const moduleOrigins = list(environment.GAME_MODULE_ORIGINS);
   if (environment.VERCEL_URL) {
@@ -68,6 +96,9 @@ export function loadConfig(environment: NodeJS.ProcessEnv = process.env): Gatewa
     port: Number(environment.PORT ?? 8787),
     connectPath: environment.REALTIME_CONNECT_PATH ?? "/v1/connect",
     ticketSecret,
+    ticketSecrets,
+    ticketVerifierConvexUrl,
+    ticketVerifierTimeoutMs,
     allowedOrigins,
     moduleOrigins,
     moduleOriginMap,

@@ -1,4 +1,8 @@
-import type { TemplateDownloadClaims } from "@play-together/contracts";
+import {
+  type TemplateDownloadClaims,
+  templateDownloadClaimsSchema,
+} from "@play-together/contracts";
+import { verifyHmacTicket } from "./hmacTicketVerification";
 
 const encoder = new TextEncoder();
 const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -41,4 +45,19 @@ export async function signTemplateDownloadTicket(
   );
   const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(unsigned));
   return `${unsigned}.${base64Url(new Uint8Array(signature))}`;
+}
+
+export async function verifyTemplateDownloadTicket(
+  ticket: string,
+  secret: string,
+): Promise<TemplateDownloadClaims> {
+  return verifyHmacTicket(ticket, secret, {
+    typ: "PTD",
+    secretName: "TEMPLATE_DOWNLOAD_SECRET",
+    schema: templateDownloadClaimsSchema,
+    maxLifetimeSeconds: 5 * 60,
+    expiredMessage: "Template download ticket expired",
+    futureMessage: "Template download ticket issued in the future",
+    lifetimeMessage: "Template download ticket lifetime exceeds policy",
+  });
 }

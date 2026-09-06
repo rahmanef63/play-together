@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { extname, isAbsolute, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { embedContentSecurityPolicy, isEmbedPath } from "./embed-policy.mjs";
+import { handleRuntimeApi } from "./runtime-api.mjs";
 
 const defaultShellCsp =
   "default-src 'self'; script-src 'self' blob:; style-src 'self' 'unsafe-inline'; connect-src 'self' https: wss: http: ws:; img-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'";
@@ -51,18 +52,8 @@ async function handleRequest(request, response, context) {
     sendPlain(response, 400, "Malformed URL");
     return;
   }
-  if (url.pathname === "/healthz") {
-    sendHeaders(response, "application/json; charset=utf-8", "no-store", {
-      isGameFrame: false,
-      isPublicAsset: false,
-      shellCsp: context.shellCsp,
-    });
-    response.writeHead(200);
-    if (request.method !== "HEAD")
-      response.end(JSON.stringify({ ok: true, service: "play-together-web" }));
-    else response.end();
+  if (await handleRuntimeApi(request, response, url, { sendHeaders, shellCsp: context.shellCsp }))
     return;
-  }
 
   let decodedPath;
   let candidate;
@@ -104,16 +95,18 @@ async function handleRequest(request, response, context) {
   }
 
   const isEngineVendor = candidate.includes(`${sep}engine-vendors${sep}`);
+  const isGameRelease = candidate.includes(`${sep}games${sep}`);
   const cache =
     candidate.endsWith("index.html") ||
     candidate.endsWith("sw.js") ||
-    candidate.endsWith("manifest.webmanifest")
+    candidate.endsWith("manifest.webmanifest") ||
+    candidate.endsWith("version.json")
       ? "no-cache"
-      : candidate.includes(`${sep}assets${sep}`) || isEngineVendor
+      : candidate.includes(`${sep}assets${sep}`) || isEngineVendor || isGameRelease
         ? "public, max-age=31536000, immutable"
         : "public, max-age=3600";
   const isGameFrame = candidate.endsWith("game-frame.html");
-  const isPublicAsset = candidate.includes(`${sep}assets${sep}`);
+  const isPublicAsset = candidate.includes(`${sep}assets${sep}`) || isGameRelease;
   sendHeaders(response, types[extname(candidate)] || "application/octet-stream", cache, {
     isGameFrame,
     isPublicAsset: isPublicAsset || isEngineVendor,

@@ -10,6 +10,7 @@ coverage/
 !.env.convex.production.example
 !.env.convex.google.example
 !.env.vercel.production.example
+!.env.vps.production.example
 var/
 .cache/
 .local/
@@ -27,3 +28,5 @@ apps/web/public/engine-vendors/
 
 # Local orchestration memory is not release source.
 .agent/
+
+.env.vps.production

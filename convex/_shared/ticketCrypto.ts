@@ -1,4 +1,5 @@
-import type { TicketClaims } from "@play-together/contracts";
+import { type TicketClaims, ticketClaimsSchema } from "@play-together/contracts";
+import { verifyHmacTicket } from "./hmacTicketVerification";
 
 const encoder = new TextEncoder();
 const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -37,4 +38,16 @@ export async function signTicket(claims: TicketClaims, secret: string): Promise<
   );
   const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(unsigned));
   return `${unsigned}.${base64Url(new Uint8Array(signature))}`;
+}
+
+export async function verifyTicket(ticket: string, secret: string): Promise<TicketClaims> {
+  return verifyHmacTicket(ticket, secret, {
+    typ: "PTT",
+    secretName: "JOIN_TICKET_SECRET",
+    schema: ticketClaimsSchema,
+    maxLifetimeSeconds: 15 * 60,
+    expiredMessage: "Ticket expired",
+    futureMessage: "Ticket issued in the future",
+    lifetimeMessage: "Ticket lifetime exceeds policy",
+  });
 }

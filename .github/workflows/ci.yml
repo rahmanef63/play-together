@@ -55,23 +55,16 @@ jobs:
         if: always()
         run: pnpm stack:down
 
-
-  deploy-managed:
+  prepare-production:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [verify, integration]
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 15
     permissions:
       contents: read
     env:
       CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
-      GAME_PUBLISH_TOKEN: ${{ secrets.GAME_PUBLISH_TOKEN }}
       RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      MANAGED_PRODUCTION_URL: ${{ vars.MANAGED_PRODUCTION_URL }}
-      CONVEX_URL: https://upbeat-dog-398.convex.cloud
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
@@ -89,7 +82,32 @@ jobs:
         run: printf %s "$RESEND_API_KEY" | pnpm exec convex env set RESEND_API_KEY --prod
       - name: Deploy Convex Cloud production
         run: pnpm exec convex deploy --typecheck enable --message "$GITHUB_SHA"
-      - name: Configure Vercel project credentials
+
+  verify-production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [prepare-production]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    env:
+      GAME_PUBLISH_TOKEN: ${{ secrets.GAME_PUBLISH_TOKEN }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      MANAGED_PRODUCTION_URL: ${{ vars.MANAGED_PRODUCTION_URL }}
+      CONVEX_URL: https://upbeat-dog-398.convex.cloud
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with:
+          version: 10.32.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22.23.2
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Pull legacy managed Redis environment only
         shell: bash
         run: |
           mkdir -p "$HOME/.local/share/com.vercel.cli" .vercel
@@ -105,30 +123,27 @@ jobs:
             `${JSON.stringify({ projectId: process.env.VERCEL_PROJECT_ID, orgId: process.env.VERCEL_ORG_ID })}\n`,
           );
           NODE
-      - name: Build exact Vercel production artifact
-        run: |
           pnpm dlx vercel@50.22.1 pull --yes --environment=production
           node <<'NODE'
           const fs = require('fs');
           const path = '.vercel/.env.production.local';
           const env = fs.existsSync(path) ? fs.readFileSync(path, 'utf8') : '';
           if (!/^REDIS_URL=(?:"[^"]+"|'[^']+'|[^\s]+)$/m.test(env)) {
-            throw new Error('Managed realtime requires a connected Redis resource with REDIS_URL');
+            throw new Error('Release control requires the existing managed REDIS_URL');
           }
-          console.log('Managed Redis environment detected');
+          console.log('Managed Redis environment detected; no Vercel build/deploy will run');
           NODE
-          pnpm dlx vercel@50.22.1 build --prod
-      - name: Deploy exact Vercel artifact
-        run: pnpm dlx vercel@50.22.1 deploy --prebuilt --prod
-      - name: Wait for managed production health
+      - name: Wait for CI-approved VPS revision
         shell: bash
         run: |
-          for attempt in $(seq 1 60); do
-            if curl -fsS --max-time 10 "$MANAGED_PRODUCTION_URL/api/health" >/dev/null; then
+          for attempt in $(seq 1 120); do
+            if payload=$(curl -fsS --max-time 10 "$MANAGED_PRODUCTION_URL/api/health") && \
+              node -e 'const p=JSON.parse(process.argv[1]); if (p.runtime !== "vps-managed" || p.revision !== process.argv[2]) process.exit(1)' "$payload" "$GITHUB_SHA"; then
               exit 0
             fi
             sleep 5
           done
+          echo "VPS did not deploy the CI-approved revision $GITHUB_SHA" >&2
           exit 1
       - name: Verify distributed realtime control plane
         shell: bash
@@ -140,16 +155,16 @@ jobs:
             fi
             sleep 2
           done
-          echo "Managed realtime control plane did not become ready" >&2
+          echo "VPS realtime control plane did not become ready" >&2
           exit 1
-      - name: Register immutable games against managed CDN
+      - name: Register immutable games against VPS CDN
         env:
           GAME_CDN_PUBLIC_ORIGIN: ${{ vars.MANAGED_PRODUCTION_URL }}
           RELEASE_CONTROL_REQUIRED: "true"
         run: pnpm game:publish:convex
-      - name: Install browser for managed smoke
+      - name: Install browser for production smoke
         run: pnpm exec playwright install --with-deps chromium
-      - name: Run managed production browser scenarios
+      - name: Run VPS production browser scenarios
         env:
           E2E_BASE_URL: ${{ vars.MANAGED_PRODUCTION_URL }}
           E2E_REALTIME_HEALTH_URL: ${{ vars.MANAGED_PRODUCTION_URL }}/api/realtime

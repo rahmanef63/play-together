@@ -30,7 +30,7 @@ function render(target) {
           ]
         : [
             "# Aggregate managed-production/CI reference. Do NOT paste this whole file into one platform.",
-            "# Use .env.convex.production.example and .env.vercel.production.example for platform-specific setup.",
+            "# Use .env.convex.production.example and .env.vps.production.example for primary production; Vercel profile is rollback-only.",
             "# Replace every <placeholder> in the correct platform secret store; never commit real secrets.",
           ];
   return renderItems(
@@ -48,10 +48,10 @@ function renderProfile(profile) {
     "# Copy this file to a non-example filename, replace every required placeholder, and never commit real secrets.",
     "# IMPORTANT: never apply literal <placeholder> values to a live deployment.",
   ];
-  return renderItems(selected, intro, "production");
+  return renderItems(selected, intro, "production", profile.values);
 }
 
-function renderItems(items, intro, target) {
+function renderItems(items, intro, target, overrides = {}) {
   const lines = [...intro, ""];
   for (const group of groups) {
     const selected = items.filter((item) => item.group === group);
@@ -60,8 +60,11 @@ function renderItems(items, intro, target) {
     for (const item of selected) {
       lines.push(`# Source: ${item.source}`);
       lines.push(`# ${item.description}`);
-      const value =
-        target === "local" ? (item.local ?? item.production) : (item.production ?? item.local);
+      const value = Object.hasOwn(overrides, item.name)
+        ? overrides[item.name]
+        : target === "local"
+          ? (item.local ?? item.production)
+          : (item.production ?? item.local);
       lines.push(`${item.name}=${value ?? `<set-${item.name.toLowerCase()}>`}`);
     }
     lines.push("");
@@ -89,9 +92,12 @@ function renderDocs() {
     "| `.env.example` | Local development | Local project `.env` / `pnpm env:local` |",
     "| `.env.convex.google.example` | Google OAuth only; safest activation file | Convex production deployment environment variables |",
     "| `.env.convex.production.example` | Full Convex backend/auth/email/secrets reference | Convex production deployment environment variables |",
-    "| `.env.vercel.production.example` | Web/realtime managed runtime | Vercel Production environment variables |",
+    "| `.env.vps.production.example` | Primary web/realtime runtime | Private env file on the VPS |",
+    "| `.env.vercel.production.example` | Legacy rollback web/realtime runtime | Vercel Production environment variables |",
     "| `.env.production.example` | Aggregate production + CI reference | Do not paste wholesale into one provider |",
-    "| `.env.all.example` | Complete 71-variable inventory | Documentation/reference only |",
+    "| `.env.all.example` | Complete " +
+      environmentVariables.length +
+      "-variable inventory | Documentation/reference only |",
     "",
     "## Google OAuth: production",
     "",
@@ -133,7 +139,7 @@ function destinations(item) {
   if (["local", "both"].includes(item.scope)) labels.push("Local .env");
   if (item.scope === "ci") labels.push("CI secret/env store");
   if (item.scope === "tooling") labels.push("Local/CI tooling");
-  if (item.scope === "platform") labels.push("Injected automatically by Vercel");
+  if (item.scope === "platform") labels.push("Injected automatically by its platform provider");
   if (item.scope === "runtime" && !labels.length) labels.push("Runtime override; normally omit");
   if (!labels.length && item.scope === "production") labels.push("Production tooling/config");
   return [...new Set(labels)].join(" + ");
