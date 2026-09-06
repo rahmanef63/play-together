@@ -84,7 +84,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Validate Convex production sources
         run: |
-          pnpm --filter @play-together/contracts build
+          pnpm turbo run build --filter=@play-together/security
           pnpm typecheck:convex
 
   verify-production:

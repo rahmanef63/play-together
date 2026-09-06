@@ -55,7 +55,7 @@ await chmod(convexEnvironmentFile, 0o600);
 run("git", ["reset", "--hard", target]);
 run("git", ["clean", "-fdx"]);
 run("corepack", ["pnpm", "install", "--frozen-lockfile", "--prefer-offline"]);
-run("corepack", ["pnpm", "--filter", "@play-together/contracts", "build"]);
+run("corepack", ["pnpm", "turbo", "run", "build", "--filter=@play-together/security"]);
 run("corepack", [
   "pnpm",
   "exec",
