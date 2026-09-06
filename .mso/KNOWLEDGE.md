@@ -13,6 +13,15 @@
 - Platform-owned **How To** and **Menu** actions belong in the controller surface with Start: beside Start in landscape, above Start in portrait. Do not float duplicate system buttons over gameplay on a controller/handheld screen.
 - Hold controls are interaction surfaces, not selectable text: disable text selection, native drag/callout/context-menu artifacts, and preserve press ownership until pointer/key release or focus loss.
 
+## Ridge Rush control grammar
+- Ridge uses **stick + ABXY + Start**, no default shoulders.
+- Stick horizontal = steer; vertical = rider body weight. Physical left must always read as visual-left in the chase camera.
+- A = pedal; quick double-tap then hold = stamina-limited sprint.
+- B = contextual brake: body forward biases front brake, body back biases rear brake, and hard steering while braking produces a powerslide.
+- X = bunny hop/pump on ground; release and press again while airborne to add a directional air style from the stick. Style points bank only on clean landing.
+- Y = close-range rider contact on the chosen visual side; holding body fully back while Y is held gives rear view instead of attacking.
+- Ridge camera must follow the course corridor and clamp above actual procedural terrain, not just centerline elevation. Rider ground height/pitch must include lane camber so the bike never visually clips through a banked trail.
+
 ## Game direction
 - Prioritize gameplay quality over catalog breadth.
 - Ridge Rush should feel like an extreme mountain descent: steep cliffside sections, large vertical drops, visible valleys, strong gravity/airtime/landing physics, route choice, switchbacks, rock chutes and camera composition that sells height. Avoid a flat road with fake speed bonuses.

@@ -46,7 +46,7 @@ export function updateHud(h: RidgeHud, state: RidgeViewState, me: RiderView | un
     grade = me ? Math.max(0, Math.round(gradeDegrees(me.progress))) : 0;
   h.title.textContent = "RIDGE RUSH";
   h.meta.textContent = me
-    ? `${grade}°  ·  ${courseSurface(me.progress).toUpperCase()}  ·  CP ${Math.min(me.checkpoint + 1, CHECKPOINTS.length)}/${CHECKPOINTS.length}`
+    ? `${grade}° · ${courseSurface(me.progress).toUpperCase()} · CP ${Math.min(me.checkpoint + 1, CHECKPOINTS.length)}/${CHECKPOINTS.length} · ${me.score} PTS`
     : "EXTREME DESCENT";
   h.place.textContent = me ? `${ordinal(place)} / ${state.riders.length}` : "WAITING";
   h.speed.textContent = String(me ? Math.round(me.speed * 3.6) : 0);
@@ -60,7 +60,13 @@ export function updateHud(h: RidgeHud, state: RidgeViewState, me: RiderView | un
 function centerMessage(state: RidgeViewState, me?: RiderView) {
   if (me?.crashed && me.crashed > 0) return "RECOVERING";
   if (me?.finishedAt != null) return "FINISH";
+  if (me?.currentTrick)
+    return `${me.currentTrick} · ${me.pendingStyle} PTS${me.combo > 1 ? ` · x${me.combo}` : ""}`;
   if (me && !me.grounded && me.airTimeMs > 140) return `AIR ${(me.airTimeMs / 1000).toFixed(1)}s`;
+  if (me?.hitFeedback && me.hitFeedback > 0) return "CONTACT";
+  if (me?.powerslide) return "POWER SLIDE";
+  if (me?.sprinting) return "SPRINT";
+  if (me?.frontBrake) return "FRONT BRAKE";
   if (state.phase === "countdown") return String(Math.max(1, Math.ceil(state.countdownMs / 1000)));
   if (state.phase === "lobby")
     return state.riders.filter((r) => !r.bot).every((r) => r.ready) ? "READY" : "PRESS START";

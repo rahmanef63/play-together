@@ -7,7 +7,7 @@ export interface RiderInput {
   pedal: boolean;
   brake: boolean;
   jump: boolean;
-  rear: boolean;
+  attack: boolean;
 }
 export interface Rider {
   id: string;
@@ -36,6 +36,18 @@ export interface Rider {
   rescueCount: number;
   offTrailMs: number;
   jumpReady: boolean;
+  sprintMs: number;
+  sprinting: boolean;
+  powerslide: boolean;
+  frontBrake: boolean;
+  currentTrick: string;
+  pendingStyle: number;
+  combo: number;
+  hitFeedback: number;
+  attackCooldown: number;
+  pedalTappedAt: number;
+  jumpWasDown: boolean;
+  attackWasDown: boolean;
   input: RiderInput;
 }
 export interface RidgeState {
@@ -49,7 +61,7 @@ export interface RidgeState {
   riders: Rider[];
 }
 export function emptyInput(): RiderInput {
-  return { steer: 0, body: 0, pedal: false, brake: false, jump: false, rear: false };
+  return { steer: 0, body: 0, pedal: false, brake: false, jump: false, attack: false };
 }
 export function createRider(id: string, slot: number, bot = false): Rider {
   const lanes = [-1.5, 1.5, -3, 3];
@@ -80,6 +92,18 @@ export function createRider(id: string, slot: number, bot = false): Rider {
     rescueCount: 0,
     offTrailMs: 0,
     jumpReady: true,
+    sprintMs: 0,
+    sprinting: false,
+    powerslide: false,
+    frontBrake: false,
+    currentTrick: "",
+    pendingStyle: 0,
+    combo: 0,
+    hitFeedback: 0,
+    attackCooldown: 0,
+    pedalTappedAt: -1000,
+    jumpWasDown: false,
+    attackWasDown: false,
     input: emptyInput(),
   };
 }

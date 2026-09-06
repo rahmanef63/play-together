@@ -5,6 +5,7 @@ import type {
   ServerPlayer,
 } from "@play-together/game-sdk";
 import { parseInput } from "./server/input.js";
+import { registerPedalEdge } from "./server/mechanics.js";
 import { clamp, createRider, createState, emptyInput, type RidgeState } from "./server/model.js";
 import { advanceRider, updateBotInput } from "./server/physics.js";
 import {
@@ -65,6 +66,7 @@ class RidgeRush implements ServerGame {
     const parsed = parseInput(payload, rider.input);
     if (!parsed) return;
     this.#sequence.set(playerId, sequence);
+    registerPedalEdge(rider, parsed.input.pedal, this.#state.elapsedMs);
     rider.input = parsed.input;
     if (parsed.readyRequested) requestReady(this.#state, rider);
   }
@@ -83,7 +85,7 @@ class RidgeRush implements ServerGame {
     const dt = ms / 1000;
     for (const rider of this.#state.riders) {
       if (rider.bot) updateBotInput(rider, this.#seed);
-      const result = advanceRider(rider, dt, this.#state.elapsedMs);
+      const result = advanceRider(rider, dt, this.#state.elapsedMs, this.#state.riders);
       if (result.finished && this.#state.firstFinishAtMs === null) {
         this.#state.firstFinishAtMs = this.#state.elapsedMs;
       }

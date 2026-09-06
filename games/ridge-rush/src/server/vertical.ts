@@ -1,5 +1,6 @@
 import {
   BIKE_GROUND_OFFSET,
+  courseCrossSlope,
   courseElevation,
   courseSlope,
   isDropLip,
@@ -25,12 +26,12 @@ export function advanceVertical(
     ? advanceGrounded(rider, previousProgress, previousGround, nextGround, dt)
     : advanceAirborne(rider, dt, nextGround);
 }
-export function groundHeight(progress: number): number {
-  return courseElevation(progress) + BIKE_GROUND_OFFSET;
+export function groundHeight(progress: number, lane = 0): number {
+  return courseElevation(progress) + lane * courseCrossSlope(progress) + BIKE_GROUND_OFFSET;
 }
-export function groundPitch(progress: number): number {
-  const rear = groundHeight(progress - HALF_WHEELBASE),
-    front = groundHeight(progress + HALF_WHEELBASE);
+export function groundPitch(progress: number, lane = 0): number {
+  const rear = groundHeight(progress - HALF_WHEELBASE, lane),
+    front = groundHeight(progress + HALF_WHEELBASE, lane);
   return Math.atan2(front - rear, HALF_WHEELBASE * 2);
 }
 function advanceGrounded(
@@ -51,7 +52,7 @@ function advanceGrounded(
     rider.altitude = nextGround;
     rider.verticalSpeed = 0;
     rider.airTimeMs = 0;
-    rider.pitch = approach(rider.pitch, groundPitch(rider.progress), 12, dt);
+    rider.pitch = approach(rider.pitch, groundPitch(rider.progress, rider.lane), 12, dt);
     return { crashed: false, launched: false, landed: false };
   }
   const tangent = courseSlope(previousProgress) * rider.speed;
@@ -75,7 +76,7 @@ function advanceAirborne(rider: Rider, dt: number, ground: number): VerticalResu
   rider.pitch = clamp(rider.pitch - rider.input.body * 1.15 * dt, -1.25, 1.1);
   if (rider.altitude > ground) return { crashed: false, launched: false, landed: false };
   const impact = Math.max(0, -rider.verticalSpeed),
-    targetPitch = groundPitch(rider.progress),
+    targetPitch = groundPitch(rider.progress, rider.lane),
     angle = Math.abs(rider.pitch - targetPitch);
   rider.altitude = ground;
   rider.verticalSpeed = 0;
@@ -91,9 +92,9 @@ function advanceAirborne(rider: Rider, dt: number, ground: number): VerticalResu
   return { crashed, launched: false, landed: true };
 }
 function updateSuspension(rider: Rider, dt: number, landing = false): void {
-  const rear = groundHeight(rider.progress - HALF_WHEELBASE),
-    center = groundHeight(rider.progress),
-    front = groundHeight(rider.progress + HALF_WHEELBASE);
+  const rear = groundHeight(rider.progress - HALF_WHEELBASE, rider.lane),
+    center = groundHeight(rider.progress, rider.lane),
+    front = groundHeight(rider.progress + HALF_WHEELBASE, rider.lane);
   const rough = clamp(Math.abs(front + rear - center * 2) * 2.2, 0, 1);
   const speedLoad = clamp(rider.speed / 36, 0, 1) * rough;
   const frontTarget = clamp(

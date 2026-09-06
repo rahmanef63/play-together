@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.21.0] - 2026-09-06
+
+### Ridge Rush 0.5.4
+
+- Fix chase-camera terrain tunnelling by following the course corridor and clamping the camera above actual procedural terrain rather than only centerline elevation.
+- Fix left/right steering orientation in the chase view and update deterministic bot steering to the same convention. Rider altitude/pitch now follow lane camber instead of the center plane, preventing bike/ground clipping on banked sections.
+- Adapt classic downhill-MTB control ideas into the Tier 0 mobile controller without adding L/R: A pedal with double-tap sprint, B contextual front/rear braking plus powerslide, X bunny hop plus directional air-style chaining, and Y close-range rider contact with body-back rear view.
+- Add server-authoritative sprint stamina, powerslide state, contextual brake bias, clean-landing style scoring/combo, contact cooldown/feedback and matching articulated air-style/powerslide presentation.
+- Add focused steering-sign, lane-ground, camera-clearance, sprint, braking, slide, trick, combat and rear-view tests. Historical Ridge Rush releases remain byte-immutable.
+
 All notable changes to Play Together are documented here. The project follows semantic versioning for the platform and immutable semantic versions for each game release.
 
 ## [0.20.0] - 2026-09-06

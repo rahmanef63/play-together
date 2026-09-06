@@ -24,10 +24,10 @@ test("Ridge Rush provides a distinct downhill race with Tier 0 controls and extr
     const controller = frame.locator('.builtin-controller[data-renderer="builtin"]');
     await expect(controller.locator(".console-control")).toHaveCount(6);
     for (const [id, face, action] of [
-      ["pedal", "a", "PEDAL"],
-      ["brake", "b", "BRAKE"],
-      ["jump", "x", "JUMP"],
-      ["rear-view", "y", "REAR"],
+      ["pedal", "a", "PEDAL / SPRINT"],
+      ["brake", "b", "BRAKE / SLIDE"],
+      ["jump", "x", "HOP / TRICK"],
+      ["attack-look", "y", "ATTACK / LOOK"],
     ] as const) {
       const control = controller.locator(`[data-control-id="${id}"]`);
       await expect(control).toHaveAttribute("data-face", face);
@@ -44,26 +44,32 @@ test("Ridge Rush provides a distinct downhill race with Tier 0 controls and extr
     await expect(countdown).toHaveCount(0, { timeout: 5_000 });
 
     const speed = frame.locator(".ridge-hud__speed > strong");
-    const pedal = frame.getByRole("button", { name: "Pedal" });
+    const ridgeStatus = frame.locator(".ridge-hud__center");
+    const pedal = frame.getByRole("button", { name: /Pedal; quick double-tap/i });
     await pedal.focus();
+    await page.keyboard.down("Space");
+    await page.waitForTimeout(90);
+    await page.keyboard.up("Space");
+    await page.waitForTimeout(110);
     await page.keyboard.down("Space");
     try {
       await expect(pedal).toHaveAttribute("aria-pressed", "true");
+      await expect(ridgeStatus).toHaveText("SPRINT", { timeout: 1_000 });
       await expect
         .poll(() => speed.textContent().then((text) => Number.parseInt(text ?? "0", 10)), {
           timeout: 8_000,
         })
         .toBeGreaterThan(28);
 
-      // Measure braking while the rider is known to be rolling. A later jump may
-      // legitimately hard-land/crash to zero, which must not invalidate this control assertion.
       const rollingSpeed = Number.parseInt((await speed.textContent()) ?? "0", 10);
       expect(rollingSpeed).toBeGreaterThan(28);
-      const brake = frame.getByRole("button", { name: "Brake" });
+      const brake = frame.getByRole("button", { name: /Brake; hard steer slides/i });
       await brake.focus();
+      await page.keyboard.down("ArrowLeft");
       await page.keyboard.down("ShiftLeft");
       try {
         await expect(brake).toHaveAttribute("aria-pressed", "true");
+        await expect(ridgeStatus).toHaveText("POWER SLIDE", { timeout: 1_000 });
         await expect
           .poll(() => speed.textContent().then((text) => Number.parseInt(text ?? "0", 10)), {
             timeout: 4_000,
@@ -71,6 +77,7 @@ test("Ridge Rush provides a distinct downhill race with Tier 0 controls and extr
           .toBeLessThan(rollingSpeed);
       } finally {
         await page.keyboard.up("ShiftLeft");
+        await page.keyboard.up("ArrowLeft");
       }
       await expect(brake).toHaveAttribute("aria-pressed", "false");
       await expect
@@ -80,12 +87,18 @@ test("Ridge Rush provides a distinct downhill race with Tier 0 controls and extr
         .toBeGreaterThan(28);
 
       await page.keyboard.down("KeyX");
+      await expect(ridgeStatus).toHaveText(/^AIR /, { timeout: 1_500 });
+      await page.keyboard.up("KeyX");
+      await page.waitForTimeout(60);
+      await page.keyboard.down("ArrowLeft");
+      await page.keyboard.down("KeyX");
       try {
-        await expect(frame.getByText(/^AIR /)).toBeVisible({ timeout: 1_500 });
+        await expect(ridgeStatus).toContainText("LEFT SPIN", { timeout: 1_000 });
       } finally {
         await page.keyboard.up("KeyX");
+        await page.keyboard.up("ArrowLeft");
       }
-      await expect(frame.getByText(/^AIR /)).toHaveCount(0, { timeout: 2_500 });
+      await expect(ridgeStatus).not.toContainText(/LEFT SPIN|^AIR /, { timeout: 3_000 });
     } finally {
       await page.keyboard.up("Space");
     }

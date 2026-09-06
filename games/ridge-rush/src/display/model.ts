@@ -23,6 +23,13 @@ export interface RiderView {
   rearView: boolean;
   lean: number;
   rescueCount: number;
+  sprinting: boolean;
+  powerslide: boolean;
+  frontBrake: boolean;
+  currentTrick: string;
+  pendingStyle: number;
+  combo: number;
+  hitFeedback: number;
 }
 export interface RidgeViewState {
   kind: "ridge-rush";

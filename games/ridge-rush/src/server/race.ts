@@ -52,9 +52,19 @@ export function finishRaceIfDone(state: RidgeState): boolean {
 
 export function snapshotRiders(state: RidgeState) {
   return state.riders
-    .map(({ input: _input, jumpReady: _jumpReady, offTrailMs: _offTrailMs, ...rider }) => ({
-      ...rider,
-    }))
+    .map(
+      ({
+        input: _input,
+        jumpReady: _jumpReady,
+        offTrailMs: _offTrailMs,
+        sprintMs: _sprintMs,
+        attackCooldown: _attackCooldown,
+        pedalTappedAt: _pedalTappedAt,
+        jumpWasDown: _jumpWasDown,
+        attackWasDown: _attackWasDown,
+        ...rider
+      }) => ({ ...rider }),
+    )
     .sort(compareRaceOrder);
 }
 

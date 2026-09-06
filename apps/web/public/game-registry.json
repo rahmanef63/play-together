@@ -425,9 +425,9 @@
     },
     {
       "id": "ridge-rush",
-      "version": "0.4.0",
+      "version": "0.5.4",
       "title": "Ridge Rush",
-      "description": "Extreme 3D mountain-bike descent with cliffside singletrack, deep vertical drops, gravity, wheel-weight transfer, surface grip, jumps, checkpoints and deterministic rivals.",
+      "description": "Extreme 3D mountain-bike descent with cliffside terrain, gravity, lane-aware suspension, sprint, powerslides, bunny hops, air-style combos, close-range rider contact and deterministic rivals.",
       "modes": ["shared-screen", "handheld"],
       "capabilities": {
         "touch": true,
@@ -454,7 +454,7 @@
             "pedal": false,
             "brake": false,
             "jump": false,
-            "rear": false
+            "attack": false
           },
           "controls": [
             {
@@ -487,8 +487,8 @@
               "id": "pedal",
               "kind": "button",
               "label": "A",
-              "displayLabel": "PEDAL",
-              "ariaLabel": "Pedal",
+              "displayLabel": "PEDAL / SPRINT",
+              "ariaLabel": "Pedal; quick double-tap then hold to sprint",
               "face": "a",
               "zone": "right",
               "press": {
@@ -509,8 +509,8 @@
               "id": "brake",
               "kind": "button",
               "label": "B",
-              "displayLabel": "BRAKE",
-              "ariaLabel": "Brake",
+              "displayLabel": "BRAKE / SLIDE",
+              "ariaLabel": "Brake; hard steer slides, forward body weight front-brakes",
               "face": "b",
               "zone": "right",
               "press": {
@@ -531,8 +531,8 @@
               "id": "jump",
               "kind": "button",
               "label": "X",
-              "displayLabel": "JUMP",
-              "ariaLabel": "Jump or pump",
+              "displayLabel": "HOP / TRICK",
+              "ariaLabel": "Hop or pump; release then press in air for a directional style",
               "face": "x",
               "zone": "right",
               "press": {
@@ -550,23 +550,23 @@
               "keys": ["KeyX"]
             },
             {
-              "id": "rear-view",
+              "id": "attack-look",
               "kind": "button",
               "label": "Y",
-              "displayLabel": "REAR",
-              "ariaLabel": "Hold rear view",
+              "displayLabel": "ATTACK / LOOK",
+              "ariaLabel": "Attack a nearby rival on stick side; hold body back for rear view",
               "face": "y",
               "zone": "right",
               "press": {
                 "type": "patch",
                 "values": {
-                  "rear": true
+                  "attack": true
                 }
               },
               "release": {
                 "type": "patch",
                 "values": {
-                  "rear": false
+                  "attack": false
                 }
               },
               "keys": ["KeyY"]

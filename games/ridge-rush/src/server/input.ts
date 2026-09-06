@@ -3,11 +3,11 @@ export interface ParsedInput {
   input: RiderInput;
   readyRequested: boolean;
 }
-const BOOLEAN_FIELDS = ["pedal", "brake", "jump", "rear"] as const;
+const BOOLEAN_FIELDS = ["pedal", "brake", "jump", "attack"] as const;
 export function parseInput(payload: unknown, current: RiderInput): ParsedInput | null {
   if (typeof payload !== "object" || payload === null || Array.isArray(payload)) return null;
   const data = payload as Record<string, unknown>;
-  const allowed = new Set(["steer", "body", "pedal", "brake", "jump", "rear", "action"]);
+  const allowed = new Set(["steer", "body", "pedal", "brake", "jump", "attack", "action"]);
   if (Object.keys(data).some((key) => !allowed.has(key))) return null;
   if (data.action !== undefined) {
     if (data.action !== "ready" || Object.keys(data).some((key) => key !== "action")) return null;

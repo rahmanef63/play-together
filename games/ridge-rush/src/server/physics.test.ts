@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   BIKE_GROUND_OFFSET,
   CHECKPOINTS,
+  courseCrossSlope,
   courseElevation,
   FINISH_PROGRESS,
   gradeDegrees,
@@ -23,7 +24,7 @@ function place(rider: ReturnType<typeof createRider>, progress: number, speed: n
   rider.altitude = courseElevation(progress) + BIKE_GROUND_OFFSET;
 }
 
-describe("Ridge Rush 0.3 mountain physics", () => {
+describe("Ridge Rush 0.5 mountain physics", () => {
   it("drops almost a vertical kilometre, includes a climb, and has multiple 25°+ chutes", () => {
     expect(courseElevation(0) - courseElevation(FINISH_PROGRESS)).toBeGreaterThan(900);
     expect(courseElevation(2250) - courseElevation(2050)).toBeGreaterThan(30);
@@ -73,6 +74,36 @@ describe("Ridge Rush 0.3 mountain physics", () => {
     simulate(upright, 1);
     simulate(tucked, 1);
     expect(tucked.speed).toBeGreaterThan(upright.speed);
+  });
+
+  it("keeps the rider on the cambered lane surface instead of the trail center plane", () => {
+    const rider = createRider("cambered-height", 0);
+    rider.lane = 2.4;
+    place(rider, 520, 16);
+    const before = rider.altitude;
+    advanceRider(rider, 0.05, 50);
+    expect(rider.grounded).toBe(true);
+    expect(Math.abs(rider.altitude - before)).toBeGreaterThan(0.01);
+    expect(rider.altitude).toBeCloseTo(
+      courseElevation(rider.progress) +
+        rider.lane * courseCrossSlope(rider.progress) +
+        BIKE_GROUND_OFFSET,
+      4,
+    );
+  });
+
+  it("maps left input to visual-left lane and right input to visual-right lane", () => {
+    const left = createRider("left", 0),
+      right = createRider("right", 0);
+    for (const rider of [left, right]) place(rider, 350, 20);
+    left.lane = right.lane = 0;
+    left.input.steer = -1;
+    right.input.steer = 1;
+    simulate(left, 0.45);
+    simulate(right, 0.45);
+    expect(left.lane).toBeGreaterThan(right.lane);
+    expect(left.lean).toBeGreaterThan(0);
+    expect(right.lean).toBeLessThan(0);
   });
 
   it("off-camber cliff terrain pulls a neutral rider laterally", () => {

@@ -107,6 +107,15 @@ describe("Ridge Rush race lifecycle", () => {
     expect(publicRider).not.toHaveProperty("input");
     expect(publicRider).not.toHaveProperty("offTrailMs");
     expect(publicRider).not.toHaveProperty("jumpReady");
-    expect(publicRider).toMatchObject({ id: "p1", ready: false, rearView: false, rescueCount: 0 });
+    expect(publicRider).not.toHaveProperty("pedalTappedAt");
+    expect(publicRider).not.toHaveProperty("attackCooldown");
+    expect(publicRider).toMatchObject({
+      id: "p1",
+      ready: false,
+      rearView: false,
+      rescueCount: 0,
+      sprinting: false,
+      powerslide: false,
+    });
   });
 });

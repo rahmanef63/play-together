@@ -15,7 +15,7 @@ type Snapshot = {
   }>;
 };
 
-const context = { roomId: "room", gameId: "ridge-rush", gameVersion: "0.4.0", seed: 41 };
+const context = { roomId: "room", gameId: "ridge-rush", gameVersion: "0.5.4", seed: 41 };
 const snap = (game: Awaited<ReturnType<typeof createServerGame>>) => game.snapshot() as Snapshot;
 
 async function start(game: Awaited<ReturnType<typeof createServerGame>>, id = "p1") {
@@ -104,7 +104,7 @@ describe("Ridge Rush authoritative server", () => {
     for (const game of [first, second]) {
       await game.onJoin({ id: "p1", connectedAt: 0 });
       await start(game);
-      await game.onInput("p1", { pedal: true, sprint: true, steer: 0.15 }, 2);
+      await game.onInput("p1", { pedal: true, attack: false, steer: 0.15 }, 2);
       for (let i = 0; i < 100; i += 1) await game.tick(3000 + i * 50, 50);
     }
     expect(second.snapshot()).toEqual(first.snapshot());

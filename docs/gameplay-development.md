@@ -2,7 +2,7 @@
 
 ## Current source catalogue
 
-The source catalogue targets Turbo Circuit 0.11.0, Flight Trainer 0.4.0, Sky Strike 0.4.0, Ridge Rush 0.4.0 and Clash Arena 0.2.0. Published cartridge bytes are immutable; source versions do not prove production promotion, and existing rooms remain pinned to their exact manifest digest.
+The source catalogue targets Turbo Circuit 0.11.0, Flight Trainer 0.4.0, Sky Strike 0.4.0, Ridge Rush 0.5.4 and Clash Arena 0.2.0. Published cartridge bytes are immutable; source versions do not prove production promotion, and existing rooms remain pinned to their exact manifest digest.
 
 ## Controller tiers
 
@@ -22,7 +22,7 @@ Existing older cartridges may still expose shoulder actions; that history is not
 | Turbo Circuit | steer + A gas / B brake / X item / Y rear | legacy L1/R1/L2/R2 advanced actions |
 | Flight Trainer | flight stick + ABXY aircraft actions | legacy shoulder rudder/brake/assist |
 | Sky Strike | flight stick + ABXY combat/throttle | legacy shoulder rudder/airbrake/boost |
-| Ridge Rush 0.4.0 | steer/body stick + A pedal / B brake / X jump / Y rear | none |
+| Ridge Rush 0.5.4 | stick steer/body + A pedal/sprint / B brake/slide / X hop/trick / Y attack/look | none |
 | Clash Arena 0.2.0 | movement/guard stick + A jab / B kick / X launch-or-low / Y meter Surge | none |
 
 
@@ -32,7 +32,7 @@ The frame owns **How To** and **Menu** next to Start instead of duplicating floa
 
 ### Ridge Rush keyboard
 
-Arrows/WASD steer and shift body weight, Space pedals, Shift brakes, X jumps/pumps, Y holds rear view, Enter readies/rematches. Forward body weight doubles as an aerodynamic tuck at speed; no shoulder shortcut is required.
+Arrows/WASD steer and shift body weight. Space pedals; quick double-tap then hold activates a stamina-limited sprint. Shift brakes: body-forward biases the front brake, body-back biases the rear brake, and hard steering while braking produces a powerslide. X bunny-hops/pumps on the ground; after releasing it, another X press in the air adds a directional style from the stick. Y attacks a nearby rival on the chosen side; holding the body fully back while Y is held switches to rear view. Enter readies/rematches. No shoulder shortcut is required.
 
 ### Clash Arena keyboard
 
@@ -42,13 +42,15 @@ Arrows/WASD move. Hold away to high guard; crouch-away guards low. J is A/jab, K
 
 Standard-mapped browser gamepads retain radial stick deadzones and safe focus/disconnect cleanup. Unknown mappings are ignored rather than guessed. Games that only declare Tier 0 do not render shoulder buttons on mobile even though a physical pad may have them.
 
-## Ridge Rush 0.4.0
+## Ridge Rush 0.5.4
 
 Ridge Rush is an original 1–4 player extreme mountain-bike descent. The 3.6 km course drops about **980 m** from start to finish, opens with sustained 30–50° chutes, contains multiple later 25°+ sectors, a real local climb, cliffside singletrack, off-camber sections, rock/snow/mud/dirt grip changes, a narrow shortcut, natural drop lips, ramps and deterministic AI riders.
 
 The authoritative bike simulation tracks forward and lateral velocity, altitude, vertical velocity, grounded state, pitch, front/rear suspension compression, stamina and surface grip. Downhill acceleration uses the gravity component along the trail; airborne motion uses 9.81 m/s² until terrain contact. Fast terrain fall-away can launch the bike without pressing jump. Landing risk depends on vertical impact, bike pitch relative to the landing slope, lean and body position. Front/rear terrain probes drive pitch and suspension response.
 
 The renderer uses an actual procedural mountain mesh rather than a flat road ribbon. Cliff-side terrain can fall more than 100 m below the trail, opposite walls rise around chutes, trail camber is visible, and the chase camera keeps the local rider as the anchor while speed/grade influence FOV. The visuals are original low-poly geometry; no reference-game characters, courses, branding, audio or art are reused.
+
+Ridge Rush 0.5.4 also fixes the controller/camera conventions exposed by real handheld playtesting. Left input now maps to visual-left motion in the chase camera. Rider ground height follows lane camber rather than the trail center plane, and the chase camera follows the course corridor and clamps above the actual procedural terrain so it cannot tunnel beneath a cliff mesh. The control grammar borrows genre ideas rather than licensed content: PS1-era downhill racers used stick steering, pedal, trick and separate front/rear braking, while Downhill Domination used stick lean/steer, pedal, double-tap sprint, bunny hop, braking/powerslide, combat, camera/look-back and airborne tricks. Ridge Rush compresses those ideas into Tier 0 stick+ABXY context actions instead of exposing L1/L2/R1/R2 on mobile.
 
 ## Clash Arena 0.2.0
 
@@ -78,4 +80,7 @@ A cooperative rescue route could reuse aircraft presentation expertise while giv
 ## Primary references
 
 - W3C Gamepad specification: https://www.w3.org/TR/gamepad/
+- No Fear Downhill Mountain Biking (PS1) basic control reference: https://psxdatacenter.com/games/U/N/SLUS-01000.html
+- Downhill Domination (PS2) control reference: https://gamefaqs.gamespot.com/ps2/914603-downhill-domination/faqs/24810
+- Downhill Domination PAL control/trick reference: https://psxdatacenter.com/psx2/games2/SLES-52202.html
 - Bandai Namco, TEKKEN 8 introductory guide (four basic limb attacks as a design reference, not licensed assets): https://en.bandainamcoent.eu/tekken/news/tekken-8-the-guide-start-playing

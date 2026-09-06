@@ -12,6 +12,14 @@ import {
   surfaceSpeedFactor,
   trailHalfWidth,
 } from "../shared/course.js";
+import {
+  brakeForce,
+  pedalForce,
+  resolveLanding,
+  startTrick,
+  tryAttack,
+  updateContext,
+} from "./mechanics.js";
 import { clamp, type Rider } from "./model.js";
 import { advanceVertical, groundHeight, groundPitch } from "./vertical.js";
 
@@ -22,29 +30,38 @@ export interface AdvanceResult {
   crashed: boolean;
   finished: boolean;
 }
-export function advanceRider(rider: Rider, dt: number, elapsedMs: number): AdvanceResult {
+export function advanceRider(
+  rider: Rider,
+  dt: number,
+  elapsedMs: number,
+  rivals: Rider[] = [],
+): AdvanceResult {
+  updateContext(rider, elapsedMs, dt);
+  startTrick(rider);
+  tryAttack(rider, rivals);
   const result = { checkpoint: false, crashed: false, finished: false };
-  rider.rearView = rider.input.rear;
   if (rider.finishedAt !== null) return result;
   if (!rider.input.jump) rider.jumpReady = true;
   if (rider.crashed > 0) return recoverCrash(rider, dt, result);
   updateLeanAndLateral(rider, dt);
   updateForwardSpeed(rider, dt);
   const previousProgress = rider.progress,
-    previousGround = groundHeight(previousProgress);
+    previousGround = groundHeight(previousProgress, rider.lane);
   rider.progress += rider.speed * surfaceSpeedFactor(rider.progress, rider.lane) * dt;
   const vertical = advanceVertical(
     rider,
     dt,
     previousProgress,
     previousGround,
-    groundHeight(rider.progress),
+    groundHeight(rider.progress, rider.lane),
   );
   if (vertical.crashed) {
     crashRider(rider);
+    resolveLanding(rider, false, true);
     result.crashed = true;
     return result;
   }
+  resolveLanding(rider, vertical.landed, vertical.crashed);
   const error = lateralError(rider.progress, rider.lane),
     width = trailHalfWidth(rider.progress, rider.lane);
   rider.offTrailMs =
@@ -56,6 +73,7 @@ export function advanceRider(rider: Rider, dt: number, elapsedMs: number): Advan
     missedCheckpoint(rider.progress, rider.checkpoint)
   ) {
     crashRider(rider);
+    resolveLanding(rider, false, true);
     result.crashed = true;
     return result;
   }
@@ -66,7 +84,7 @@ export function advanceRider(rider: Rider, dt: number, elapsedMs: number): Advan
   }
   if (rider.progress >= FINISH_PROGRESS && rider.checkpoint === CHECKPOINTS.length) {
     rider.progress = FINISH_PROGRESS;
-    rider.altitude = groundHeight(FINISH_PROGRESS);
+    rider.altitude = groundHeight(FINISH_PROGRESS, rider.lane);
     rider.finishedAt = elapsedMs;
     rider.speed = 0;
     rider.verticalSpeed = 0;
@@ -78,11 +96,12 @@ export function advanceRider(rider: Rider, dt: number, elapsedMs: number): Advan
 }
 function updateLeanAndLateral(rider: Rider, dt: number): void {
   const grip = courseGrip(rider.progress),
-    target = clamp(rider.input.steer, -1, 1);
+    target = clamp(-rider.input.steer, -1, 1);
   rider.lean += (target - rider.lean) * (1 - Math.exp(-9 * grip * dt));
   const camber = courseCrossSlope(rider.progress) * GRAVITY * 0.72;
-  const steer = rider.lean * (2.8 + rider.speed * 0.16) * grip;
-  const damping = 2.6 + grip * 1.8;
+  const slideGain = rider.powerslide ? 1.42 : 1;
+  const steer = rider.lean * (2.8 + rider.speed * 0.16) * grip * slideGain;
+  const damping = (2.6 + grip * 1.8) * (rider.powerslide ? 0.42 : 1);
   rider.lateralVelocity += (steer + camber - rider.lateralVelocity * damping) * dt;
   rider.lane += rider.lateralVelocity * dt;
 }
@@ -93,8 +112,8 @@ function updateForwardSpeed(rider: Rider, dt: number): void {
   const gravityAlong = rider.grounded ? -GRAVITY * Math.sin(Math.atan(slope)) : 0;
   const effort = clamp(rider.stamina / 28, 0.34, 1),
     pedalRoom = clamp(1 - rider.speed / MAX_SPEED, 0.18, 1);
-  const pedal = input.pedal && !input.brake ? 5.2 * effort * pedalRoom : 0;
-  const brake = input.brake ? 16.5 * grip : 0;
+  const pedal = pedalForce(rider, pedalRoom, effort);
+  const brake = brakeForce(rider, grip);
   const tucked = input.body > 0.5 && !input.brake;
   const rolling = rider.grounded ? courseRolling(rider.progress) : 0.08;
   const aero = rider.speed * rider.speed * (tucked ? 0.00105 : 0.00185);
@@ -104,7 +123,11 @@ function updateForwardSpeed(rider: Rider, dt: number): void {
     MAX_SPEED,
   );
   const working = input.pedal && rider.speed > 13;
-  rider.stamina = clamp(rider.stamina + (working ? -8 : input.pedal ? -2 : 12) * dt, 0, 100);
+  rider.stamina = clamp(
+    rider.stamina + (rider.sprinting ? -22 : working ? -8 : input.pedal ? -2 : 12) * dt,
+    0,
+    100,
+  );
 }
 export function crashRider(rider: Rider): void {
   rider.crashed = 1.35;
@@ -112,12 +135,18 @@ export function crashRider(rider: Rider): void {
   rider.lateralVelocity = 0;
   rider.verticalSpeed = 0;
   rider.grounded = true;
-  rider.altitude = groundHeight(rider.progress);
-  rider.pitch = groundPitch(rider.progress);
+  rider.altitude = groundHeight(rider.progress, rider.lane);
+  rider.pitch = groundPitch(rider.progress, rider.lane);
   rider.airTimeMs = 0;
   rider.offTrailMs = 0;
   rider.rescueCount += 1;
   rider.score = Math.max(0, rider.score - 35);
+  rider.sprintMs = 0;
+  rider.sprinting = false;
+  rider.powerslide = false;
+  rider.currentTrick = "";
+  rider.pendingStyle = 0;
+  rider.combo = 0;
 }
 export function rescueRider(rider: Rider): void {
   const checkpoint = rider.checkpoint > 0 ? CHECKPOINTS[rider.checkpoint - 1] : 0;
@@ -128,8 +157,8 @@ export function rescueRider(rider: Rider): void {
   rider.lean = 0;
   rider.verticalSpeed = 0;
   rider.grounded = true;
-  rider.altitude = groundHeight(rider.progress);
-  rider.pitch = groundPitch(rider.progress);
+  rider.altitude = groundHeight(rider.progress, rider.lane);
+  rider.pitch = groundPitch(rider.progress, rider.lane);
   rider.airTimeMs = 0;
   rider.offTrailMs = 0;
 }
@@ -138,14 +167,14 @@ export function updateBotInput(rider: Rider, seed: number): void {
     shortcut = rider.progress >= 1530 && rider.progress <= 1810 && personality > 0.45;
   const targetLane = shortcut ? 5.25 : Math.sin(rider.progress * 0.009 + rider.slot) * 0.62,
     ramp = jumpAt(rider.progress + 8);
-  rider.input.steer = clamp((targetLane - rider.lane) * 0.42, -0.88, 0.88);
+  rider.input.steer = clamp((rider.lane - targetLane) * 0.42, -0.88, 0.88);
   rider.input.body = !rider.grounded ? -0.18 : courseSlope(rider.progress) < -0.32 ? 0.58 : 0.08;
   rider.input.pedal = true;
   rider.input.brake =
     Math.abs(rider.lane - targetLane) > 2 ||
     (courseGrip(rider.progress) < 0.72 && rider.speed > 24);
   rider.input.jump = Boolean(ramp) && rider.jumpReady && rider.speed > 11;
-  rider.input.rear = false;
+  rider.input.attack = false;
 }
 function recoverCrash(rider: Rider, dt: number, result: AdvanceResult): AdvanceResult {
   rider.crashed = Math.max(0, rider.crashed - dt);

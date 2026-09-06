@@ -547,6 +547,81 @@
           "mode": "shared",
           "maxViewports": 1
         }
+      },
+      "status": "retired",
+      "retirementReason": "Superseded by Ridge Rush 0.5.0 camera-clearance, steering-direction, cambered-ground and classic downhill control mechanics pass; immutable bytes remain preserved for pinned rooms."
+    },
+    {
+      "gameId": "ridge-rush",
+      "version": "0.5.0",
+      "title": "Ridge Rush",
+      "manifestPath": "/games/ridge-rush/0.5.0/manifest.json",
+      "manifestSha256": "1725f481b1f7c36b7bbb9b28f0f7a79b66322a337eedde0a4f20b0489c113e02",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
+      "status": "retired",
+      "retirementReason": "Pre-production immutable candidate superseded by Ridge Rush 0.5.1, which moves pedal double-tap detection to server input edges so sprint is reliable between simulation ticks."
+    },
+    {
+      "gameId": "ridge-rush",
+      "version": "0.5.1",
+      "title": "Ridge Rush",
+      "manifestPath": "/games/ridge-rush/0.5.1/manifest.json",
+      "manifestSha256": "f5b4fe61dbee26b6e15ee6d549e42bd80288419327a631bdc098be7a4b4e5df0",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
+      "status": "retired",
+      "retirementReason": "Pre-production immutable candidate superseded by Ridge Rush 0.5.2, which accepts distinct pedal tap edges even when network delivery places both presses in one authoritative server tick."
+    },
+    {
+      "gameId": "ridge-rush",
+      "version": "0.5.2",
+      "title": "Ridge Rush",
+      "manifestPath": "/games/ridge-rush/0.5.2/manifest.json",
+      "manifestSha256": "08f16cd2c4872a65777dfb63de4609ac67f9d2317f636234121f04447e3587eb",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
+      "status": "retired",
+      "retirementReason": "Pre-production immutable candidate superseded by Ridge Rush 0.5.3 after WebSocket tracing showed real handheld double-tap delivery can exceed 320 ms at the authoritative worker."
+    },
+    {
+      "gameId": "ridge-rush",
+      "version": "0.5.3",
+      "title": "Ridge Rush",
+      "manifestPath": "/games/ridge-rush/0.5.3/manifest.json",
+      "manifestSha256": "434d5c27559404b303f0dfb05e5b9cfea9dc3864a355767070e47ea44b49981a",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      },
+      "status": "retired",
+      "retirementReason": "Pre-production immutable candidate superseded by Ridge Rush 0.5.4 with a usable lower powerslide threshold after full-room ergonomic testing."
+    },
+    {
+      "gameId": "ridge-rush",
+      "version": "0.5.4",
+      "title": "Ridge Rush",
+      "manifestPath": "/games/ridge-rush/0.5.4/manifest.json",
+      "manifestSha256": "019205106e8da822d058cfa8e5b486433f847725936617b39348823f7d6eebab",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
       }
     },
     {
