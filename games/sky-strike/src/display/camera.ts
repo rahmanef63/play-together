@@ -2,6 +2,7 @@ import * as THREE from "three";
 import type { PlanePose, SkyState } from "./model.js";
 import { smoothing } from "./model.js";
 import type { SkyScene } from "./scene.js";
+import { incomingThreat } from "./threat.js";
 
 export function updateSkyCameraAndHud(
   view: SkyScene,
@@ -53,6 +54,9 @@ export function updateSkyCameraAndHud(
       : me.respawnMs > 0
         ? `AIRCRAFT DOWN · RESPAWN IN ${Math.ceil(me.respawnMs / 1000)}`
         : `SKY STRIKE · ROUND ${state.round} · KILLS ${me.kills} · HP ${Math.round(me.hp)}%${me.spawnProtectionMs > 0 ? " · SHIELD" : ""}`;
+  const threat = incomingThreat(state, me);
+  if (threat) view.top.textContent = threat;
+  view.top.dataset.threat = String(Boolean(threat));
   view.center.innerHTML = lock
     ? `<div style="width:58px;height:58px;border:3px solid #ff4747;border-radius:50%;display:grid;place-items:center">LOCK</div>`
     : `<div style="width:42px;height:42px;border:2px solid #fff8;border-radius:50%"></div>`;

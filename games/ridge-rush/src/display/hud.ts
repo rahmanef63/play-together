@@ -1,4 +1,5 @@
-import { CHECKPOINTS, courseSurface, gradeDegrees, progressRatio } from "../shared/course.js";
+import { courseSurface, gradeDegrees, progressRatio } from "../shared/course.js";
+import { checkpointGuide } from "./checkpoint.js";
 import type { RiderView, RidgeViewState } from "./model.js";
 export interface RidgeHud {
   host: HTMLElement;
@@ -46,7 +47,7 @@ export function updateHud(h: RidgeHud, state: RidgeViewState, me: RiderView | un
     grade = me ? Math.max(0, Math.round(gradeDegrees(me.progress))) : 0;
   h.title.textContent = "RIDGE RUSH";
   h.meta.textContent = me
-    ? `${grade}° · ${courseSurface(me.progress).toUpperCase()} · CP ${Math.min(me.checkpoint + 1, CHECKPOINTS.length)}/${CHECKPOINTS.length} · ${me.score} PTS`
+    ? `${grade}° · ${courseSurface(me.progress).toUpperCase()} · ${checkpointGuide(me.progress, me.checkpoint)} · ${me.score} PTS`
     : "EXTREME DESCENT";
   h.place.textContent = me ? `${ordinal(place)} / ${state.riders.length}` : "WAITING";
   h.speed.textContent = String(me ? Math.round(me.speed * 3.6) : 0);
@@ -55,7 +56,11 @@ export function updateHud(h: RidgeHud, state: RidgeViewState, me: RiderView | un
   h.center.textContent = centerMessage(state, me);
   const finished = state.phase === "finished";
   h.results.hidden = !finished;
-  if (finished) renderResults(h.results, state);
+  const resultKey = finished
+    ? JSON.stringify(state.riders.map((r) => [r.id, r.name, r.finishedAt]))
+    : "";
+  if (finished && h.results.dataset.resultKey !== resultKey) renderResults(h.results, state);
+  h.results.dataset.resultKey = resultKey;
 }
 function centerMessage(state: RidgeViewState, me?: RiderView) {
   if (me?.currentTrick && me.trickFeedbackMs > 0)

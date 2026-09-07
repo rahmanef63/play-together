@@ -9,6 +9,7 @@ import { PlayToolbar } from "./components/PlayToolbar";
 import { PregameMenu } from "./components/PregameMenu";
 import { useGameRuntime } from "./model/useGameRuntime";
 import { usePlayRoom } from "./model/usePlayRoom";
+import { useScreenAwake } from "./model/useScreenAwake";
 
 export function PlayPage({
   code,
@@ -32,6 +33,8 @@ export function PlayPage({
     isPlaying: Boolean(play.isPlaying) && !compatibility,
     onSystemMenu: openSystemMenu,
   });
+
+  useScreenAwake(Boolean(play.isPlaying) && !compatibility);
 
   if (play.room === null)
     return (

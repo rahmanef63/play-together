@@ -25,14 +25,12 @@ export function updateHumanDriver(racer: Racer, state: RaceState, dt: number) {
   racer.steering += (steerTarget - racer.steering) * (1 - Math.exp(-10 * dt));
   const nearestBefore = nearestTrackPoint(track, racer.x, racer.z),
     onTrack = nearestBefore.distance <= track.width * 0.55;
+  const throttle = racer.cruiseActive && input.brake === 0 ? 1 : input.throttle;
   const coinFactor = 1 + Math.min(10, racer.coins) * 0.008,
-    boosted = racer.boostTimer > 0 && input.throttle > 0 && input.brake === 0,
+    boosted = racer.boostTimer > 0 && throttle > 0 && input.brake === 0,
     drag = onTrack ? 1.2 + racer.speed * 0.032 : 5.4 + racer.speed * 0.09;
   const accel =
-      input.throttle * car.accel +
-      (boosted ? car.boostPower : 0) -
-      input.brake * car.braking -
-      drag,
+      throttle * car.accel + (boosted ? car.boostPower : 0) - input.brake * car.braking - drag,
     top = (car.topSpeed + (boosted ? 10 : 0)) * coinFactor;
   racer.speed = clamp(racer.speed + accel * dt, 0, top);
   updateDrift(racer, dt);
@@ -54,6 +52,7 @@ export function rescueRacer(racer: Racer, state: RaceState) {
   racer.z = nearest.z;
   racer.heading = nearest.heading;
   racer.speed = 0;
+  racer.cruiseActive = false;
   racer.spinTimer = 0;
   racer.invulnerableTimer = 2.8;
   racer.driftTime = 0;
@@ -156,6 +155,7 @@ export function resetRacerToGrid(r: Racer, state: RaceState, slot: number) {
   Object.assign(r, gridPose(trackById(state.trackId), slot));
   Object.assign(r, {
     speed: 0,
+    cruiseActive: false,
     lap: 0,
     nextCheckpoint: 1,
     finished: false,

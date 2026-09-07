@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { flightCoach } from "./coach.js";
 import type { AircraftPose, FlightState } from "./model.js";
 import { smoothing } from "./model.js";
 import type { FlightScene } from "./scene.js";
@@ -58,12 +59,11 @@ export function updateFlightCameraAndHud(
   view.camera.up.copy(up);
   view.camera.lookAt(target);
 
-  const checkpoint = state.checkpoints[me.nextCheckpoint];
   view.top.textContent = me.crashed
     ? "AIRCRAFT DOWN · RESTART FROM CONTROLLER"
     : me.missionComplete
       ? `MISSION COMPLETE · SCORE ${me.score}`
-      : `FLIGHT TRAINER · NEXT ${checkpoint?.label ?? "LAND"} · SCORE ${me.score}`;
+      : `SCORE ${me.score} · ${flightCoach(me, state)}`;
   view.horizonLine.style.transform = `translateY(${Math.round(pose.pitch * 85)}px) rotate(${Math.round(pose.roll * 57.3)}deg)`;
   const heading = `HDG ${String(Math.round(((me.heading * 180) / Math.PI + 360) % 360)).padStart(3, "0")}`;
   view.bottom.innerHTML = `<strong>${Math.round(me.airspeed * 1.94)} kt<br><small>AIRSPEED</small></strong><strong style="text-align:center;color:${me.stall ? "#ff6b6b" : "white"}">${me.stall ? "STALL" : heading}<br><small>${me.gearDown ? "GEAR DOWN" : "GEAR UP"} · ${me.flaps ? "FLAPS" : "CLEAN"}</small></strong><strong style="text-align:right">${Math.round(me.y)} m<br><small>ALT · VSI ${me.verticalSpeed.toFixed(1)}</small></strong>`;

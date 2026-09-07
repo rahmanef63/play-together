@@ -50,7 +50,7 @@ function updateHud(state: TurboState, me: Racer, hud: TurboHud) {
   for (const element of [hud.speed, hud.nitro, hud.minimap, hud.cameraBadge, hud.top])
     element.style.opacity = inSetup ? "0" : "1";
   updateGarageHud(state, me, hud);
-  hud.cameraBadge.textContent = me.rearView ? "REAR VIEW" : `${me.cameraMode.toUpperCase()} VIEW`;
+  hud.cameraBadge.textContent = `${me.rearView ? "REAR VIEW" : `${me.cameraMode.toUpperCase()} VIEW`}${me.cruiseActive ? " · CRUISE ON" : ""}`;
   hud.pause.style.opacity = state.paused ? "1" : "0";
   hud.results.style.display = state.phase === "finished" ? "block" : "none";
   if (state.phase === "finished")

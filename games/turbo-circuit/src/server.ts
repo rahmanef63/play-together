@@ -6,6 +6,7 @@ import type {
 } from "@play-together/game-sdk";
 import { createBot, updateBotDriver } from "./server/botDriver.js";
 import { applyControlPatch } from "./server/controlInput.js";
+import { updateCruise } from "./server/cruise.js";
 import { updateWorldItems, useHeldItem } from "./server/items.js";
 import { updateHumanDriver } from "./server/kartMechanics.js";
 import { collectPickups, createPickups, deterministicItem, tickPickups } from "./server/pickups.js";
@@ -65,8 +66,10 @@ class TurboCircuit implements ServerGame {
   onInput(id: string, payload: unknown) {
     const racer = this.#s.racers.find((r) => r.id === id && !r.bot);
     if (!racer) return;
+    const previousThrottle = racer.input.throttle;
     const beforeTrack = this.#s.trackId,
       action = applyControlPatch(racer, payload);
+    updateCruise(racer, this.#s.phase, previousThrottle);
     const actionResult = applyKartAction(this.#s, racer, action);
     if (actionResult.resetRaceClock) {
       this.#clock = 0;

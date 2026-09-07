@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "clash-arena",
+    "version": "0.4.1",
+    "title": "Clash Arena",
+    "description": "Original 1v1 arena fighter with character select, asset-backed 3D fighters, directional guard, meter, throw escape and deterministic combat.",
+    "minPlayers": 1,
+    "maxPlayers": 2,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "runtimeDependencies": {
+    "three": "0.185.1+pt3"
+  },
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "landscape",
+    "console": {
+      "renderer": "builtin",
+      "layout": "arcade",
+      "initialState": {
+        "x": 0,
+        "y": 0,
+        "a": false,
+        "b": false,
+        "xButton": false,
+        "yButton": false,
+        "start": false
+      },
+      "controls": [
+        {
+          "id": "move",
+          "kind": "stick",
+          "ariaLabel": "Choose fighter before match; move and guard during fight",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "x": "$x",
+              "y": "$y"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "x": 0,
+              "y": 0
+            }
+          },
+          "keys": {
+            "up": [
+              "ArrowUp",
+              "KeyW"
+            ],
+            "down": [
+              "ArrowDown",
+              "KeyS"
+            ],
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ]
+          }
+        },
+        {
+          "id": "jab",
+          "kind": "button",
+          "label": "A",
+          "displayLabel": "SELECT / JAB",
+          "ariaLabel": "Select fighter before match; jab during fight; press with B to escape a throw",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "a": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "a": false
+            }
+          },
+          "keys": [
+            "KeyJ"
+          ]
+        },
+        {
+          "id": "kick",
+          "kind": "button",
+          "label": "B",
+          "displayLabel": "BACK / KICK",
+          "ariaLabel": "Unready during fighter select; kick during fight; press with A to escape a throw",
+          "face": "b",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "b": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "b": false
+            }
+          },
+          "keys": [
+            "KeyK"
+          ]
+        },
+        {
+          "id": "strike",
+          "kind": "button",
+          "label": "X",
+          "displayLabel": "LAUNCH / LOW",
+          "ariaLabel": "Launcher; crouch plus X performs a low sweep",
+          "face": "x",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "xButton": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "xButton": false
+            }
+          },
+          "keys": [
+            "KeyL"
+          ]
+        },
+        {
+          "id": "surge",
+          "kind": "button",
+          "label": "Y",
+          "displayLabel": "METER SURGE",
+          "ariaLabel": "Spend meter for Surge",
+          "face": "y",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "yButton": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "yButton": false
+            }
+          },
+          "keys": [
+            "KeyI"
+          ]
+        },
+        {
+          "id": "start",
+          "kind": "button",
+          "label": "START",
+          "displayLabel": "READY / REMATCH",
+          "ariaLabel": "Confirm fighter before match; request rematch after match",
+          "face": "start",
+          "zone": "bottom",
+          "press": {
+            "type": "patch",
+            "values": {
+              "start": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "start": false
+            }
+          },
+          "keys": [
+            "Enter"
+          ]
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "e49d4f2a631464649767685940d44dbca489d3649e75c84218d4eae77e698bdf"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "aab8449adcd2cca1d82e28150e16a7247a0e6ea6bcd02f13fdcf5749041f14e2"
+    }
+  },
+  "assets": {
+    "fighter.nova-rin": {
+      "url": "./assets/nova-rin.glb",
+      "sha256": "6aebc1c75f461445b02e7c68fbe08f4ea71a0a78d231274517b16ec26c650bec",
+      "contentType": "model/gltf-binary",
+      "bytes": 105152
+    },
+    "fighter.kite-vale": {
+      "url": "./assets/kite-vale.glb",
+      "sha256": "261e889c002181a91680873fc6a993bbba1d0f5a4f9555150fc17f999535c2e6",
+      "contentType": "model/gltf-binary",
+      "bytes": 117600
+    }
+  }
+}

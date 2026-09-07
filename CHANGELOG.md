@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.23.0] - Unreleased
+
+- Add library favorites stored on the current device, title search and party-size filters, and a random pick from matching games.
+- Keep supported screens awake during active gameplay and show metadata-derived keyboard aliases in How To.
+- Add Turbo Circuit one-tap cruise with brake cancellation and reset/rescue cleanup; show cruise state in the camera HUD.
+- Add Flight Trainer checkpoint/landing coaching, Sky Strike incoming missile warnings, Ridge Rush checkpoint/finish distance, and Clash Arena live combat readouts.
+- Fix fullscreen orientation locking, modal keyboard focus and gameplay shortcuts leaking through How To. Recover stale catalog selection when its release disappears.
+- Avoid reconstructing the Ridge Rush result table every render frame.
+- Publish new local immutable cartridges without modifying historical release bytes. Production promotion remains blocked on required integration verification; see docs/upgrade-0.23.0.md.
+
 ## [0.22.2] - 2026-09-08
 
 ### Runtime recovery and Ridge Rush 0.5.8

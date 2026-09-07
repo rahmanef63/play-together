@@ -1,4 +1,5 @@
 import type { BuiltinConsoleConfig, ConsoleControl, ConsoleZone } from "@play-together/contracts";
+import { keyboardLegend } from "./keyboardLegend";
 import type { Cleanup } from "./types";
 
 export interface ControllerSystemOptions {
@@ -35,6 +36,7 @@ export function mountControllerSystemActions(
 
   const overlay = createHowTo(wrapper, config, options);
   const openHelp = () => {
+    window.dispatchEvent(new Event("blur"));
     overlay.hidden = false;
     overlay.querySelector<HTMLButtonElement>('[data-how-to-action="close"]')?.focus();
   };
@@ -60,12 +62,29 @@ export function mountControllerSystemActions(
   };
   advanced?.addEventListener("click", toggleAdvanced);
   const onKey = (event: KeyboardEvent) => {
-    if (event.key === "Escape" && !overlay.hidden) closeHelp();
+    if (overlay.hidden) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      closeHelp();
+    }
+    if (event.key === "Tab") {
+      const buttons = [...overlay.querySelectorAll<HTMLButtonElement>("button")];
+      const first = buttons[0],
+        last = buttons.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    }
   };
-  window.addEventListener("keydown", onKey);
+  window.addEventListener("keydown", onKey, true);
 
   return () => {
-    window.removeEventListener("keydown", onKey);
+    window.removeEventListener("keydown", onKey, true);
     help.removeEventListener("click", onHelp);
     menu.removeEventListener("click", onMenu);
     advanced?.removeEventListener("click", toggleAdvanced);
@@ -128,7 +147,7 @@ function legendSection(title: string, controls: ConsoleControl[]): HTMLElement {
   for (const control of controls) {
     const row = document.createElement("div");
     const key = document.createElement("kbd");
-    key.textContent = controlGlyph(control);
+    key.textContent = [controlGlyph(control), keyboardLegend(control)].filter(Boolean).join(" · ");
     const label = document.createElement("span");
     label.textContent = control.ariaLabel;
     row.append(key, label);

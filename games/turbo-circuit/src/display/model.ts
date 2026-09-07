@@ -7,6 +7,7 @@ export interface Racer {
   bot: boolean;
   carId: CarId;
   ready: boolean;
+  cruiseActive?: boolean;
   cameraMode: CameraMode;
   rearView: boolean;
   steering: number;

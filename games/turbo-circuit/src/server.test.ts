@@ -28,17 +28,21 @@ describe("Turbo Circuit kart migration", () => {
     expect(state.trackId).toBe("cosmic-loop");
     expect(state.pickups.length).toBeGreaterThan(20);
   });
-  it("requires manual throttle and applies braking", async () => {
+  it("waits for a gas tap and applies braking", async () => {
     const game = await startSolo();
     for (let i = 0; i < 15; i++) await game.tick(4000 + i * 50, 50);
     expect(me(game).speed).toBe(0);
     await game.onInput("p", { throttle: 1 }, 2);
     for (let i = 0; i < 25; i++) await game.tick(5000 + i * 50, 50);
+    await game.onInput("p", { throttle: 0 }, 3);
+    await game.tick(6400, 50);
+    expect(me(game).cruiseActive).toBe(true);
     const moving = me(game).speed;
     expect(moving).toBeGreaterThan(12);
     await game.onInput("p", { throttle: 0, brake: 1 }, 3);
     for (let i = 0; i < 12; i++) await game.tick(6500 + i * 50, 50);
     expect(me(game).speed).toBeLessThan(moving);
+    expect(me(game).cruiseActive).toBe(false);
   });
   it("charges drift sparks and grants mini turbo on release", async () => {
     const game = await startSolo(11);

@@ -90,6 +90,19 @@
       }
     },
     {
+      "gameId": "clash-arena",
+      "version": "0.4.1",
+      "title": "Clash Arena",
+      "manifestPath": "/games/clash-arena/0.4.1/manifest.json",
+      "manifestSha256": "cd3e4b59af6397c5d2dbd66bbed16a89420ac60cfcd0ea3a7b5f5bb19b97b97f",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
+    },
+    {
       "gameId": "dodge-dash",
       "version": "0.1.0",
       "title": "Dodge Dash",
@@ -229,6 +242,19 @@
       "title": "Flight Trainer",
       "manifestPath": "/games/flight-trainer/0.4.0/manifest.json",
       "manifestSha256": "b313f6bc0cc7cd7a9cac5c8eab0b401b145cd2d606383d39cfbf3599d46f44ca",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
+    },
+    {
+      "gameId": "flight-trainer",
+      "version": "0.4.1",
+      "title": "Flight Trainer",
+      "manifestPath": "/games/flight-trainer/0.4.1/manifest.json",
+      "manifestSha256": "76a02395aae490ef8ad10b82e1e4874215a99767bf6e164792ec342bd24cc289",
       "presentation": {
         "remoteDisplay": {
           "mode": "per-player",
@@ -713,6 +739,19 @@
       }
     },
     {
+      "gameId": "ridge-rush",
+      "version": "0.5.9",
+      "title": "Ridge Rush",
+      "manifestPath": "/games/ridge-rush/0.5.9/manifest.json",
+      "manifestSha256": "1751d073db0d4454fd823453c3caf404da34493b06a614acc3bb26327944d209",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
+    },
+    {
       "gameId": "sky-strike",
       "version": "0.1.0",
       "title": "Sky Strike",
@@ -810,6 +849,19 @@
       "title": "Sky Strike",
       "manifestPath": "/games/sky-strike/0.4.0/manifest.json",
       "manifestSha256": "22b88e3c0f9a330576740b90cf3350ebc13865475efab0052e576ec5793c7c07",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
+    },
+    {
+      "gameId": "sky-strike",
+      "version": "0.4.1",
+      "title": "Sky Strike",
+      "manifestPath": "/games/sky-strike/0.4.1/manifest.json",
+      "manifestSha256": "b6a7dbe5e18ba5e2b43986100b9bf733283120c76eca6e165330da0d60f71145",
       "presentation": {
         "remoteDisplay": {
           "mode": "per-player",
@@ -1052,6 +1104,19 @@
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.11.0/manifest.json",
       "manifestSha256": "b8bc201fa835066cf30a90bfb3a35b55e75126510ba4af853b0a74029be169d3",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.11.1",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.11.1/manifest.json",
+      "manifestSha256": "bfa844e05dfe912e7a3454bfe0f796b0a2edfc4b346308fc564ab74060707185",
       "presentation": {
         "remoteDisplay": {
           "mode": "per-player",

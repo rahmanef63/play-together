@@ -1,3 +1,4 @@
+import { combatReadout } from "./combatReadout.js";
 import type { ArenaState, ViewFighter } from "./model.js";
 
 interface FighterHud {
@@ -6,6 +7,7 @@ interface FighterHud {
   hp: HTMLElement;
   meter: HTMLElement;
   rounds: HTMLElement;
+  status: HTMLElement;
 }
 export interface ArenaHud {
   host: HTMLElement;
@@ -55,18 +57,22 @@ function fighterHud(side: "left" | "right"): FighterHud {
     meter = meterTrack.querySelector("i") as HTMLElement;
   const rounds = document.createElement("span");
   rounds.className = "clash-fighter-hud__rounds";
-  host.append(name, hpTrack, meterTrack, rounds);
-  return { host, name, hp, meter, rounds };
+  const status = document.createElement("small");
+  status.className = "clash-fighter-status";
+  host.append(name, hpTrack, meterTrack, rounds, status);
+  return { host, name, hp, meter, rounds, status };
 }
 
 function updateFighter(h: FighterHud, fighter: ViewFighter | undefined) {
   if (!fighter) {
+    h.status.textContent = "";
     h.name.textContent = "WAITING";
     h.hp.style.width = "0%";
     h.meter.style.width = "0%";
     h.rounds.textContent = "○ ○";
     return;
   }
+  h.status.textContent = combatReadout(fighter);
   h.name.textContent = fighter.name;
   h.hp.style.width = `${Math.max(0, Math.min(100, fighter.hp))}%`;
   h.meter.style.width = `${Math.max(0, Math.min(100, fighter.meter))}%`;

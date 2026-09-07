@@ -1,0 +1,61 @@
+.library-shell .console-library {
+  grid-template-rows: auto minmax(100px, 1fr) 90px auto;
+}
+.library-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.library-tools input {
+  flex: 1 1 120px;
+  min-width: 0;
+}
+.library-tools input,
+.library-tools select,
+.library-tools button {
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+}
+.library-tools button[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+.library-tools button:disabled {
+  opacity: 0.5;
+}
+.library-favorite {
+  position: relative;
+  margin: 0 0 10px;
+  min-height: 36px;
+  padding: 6px 10px;
+  background: var(--stage-bg);
+  color: var(--stage-text);
+  border: 1px solid currentColor;
+  border-radius: 6px;
+}
+@media (max-width: 900px) {
+  .library-shell .console-library {
+    grid-template-rows: auto minmax(100px, 1fr) 82px;
+  }
+  .library-tools {
+    gap: 6px;
+  }
+  .library-tools input {
+    flex-basis: 100px;
+  }
+}
+@media (max-height: 580px) and (min-width: 620px) {
+  .library-shell .console-library {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .library-tools {
+    grid-column: 1 / -1;
+  }
+}

@@ -2,7 +2,7 @@
 
 ## Current source catalogue
 
-The source catalogue targets Turbo Circuit 0.11.0, Flight Trainer 0.4.0, Sky Strike 0.4.0, Ridge Rush 0.5.7 and Clash Arena 0.3.0. Published cartridge bytes are immutable; source versions do not prove production promotion, and existing rooms remain pinned to their exact manifest digest.
+The source catalogue targets Turbo Circuit 0.11.1, Flight Trainer 0.4.1, Sky Strike 0.4.1, Ridge Rush 0.5.9 and Clash Arena 0.4.1. Published cartridge bytes are immutable; source versions do not prove production promotion, and existing rooms remain pinned to their exact manifest digest.
 
 ## Controller tiers
 
@@ -19,7 +19,7 @@ Existing older cartridges may still expose shoulder actions; that history is not
 
 | Game | Tier 0 core | Extra controls in current release |
 | --- | --- | --- |
-| Turbo Circuit | steer + A gas / B brake / X item / Y rear | legacy L1/R1/L2/R2 advanced actions |
+| Turbo Circuit | steer + A tap-to-cruise / B cancel-cruise and brake / X item / Y rear | legacy L1/R1/L2/R2 advanced actions |
 | Flight Trainer | flight stick + ABXY aircraft actions | legacy shoulder rudder/brake/assist |
 | Sky Strike | flight stick + ABXY combat/throttle | legacy shoulder rudder/airbrake/boost |
 | Ridge Rush 0.5.7 | stick steer/body + A pedal/sprint / B brake/slide / X hop/trick / Y attack/look | none |

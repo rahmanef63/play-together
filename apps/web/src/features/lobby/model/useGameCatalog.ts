@@ -23,7 +23,8 @@ export function useGameCatalog() {
     [games],
   );
   const effectiveGameKey =
-    selectedGameKey || (defaultGame ? `${defaultGame.gameId}@${defaultGame.version}` : "");
+    (gameById.has(selectedGameKey) ? selectedGameKey : "") ||
+    (defaultGame ? `${defaultGame.gameId}@${defaultGame.version}` : "");
   const selectedGame = gameById.get(effectiveGameKey) ?? defaultGame;
 
   useEffect(() => {

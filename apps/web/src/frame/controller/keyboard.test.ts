@@ -11,7 +11,7 @@ function key(type: string, code: string) {
 }
 beforeEach(() => {
   win = new EventTarget();
-  doc = Object.assign(new EventTarget(), { hidden: false });
+  doc = Object.assign(new EventTarget(), { hidden: false, querySelector: vi.fn(() => null) });
   vi.stubGlobal("window", win);
   vi.stubGlobal("document", doc);
   cleanups = [];
@@ -21,6 +21,13 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 describe("keyboard ownership", () => {
+  it("does not send gameplay shortcuts while How To is open", () => {
+    const down = vi.fn();
+    Object.assign(doc, { querySelector: () => ({}) });
+    cleanups.push(bindKeys(["KeyW"], down, vi.fn()));
+    key("keydown", "KeyW");
+    expect(down).not.toHaveBeenCalled();
+  });
   it("keeps a logical button down until every alias is released", () => {
     const down = vi.fn(),
       up = vi.fn();

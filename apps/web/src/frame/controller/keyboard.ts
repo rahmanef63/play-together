@@ -22,6 +22,7 @@ export function bindKeys(keys: string[], down: () => void, up: () => void): Clea
     if (
       (event.defaultPrevented && (event.target as HTMLElement | null)?.tagName === "BUTTON") ||
       editable(event.target) ||
+      document.querySelector(".console-how-to:not([hidden])") ||
       !(accepted.has(event.code) || accepted.has(event.key))
     )
       return;

@@ -18,6 +18,7 @@ export type ViewFighter = {
   flash: string;
   moveFrame: number;
   blockStun: number;
+  juggle: number;
 };
 
 export type ArenaState = {

@@ -1,6 +1,8 @@
 import type { ControllerMode } from "@play-together/contracts";
+import { useRef } from "react";
 import { navigate } from "../../../shared/navigation";
 import { Button } from "../../../shared/ui/Button";
+import { useMenuFocus } from "../model/useMenuFocus";
 import type { RemoteRole } from "../remotePresentation";
 
 export function PlayGameMenu({
@@ -32,10 +34,13 @@ export function PlayGameMenu({
   onReturnToGameMenu: () => void;
   onSwitchRole: () => void;
 }) {
+  const menuRef = useRef<HTMLElement>(null);
+  useMenuFocus(open, menuRef, onClose);
   if (!open) return null;
   return (
     <div className="play-game-menu-layer" onPointerDown={onClose}>
       <aside
+        ref={menuRef}
         className="play-game-menu"
         role="dialog"
         aria-modal="true"
@@ -86,7 +91,7 @@ async function toggleFullscreen(role: RemoteRole, mode: ControllerMode) {
     if (document.fullscreenElement) await document.exitFullscreen();
     else await document.documentElement.requestFullscreen();
     if (
-      !document.fullscreenElement &&
+      document.fullscreenElement &&
       role === "controller" &&
       mode === "remote" &&
       "orientation" in screen
