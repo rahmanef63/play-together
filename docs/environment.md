@@ -12,7 +12,7 @@ Run `pnpm env:examples` after changing an environment contract or its deployment
 | `.env.convex.production.example` | Full Convex backend/auth/email/secrets reference | Convex production deployment environment variables |
 | `.env.vps.production.example` | Primary web/realtime runtime | Private env file on the VPS |
 | `.env.production.example` | Aggregate production + CI reference | Do not paste wholesale into one provider |
-| `.env.all.example` | Complete 74-variable inventory | Documentation/reference only |
+| `.env.all.example` | Complete 76-variable inventory | Documentation/reference only |
 
 ## Google OAuth: production
 
@@ -97,6 +97,8 @@ npx convex env --deployment upbeat-dog-398 list --names-only
 | `MAX_PAYLOAD_BYTES` | VPS production runtime + Local .env | both | no | Project configuration / platform integration | Maximum realtime payload size. |
 | `VPS_HOST` | VPS production runtime | runtime | no | Canonical production domain / VPS deployment override | Hostname routed by the VPS Traefik labels; may be overridden for a staging-origin validation. |
 | `VPS_GITHUB_REPOSITORY` | Local/CI tooling | tooling | no | Project repository identity | Public GitHub repository queried by the CI-gated VPS deploy watcher. |
+| `PLAY_TOGETHER_UPSTREAM` | Local/CI tooling | tooling | no | Project repository identity | Canonical repository used by pnpm repo:update for safe clone/fork synchronization. |
+| `PLAY_TOGETHER_UPSTREAM_BRANCH` | Local/CI tooling | tooling | no | Project repository identity | Canonical branch used by pnpm repo:update for safe clone/fork synchronization. |
 | `VPS_DEPLOY_STATE_FILE` | Local/CI tooling | tooling | no | VPS operator configuration; defaults under ~/.local/state/play-together | Optional non-secret state path storing the last fully published production Git SHA for health/readiness gating. |
 | `VPS_ENV_FILE` | Local/CI tooling | tooling | no | VPS operator configuration; defaults to .env.vps.production in the checkout | Optional path to the private env file consumed by pnpm vps:deploy. |
 | `E2E_BASE_URL` | Local/CI tooling | tooling | no | Project configuration / platform integration | Playwright target application URL. |
