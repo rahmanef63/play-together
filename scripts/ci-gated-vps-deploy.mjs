@@ -87,7 +87,7 @@ const publishToken = output("corepack", [
 ]);
 const redisUrl = await readEnvironmentValue(envFile, "REDIS_URL");
 const gameCdnOrigin = await readEnvironmentValue(envFile, "GAME_CDN_PUBLIC_ORIGIN");
-run("corepack", ["pnpm", "game:publish:convex"], {
+run(process.execPath, [resolve(root, "scripts/publish-to-convex.mjs")], {
   ...process.env,
   CONVEX_URL: convexUrl,
   GAME_PUBLISH_TOKEN: publishToken,

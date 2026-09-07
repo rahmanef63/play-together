@@ -79,7 +79,8 @@ describe("VPS production runtime configuration", () => {
     expect(deployer).toContain('"@play-together/security", "build"');
     expect(deployer).toContain('"GAME_PUBLISH_TOKEN"');
     expect(deployer).toContain('"REDIS_URL"');
-    expect(deployer).toContain('"pnpm", "game:publish:convex"');
+    expect(deployer).toContain('"scripts/publish-to-convex.mjs"');
+    expect(deployer).not.toContain('"pnpm", "game:publish:convex"');
     expect(deployer).toContain("chmod(stateFile, 0o644)");
   });
 });
