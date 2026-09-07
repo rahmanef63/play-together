@@ -1,6 +1,12 @@
 # Changelog
 
-## [0.23.1] - Pending deployment
+## [0.23.2] - 2026-09-08
+
+- Move production ownership to the existing Dokploy Compose service while keeping Convex Cloud, managed Redis, and private Vercel Blob as external dependencies.
+- Keep the mobile-landscape **Set up room** action inside the visible game stage so it remains clickable at compact 844×390 controller-test viewports.
+- Stamp `version.json` from the deployment's exact `APP_REVISION` when Git metadata is unavailable inside the production image.
+
+## [0.23.1] - 2026-09-08
 
 - Add a public version log and an explicit **Update** action in the PWA.
 - Add `pnpm repo:update` for clean clone/fork checkouts. It only fast-forwards from the canonical upstream and refuses diverged or dirty worktrees.

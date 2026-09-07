@@ -7,8 +7,10 @@ COPY . .
 RUN pnpm install --frozen-lockfile
 ARG VITE_CONVEX_URL
 ARG VITE_REALTIME_URL
+ARG APP_REVISION
 ENV VITE_CONVEX_URL=$VITE_CONVEX_URL
 ENV VITE_REALTIME_URL=$VITE_REALTIME_URL
+ENV APP_REVISION=$APP_REVISION
 # This is platform-neutral: it produces the same web, realtime, release and env output for VPS or rollback builds.
 RUN pnpm production:web:build
 RUN pnpm --filter @play-together/web deploy --prod --legacy /runtime

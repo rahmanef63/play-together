@@ -47,6 +47,7 @@ services:
       args:
         VITE_CONVEX_URL: ${VITE_CONVEX_URL:?Set VITE_CONVEX_URL before the VPS build}
         VITE_REALTIME_URL: ${VITE_REALTIME_URL:-}
+        APP_REVISION: ${APP_REVISION:-unknown}
     expose: ["8080"]
     environment:
       HOST: 0.0.0.0

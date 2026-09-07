@@ -152,10 +152,10 @@ E2E covers QR join, Start-gated lifecycle, public/private/password admission, re
 
 ## Production
 
-- Player app + game CDN: Vercel, `https://game.rahmanef.com`
+- Player app + immutable game CDN: Dokploy VPS, `https://game.rahmanef.com`
 - Realtime: same-origin `/api/realtime`, coordinated across instances through Redis with hydrated live release revocation and fixed-cardinality instance telemetry
 - Durable control plane/auth: Convex Cloud
-- Private commercial template source: private Blob + Convex entitlement
+- Private commercial template source: Vercel Private Blob + Convex entitlement
 
 See [docs/deployment.md](docs/deployment.md) before shipping and [docs/security.md](docs/security.md) / [SECURITY.md](SECURITY.md) for trust boundaries.
 

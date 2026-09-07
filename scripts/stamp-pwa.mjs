@@ -23,6 +23,10 @@ await writeFile(
 console.log("Stamped PWA assets for " + version + " (" + revision + ").");
 
 function gitRevision() {
+  const configuredRevision = process.env.APP_REVISION?.trim();
+  if (configuredRevision && /^[0-9a-f]{7,40}$/.test(configuredRevision)) {
+    return configuredRevision;
+  }
   try {
     const revision = execFileSync("git", ["rev-parse", "--short=12", "HEAD"], {
       cwd: root,
