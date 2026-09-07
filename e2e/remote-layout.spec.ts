@@ -104,7 +104,7 @@ test("simple remotes stay bounded in landscape and expose live status in portrai
         for (const name of [
           "Start ready or pause",
           "Brake",
-          "Accelerate",
+          "Tap gas once to cruise; brake cancels cruise; tap gas again to resume",
           "Use item ability",
           "Hold rear view",
         ])
