@@ -108,7 +108,7 @@ test("simple remotes stay bounded in landscape and expose live status in portrai
           "Use item ability",
           "Hold rear view",
         ])
-          await expect(frame.getByRole("button", { name })).toBeVisible();
+          await expect(frame.getByRole("button", { name, exact: true })).toBeVisible();
         const portrait = await frame.locator("body").evaluate(() => {
           const rect = (id: string) => {
             const el = document.querySelector<HTMLElement>(`[data-control-id="${id}"]`);
