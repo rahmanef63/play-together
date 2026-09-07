@@ -23,7 +23,7 @@ Capacity admission happens in one Convex mutation, so concurrent join attempts o
 
 ### Transient realtime plane — WebSocket gateway
 
-Managed Vercel uses Redis between WebSocket Function replicas. A connection lease registry provides global presence, validated controller input is fanned to each deterministic room replica, and deterministic authority election selects the one display/handheld replica allowed to publish snapshots. A separate Redis blocked-release set plus Pub/Sub channel mirrors only emergency release policy so active instances can revoke exact releases immediately and cold-start instances hydrate the current blocked set. Convex/catalog policy remains the durable SSOT.
+Managed VPS realtime uses Redis between gateway replicas when scaled beyond one process. A connection lease registry provides global presence, validated controller input is fanned to each deterministic room replica, and deterministic authority election selects the one display/handheld replica allowed to publish snapshots. A separate Redis blocked-release set plus Pub/Sub channel mirrors only emergency release policy so active instances can revoke exact releases immediately and cold-start instances hydrate the current blocked set. Convex/catalog policy remains the durable SSOT.
 
 The gateway stores no durable product record. It:
 

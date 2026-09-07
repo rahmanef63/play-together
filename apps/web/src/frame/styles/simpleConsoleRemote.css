@@ -31,6 +31,8 @@
   display: grid;
   grid-template-rows: minmax(0, 1fr);
   overflow: hidden;
+  align-self: stretch;
+  justify-self: stretch;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: clamp(14px, 3vmin, 24px);
   background: #15181d;
@@ -41,7 +43,7 @@
   height: 100%;
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 .console-shell--remote .builtin-controller,
 .console-shell--remote .builtin-controller--racing,
@@ -62,17 +64,21 @@
 }
 .console-shell--remote .console-control--stick,
 .console-shell--remote .console-control--dpad {
-  width: min(38vh, 25vw, 160px);
+  width: min(46dvh, 31vw, 176px);
+  max-width: 100%;
   background-color: transparent;
 }
-.console-shell--remote .builtin-controller__zone--right {
+.console-shell--remote
+  .builtin-controller__zone--right:not(.builtin-controller__zone--face-cluster) {
   display: grid;
   grid-template-columns: repeat(2, minmax(56px, 88px));
   align-content: center;
   justify-content: end;
   gap: clamp(5px, 1.2vmin, 10px);
 }
-.console-shell--remote .builtin-controller__zone--right .console-control--button {
+.console-shell--remote
+  .builtin-controller__zone--right:not(.builtin-controller__zone--face-cluster)
+  .console-control--button {
   width: 100%;
   min-width: 0;
   min-height: 50px;

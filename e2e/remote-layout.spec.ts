@@ -8,6 +8,7 @@ import {
   startGame,
   turboCircuit,
 } from "./support/multiplayer";
+import { expectRemoteLandscapeGeometry } from "./support/remoteLayout";
 
 test("simple remotes stay bounded in landscape and expose live status in portrait", async ({
   browser,
@@ -92,6 +93,8 @@ test("simple remotes stay bounded in landscape and expose live status in portrai
       await gameMenu.getByRole("button", { name: "Close game menu" }).click();
 
       if (game.preset === "racing") {
+        await expectRemoteLandscapeGeometry(page, frame);
+        await page.setViewportSize({ width: 844, height: 390 });
         await page.screenshot({ path: testInfo.outputPath("turbo-remote-landscape.png") });
         await page.setViewportSize({ width: 390, height: 844 });
         await expect(frame.locator(".console-shell__telemetry")).toBeVisible();

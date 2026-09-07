@@ -36,6 +36,11 @@ describe("static HTTP boundaries", () => {
     expect(shell.status).toBe(200);
     expect(shell.headers["access-control-allow-origin"]).toBeUndefined();
     expect(shell.headers["cross-origin-resource-policy"]).toBe("same-origin");
+    for (const route of ["/device", "/rooms", "/developers", "/room/ABCD2345"]) {
+      const deepLink = await rawRequest(port, route);
+      expect(deepLink.status).toBe(200);
+      expect(deepLink.body).toContain("shell");
+    }
     const gameFrame = await rawRequest(port, "/game-frame.html");
     expect(gameFrame.status).toBe(200);
     expect(gameFrame.headers["content-security-policy"]).toContain(
@@ -51,8 +56,9 @@ describe("static HTTP boundaries", () => {
       ok: true,
       service: "play-together",
       runtime: "vps-managed",
-      version: "0.22.0",
+      version: "0.22.1",
       revision: "unknown",
+      readyRevision: "unknown",
     });
     expect((await rawRequest(port, "/api/templates/download")).status).toBe(404);
   });

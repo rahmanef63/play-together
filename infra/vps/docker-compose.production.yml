@@ -57,6 +57,8 @@ services:
       TEMPLATE_DOWNLOAD_SECRET: ${TEMPLATE_DOWNLOAD_SECRET:-}
       TEMPLATE_DOWNLOAD_SECRET_NEXT: ${TEMPLATE_DOWNLOAD_SECRET_NEXT:-}
       BLOB_READ_WRITE_TOKEN: ${BLOB_READ_WRITE_TOKEN:?Set BLOB_READ_WRITE_TOKEN in the VPS deployment environment}
+    volumes:
+      - ${VPS_DEPLOY_STATE_FILE:-/home/rahman/.local/state/play-together/deployed-sha}:/run/play-together/deployed-sha:ro
     depends_on:
       realtime: { condition: service_healthy }
     healthcheck:

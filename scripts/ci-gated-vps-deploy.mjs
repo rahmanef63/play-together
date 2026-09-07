@@ -47,6 +47,8 @@ for (const name of requiredJobs) {
 const convexUrl = await readEnvironmentValue(envFile, "VITE_CONVEX_URL");
 const convexDeployment = convexDeploymentFromUrl(convexUrl);
 await mkdir(stateDirectory, { recursive: true });
+if (!deployed.trim()) await writeFile(stateFile, "\n", { mode: 0o644 });
+await chmod(stateFile, 0o644);
 await writeFile(convexEnvironmentFile, `CONVEX_DEPLOYMENT=prod:${convexDeployment}\n`, {
   mode: 0o600,
 });
@@ -73,7 +75,28 @@ run(process.execPath, [resolve(root, "scripts/deploy-vps.mjs")], {
   ...process.env,
   VPS_ENV_FILE: envFile,
 });
-await writeFile(stateFile, `${target}\n`, { mode: 0o600 });
+const publishToken = output("corepack", [
+  "pnpm",
+  "exec",
+  "convex",
+  "env",
+  "get",
+  "GAME_PUBLISH_TOKEN",
+  "--deployment",
+  convexDeployment,
+]);
+const redisUrl = await readEnvironmentValue(envFile, "REDIS_URL");
+const gameCdnOrigin = await readEnvironmentValue(envFile, "GAME_CDN_PUBLIC_ORIGIN");
+run("corepack", ["pnpm", "game:publish:convex"], {
+  ...process.env,
+  CONVEX_URL: convexUrl,
+  GAME_PUBLISH_TOKEN: publishToken,
+  GAME_CDN_PUBLIC_ORIGIN: gameCdnOrigin,
+  REDIS_URL: redisUrl,
+  RELEASE_CONTROL_REQUIRED: "true",
+});
+await writeFile(stateFile, `${target}\n`, { mode: 0o644 });
+await chmod(stateFile, 0o644);
 console.log(`VPS deployed CI-approved revision ${target}.`);
 
 async function githubJson(url) {

@@ -39,7 +39,7 @@ export const managedRuntime = [
     secret: true,
     description: "Cross-function room coordination and release-control Redis connection.",
     source:
-      "Existing managed Redis integration → private VPS env and CI release-control verification",
+      "Managed Redis connection → private VPS env; VPS release-control publication uses the same owner-only value",
   },
   {
     name: "BLOB_READ_WRITE_TOKEN",
@@ -48,7 +48,7 @@ export const managedRuntime = [
     production: "<vercel-private-blob-token>",
     secret: true,
     description:
-      "Private template package Blob credential; retained as an external storage dependency during the VPS compute cutover.",
+      "Private template package Blob credential used by the VPS template download/package flow.",
     source: "Existing Vercel Blob store → private VPS env",
   },
   {
@@ -101,32 +101,5 @@ export const managedRuntime = [
     secret: false,
     description: "Maximum realtime payload size.",
     source: "Project configuration / platform integration",
-  },
-  {
-    name: "VERCEL",
-    group: "Managed production runtime",
-    scope: "platform",
-    production: "<provided-by-vercel>",
-    secret: false,
-    description: "Vercel runtime marker used to enforce managed coordination behavior.",
-    source: "Automatically injected by Vercel",
-  },
-  {
-    name: "VERCEL_URL",
-    group: "Managed production runtime",
-    scope: "platform",
-    production: "<provided-by-vercel>",
-    secret: false,
-    description: "Current Vercel deployment hostname used for exact origin admission.",
-    source: "Automatically injected by Vercel",
-  },
-  {
-    name: "VERCEL_PROJECT_PRODUCTION_URL",
-    group: "Managed production runtime",
-    scope: "platform",
-    production: "<provided-by-vercel>",
-    secret: false,
-    description: "Canonical Vercel production hostname used for origin admission.",
-    source: "Automatically injected by Vercel",
   },
 ];

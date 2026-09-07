@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -33,26 +33,6 @@ describe("dedicated MCP embed boundary", () => {
     expect(isEmbedPath("/embed/game-frame.html")).toBe(true);
     expect(isEmbedPath("/embedded")).toBe(false);
   });
-  it("keeps Vercel policy and leaf rewrite aligned with the local server", async () => {
-    const config = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
-    expect(config.rewrites.find((rule) => rule.source === "/embed/game-frame.html")).toEqual({
-      source: "/embed/game-frame.html",
-      destination: "/game-frame.html",
-    });
-    expect(
-      config.rewrites.findIndex((rule) => rule.source === "/embed/game-frame.html"),
-    ).toBeLessThan(config.rewrites.findIndex((rule) => rule.source === "/embed/:path*"));
-    for (const path of ["/embed", "/embed/:path*"]) {
-      const policy = config.headers
-        .find((rule) => rule.source === path)
-        .headers.find((header) => header.key === "Content-Security-Policy").value;
-      expect(policy.split("frame-ancestors ")[1]).toBe(`'self' ${EMBED_ANCESTORS.join(" ")}`);
-    }
-    const rootPolicy = config.headers[0].headers.find(
-      (header) => header.key === "Content-Security-Policy",
-    ).value;
-    expect(rootPolicy).not.toContain("chatgpt.com");
-  });
   it("serves the actual nested game frame and limits relaxed headers to /embed", async () => {
     const root = await mkdtemp(join(tmpdir(), "pt-embed-policy-"));
     await writeFile(join(root, "index.html"), "<!doctype html><title>app shell</title>");
@@ -75,10 +55,10 @@ describe("dedicated MCP embed boundary", () => {
         path.endsWith("tv.html") ? "tv help" : path.endsWith(".html") ? "game frame" : "app shell",
       );
     }
-    const normal = await fetch(origin + "/");
+    const normal = await fetch(`${origin}/`);
     expect(normal.headers.get("x-frame-options")).toBe("DENY");
     expect(normal.headers.get("content-security-policy")).not.toContain("chatgpt.com");
-    const frame = await fetch(origin + "/game-frame.html");
+    const frame = await fetch(`${origin}/game-frame.html`);
     expect(frame.headers.get("content-security-policy")).not.toContain("chatgpt.com");
   });
 });

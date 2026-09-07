@@ -94,12 +94,6 @@ jobs:
     timeout-minutes: 35
     permissions:
       contents: read
-    env:
-      GAME_PUBLISH_TOKEN: ${{ secrets.GAME_PUBLISH_TOKEN }}
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      CONVEX_URL: https://upbeat-dog-398.convex.cloud
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
@@ -115,38 +109,12 @@ jobs:
         run: |
           origin="$(node --input-type=module -e 'import { ciTooling } from "./scripts/environment/ci-tooling.mjs"; const value=ciTooling.find((entry)=>entry.name==="E2E_BASE_URL")?.production; if (!value?.startsWith("https://")) process.exit(1); process.stdout.write(value);')"
           echo "MANAGED_PRODUCTION_URL=$origin" >> "$GITHUB_ENV"
-      - name: Pull legacy managed Redis environment only
-        shell: bash
-        run: |
-          mkdir -p "$HOME/.local/share/com.vercel.cli" .vercel
-          node <<'NODE'
-          const fs = require('fs');
-          fs.writeFileSync(
-            `${process.env.HOME}/.local/share/com.vercel.cli/auth.json`,
-            `${JSON.stringify({ token: process.env.VERCEL_TOKEN })}\n`,
-            { mode: 0o600 },
-          );
-          fs.writeFileSync(
-            '.vercel/project.json',
-            `${JSON.stringify({ projectId: process.env.VERCEL_PROJECT_ID, orgId: process.env.VERCEL_ORG_ID })}\n`,
-          );
-          NODE
-          pnpm dlx vercel@50.22.1 pull --yes --environment=production
-          node <<'NODE'
-          const fs = require('fs');
-          const path = '.vercel/.env.production.local';
-          const env = fs.existsSync(path) ? fs.readFileSync(path, 'utf8') : '';
-          if (!/^REDIS_URL=(?:"[^"]+"|'[^']+'|[^\s]+)$/m.test(env)) {
-            throw new Error('Release control requires the existing managed REDIS_URL');
-          }
-          console.log('Managed Redis environment detected; no Vercel build/deploy will run');
-          NODE
       - name: Wait for CI-approved VPS revision
         shell: bash
         run: |
           for attempt in $(seq 1 120); do
             if payload=$(curl -fsS --max-time 10 "$MANAGED_PRODUCTION_URL/api/health") && \
-              node -e 'const p=JSON.parse(process.argv[1]); if (p.runtime !== "vps-managed" || p.revision !== process.argv[2]) process.exit(1)' "$payload" "$GITHUB_SHA"; then
+              node -e 'const p=JSON.parse(process.argv[1]); if (p.runtime !== "vps-managed" || p.revision !== process.argv[2] || p.readyRevision !== process.argv[2]) process.exit(1)' "$payload" "$GITHUB_SHA"; then
               exit 0
             fi
             sleep 5
@@ -165,10 +133,6 @@ jobs:
           done
           echo "VPS realtime control plane did not become ready" >&2
           exit 1
-      - name: Register immutable games against VPS CDN
-        env:
-          RELEASE_CONTROL_REQUIRED: "true"
-        run: GAME_CDN_PUBLIC_ORIGIN="$MANAGED_PRODUCTION_URL" pnpm game:publish:convex
       - name: Install browser for production smoke
         run: pnpm exec playwright install --with-deps chromium
       - name: Run VPS production browser scenarios

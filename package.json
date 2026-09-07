@@ -1,6 +1,6 @@
 {
   "name": "play-together",
-  "version": "0.22.0",
+  "version": "0.22.1",
   "private": true,
   "description": "Version-isolated multiplayer game platform with mobile controllers and shared browser displays.",
   "packageManager": "pnpm@10.32.1",
@@ -40,7 +40,6 @@
     "stack:down": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin down --remove-orphans",
     "stack:config": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin config --quiet",
     "game:previews": "node scripts/capture-game-previews.mjs",
-    "vercel:build": "pnpm production:build",
     "template:pack": "node scripts/package-game-template.mjs",
     "template:publish": "node scripts/publish-template.mjs",
     "game:registry": "node scripts/generate-game-registry.mjs",

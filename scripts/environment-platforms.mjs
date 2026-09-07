@@ -78,37 +78,6 @@ export const environmentProfiles = [
       "MODULE_CACHE_DIR",
     ],
   },
-  {
-    id: "vercel-production",
-    file: ".env.vercel.production.example",
-    label: "Vercel production project",
-    destination: "Vercel → play-together → Settings → Environment Variables → Production",
-    values: {
-      JOIN_TICKET_SECRET_NEXT: "",
-      TEMPLATE_DOWNLOAD_SECRET_NEXT: "",
-    },
-    names: [
-      "VITE_CONVEX_URL",
-      "VITE_REALTIME_URL",
-      "GAME_CDN_PUBLIC_ORIGIN",
-      "ALLOWED_ORIGINS",
-      "GAME_MODULE_ORIGINS",
-      "GAME_MODULE_FETCH_ORIGIN_MAP",
-      "ALLOW_INSECURE_GAME_ORIGINS",
-      "JOIN_TICKET_SECRET",
-      "JOIN_TICKET_SECRET_NEXT",
-      "TEMPLATE_DOWNLOAD_SECRET",
-      "TEMPLATE_DOWNLOAD_SECRET_NEXT",
-      "CONTENT_SECURITY_POLICY",
-      "REDIS_URL",
-      "BLOB_READ_WRITE_TOKEN",
-      "REQUIRE_DISTRIBUTED_COORDINATION",
-      "RELEASE_CONTROL_REQUIRED",
-      "ALLOW_MISSING_ORIGIN",
-      "ROOM_IDLE_TIMEOUT_MS",
-      "MAX_PAYLOAD_BYTES",
-    ],
-  },
 ];
 
 export function profileForId(id) {

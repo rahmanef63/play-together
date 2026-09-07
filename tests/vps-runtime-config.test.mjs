@@ -18,6 +18,7 @@ describe("VPS production runtime configuration", () => {
     expect(compose).toContain("dokploy-network:");
     expect(compose).toContain("external: true");
     expect(compose).not.toMatch(/^\s*ports:/m);
+    expect(compose).toContain("/run/play-together/deployed-sha:ro");
   });
 
   it("keeps Convex managed and reuses the proven external Redis during the initial cutover", async () => {
@@ -42,15 +43,13 @@ describe("VPS production runtime configuration", () => {
     expect(profile).not.toMatch(/^TEMPLATE_DOWNLOAD_SECRET=/m);
   });
 
-  it("uses one platform-neutral production artifact path for Vercel rollback and VPS images", async () => {
+  it("uses one platform-neutral production artifact path for VPS images", async () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8"));
     const webDockerfile = await readFile("apps/web/Dockerfile", "utf8");
-    const vercelAdapter = await readFile("scripts/prepare-vercel-output.mjs", "utf8");
     const productionOutput = await readFile("scripts/prepare-production-output.mjs", "utf8");
-    expect(rootPackage.scripts["vercel:build"]).toBe("pnpm production:build");
+    expect(rootPackage.scripts["vercel:build"]).toBeUndefined();
     expect(rootPackage.scripts["production:web:build"]).toContain("prepare-production-output.mjs");
     expect(webDockerfile).toContain("RUN pnpm production:web:build");
-    expect(vercelAdapter).toContain('import "./prepare-production-output.mjs"');
     expect(productionOutput).toContain('resolve(releaseRoot, "games")');
   });
 
@@ -66,8 +65,11 @@ describe("VPS production runtime configuration", () => {
     expect(prepareJob).not.toContain("RESEND_API_KEY");
     expect(prepareJob).not.toContain("convex deploy");
     expect(workflow).not.toContain("vars.MANAGED_PRODUCTION_URL");
+    expect(workflow).not.toContain("VERCEL_TOKEN");
+    expect(workflow).not.toContain("vercel@50.22.1");
     expect(workflow).toContain('from "./scripts/environment/ci-tooling.mjs"');
     expect(workflow).toContain('entry.name==="E2E_BASE_URL"');
+    expect(workflow).toContain("p.readyRevision !== process.argv[2]");
     expect(deployer).toContain('"convex",');
     expect(deployer).toContain('"deploy",');
     expect(deployer).toContain('"--typecheck",');
@@ -75,5 +77,9 @@ describe("VPS production runtime configuration", () => {
     expect(deployer).toContain('"pnpm", "install", "--frozen-lockfile"');
     expect(deployer).toContain('"@play-together/contracts", "build"');
     expect(deployer).toContain('"@play-together/security", "build"');
+    expect(deployer).toContain('"GAME_PUBLISH_TOKEN"');
+    expect(deployer).toContain('"REDIS_URL"');
+    expect(deployer).toContain('"pnpm", "game:publish:convex"');
+    expect(deployer).toContain("chmod(stateFile, 0o644)");
   });
 });

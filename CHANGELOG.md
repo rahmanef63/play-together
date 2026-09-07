@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.22.1] - 2026-09-07
+
+### VPS-only production and mobile controller reliability
+
+- Remove the former Vercel application deployment, serverless adapters, rollback profile, and Vercel app credentials from the production pipeline. Play Together web, realtime, immutable game CDN, and release orchestration now run through the VPS; Vercel Blob remains only as private template storage.
+- Move immutable release registration and Redis release-control reconciliation into the CI-gated VPS watcher, and expose a non-secret `readyRevision` so production verification waits for the full Convex → VPS → catalog publication sequence.
+- Fix mobile-landscape controller geometry across common phone viewports: enlarge the analog surface, make knob travel proportional to the SVG control, keep racing/flight face clusters authoritative, and prevent chassis/system-action containers from clipping or sinking below the viewport.
+- Add multi-viewport landscape regression coverage for 667×375, 740×360, 844×390, and 915×412 while preserving all existing immutable game release bytes.
+
 ## [0.22.0] - 2026-09-06
 
 ### Clash Arena 0.4.0 — character select and match flow

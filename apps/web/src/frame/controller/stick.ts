@@ -35,7 +35,9 @@ export function mountStick(
     const next = `${nx},${ny}`;
     if (last === next) return;
     last = next;
-    knob.style.transform = `translate(${nx * 24}px, ${-ny * 24}px)`;
+    // This transform is in the 160-unit SVG viewBox, so knob travel scales with the
+    // rendered stick rather than remaining a fixed number of CSS pixels.
+    knob.setAttribute("transform", `translate(${nx * 34} ${-ny * 34})`);
     if (nx || ny) stick.dataset.active = "true";
     else delete stick.dataset.active;
     runAction(!nx && !ny && control.release ? control.release : control.action, state, context, {
@@ -45,7 +47,7 @@ export function mountStick(
   };
   const move = (event: PointerEvent) => {
     const rect = stick.getBoundingClientRect();
-    const radius = Math.max(1, Math.min(rect.width, rect.height) * 0.38);
+    const radius = Math.max(1, Math.min(rect.width, rect.height) * 0.43);
     const dx = event.clientX - rect.left - rect.width / 2;
     const dy = event.clientY - rect.top - rect.height / 2;
     const scale = Math.min(1, radius / (Math.hypot(dx, dy) || 1));

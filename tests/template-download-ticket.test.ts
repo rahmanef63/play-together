@@ -17,7 +17,7 @@ const claims = {
 };
 
 describe("template download tickets", () => {
-  it("round-trips a Convex-signed claim through the Vercel verifier", async () => {
+  it("round-trips a Convex-signed claim through the shared verifier", async () => {
     const token = await signTemplateDownloadTicket(claims, secret);
     expect(verifyTemplateDownloadTicket(token, secret, { nowSeconds: 150 })).toEqual(claims);
   });

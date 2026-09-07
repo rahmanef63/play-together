@@ -11,9 +11,8 @@ Run `pnpm env:examples` after changing an environment contract or its deployment
 | `.env.convex.google.example` | Google OAuth only; safest activation file | Convex production deployment environment variables |
 | `.env.convex.production.example` | Full Convex backend/auth/email/secrets reference | Convex production deployment environment variables |
 | `.env.vps.production.example` | Primary web/realtime runtime | Private env file on the VPS |
-| `.env.vercel.production.example` | Legacy rollback web/realtime runtime | Vercel Production environment variables |
 | `.env.production.example` | Aggregate production + CI reference | Do not paste wholesale into one provider |
-| `.env.all.example` | Complete 80-variable inventory | Documentation/reference only |
+| `.env.all.example` | Complete 74-variable inventory | Documentation/reference only |
 
 ## Google OAuth: production
 
@@ -46,21 +45,21 @@ npx convex env --deployment upbeat-dog-398 list --names-only
 | `CONVEX_PORT` | Local .env | local | no | Project configuration / platform integration | Local self-hosted Convex API port. |
 | `CONVEX_SITE_PORT` | Local .env | local | no | Project configuration / platform integration | Local self-hosted Convex site port. |
 | `CONVEX_DASHBOARD_PORT` | Local .env | local | no | Project configuration / platform integration | Local Convex dashboard port. |
-| `VITE_CONVEX_URL` | VPS production runtime + Vercel production project + Local .env | both | no | Convex dashboard → deployment URL | Browser-visible Convex deployment URL. |
-| `VITE_REALTIME_URL` | VPS production runtime + Vercel production project + Local .env | both | no | Project configuration / platform integration | Browser-visible realtime URL. Production may leave this unset to use same-origin /api/realtime. |
-| `GAME_CDN_PUBLIC_ORIGIN` | VPS production runtime + Vercel production project + Local .env | both | no | Project configuration / platform integration | Public immutable game asset origin. |
-| `ALLOWED_ORIGINS` | VPS production runtime + Vercel production project + Local .env | both | no | Project configuration / platform integration | Exact browser origins accepted by realtime. |
-| `GAME_MODULE_ORIGINS` | Convex production deployment + VPS production runtime + Vercel production project + Local .env | both | no | Project configuration / platform integration | Exact origins allowed for game module loading. |
-| `GAME_MODULE_FETCH_ORIGIN_MAP` | Convex production deployment + VPS production runtime + Vercel production project + Local .env | both | no | Project configuration / platform integration | Optional public-to-private module fetch routing map. |
-| `ALLOW_INSECURE_GAME_ORIGINS` | Convex production deployment + VPS production runtime + Vercel production project + Local .env | both | no | Project configuration / platform integration | Allows HTTP game origins only for local development. |
-| `JOIN_TICKET_SECRET` | Convex production deployment + Vercel production project + Local .env | both | yes | Generate locally with pnpm env:local; create a separate production secret | Signs realtime tickets inside Convex; local/legacy runtimes may verify directly, while the primary VPS delegates verification back to Convex. |
-| `JOIN_TICKET_SECRET_NEXT` | Vercel production project | runtime | yes | Generated during a planned rotation; verifier-only, never used by Convex to issue tickets | Optional secondary join-ticket verification key used only during zero-downtime secret rotation. |
+| `VITE_CONVEX_URL` | VPS production runtime + Local .env | both | no | Convex dashboard → deployment URL | Browser-visible Convex deployment URL. |
+| `VITE_REALTIME_URL` | VPS production runtime + Local .env | both | no | Project configuration / platform integration | Browser-visible realtime URL. Production may leave this unset to use same-origin /api/realtime. |
+| `GAME_CDN_PUBLIC_ORIGIN` | VPS production runtime + Local .env | both | no | Project configuration / platform integration | Public immutable game asset origin. |
+| `ALLOWED_ORIGINS` | VPS production runtime + Local .env | both | no | Project configuration / platform integration | Exact browser origins accepted by realtime. |
+| `GAME_MODULE_ORIGINS` | Convex production deployment + VPS production runtime + Local .env | both | no | Project configuration / platform integration | Exact origins allowed for game module loading. |
+| `GAME_MODULE_FETCH_ORIGIN_MAP` | Convex production deployment + VPS production runtime + Local .env | both | no | Project configuration / platform integration | Optional public-to-private module fetch routing map. |
+| `ALLOW_INSECURE_GAME_ORIGINS` | Convex production deployment + VPS production runtime + Local .env | both | no | Project configuration / platform integration | Allows HTTP game origins only for local development. |
+| `JOIN_TICKET_SECRET` | Convex production deployment + Local .env | both | yes | Generate locally with pnpm env:local; create a separate production secret | Signs realtime tickets inside Convex; local/legacy runtimes may verify directly, while the primary VPS delegates verification back to Convex. |
+| `JOIN_TICKET_SECRET_NEXT` | Runtime override; normally omit | runtime | yes | Generated during a planned rotation; verifier-only, never used by Convex to issue tickets | Optional secondary join-ticket verification key used only during zero-downtime secret rotation. |
 | `GAME_PUBLISH_TOKEN` | Convex production deployment + Local .env | both | yes | Generate locally with pnpm env:local; store production value in Convex/CI | Authorizes immutable game publication. |
-| `TEMPLATE_DOWNLOAD_SECRET` | Convex production deployment + Vercel production project + Local .env | both | yes | Project configuration / platform integration | Signs private template download tickets inside Convex; the primary VPS delegates verification back to Convex. |
-| `TEMPLATE_DOWNLOAD_SECRET_NEXT` | Vercel production project | runtime | yes | Generated during a planned rotation; verifier-only, never used by Convex to issue tickets | Optional secondary paid-template ticket verification key used during zero-downtime secret rotation. |
+| `TEMPLATE_DOWNLOAD_SECRET` | Convex production deployment + Local .env | both | yes | Project configuration / platform integration | Signs private template download tickets inside Convex; the primary VPS delegates verification back to Convex. |
+| `TEMPLATE_DOWNLOAD_SECRET_NEXT` | Runtime override; normally omit | runtime | yes | Generated during a planned rotation; verifier-only, never used by Convex to issue tickets | Optional secondary paid-template ticket verification key used during zero-downtime secret rotation. |
 | `TEMPLATE_PUBLISH_TOKEN` | Convex production deployment + Local .env | both | yes | Project configuration / platform integration | Authorizes template publication. |
 | `TEMPLATE_SALES_WEBHOOK_SECRET` | Convex production deployment + Local .env | both | yes | Create in the checkout/payment provider webhook settings | Validates template purchase webhooks. |
-| `CONTENT_SECURITY_POLICY` | VPS production runtime + Vercel production project | runtime | no | Project configuration / platform integration | Optional server CSP override; omit to use the hardened default. |
+| `CONTENT_SECURITY_POLICY` | VPS production runtime | runtime | no | Project configuration / platform integration | Optional server CSP override; omit to use the hardened default. |
 | `CONVEX_SELF_HOSTED_URL` | Local .env | local | no | Project configuration / platform integration | Admin/deploy URL for the local self-hosted Convex backend. |
 | `CONVEX_SELF_HOSTED_ADMIN_KEY` | Local .env | local | yes | Project configuration / platform integration | Generated local Convex admin key; normally managed under .local/. |
 | `CONVEX_INSTANCE_NAME` | Local .env | local | no | Project configuration / platform integration | Self-hosted Convex instance name. |
@@ -89,23 +88,17 @@ npx convex env --deployment upbeat-dog-398 list --names-only
 | `TICKET_VERIFIER_CONVEX_URL` | VPS production runtime | runtime | no | Primary Convex Cloud deployment URL | Server-side Convex deployment used by VPS gateways to verify signed realtime and template tickets without copying their HMAC secrets onto the VPS. |
 | `TICKET_VERIFIER_TIMEOUT_MS` | VPS production runtime | runtime | no | Project runtime policy | Fail-closed timeout for one-time Convex ticket verification during realtime/template authorization. |
 | `APP_REVISION` | Runtime override; normally omit | runtime | no | Injected by scripts/deploy-vps.mjs | Exact Git revision reported by the VPS production health endpoint. |
-| `REDIS_URL` | VPS production runtime + Vercel production project | production | yes | Existing managed Redis integration → private VPS env and CI release-control verification | Cross-function room coordination and release-control Redis connection. |
-| `BLOB_READ_WRITE_TOKEN` | VPS production runtime + Vercel production project | production | yes | Existing Vercel Blob store → private VPS env | Private template package Blob credential; retained as an external storage dependency during the VPS compute cutover. |
-| `REQUIRE_DISTRIBUTED_COORDINATION` | VPS production runtime + Vercel production project + Local .env | both | no | Project configuration / platform integration | Fails production realtime startup when Redis coordination/release-control is unavailable. |
-| `RELEASE_CONTROL_REQUIRED` | VPS production runtime + Vercel production project | production | no | Project configuration / platform integration | Requires release-control mirror reconciliation during managed publication. |
-| `ALLOW_MISSING_ORIGIN` | VPS production runtime + Vercel production project | runtime | no | Project configuration / platform integration | Realtime compatibility override; keep false outside explicit non-browser testing. |
-| `ROOM_IDLE_TIMEOUT_MS` | VPS production runtime + Vercel production project + Local .env | both | no | Project configuration / platform integration | Room worker idle timeout. |
-| `MAX_PAYLOAD_BYTES` | VPS production runtime + Vercel production project + Local .env | both | no | Project configuration / platform integration | Maximum realtime payload size. |
-| `VERCEL` | Injected automatically by its platform provider | platform | no | Automatically injected by Vercel | Vercel runtime marker used to enforce managed coordination behavior. |
-| `VERCEL_URL` | Injected automatically by its platform provider | platform | no | Automatically injected by Vercel | Current Vercel deployment hostname used for exact origin admission. |
-| `VERCEL_PROJECT_PRODUCTION_URL` | Injected automatically by its platform provider | platform | no | Automatically injected by Vercel | Canonical Vercel production hostname used for origin admission. |
+| `REDIS_URL` | VPS production runtime | production | yes | Managed Redis connection → private VPS env; VPS release-control publication uses the same owner-only value | Cross-function room coordination and release-control Redis connection. |
+| `BLOB_READ_WRITE_TOKEN` | VPS production runtime | production | yes | Existing Vercel Blob store → private VPS env | Private template package Blob credential used by the VPS template download/package flow. |
+| `REQUIRE_DISTRIBUTED_COORDINATION` | VPS production runtime + Local .env | both | no | Project configuration / platform integration | Fails production realtime startup when Redis coordination/release-control is unavailable. |
+| `RELEASE_CONTROL_REQUIRED` | VPS production runtime | production | no | Project configuration / platform integration | Requires release-control mirror reconciliation during managed publication. |
+| `ALLOW_MISSING_ORIGIN` | VPS production runtime | runtime | no | Project configuration / platform integration | Realtime compatibility override; keep false outside explicit non-browser testing. |
+| `ROOM_IDLE_TIMEOUT_MS` | VPS production runtime + Local .env | both | no | Project configuration / platform integration | Room worker idle timeout. |
+| `MAX_PAYLOAD_BYTES` | VPS production runtime + Local .env | both | no | Project configuration / platform integration | Maximum realtime payload size. |
 | `VPS_HOST` | VPS production runtime | runtime | no | Canonical production domain / VPS deployment override | Hostname routed by the VPS Traefik labels; may be overridden for a staging-origin validation. |
 | `VPS_GITHUB_REPOSITORY` | Local/CI tooling | tooling | no | Project repository identity | Public GitHub repository queried by the CI-gated VPS deploy watcher. |
-| `VPS_DEPLOY_STATE_FILE` | Local/CI tooling | tooling | no | VPS operator configuration; defaults under ~/.local/state/play-together | Optional state path storing the last successfully deployed production Git SHA. |
+| `VPS_DEPLOY_STATE_FILE` | Local/CI tooling | tooling | no | VPS operator configuration; defaults under ~/.local/state/play-together | Optional non-secret state path storing the last fully published production Git SHA for health/readiness gating. |
 | `VPS_ENV_FILE` | Local/CI tooling | tooling | no | VPS operator configuration; defaults to .env.vps.production in the checkout | Optional path to the private env file consumed by pnpm vps:deploy. |
-| `VERCEL_TOKEN` | CI secret/env store | ci | yes | Vercel account settings → Tokens | CLI/CI deployment token. |
-| `VERCEL_ORG_ID` | CI secret/env store | ci | no | Vercel project link metadata (.vercel/project.json) | Vercel project owner/team ID. |
-| `VERCEL_PROJECT_ID` | CI secret/env store | ci | no | Vercel project settings or .vercel/project.json | Vercel project ID. |
 | `E2E_BASE_URL` | Local/CI tooling | tooling | no | Project configuration / platform integration | Playwright target application URL. |
 | `E2E_REALTIME_HEALTH_URL` | Local/CI tooling | tooling | no | Project configuration / platform integration | Playwright/release realtime readiness endpoint. |
 | `CHROME_PATH` | Local/CI tooling | tooling | no | Project configuration / platform integration | Optional Playwright Chrome executable override. |

@@ -27,7 +27,8 @@ export const ciTooling = [
     local: "<optional-vps-deployed-sha-state-path>",
     production: "<owner-only-vps-deployed-sha-state-path>",
     secret: false,
-    description: "Optional state path storing the last successfully deployed production Git SHA.",
+    description:
+      "Optional non-secret state path storing the last fully published production Git SHA for health/readiness gating.",
     source: "VPS operator configuration; defaults under ~/.local/state/play-together",
   },
   {
@@ -40,33 +41,7 @@ export const ciTooling = [
     description: "Optional path to the private env file consumed by pnpm vps:deploy.",
     source: "VPS operator configuration; defaults to .env.vps.production in the checkout",
   },
-  {
-    name: "VERCEL_TOKEN",
-    group: "CI / deployment tooling",
-    scope: "ci",
-    production: "<vercel-access-token>",
-    secret: true,
-    description: "CLI/CI deployment token.",
-    source: "Vercel account settings → Tokens",
-  },
-  {
-    name: "VERCEL_ORG_ID",
-    group: "CI / deployment tooling",
-    scope: "ci",
-    production: "<vercel-team-or-user-id>",
-    secret: false,
-    description: "Vercel project owner/team ID.",
-    source: "Vercel project link metadata (.vercel/project.json)",
-  },
-  {
-    name: "VERCEL_PROJECT_ID",
-    group: "CI / deployment tooling",
-    scope: "ci",
-    production: "<vercel-project-id>",
-    secret: false,
-    description: "Vercel project ID.",
-    source: "Vercel project settings or .vercel/project.json",
-  },
+
   {
     name: "E2E_BASE_URL",
     group: "CI / deployment tooling",

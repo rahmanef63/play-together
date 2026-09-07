@@ -2,7 +2,7 @@
 
 ## Managed production target
 
-The primary production target is **VPS/Dokploy + Convex Cloud**. `game.rahmanef.com` is served by the VPS through the existing Dokploy Traefik edge. Vercel no longer builds or runs the web/realtime application on every `main` push; its application deployment is retained only as a rollback target during the migration window.
+The production target is **VPS/Dokploy + Convex Cloud**. `game.rahmanef.com` is served only by the VPS through the existing Dokploy Traefik edge. The former Vercel application deployment has been removed; Vercel Blob remains only as an external private template-storage service.
 
 | Surface | Production service | Release boundary |
 |---|---|---|
@@ -13,7 +13,7 @@ The primary production target is **VPS/Dokploy + Convex Cloud**. `game.rahmanef.
 | Paid template source | Existing private Vercel Blob store, accessed from VPS | template-source releases |
 | Realtime coordination / release control | Existing managed Redis, accessed from VPS | transient coordination only |
 
-The Redis and private Blob services are deliberately retained as external dependencies for the first compute cutover. They do not run the Play Together frontend or WebSocket compute. Migrating those state/storage services is a separate follow-up so the web/realtime move does not also change release-control and paid-download semantics.
+Redis and the private Blob store are external dependencies. They do not run Play Together frontend or WebSocket compute. The application runtime, immutable game CDN, realtime gateway, and release deployment orchestration run on the VPS; Convex remains the durable control plane.
 
 A game release remains immutable and version-pinned. Updating `game-a@2.0.0` never replaces `game-a@1.0.0`, and active rooms retain their stored manifest digest.
 
@@ -47,7 +47,6 @@ It generates:
 - `.env.example` — local/runtime/tooling values with safe defaults or placeholders;
 - `.env.production.example` — aggregate production/CI reference;
 - `.env.vps.production.example` — exact primary VPS runtime profile;
-- `.env.vercel.production.example` — legacy Vercel rollback profile;
 - `docs/environment.md` — generated variable scope, secret classification, source, and purpose table.
 
 The populated VPS file lives outside Git with owner-only permissions. `scripts/deploy-vps.mjs` accepts its location through `VPS_ENV_FILE` and never prints its values. Do not maintain parallel handwritten env inventories or commit real secrets.
@@ -86,7 +85,7 @@ The VPS watcher never deploys an arbitrary new `main` commit immediately. It que
 2. `integration`
 3. `prepare-production`
 
-`prepare-production` is a credential-free production-source validation gate; it does not mutate Convex or the VPS. Only after all three jobs are green may the VPS watcher reset its dedicated production checkout to that exact SHA. The watcher installs the locked workspace, deploys the Convex functions from the VPS owner’s authenticated Convex CLI context, and only then runs `pnpm vps:deploy`. The `verify-production` CI job waits until `/api/health.revision` equals its own `GITHUB_SHA`, then verifies realtime, registers immutable manifests, and runs production browser scenarios.
+`prepare-production` is a credential-free production-source validation gate; it does not mutate Convex or the VPS. Only after all three jobs are green may the VPS watcher reset its dedicated production checkout to that exact SHA. The watcher installs the locked workspace, deploys Convex functions from the VPS owner’s authenticated Convex CLI context, runs `pnpm vps:deploy`, then registers immutable manifests and reconciles release control using the owner-only VPS Redis connection. The `verify-production` CI job waits until both `/api/health.revision` and `/api/health.readyRevision` equal its own `GITHUB_SHA`. `revision` identifies the running image; `readyRevision` advances only after Convex deploy, healthy VPS containers, immutable release registration, and Redis release-control reconciliation all succeed. CI then verifies realtime and runs production browser scenarios.
 
 This design needs neither a broad SSH credential nor a Convex deploy key in GitHub Actions. A failing verify/integration/prepare gate cannot be auto-deployed, and a failed VPS-side Convex deploy prevents the container revision from advancing.
 
@@ -100,7 +99,7 @@ Primary VPS production deliberately does not share HMAC signing keys with the ap
 - the VPS validates returned claims again against the shared contract schema and then continues gameplay directly on the realtime container;
 - verifier calls have a bounded timeout and fail closed; the bearer ticket is never logged.
 
-Local/self-hosted and Vercel rollback runtimes may still verify HMAC tickets directly with `JOIN_TICKET_SECRET` / `TEMPLATE_DOWNLOAD_SECRET`, including the optional `*_NEXT` verifier keys for planned zero-downtime rotations. That fallback is not part of the primary VPS secret surface.
+Local/self-hosted development may still verify HMAC tickets directly with `JOIN_TICKET_SECRET` / `TEMPLATE_DOWNLOAD_SECRET` when explicitly configured. That fallback is not part of the VPS production secret surface.
 
 ### Realtime coordination and release control
 
@@ -120,11 +119,7 @@ REDIS_URL=<existing-managed-redis-connection-url>
 REQUIRE_DISTRIBUTED_COORDINATION=true
 ```
 
-The VPS receives `REDIS_URL` only through its private env file. CI temporarily uses Vercel CLI `pull` only to read the already-existing Redis integration for release-control reconciliation; it does **not** run `vercel build` or `vercel deploy` on the primary release path.
-
-### Legacy Vercel rollback build
-
-`vercel.json` remains valid as a rollback boundary. `pnpm vercel:build` aliases the same platform-neutral production artifact preparation and still builds the realtime adapter required by the legacy Vercel runtime. Do not delete it until the VPS rollback window has closed.
+The VPS receives `REDIS_URL` only through its private env file. The CI-gated VPS watcher uses that same owner-only value for release-control reconciliation after a healthy deploy; GitHub Actions does not receive Redis credentials.
 
 ## Convex Cloud
 
@@ -145,11 +140,11 @@ Application origin: https://game.rahmanef.com
 Authorized redirect URI: https://upbeat-dog-398.convex.site/api/auth/callback/google
 ```
 
-Store `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` in the **production Convex deployment environment**, not in VPS/Vercel browser variables or the repository. They are listed explicitly in `.env.convex.google.example` and in the full `.env.convex.production.example`. Never apply the literal placeholders to Convex: replace them with the real Google Web OAuth client values first. Development should use a separate Google OAuth client and callback for its own Convex deployment.
+Store `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` in the **production Convex deployment environment**, not in VPS/browser variables or the repository. They are listed explicitly in `.env.convex.google.example` and in the full `.env.convex.production.example`. Never apply the literal placeholders to Convex: replace them with the real Google Web OAuth client values first. Development should use a separate Google OAuth client and callback for its own Convex deployment.
 
 ## VPS environment
 
-Use `.env.vps.production.example` as the primary web/realtime checklist and `.env.convex.production.example` for values owned by the Convex production deployment. `.env.vercel.production.example` is now rollback-only. The VPS does **not** receive `JOIN_TICKET_SECRET` or `TEMPLATE_DOWNLOAD_SECRET`: both signing secrets remain inside Convex (and the temporary Vercel rollback runtime). The VPS uses `TICKET_VERIFIER_CONVEX_URL` for one fail-closed verification call when a realtime connection or paid-template download is authorized. The existing managed `REDIS_URL` and `BLOB_READ_WRITE_TOKEN` are copied into the owner-only VPS runtime env during this transition; neither may be exposed through a `VITE_` variable.
+Use `.env.vps.production.example` as the web/realtime checklist and `.env.convex.production.example` for values owned by the Convex production deployment. The VPS does **not** receive `JOIN_TICKET_SECRET` or `TEMPLATE_DOWNLOAD_SECRET`: both signing secrets remain inside Convex. The VPS uses `TICKET_VERIFIER_CONVEX_URL` for one fail-closed verification call when a realtime connection or paid-template download is authorized. The existing managed `REDIS_URL` and `BLOB_READ_WRITE_TOKEN` are copied into the owner-only VPS runtime env during this transition; neither may be exposed through a `VITE_` variable.
 
 ## Password-reset email
 
@@ -189,10 +184,9 @@ Checkout is provider-agnostic. A payment system can POST a signed fulfillment ev
 2. GitHub Actions runs `verify` and local-stack `integration`.
 3. `prepare-production` validates the production Convex sources without production credentials or mutations.
 4. The VPS CI-gated watcher sees those three successful jobs, deploys Convex Cloud from the exact `origin/main` SHA, then deploys that same SHA to the VPS containers.
-5. `verify-production` waits until `/api/health.revision` equals that SHA and verifies distributed realtime readiness.
-6. CI registers immutable manifests against `https://game.rahmanef.com` and reconciles Redis release control.
+5. After the VPS stack is healthy, the watcher registers immutable manifests against `https://game.rahmanef.com` and reconciles Redis release control, then records the deployed SHA.
+6. `verify-production` waits until `/api/health.revision` equals that SHA and verifies distributed realtime readiness.
 7. CI runs production browser E2E.
-8. For the one-time Vercel→VPS cutover, update DNS only after the VPS origin is healthy; keep the prior Vercel deployment available during the rollback window.
 
 ## Local development / legacy self-hosted stack
 
@@ -208,10 +202,9 @@ Do not use `docker compose down -v` unless you intentionally want to delete loca
 
 ## Rollback
 
-- **Web/realtime:** deploy a previously green Git SHA on the VPS. During the migration window, the former Vercel deployment remains an additional rollback target.
+- **Web/realtime:** deploy a previously green Git SHA on the VPS.
 - **Game:** select an already-published immutable game version; never overwrite release bytes.
 - **Convex:** use widen-migrate-narrow schema changes and deploy backward-compatible functions first.
-- **Domain migration:** do not remove the former Vercel deployment until VPS health/realtime/browser verification and a rollback window are complete.
 
 ## ChatGPT / MSO embedded production
 
@@ -222,7 +215,7 @@ not allow its subdomains. Every ancestor must match CSP, not only the immediate 
 app pages remain protected; `*.oaiusercontent.com`, arbitrary HTTPS origins and a bare wildcard
 are not permitted. This host-family policy allows rendering only; it is not an authentication grant.
 
-`apps/web/embed-policy.mjs` and Vercel configuration are tested for parity. After mounting a usable
+`apps/web/embed-policy.mjs` and the VPS HTTP runtime headers are tested for parity. After mounting a usable
 shell, the app sends only the constant `play-together:embed-ready` version-1 marker to its immediate
 parent, without assuming the parent's runtime origin equals the MCP metadata domain. This marker
 uses `targetOrigin: "*"` specifically because it contains no secrets, room, player or account state.

@@ -30,7 +30,7 @@ function render(target) {
           ]
         : [
             "# Aggregate managed-production/CI reference. Do NOT paste this whole file into one platform.",
-            "# Use .env.convex.production.example and .env.vps.production.example for primary production; Vercel profile is rollback-only.",
+            "# Use .env.convex.production.example and .env.vps.production.example for production.",
             "# Replace every <placeholder> in the correct platform secret store; never commit real secrets.",
           ];
   return renderItems(
@@ -93,7 +93,6 @@ function renderDocs() {
     "| `.env.convex.google.example` | Google OAuth only; safest activation file | Convex production deployment environment variables |",
     "| `.env.convex.production.example` | Full Convex backend/auth/email/secrets reference | Convex production deployment environment variables |",
     "| `.env.vps.production.example` | Primary web/realtime runtime | Private env file on the VPS |",
-    "| `.env.vercel.production.example` | Legacy rollback web/realtime runtime | Vercel Production environment variables |",
     "| `.env.production.example` | Aggregate production + CI reference | Do not paste wholesale into one provider |",
     "| `.env.all.example` | Complete " +
       environmentVariables.length +

@@ -8,9 +8,6 @@ import { ReleaseControlPublisher } from "./release-control-publisher.mjs";
 
 const requestedIds = new Set(process.argv.slice(2));
 const environment = await loadEnvironment(resolve(process.cwd(), ".env"));
-const vercelEnvironment = await loadEnvironment(
-  resolve(process.cwd(), ".vercel/.env.production.local"),
-);
 const deploymentUrl =
   process.env.CONVEX_URL ||
   process.env.VITE_CONVEX_URL ||
@@ -20,7 +17,7 @@ const deploymentUrl =
   environment.CONVEX_SELF_HOSTED_URL;
 const publishToken = process.env.GAME_PUBLISH_TOKEN || environment.GAME_PUBLISH_TOKEN;
 const cdnOrigin = process.env.GAME_CDN_PUBLIC_ORIGIN || environment.GAME_CDN_PUBLIC_ORIGIN;
-const redisUrl = process.env.REDIS_URL || environment.REDIS_URL || vercelEnvironment.REDIS_URL;
+const redisUrl = process.env.REDIS_URL || environment.REDIS_URL;
 const releaseControlRequired = process.env.RELEASE_CONTROL_REQUIRED === "true";
 if (releaseControlRequired && !redisUrl) {
   throw new Error("Managed release control requires REDIS_URL");

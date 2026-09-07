@@ -19,6 +19,7 @@ export async function handleRuntimeApi(request, response, url, { sendHeaders, sh
         version: packageVersion,
         runtime: "vps-managed",
         revision: appRevision,
+        readyRevision: await readReadyRevision(),
       },
       { sendHeaders, shellCsp },
     );
@@ -44,6 +45,15 @@ function sendJson(request, response, payload, { sendHeaders, shellCsp }) {
   });
   response.writeHead(200);
   response.end(request.method === "HEAD" ? undefined : JSON.stringify(payload));
+}
+
+async function readReadyRevision() {
+  try {
+    const revision = (await readFile("/run/play-together/deployed-sha", "utf8")).trim();
+    return /^[0-9a-f]{40}$/.test(revision) ? revision : "unknown";
+  } catch {
+    return "unknown";
+  }
 }
 
 async function readPackageVersion() {

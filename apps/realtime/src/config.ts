@@ -73,16 +73,6 @@ export function loadConfig(environment: NodeJS.ProcessEnv = process.env): Gatewa
   );
   const allowedOrigins = list(environment.ALLOWED_ORIGINS);
   const moduleOrigins = list(environment.GAME_MODULE_ORIGINS);
-  if (environment.VERCEL_URL) {
-    const deploymentOrigin = new URL(`https://${environment.VERCEL_URL}`).origin;
-    allowedOrigins.add(deploymentOrigin);
-    moduleOrigins.add(deploymentOrigin);
-  }
-  if (environment.VERCEL_PROJECT_PRODUCTION_URL) {
-    const productionOrigin = new URL(`https://${environment.VERCEL_PROJECT_PRODUCTION_URL}`).origin;
-    allowedOrigins.add(productionOrigin);
-    moduleOrigins.add(productionOrigin);
-  }
   const moduleOriginMap = originMap(environment.GAME_MODULE_FETCH_ORIGIN_MAP);
   if (allowedOrigins.size === 0) throw new Error("ALLOWED_ORIGINS must not be empty");
   if (moduleOrigins.size === 0) throw new Error("GAME_MODULE_ORIGINS must not be empty");

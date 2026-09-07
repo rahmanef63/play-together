@@ -17,7 +17,7 @@ export async function discoverGames(root = repositoryRoot) {
     try {
       config = JSON.parse(await readFile(resolve(gameRoot, "game.config.json"), "utf8"));
     } catch (error) {
-      // Vercel/pnpm build caches can restore a deleted workspace's node_modules directory
+      // Package-manager/build caches can restore a deleted workspace's node_modules directory
       // without restoring its source files. Treat those artifact-only directories as absent,
       // while still failing loudly for a real source slice with a missing/invalid config.
       if (error?.code === "ENOENT" && !(await hasGameSourceMarker(gameRoot))) continue;

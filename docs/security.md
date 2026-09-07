@@ -65,12 +65,12 @@ arbitrary-URL proxy.
 - Private source archives are stored in Vercel Private Blob.
 - Convex stores entitlement/purchase state and never returns a private Blob pathname in the public template catalog.
 - Downloads require an authenticated entitlement, are rate-limited, and use an HMAC ticket with a two-minute maximum lifetime.
-- The Vercel download function verifies the ticket and returns only an exact-path, short-lived presigned GET URL.
+- The VPS `/api/templates/download` endpoint verifies the ticket through Convex and returns only an exact-path, short-lived presigned GET URL.
 - Checkout fulfillment uses an HMAC-signed raw request body and idempotent `orderRef`; no payment-provider secret is accepted from the browser.
 
 ## Managed realtime boundary
 
-Vercel WebSocket Functions may be restarted or horizontally instantiated, and different players in the same room are not guaranteed to land on one Function instance. Managed production therefore requires the Redis room coordinator. Redis carries only bounded transient connection leases, validated input, presence, and authority snapshots; durable users/rooms/membership/tickets/game metadata remain in Convex. If Redis is missing or becomes unavailable, the realtime room fails closed rather than silently running divergent per-instance simulations. The browser reconnect path remains mandatory.
+VPS realtime can be restarted or horizontally replicated, so managed production keeps the Redis room coordinator. Redis carries only bounded transient connection leases, validated input, presence, and authority snapshots; durable users/rooms/membership/tickets/game metadata remain in Convex. If Redis is missing or becomes unavailable, the realtime room fails closed rather than silently running divergent per-instance simulations. The browser reconnect path remains mandatory.
 
 ## Containers
 
