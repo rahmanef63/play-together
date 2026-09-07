@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { request } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -6,6 +6,9 @@ import { afterEach, describe, expect, it } from "vitest";
 import { createWebServer } from "../apps/web/server.mjs";
 import { createGameCdnServer } from "../scripts/serve-game-cdn.mjs";
 
+const packageVersion = JSON.parse(
+  await readFile(new URL("../package.json", import.meta.url), "utf8"),
+).version;
 const cleanups = [];
 afterEach(async () => {
   while (cleanups.length) await cleanups.pop()?.();
@@ -56,7 +59,7 @@ describe("static HTTP boundaries", () => {
       ok: true,
       service: "play-together",
       runtime: "vps-managed",
-      version: "0.22.1",
+      version: packageVersion,
       revision: "unknown",
       readyRevision: "unknown",
     });

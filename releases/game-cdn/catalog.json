@@ -700,6 +700,19 @@
       }
     },
     {
+      "gameId": "ridge-rush",
+      "version": "0.5.8",
+      "title": "Ridge Rush",
+      "manifestPath": "/games/ridge-rush/0.5.8/manifest.json",
+      "manifestSha256": "a8f687123dd1c51d68a0a53aa3740a20576c954eb42e20e653b591fe1dabc63a",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
+    },
+    {
       "gameId": "sky-strike",
       "version": "0.1.0",
       "title": "Sky Strike",

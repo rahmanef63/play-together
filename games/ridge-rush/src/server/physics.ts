@@ -50,19 +50,21 @@ export function advanceRider(rider: Rider, dt: number, elapsedMs: number): Advan
   resolveLanding(rider, vertical.landed, vertical.crashed);
   const error = lateralError(rider.progress, rider.lane),
     width = trailHalfWidth(rider.progress, rider.lane);
-  rider.offTrailMs =
-    error > width ? rider.offTrailMs + dt * 1000 : Math.max(0, rider.offTrailMs - dt * 1300);
-  if (error > width) rider.speed *= Math.max(0.68, 1 - dt * 2.4);
-  if (
-    error > width + (width < 4 ? 0.75 : 1.45) ||
-    rider.offTrailMs > (width < 4 ? 260 : 440) ||
-    missedCheckpoint(rider.progress, rider.checkpoint)
-  ) {
-    crashRider(rider);
-    resolveLanding(rider, false, true);
-    result.crashed = true;
-    return result;
-  }
+  if (rider.grounded) {
+    rider.offTrailMs =
+      error > width ? rider.offTrailMs + dt * 1000 : Math.max(0, rider.offTrailMs - dt * 1300);
+    if (error > width) rider.speed *= Math.max(0.68, 1 - dt * 2.4);
+    if (
+      error > width + (width < 4 ? 0.75 : 1.45) ||
+      rider.offTrailMs > (width < 4 ? 260 : 440) ||
+      missedCheckpoint(rider.progress, rider.checkpoint)
+    ) {
+      crashRider(rider);
+      resolveLanding(rider, false, true);
+      result.crashed = true;
+      return result;
+    }
+  } else rider.offTrailMs = Math.max(0, rider.offTrailMs - dt * 1300);
   if (checkpointReached(rider.progress, rider.lane, rider.checkpoint)) {
     rider.checkpoint += 1;
     rider.score += 120;

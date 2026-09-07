@@ -425,7 +425,7 @@
     },
     {
       "id": "ridge-rush",
-      "version": "0.5.7",
+      "version": "0.5.8",
       "title": "Ridge Rush",
       "description": "Extreme 3D mountain-bike descent with cliffside terrain, gravity, lane-aware suspension, sprint, powerslides, bunny hops, air-style combos, close-range rider contact and deterministic rivals.",
       "modes": ["shared-screen", "handheld"],

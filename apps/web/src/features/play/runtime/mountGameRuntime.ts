@@ -10,6 +10,7 @@ import {
   type RemoteRole,
   remoteControllers,
 } from "../remotePresentation";
+import { mountFrameBootstrap } from "./frameBootstrap";
 import { FramePerformanceSampler } from "./framePerformanceSampler";
 import { createGameFrame, isFrameMessage } from "./frameProtocol";
 import { mountRuntimeLiveness } from "./runtimeLiveness";
@@ -38,6 +39,9 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
   let unsubscribeSnapshot: (() => void) | null = null;
   let unsubscribeMessages: (() => void) | null = null;
   let disposeLiveness: (() => void) | null = null;
+  let disposeFrameBootstrap: (() => void) | null = null;
+  let markFrameReady = () => {};
+  let beginFrameRecovery = () => {};
   let gameTitle = options.roomTitle || "Game";
   let latestPresence: PresencePlayer[] = [];
   let currentPlayerId = "";
@@ -79,13 +83,11 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
     if (event.source !== frame.contentWindow || !isFrameMessage(event.data, channel)) return;
     const message = event.data;
     if (message.type === "input") client?.sendInput(message.payload);
-    else if (
-      message.type === "status" &&
-      typeof message.status === "string" &&
-      options.role !== "display"
-    )
-      options.onStatus(message.status);
-    else if (message.type === "ready") {
+    else if (message.type === "status" && typeof message.status === "string") {
+      if (message.status.endsWith("recovering…")) beginFrameRecovery();
+      if (options.role !== "display") options.onStatus(message.status);
+    } else if (message.type === "ready") {
+      markFrameReady();
       gameTitle = typeof message.title === "string" ? message.title : gameTitle;
       if (options.role === "display") pushPresentation();
       else
@@ -113,6 +115,7 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
     client?.stop();
     performanceSampler?.stop();
     disposeLiveness?.();
+    disposeFrameBootstrap?.();
     window.removeEventListener("message", onFrameMessage);
     frame.remove();
     options.onConnection("idle");
@@ -167,23 +170,18 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
         liveness.snapshot();
         frame.contentWindow?.postMessage({ type: "snapshot", channel, snapshot }, "*");
       });
-      frame.addEventListener("load", () => {
-        frame.contentWindow?.postMessage(
-          {
-            type: "init",
-            channel,
-            role: options.role,
-            mode: options.mode,
-            playerId: initial.playerId,
-            gameId: initial.gameId,
-            gameVersion: initial.gameVersion,
-            manifestUrl: initial.manifestUrl,
-            manifestSha256: initial.manifestSha256,
-          },
-          "*",
-        );
-        pushPresentation();
+      const bootstrap = mountFrameBootstrap({
+        frame,
+        channel,
+        role: options.role,
+        mode: options.mode,
+        ticket: initial,
+        onLoad: pushPresentation,
+        onStall: options.onError,
       });
+      disposeFrameBootstrap = bootstrap.dispose;
+      markFrameReady = bootstrap.ready;
+      beginFrameRecovery = bootstrap.recovering;
       options.mount.replaceChildren(frame);
       client.start();
     } catch (reason) {

@@ -10,20 +10,21 @@ import {
   useStick,
 } from "./support/multiplayer";
 
-test("all active 3D cartridges expose distinct shared-console controls and live WebGL gameplay", async ({
-  browser,
-}) => {
-  const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const cases = [
-    { key: turboCircuit, title: "Turbo Circuit", control: "Start ready or pause" },
-    { key: skyStrike, title: "Sky Strike", control: "Fire cannon" },
-    { key: flightTrainer, title: "Flight Trainer", control: "Throttle up" },
-  ] as const;
-  const context = await browser.newContext({ viewport: { width: 844, height: 390 } });
-  const page = await context.newPage();
-  try {
-    await signUp(page, `3D Pilot ${runId}`, `advanced-${runId}@example.test`);
-    for (const game of cases) {
+const cases = [
+  { key: turboCircuit, title: "Turbo Circuit", control: "Start ready or pause" },
+  { key: skyStrike, title: "Sky Strike", control: "Fire cannon" },
+  { key: flightTrainer, title: "Flight Trainer", control: "Throttle up" },
+] as const;
+
+for (const game of cases) {
+  test(`${game.title} exposes distinct shared-console controls and live WebGL gameplay`, async ({
+    browser,
+  }) => {
+    const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const context = await browser.newContext({ viewport: { width: 844, height: 390 } });
+    const page = await context.newPage();
+    try {
+      await signUp(page, `3D Pilot ${runId}`, `advanced-${game.key}-${runId}@example.test`);
       const code = await createRoom(page, {
         name: `${game.title} ${runId}`,
         gameKey: game.key,
@@ -139,8 +140,8 @@ test("all active 3D cartridges expose distinct shared-console controls and live 
       await expect(page).toHaveURL(new RegExp(`/room/${code}$`));
       await page.getByRole("button", { name: "Close room" }).click();
       await expect(page).toHaveURL("/");
+    } finally {
+      await closeContext(context);
     }
-  } finally {
-    await closeContext(context);
-  }
-});
+  });
+}

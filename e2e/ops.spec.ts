@@ -22,9 +22,11 @@ test("ops console owns panel scroll areas and stays bounded on mobile", async ({
       '.ops-console-overview__art img[src="/assets/ui/ops/ops-hero-control-room.webp"]',
     );
     await expect(hero).toBeVisible();
-    expect(
-      await hero.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0),
-    ).toBe(true);
+    await expect
+      .poll(() =>
+        hero.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0),
+      )
+      .toBe(true);
 
     const catalogScroll = page.locator(".ops-catalog-panel .scroll-area__viewport");
     const architectureScroll = page.locator(".ops-architecture-panel .scroll-area__viewport");

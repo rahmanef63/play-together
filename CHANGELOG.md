@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.22.2] - 2026-09-08
+
+### Runtime recovery and Ridge Rush 0.5.8
+
+- Add a bounded frame-ready watchdog: initial mounts and WebGL recovery navigations get one clean iframe reload if the renderer never reports ready, then surface a real error instead of leaving a blank handheld screen.
+- Ridge Rush 0.5.8 no longer converts a legitimate airborne lateral overshoot into an immediate off-trail recovery; trail/checkpoint crash rules resume when the rider is grounded, while impact and bad-landing crashes remain authoritative.
+- Isolate heavy 3D cartridge production checks per browser context so one 90-second test budget cannot hide which game failed, without weakening canvas/controller assertions.
+- Make Ops hero verification wait for decoded image bytes rather than racing `img.complete` immediately after visibility.
+
 ## [0.22.1] - 2026-09-07
 
 ### VPS-only production and mobile controller reliability
