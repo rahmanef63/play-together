@@ -27,7 +27,8 @@ export const ciTooling = [
     local: "https://github.com/rahmanef63/play-together.git",
     production: "https://github.com/rahmanef63/play-together.git",
     secret: false,
-    description: "Canonical repository used by pnpm repo:update for safe clone/fork synchronization.",
+    description:
+      "Canonical repository used by pnpm repo:update for safe clone/fork synchronization.",
     source: "Project repository identity",
   },
   {
