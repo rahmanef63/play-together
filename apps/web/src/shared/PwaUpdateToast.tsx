@@ -114,7 +114,7 @@ export function PwaUpdateToast({ quiet = false }: { quiet?: boolean }) {
         disabled={applying}
         onClick={() => void applyUpdate()}
       >
-        {applying ? "Updating…" : "Reload"}
+        {applying ? "Updating…" : "Update"}
       </button>
       <button
         className="update-toast__dismiss"

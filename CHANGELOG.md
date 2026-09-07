@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.23.1] - Pending deployment
+
+- Add a public version log and an explicit **Update** action in the PWA.
+- Add `pnpm repo:update` for clean clone/fork checkouts. It only fast-forwards from the canonical upstream and refuses diverged or dirty worktrees.
+- Add a manual **Update from upstream** GitHub Actions workflow. Fork owners can open a reviewable sync pull request from the Actions “Run workflow” button.
+
 ## [0.23.0] - Unreleased
 
 - Add library favorites stored on the current device, title search and party-size filters, and a random pick from matching games.

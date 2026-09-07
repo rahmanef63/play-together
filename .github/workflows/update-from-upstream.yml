@@ -1,0 +1,42 @@
+name: Update from upstream
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  open-sync-pr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Fetch canonical upstream
+        run: |
+          git remote add upstream https://github.com/rahmanef63/play-together.git
+          git fetch --no-tags upstream main
+      - name: Create an update pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "Fork is already up to date."
+            exit 0
+          fi
+          if ! git merge-base --is-ancestor HEAD upstream/main; then
+            echo "Fork main diverges from canonical upstream; resolve it manually." >&2
+            exit 1
+          fi
+          branch="chore/update-upstream-$GITHUB_RUN_ID"
+          git switch --create "$branch" upstream/main
+          git push origin "HEAD:refs/heads/$branch"
+          gh api --method POST "repos/$GITHUB_REPOSITORY/pulls" \
+            -f title="chore: update from canonical upstream" \
+            -f head="$branch" \
+            -f base="main" \
+            -f body="Created by the manual Update from upstream workflow. Review the immutable-release and deployment changes before merging."
