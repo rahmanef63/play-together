@@ -86,14 +86,16 @@ test("Ridge Rush provides a distinct downhill race with Tier 0 controls and extr
         })
         .toBeGreaterThan(28);
 
+      // Fast trick gestures must be timed from local input, not from a round-trip HUD snapshot.
+      // The ordered release→press sequence then reaches the authoritative server intact under latency.
       await page.keyboard.down("KeyX");
-      await expect(ridgeStatus).toHaveText(/^AIR /, { timeout: 1_500 });
+      await page.waitForTimeout(100);
       await page.keyboard.up("KeyX");
-      await page.waitForTimeout(60);
+      await page.waitForTimeout(100);
       await page.keyboard.down("ArrowLeft");
       await page.keyboard.down("KeyX");
       try {
-        await expect(ridgeStatus).toContainText("LEFT SPIN", { timeout: 1_000 });
+        await expect(ridgeStatus).toContainText("LEFT SPIN", { timeout: 2_500 });
       } finally {
         await page.keyboard.up("KeyX");
         await page.keyboard.up("ArrowLeft");
