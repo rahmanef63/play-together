@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
+import { readGithubCiGate } from "./github-ci-gate.mjs";
 
 const root = process.cwd();
 const repository = process.env.VPS_GITHUB_REPOSITORY || "rahmanef63/play-together";
@@ -22,24 +23,17 @@ if (deployed.trim() === target) {
   process.exit(0);
 }
 
-const runs = await githubJson(
-  `https://api.github.com/repos/${repository}/actions/runs?head_sha=${target}&event=push&per_page=10`,
-);
-const runRecord = (runs.workflow_runs || []).find(
-  (item) => item.name === "CI" && item.head_branch === "main" && item.head_sha === target,
-);
-if (!runRecord) {
+const gate = await readGithubCiGate({ repository, target, requiredJobs });
+if (!gate.runId) {
   console.log(`No CI push run exists yet for ${target.slice(0, 12)}.`);
   process.exit(0);
 }
-const jobs = await githubJson(
-  `https://api.github.com/repos/${repository}/actions/runs/${runRecord.id}/jobs?per_page=100`,
-);
-const byName = new Map((jobs.jobs || []).map((job) => [job.name, job]));
 for (const name of requiredJobs) {
-  const job = byName.get(name);
+  const job = gate.jobs.get(name);
   if (job?.status !== "completed" || job.conclusion !== "success") {
-    console.log(`CI gate ${name} is not successful yet for ${target.slice(0, 12)}.`);
+    console.log(
+      `CI gate ${name} is not successful yet for ${target.slice(0, 12)} (${gate.source}).`,
+    );
     process.exit(0);
   }
 }
@@ -98,19 +92,6 @@ run(process.execPath, [resolve(root, "scripts/publish-to-convex.mjs")], {
 await writeFile(stateFile, `${target}\n`, { mode: 0o644 });
 await chmod(stateFile, 0o644);
 console.log(`VPS deployed CI-approved revision ${target}.`);
-
-async function githubJson(url) {
-  const response = await fetch(url, {
-    headers: {
-      accept: "application/vnd.github+json",
-      "user-agent": "play-together-vps-deployer",
-      "x-github-api-version": "2022-11-28",
-    },
-    signal: AbortSignal.timeout(10_000),
-  });
-  if (!response.ok) throw new Error(`GitHub API request failed (${response.status})`);
-  return response.json();
-}
 
 async function readOptional(path) {
   try {

@@ -21,10 +21,11 @@ for (const game of cases) {
     browser,
   }) => {
     const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const gameId = game.key.split("@")[0];
     const context = await browser.newContext({ viewport: { width: 844, height: 390 } });
     const page = await context.newPage();
     try {
-      await signUp(page, `3D Pilot ${runId}`, `advanced-${game.key}-${runId}@example.test`);
+      await signUp(page, `3D Pilot ${runId}`, `advanced-${gameId}-${runId}@example.test`);
       const code = await createRoom(page, {
         name: `${game.title} ${runId}`,
         gameKey: game.key,
