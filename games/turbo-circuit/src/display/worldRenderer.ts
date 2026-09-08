@@ -1,29 +1,37 @@
+import { disposeSceneResources } from "@play-together/game-sdk";
 import * as THREE from "three";
 import type { Pickup, WorldItem } from "./model.js";
 export class WorldRenderer {
   readonly #group = new THREE.Group();
   readonly #pickups = new Map<string, THREE.Group | THREE.Mesh>();
   readonly #items = new Map<string, THREE.Group | THREE.Mesh>();
-  #time = 0;
   constructor(scene: THREE.Scene) {
     this.#group.name = "kart-world-items";
     scene.add(this.#group);
   }
-  sync(pickups: Pickup[], items: WorldItem[], dt: number) {
-    this.#time += dt;
-    for (const [index, pickup] of pickups.entries()) {
+  sync(pickups: Pickup[], items: WorldItem[]) {
+    const present = new Set(pickups.map((pickup) => pickup.id));
+    for (const [id, mesh] of this.#pickups) {
+      if (present.has(id)) continue;
+      mesh.removeFromParent();
+      disposeSceneResources(mesh);
+      this.#pickups.delete(id);
+    }
+    for (const pickup of pickups) {
       let mesh = this.#pickups.get(pickup.id);
+      if (mesh && mesh.userData.pickupType !== pickup.type) {
+        mesh.removeFromParent();
+        disposeSceneResources(mesh);
+        mesh = undefined;
+      }
       if (!mesh) {
         mesh = pickup.type === "coin" ? coinMesh() : boxMesh();
+        mesh.userData.pickupType = pickup.type;
         this.#pickups.set(pickup.id, mesh);
         this.#group.add(mesh);
       }
-      const baseY = pickup.type === "coin" ? 1.15 : 1.55,
-        bob = Math.sin(this.#time * (pickup.type === "coin" ? 5 : 3.7) + index * 0.43) * 0.22;
-      mesh.position.set(pickup.x, baseY + bob, pickup.z);
+      mesh.position.set(pickup.x, pickup.type === "coin" ? 1.15 : 1.55, pickup.z);
       mesh.visible = pickup.active;
-      mesh.rotation.y += dt * (pickup.type === "coin" ? 3.6 : 2.3);
-      if (pickup.type === "item") mesh.rotation.x = Math.sin(this.#time * 2.7 + index) * 0.18;
     }
     for (const item of items) {
       let mesh = this.#items.get(item.id);
@@ -33,21 +41,18 @@ export class WorldRenderer {
         this.#group.add(mesh);
       }
       mesh.position.set(item.x, item.type === "pulse" ? 0.72 : 0.5, item.z);
-      mesh.rotation.y += dt * (item.type === "pulse" ? 8 : 2.2);
-      const pulse = 0.88 + Math.abs(Math.sin(this.#time * 7 + item.bounces)) * 0.28;
-      mesh.scale.set(pulse, pulse, pulse);
     }
     for (const [id, mesh] of this.#items) {
       if (items.some((item) => item.id === id)) continue;
       this.#group.remove(mesh);
-      disposeObject(mesh);
+      disposeSceneResources(mesh);
       this.#items.delete(id);
     }
   }
   dispose(scene: THREE.Scene) {
     scene.remove(this.#group);
     for (const object of [...this.#pickups.values(), ...this.#items.values()])
-      disposeObject(object);
+      disposeSceneResources(object);
     this.#pickups.clear();
     this.#items.clear();
   }
@@ -118,13 +123,4 @@ function mineMesh() {
   }
   group.add(body);
   return group;
-}
-function disposeObject(object: THREE.Group | THREE.Mesh) {
-  object.traverse((node) => {
-    const mesh = node as THREE.Mesh;
-    mesh.geometry?.dispose();
-    const material = mesh.material;
-    if (Array.isArray(material)) for (const item of material) item.dispose();
-    else material?.dispose?.();
-  });
 }

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.25.0] - 2026-09-08
+
+- Fix mobile landscape across all five console presets: bounded thumb rails, a dedicated Start/How To/Menu row, and reachable 44px primary buttons.
+- Turbo Circuit 0.12.1 sizes its setup, HUD, map and results from the actual game container. Remove the forced 320px game height and overlapping duplicate item/speed effects.
+- Reach drift with B + steering, and rescue by holding B for one second while stopped. Keep full braking with a straight stick and preserve brake cancellation of cruise.
+- Complete laps only after ordered checkpoints and a forward crossing of the finish line; keep final-segment standings consistent.
+- Share boost-pad dimensions between track rendering and authoritative activation. Clear obsolete pickups when switching circuits.
+- Batch static scenery by material and spatial cell. In the reference camera, scenery draw calls fall from 602/638/590 to 113/90/88 for Neo Metro/Cosmic Loop/Sunset Dunes.
+- Bound rendering to 900,000 pixels per display and 1.5 DPR, update HUD at 10Hz, sync scene membership on snapshots, and skip hidden-page rendering. Remove decorative wheel spin, camera shake and continuous overlay effects.
+- Raise the start gantry to keep the driving horizon clear. Regenerate the Turbo Circuit cover and motion preview from an active authoritative driving scenario.
+- Add regression coverage for actual screen bounds, HUD overlap, compact garage content, console-to-server actions, all three scenery budgets, lap progression, boost pads and graphics cleanup.
+
 ## [0.24.0] - 2026-09-08
 
 - Turbo Circuit now updates standings between checkpoints using bounded segment progress, with recorded finish times taking priority.

@@ -43,10 +43,10 @@
     },
     {
       "gameId": "turbo-circuit",
-      "version": "0.11.3",
+      "version": "0.12.1",
       "cover": "turbo-circuit.webp",
       "video": "turbo-circuit.mp4",
-      "coverSha256": "071e5a002fddd56705bffd01f9266e6c0e94b75d05e3581e532881cf3e0a66b3",
+      "coverSha256": "afec9835a8430324507f03432e74ac594969b00240fff51a8b22edaba0f04da4",
       "source": "authoritative-runtime",
       "width": 960,
       "height": 540

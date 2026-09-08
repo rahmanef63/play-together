@@ -1,7 +1,6 @@
 import type { ControllerMode } from "@play-together/contracts";
 import * as THREE from "three";
 import { trackById } from "../shared/catalog.js";
-import { applyCameraJuice } from "./cameraJuice.js";
 import { type CameraState, updateCameraView } from "./cameraViews.js";
 import { updateCockpitHud } from "./cockpitHud.js";
 import { updateGarageHud } from "./garagePresenter.js";
@@ -11,7 +10,7 @@ import type { Racer, RacerPose, TurboState } from "./model.js";
 import { raceOrder } from "./raceOrder.js";
 
 export type { CameraState } from "./cameraViews.js";
-export function updateCameraAndHud(
+export function updateCamera(
   state: TurboState,
   me: Racer,
   pose: RacerPose,
@@ -19,14 +18,11 @@ export function updateCameraAndHud(
   cameraState: CameraState,
   dt: number,
   mode: ControllerMode,
-  hud: TurboHud,
 ) {
   if (state.phase === "setup") setupCamera(camera, cameraState, dt);
   else {
     updateCameraView(me, pose, camera, cameraState, dt, mode);
-    applyCameraJuice(me, camera, performance.now());
   }
-  updateHud(state, me, hud);
 }
 function setupCamera(camera: THREE.PerspectiveCamera, state: CameraState, dt: number) {
   const desired = new THREE.Vector3(0, 88, 88),
@@ -39,7 +35,7 @@ function setupCamera(camera: THREE.PerspectiveCamera, state: CameraState, dt: nu
   camera.lookAt(state.target);
   state.ready = true;
 }
-function updateHud(state: TurboState, me: Racer, hud: TurboHud) {
+export function updateHud(state: TurboState, me: Racer, hud: TurboHud) {
   const track = trackById(state.trackId),
     inSetup = state.phase === "setup";
   hud.host.dataset.phase = state.phase;
@@ -50,7 +46,7 @@ function updateHud(state: TurboState, me: Racer, hud: TurboHud) {
   hud.setup.style.display = inSetup ? "grid" : "none";
   for (const element of [hud.speed, hud.nitro, hud.minimap, hud.cameraBadge, hud.top])
     element.style.opacity = inSetup ? "0" : "1";
-  updateGarageHud(state, me, hud);
+  if (inSetup) updateGarageHud(state, me, hud);
   hud.cameraBadge.textContent = `${me.rearView ? "REAR VIEW" : `${me.cameraMode.toUpperCase()} VIEW`}${me.cruiseActive ? " · CRUISE ON" : ""}`;
   hud.pause.style.opacity = state.paused ? "1" : "0";
   hud.results.style.display = state.phase === "finished" ? "block" : "none";
@@ -71,15 +67,17 @@ function updateHud(state: TurboState, me: Racer, hud: TurboHud) {
   hud.speedValue.textContent = String(kmh);
   hud.speedNeedle.style.transform = `rotate(${-125 + clamp(kmh / 235, 0, 1) * 250}deg)`;
   const drift =
-    me.driftTier === 2
-      ? "DRIFT II"
-      : me.driftTier === 1
-        ? "DRIFT I"
-        : me.drafting
-          ? `DRAFT ${Math.round(clamp(me.draftTimer / 1.25, 0, 1) * 100)}%`
-          : me.boostTimer > 0
-            ? "BOOST"
-            : "";
+    me.invulnerableTimer > 0
+      ? "RECOVERING"
+      : me.driftTier === 2
+        ? "DRIFT II"
+        : me.driftTier === 1
+          ? "DRIFT I"
+          : me.drafting
+            ? `DRAFT ${Math.round(clamp(me.draftTimer / 1.25, 0, 1) * 100)}%`
+            : me.boostTimer > 0
+              ? "BOOST"
+              : "";
   hud.nitro.textContent = `${me.item ?? "NO ITEM"} · COIN ${me.coins}${drift ? ` · ${drift}` : ""}`;
   const order = raceOrder(state.racers, state.track),
     position = Math.max(1, order.findIndex((r) => r.id === me.id) + 1);
@@ -91,7 +89,9 @@ function updateHud(state: TurboState, me: Racer, hud: TurboHud) {
         : state.phase === "finished"
           ? `FINISH · P${position}`
           : `LAP ${Math.min(me.lap + 1, state.lapsToWin)}/${state.lapsToWin} · P${position}/${state.racers.length} · ${formatTime(state.raceMs)}`;
-  hud.wrongWay.style.opacity = me.wrongWay ? "1" : "0";
+  hud.wrongWay.textContent = me.wrongWay ? "WRONG WAY" : "HOLD B TO RESCUE · TAP A TO GO";
+  hud.wrongWay.style.opacity =
+    me.wrongWay || (state.phase === "racing" && me.speed < 2 && !state.paused) ? "1" : "0";
   hud.host.dataset.wrongWay = String(me.wrongWay);
   hud.host.dataset.scraping = String(me.scraping);
   hud.host.dataset.drafting = String(me.drafting);

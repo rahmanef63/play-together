@@ -39,6 +39,10 @@ Playable visuals are not concept-art placeholders. 3D player characters/vehicles
 
 The default Play Together controller is deliberately **Tier 0: one left stick + ABXY + Menu/Start**. L1/L2/R1/R2 are not recommended by default and only belong in a game when playtesting proves the extra inputs are genuinely necessary. Ridge Rush 0.5.11 and Clash Arena 0.4.3 both ship with Tier 0 mobile controls; Clash Arena uses them for character select as well as match play. Menu and How To are platform actions placed beside Start in landscape and above Start in portrait; hold controls suppress text selection/callouts. Advanced shoulders remain hidden by default. Touch, keyboard and standard-mapped physical gamepads share input ownership and focus-loss cleanup. Read the [gameplay development guide](docs/gameplay-development.md) for the controller-tier contract and per-game mappings.
 
+## Turbo Circuit and landscape console update (0.25.0)
+
+Turbo Circuit 0.12.1 fixes finish-line progression, primary-control drift/recovery, boost-pad activation and stale track pickups. The shared landscape console gives every game bounded thumb rails and a separate system-action row; Turbo HUD/setup now use the actual game-container dimensions. Static scenery batching, a pixel budget and snapshot-owned scene updates reduce rendering work. See the [review and verification criteria](docs/turbo-console-review.md).
+
 ## Portal and gameplay quality update (0.24.0)
 
 The library adds device-local favorites, title search, party-size filtering and a random pick that respects those filters. Active play requests a screen wake lock where supported. How To derives keyboard aliases directly from cartridge control metadata.

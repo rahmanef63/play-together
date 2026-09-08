@@ -103,7 +103,7 @@ test("simple remotes stay bounded in landscape and expose live status in portrai
         await expect(frame.locator(".console-telemetry__metrics")).toContainText("SPEED");
         for (const name of [
           "Start ready or pause",
-          "Brake",
+          "Brake; steer + B to drift; hold B 1s stopped to rescue",
           "Tap gas once to cruise; brake cancels cruise; tap gas again to resume",
           "Use item ability",
           "Hold rear view",

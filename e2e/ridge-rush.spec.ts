@@ -31,8 +31,13 @@ test("Ridge Rush provides a distinct downhill race with Tier 0 controls and extr
     ] as const) {
       const control = controller.locator(`[data-control-id="${id}"]`);
       await expect(control).toHaveAttribute("data-face", face);
-      await expect(control.getByText(action, { exact: true })).toBeVisible();
+      await expect(control).toBeVisible();
+      await expect(control.locator(".console-control__action-label")).toHaveText(action);
     }
+    await frame.getByRole("button", { name: "How to play", exact: true }).click();
+    await expect(frame.getByRole("dialog")).toContainText(/pedal/i);
+    await expect(frame.getByRole("dialog")).toContainText(/sprint/i);
+    await frame.getByRole("button", { name: "Close how to play" }).click();
     await expect(
       controller.locator('[data-face="l1"], [data-face="r1"], [data-face="l2"], [data-face="r2"]'),
     ).toHaveCount(0);

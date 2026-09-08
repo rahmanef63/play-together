@@ -827,7 +827,7 @@
     },
     {
       "id": "turbo-circuit",
-      "version": "0.11.3",
+      "version": "0.12.1",
       "title": "Turbo Circuit",
       "description": "Server-authoritative multiplayer kart racing with procedural 3D tracks, dynamic game audio, drafting, boost pads, coins, items, hazards and simplified phone controls.",
       "modes": ["shared-screen", "handheld"],
@@ -903,8 +903,8 @@
               "id": "brake",
               "kind": "button",
               "label": "B",
-              "displayLabel": "BRAKE",
-              "ariaLabel": "Brake",
+              "displayLabel": "BRAKE / DRIFT",
+              "ariaLabel": "Brake; steer + B to drift; hold B 1s stopped to rescue",
               "face": "b",
               "zone": "right",
               "press": {

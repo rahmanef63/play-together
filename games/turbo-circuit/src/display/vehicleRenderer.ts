@@ -114,7 +114,6 @@ export class VehicleRenderer {
 function animateKart(visual: KartVisual, racer: Racer, dt: number) {
   const speed = Math.abs(racer.speed),
     pulse = performance.now() * 0.001;
-  for (const wheel of visual.wheels) wheel.rotation.x += racer.speed * dt * 1.7;
   for (const wheel of visual.frontWheels)
     wheel.rotation.y = THREE.MathUtils.lerp(
       wheel.rotation.y,
@@ -133,8 +132,7 @@ function animateKart(visual: KartVisual, racer: Racer, dt: number) {
     brake * 0.075 - Math.min(speed / 70, 1) * 0.038,
     smoothing(7, dt),
   );
-  visual.body.position.y =
-    0.03 + Math.sin(pulse * (7 + speed * 0.08)) * (0.012 + speed * 0.00035) + drift * 0.018;
+  visual.body.position.y = 0.03 + drift * 0.018;
   visual.steeringWheel.rotation.z = THREE.MathUtils.lerp(
     visual.steeringWheel.rotation.z,
     -racer.steering * 0.74,

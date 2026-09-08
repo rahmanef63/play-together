@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "players": 1,
-  "warmupTicks": 80,
+  "warmupTicks": 150,
   "events": [
     {
       "tick": 0,
@@ -11,10 +11,255 @@
       }
     },
     {
-      "tick": 1,
+      "tick": 74,
       "player": "all",
       "input": {
-        "throttle": 0.65
+        "throttle": 1
+      }
+    },
+    {
+      "tick": 75,
+      "player": "all",
+      "input": {
+        "throttle": 0
+      }
+    },
+    {
+      "tick": 76,
+      "player": "all",
+      "input": {
+        "steer": -0.162
+      }
+    },
+    {
+      "tick": 80,
+      "player": "all",
+      "input": {
+        "steer": -0.038
+      }
+    },
+    {
+      "tick": 84,
+      "player": "all",
+      "input": {
+        "steer": 0.096
+      }
+    },
+    {
+      "tick": 88,
+      "player": "all",
+      "input": {
+        "steer": 0.146
+      }
+    },
+    {
+      "tick": 92,
+      "player": "all",
+      "input": {
+        "steer": 0.116
+      }
+    },
+    {
+      "tick": 96,
+      "player": "all",
+      "input": {
+        "steer": 0.039
+      }
+    },
+    {
+      "tick": 100,
+      "player": "all",
+      "input": {
+        "steer": -0.023
+      }
+    },
+    {
+      "tick": 104,
+      "player": "all",
+      "input": {
+        "steer": -0.091
+      }
+    },
+    {
+      "tick": 108,
+      "player": "all",
+      "input": {
+        "steer": -0.131
+      }
+    },
+    {
+      "tick": 112,
+      "player": "all",
+      "input": {
+        "steer": -0.21
+      }
+    },
+    {
+      "tick": 116,
+      "player": "all",
+      "input": {
+        "steer": -0.306
+      }
+    },
+    {
+      "tick": 120,
+      "player": "all",
+      "input": {
+        "steer": -0.458
+      }
+    },
+    {
+      "tick": 124,
+      "player": "all",
+      "input": {
+        "steer": -0.56
+      }
+    },
+    {
+      "tick": 128,
+      "player": "all",
+      "input": {
+        "steer": -0.632
+      }
+    },
+    {
+      "tick": 132,
+      "player": "all",
+      "input": {
+        "steer": -0.658
+      }
+    },
+    {
+      "tick": 136,
+      "player": "all",
+      "input": {
+        "steer": -0.619
+      }
+    },
+    {
+      "tick": 140,
+      "player": "all",
+      "input": {
+        "steer": -0.544
+      }
+    },
+    {
+      "tick": 144,
+      "player": "all",
+      "input": {
+        "steer": -0.464
+      }
+    },
+    {
+      "tick": 148,
+      "player": "all",
+      "input": {
+        "steer": -0.392
+      }
+    },
+    {
+      "tick": 152,
+      "player": "all",
+      "input": {
+        "steer": -0.339
+      }
+    },
+    {
+      "tick": 156,
+      "player": "all",
+      "input": {
+        "steer": -0.31
+      }
+    },
+    {
+      "tick": 160,
+      "player": "all",
+      "input": {
+        "steer": -0.304
+      }
+    },
+    {
+      "tick": 164,
+      "player": "all",
+      "input": {
+        "steer": -0.317
+      }
+    },
+    {
+      "tick": 168,
+      "player": "all",
+      "input": {
+        "steer": -0.397
+      }
+    },
+    {
+      "tick": 172,
+      "player": "all",
+      "input": {
+        "steer": -0.564
+      }
+    },
+    {
+      "tick": 176,
+      "player": "all",
+      "input": {
+        "steer": -0.747
+      }
+    },
+    {
+      "tick": 180,
+      "player": "all",
+      "input": {
+        "steer": -0.855
+      }
+    },
+    {
+      "tick": 184,
+      "player": "all",
+      "input": {
+        "steer": -0.918
+      }
+    },
+    {
+      "tick": 188,
+      "player": "all",
+      "input": {
+        "steer": -0.975
+      }
+    },
+    {
+      "tick": 192,
+      "player": "all",
+      "input": {
+        "steer": -0.825
+      }
+    },
+    {
+      "tick": 196,
+      "player": "all",
+      "input": {
+        "steer": -0.565
+      }
+    },
+    {
+      "tick": 200,
+      "player": "all",
+      "input": {
+        "steer": -0.249
+      }
+    },
+    {
+      "tick": 204,
+      "player": "all",
+      "input": {
+        "steer": 0.099
+      }
+    },
+    {
+      "tick": 208,
+      "player": "all",
+      "input": {
+        "steer": 0.283
       }
     }
   ],

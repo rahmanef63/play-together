@@ -1,7 +1,9 @@
 import * as THREE from "three";
 import type { TrackSpec } from "../shared/catalog.js";
-import { featurePoses, sampleTrack } from "../shared/trackMath.js";
+import { BOOST_PAD, boostPadsFor } from "../shared/trackFeatures.js";
+import { sampleTrack } from "../shared/trackMath.js";
 import { canvasTexture } from "./proceduralTextures.js";
+import { placeRoadMarking } from "./roadMarkings.js";
 import { addTrackLights } from "./trackLights.js";
 import { addTrackSigns } from "./trackSigns.js";
 
@@ -62,9 +64,7 @@ function addFinishLine(group: THREE.Group, track: TrackSpec) {
       new THREE.PlaneGeometry(track.width - 0.7, 3.3),
       new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide }),
     );
-  line.rotation.x = -Math.PI / 2;
-  line.rotation.z = -start.heading;
-  line.position.set(start.x, 0.075, start.z);
+  placeRoadMarking(line, start, 0.075);
   group.add(line);
 }
 function addStartMarquee(group: THREE.Group, track: TrackSpec) {
@@ -77,20 +77,20 @@ function addStartMarquee(group: THREE.Group, track: TrackSpec) {
       metalness: 0.45,
       roughness: 0.28,
     }),
-    pillarGeo = new THREE.CylinderGeometry(0.52, 0.68, 9.5, 10);
+    pillarGeo = new THREE.CylinderGeometry(0.52, 0.68, 11.5, 10);
   for (const x of [-track.width / 2 - 1.2, track.width / 2 + 1.2]) {
     const pillar = new THREE.Mesh(pillarGeo, dark);
-    pillar.position.set(x, 4.75, 0);
+    pillar.position.set(x, 5.75, 0);
     arch.add(pillar);
   }
   const beam = new THREE.Mesh(new THREE.BoxGeometry(track.width + 4, 0.62, 0.75), dark);
-  beam.position.set(0, 8.7, 0);
+  beam.position.set(0, 11, 0);
   arch.add(beam);
   const board = new THREE.Mesh(
-    new THREE.BoxGeometry(Math.min(track.width + 1, 18), 3.6, 0.58),
+    new THREE.BoxGeometry(Math.min(track.width + 1, 18), 1.5, 0.58),
     accent,
   );
-  board.position.set(0, 7.35, 0);
+  board.position.set(0, 9.7, 0);
   arch.add(board, marqueeFace(track));
   arch.position.set(start.x, 0, start.z);
   arch.rotation.y = start.heading;
@@ -116,10 +116,10 @@ function marqueeFace(track: TrackSpec) {
   ctx.fillText(track.shortName.toUpperCase(), 384, 148);
   const texture = canvasTexture(canvas),
     face = new THREE.Mesh(
-      new THREE.PlaneGeometry(Math.min(track.width, 17), 3.1),
+      new THREE.PlaneGeometry(Math.min(track.width, 17), 1.3),
       new THREE.MeshBasicMaterial({ map: texture }),
     );
-  face.position.set(0, 7.35, 0.31);
+  face.position.set(0, 9.7, 0.31);
   return face;
 }
 function addBoostPads(group: THREE.Group, track: TrackSpec) {
@@ -148,11 +148,12 @@ function addBoostPads(group: THREE.Group, track: TrackSpec) {
     opacity: 0.82,
     side: THREE.DoubleSide,
   });
-  for (const pad of featurePoses(track, track.features.boostPads, [0])) {
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(7.8, 4.8), material);
-    mesh.rotation.x = -Math.PI / 2;
-    mesh.rotation.z = -pad.heading;
-    mesh.position.set(pad.x, 0.085, pad.z);
+  for (const pad of boostPadsFor(track)) {
+    const mesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(BOOST_PAD.width, BOOST_PAD.length),
+      material,
+    );
+    placeRoadMarking(mesh, pad, 0.085);
     group.add(mesh);
   }
   return material;

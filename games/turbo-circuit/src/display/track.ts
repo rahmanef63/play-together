@@ -1,19 +1,14 @@
+import { disposeSceneResources } from "@play-together/game-sdk";
 import * as THREE from "three";
 import { type TrackSpec, trackById } from "../shared/catalog.js";
 import { sampleTrack } from "../shared/trackMath.js";
 import { addTrackEnvironment } from "./environment.js";
 import { createGroundMaterial, createRoadMaterial } from "./proceduralTextures.js";
+import { batchStaticWorld } from "./staticWorld.js";
 import { addTrackDecor } from "./trackDecor.js";
 
-interface DisposableMaterial {
-  dispose(): void;
-  map?: THREE.Texture | null;
-  normalMap?: THREE.Texture | null;
-  roughnessMap?: THREE.Texture | null;
-}
 export interface TrackWorld {
   group: THREE.Group;
-  boostMaterial: THREE.MeshBasicMaterial;
 }
 export function createTrackScene(canvas: HTMLCanvasElement) {
   const renderer = new THREE.WebGLRenderer({
@@ -21,7 +16,7 @@ export function createTrackScene(canvas: HTMLCanvasElement) {
     antialias: true,
     powerPreference: "high-performance",
   });
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.06;
@@ -52,23 +47,15 @@ export function createTrackWorld(
   renderer.setClearColor(track.palette.sky);
   scene.fog = new THREE.Fog(track.palette.sky, 120, 310);
   group.add(createGround(track), createRoad(track));
-  const boostMaterial = addTrackDecor(group, track);
+  addTrackDecor(group, track);
   addTrackEnvironment(group, track);
+  batchStaticWorld(group);
   scene.add(group);
-  return { group, boostMaterial };
-}
-export function updateTrackWorld(world: TrackWorld, now: number) {
-  world.boostMaterial.opacity = 0.68 + Math.abs(Math.sin(now * 0.008)) * 0.3;
+  return { group };
 }
 export function disposeTrackWorld(scene: THREE.Scene, world: TrackWorld) {
   scene.remove(world.group);
-  world.group.traverse((object) => {
-    const mesh = object as THREE.Mesh;
-    mesh.geometry?.dispose();
-    const material = mesh.material;
-    if (Array.isArray(material)) for (const item of material) disposeMaterial(item);
-    else if (material) disposeMaterial(material);
-  });
+  disposeSceneResources(world.group);
 }
 function createGround(track: TrackSpec) {
   const mesh = new THREE.Mesh(
@@ -117,10 +104,4 @@ function createRoad(track: TrackSpec) {
   const road = new THREE.Mesh(geometry, createRoadMaterial(track.palette.road));
   road.receiveShadow = true;
   return road;
-}
-function disposeMaterial(material: DisposableMaterial) {
-  material.map?.dispose();
-  material.normalMap?.dispose();
-  material.roughnessMap?.dispose();
-  material.dispose();
 }

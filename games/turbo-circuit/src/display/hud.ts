@@ -1,6 +1,7 @@
 import { COCKPIT_CSS, type CockpitHud, createCockpitHud } from "./cockpitHud.js";
 import { cardKicker, createTrackSvg, layer, soundButton, speedometer } from "./hudElements.js";
 import { TURBO_HUD_CSS } from "./hudStyles.js";
+import { TURBO_SETUP_CSS } from "./setupStyles.js";
 
 export interface TurboHud {
   host: HTMLElement;
@@ -40,6 +41,7 @@ export function createTurboHud(root: HTMLElement): TurboHud {
   host.className = "turbo-circuit";
   const style = document.createElement("style");
   style.textContent = `${TURBO_HUD_CSS}
+${TURBO_SETUP_CSS}
 ${COCKPIT_CSS}`;
 
   const canvas = document.createElement("canvas");

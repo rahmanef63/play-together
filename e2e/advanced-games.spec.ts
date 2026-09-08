@@ -7,8 +7,8 @@ import {
   skyStrike,
   startGame,
   turboCircuit,
-  useStick,
 } from "./support/multiplayer";
+import { verifyTurboPlay } from "./support/turboCircuit";
 
 const cases = [
   { key: turboCircuit, title: "Turbo Circuit", control: "Start ready or pause" },
@@ -43,102 +43,7 @@ for (const game of cases) {
       await expect(frame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible();
 
       if (game.title === "Turbo Circuit") {
-        const turbo = frame.locator(".turbo-circuit");
-        const carName = frame.locator(".turbo-setup__card--car .turbo-setup__name");
-        const trackName = frame.locator(".turbo-setup__card--circuit .turbo-setup__name");
-        await expect(frame.locator('[data-asset-state="procedural"]')).toBeVisible({
-          timeout: 20_000,
-        });
-        await expect(trackName).toContainText("Neo Metro Circuit");
-        await expect(carName).toContainText("Falcon R");
-        await expect(frame.locator(".turbo-setup__mode")).toContainText("MANUAL THROTTLE");
-        await expect(frame.locator(".turbo-setup__stats")).toContainText("BOOST");
-        const controller = frame.locator('.builtin-controller[data-renderer="builtin"]');
-        await expect(controller.locator(".console-control")).toHaveCount(10);
-        for (const [id, face, action] of [
-          ["gas", "a", "GO / CRUISE"],
-          ["brake", "b", "BRAKE"],
-          ["item", "x", "ITEM"],
-          ["rear-view", "y", "REAR"],
-        ] as const) {
-          const button = controller.locator(`[data-control-id="${id}"]`);
-          await expect(button).toHaveAttribute("data-face", face);
-          await expect(button.locator(".console-control__action-label")).toHaveText(action);
-        }
-        await expect(
-          frame.getByRole("button", {
-            name: "Tap gas once to cruise; brake cancels cruise; tap gas again to resume",
-          }),
-        ).toBeVisible();
-        await expect(frame.getByRole("button", { name: "Brake", exact: true })).toBeVisible();
-        await expect(
-          frame.getByRole("button", { name: "Use item ability", exact: true }),
-        ).toBeVisible();
-        await expect(
-          frame.getByRole("button", { name: "Hold rear view", exact: true }),
-        ).toBeVisible();
-        await expect(
-          frame.getByRole("button", { name: "Start ready or pause", exact: true }),
-        ).toHaveText("START");
-        for (const removed of ["throttle", "item-back", "pause"])
-          await expect(controller.locator(`[data-control-id="${removed}"]`)).toHaveCount(0);
-        for (const [id, face] of [
-          ["camera", "l1"],
-          ["drift", "r1"],
-          ["rescue", "l2"],
-          ["rear-item", "r2"],
-        ]) {
-          const shoulder = controller.locator(`[data-control-id="${id}"]`);
-          await expect(shoulder).toHaveAttribute("data-face", face);
-          await expect(shoulder).toBeHidden();
-        }
-        const sound = frame.getByRole("button", { name: "Toggle race sound" });
-        await expect(sound).toHaveText("SOUND ON");
-        await sound.click();
-        await expect(sound).toHaveText("SOUND OFF");
-        await sound.click();
-        await expect(sound).toHaveText("SOUND ON");
-        const minimap = frame.getByRole("button", { name: "Toggle race map size" });
-        await expect(minimap).toHaveAttribute("data-expanded", "false");
-        await minimap.click();
-        await expect(minimap).toHaveAttribute("data-expanded", "true");
-        await minimap.press("Enter");
-        await expect(minimap).toHaveAttribute("data-expanded", "false");
-        await useStick(page, frame, "steer", 0.9, 0, 120);
-        await expect(turbo).toHaveAttribute("data-car", "comet-gt");
-        await useStick(page, frame, "steer", 0, 0.9, 120);
-        await expect(turbo).toHaveAttribute("data-track", "cosmic-loop");
-        await expect(trackName).toContainText("Cosmic Loop");
-        await expect(turbo).toHaveAttribute("data-camera", "chase");
-        const start = frame.getByRole("button", { name: game.control });
-        await start.click();
-        await expect(frame.locator(".turbo-setup__cta")).toHaveText("READY ✓");
-        await expect(turbo).toHaveAttribute("data-phase", "racing", { timeout: 6_000 });
-        const throttle = frame.getByRole("button", {
-          name: "Tap gas once to cruise; brake cancels cruise; tap gas again to resume",
-        });
-        // Hold-to-drive must be measured while the pointer is down. A completed
-        // click releases gas before the assertion; tracing/remote latency can then
-        // observe a stopped kart rather than the acceleration that already happened.
-        await throttle.hover();
-        await page.mouse.down();
-        try {
-          await expect(throttle).toHaveAttribute("aria-pressed", "true");
-          await expect
-            .poll(
-              async () => Number(await frame.locator(".turbo-speedometer__value").textContent()),
-              { timeout: 4_000 },
-            )
-            .toBeGreaterThan(20);
-        } finally {
-          await page.mouse.up();
-        }
-        await expect(throttle).toHaveAttribute("aria-pressed", "false");
-        await expect(frame.locator(".turbo-nitro")).toContainText("COIN");
-        await start.click();
-        await expect(turbo).toHaveAttribute("data-paused", "true");
-        await start.click();
-        await expect(turbo).toHaveAttribute("data-paused", "false");
+        await verifyTurboPlay(page, frame);
       } else {
         const guide = frame.locator(
           game.title === "Flight Trainer" ? ".flight-navigation" : ".sky-target-guide",

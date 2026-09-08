@@ -47,3 +47,12 @@ it("handles degenerate segments deterministically", () => {
     }).map((r) => r.id),
   ).toEqual(["a", "b"]);
 });
+
+it("keeps the final segment ahead of earlier checkpoints until the finish is crossed", () => {
+  const racers = [
+    racer("mid-lap", 90, { nextCheckpoint: 2 }),
+    racer("near-finish", 5, { nextCheckpoint: 0 }),
+    racer("new-lap", 15, { nextCheckpoint: 1, lap: 1 }),
+  ];
+  expect(raceOrder(racers, track).map((r) => r.id)).toEqual(["new-lap", "near-finish", "mid-lap"]);
+});

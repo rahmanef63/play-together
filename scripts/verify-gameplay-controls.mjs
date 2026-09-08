@@ -76,6 +76,8 @@ try {
     for (const viewport of [
       { width: 320, height: 568 },
       { width: 360, height: 800 },
+      { width: 667, height: 280 },
+      { width: 740, height: 320 },
       { width: 844, height: 390 },
       { width: 1280, height: 720 },
     ]) {

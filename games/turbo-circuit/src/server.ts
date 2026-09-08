@@ -5,6 +5,7 @@ import type {
   ServerPlayer,
 } from "@play-together/game-sdk";
 import { createBot, updateBotDriver } from "./server/botDriver.js";
+import { advanceCheckpoint } from "./server/checkpoints.js";
 import { applyControlPatch } from "./server/controlInput.js";
 import { updateCruise } from "./server/cruise.js";
 import { updateWorldItems, useHeldItem } from "./server/items.js";
@@ -101,6 +102,7 @@ class TurboCircuit implements ServerGame {
     tickPickups(this.#s, ms);
     for (const racer of this.#s.racers) {
       if (racer.finished) continue;
+      const previousPosition = { x: racer.x, z: racer.z };
       if (racer.bot) updateBotDriver(racer, this.#s, dt);
       else updateHumanDriver(racer, this.#s, dt);
       collectPickups(this.#s, racer, () =>
@@ -108,7 +110,7 @@ class TurboCircuit implements ServerGame {
       );
       if (racer.bot && racer.item && racer.nextCheckpoint % 4 === 0)
         useHeldItem(this.#s, racer, "forward");
-      this.#checkpoint(racer);
+      advanceCheckpoint(this.#s, racer, previousPosition);
     }
     updateWorldItems(this.#s, ms);
     resolveRacerCollisions(this.#s.racers);
@@ -125,22 +127,6 @@ class TurboCircuit implements ServerGame {
     this.#s.countdownMs = 3000;
     this.#clock = 0;
     this.#readyClock = 0;
-  }
-  #checkpoint(racer: Racer) {
-    const cp = this.#s.track.checkpoints[racer.nextCheckpoint];
-    if (
-      !cp ||
-      Math.hypot(racer.x - cp.x, racer.z - cp.z) > Math.max(10, this.#s.track.width * 0.72)
-    )
-      return;
-    racer.nextCheckpoint += 1;
-    if (racer.nextCheckpoint < this.#s.track.checkpoints.length) return;
-    racer.nextCheckpoint = 0;
-    racer.lap += 1;
-    if (racer.lap < this.#s.lapsToWin) return;
-    racer.finished = true;
-    racer.finishMs = this.#s.raceMs;
-    this.#s.winnerId ??= racer.id;
   }
   #human(id: string, index: number): Racer {
     return {

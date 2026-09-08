@@ -21,7 +21,7 @@ export function raceOrder<T extends Standing>(
     if (a.finishMs !== null || b.finishMs !== null)
       return (a.finishMs ?? Infinity) - (b.finishMs ?? Infinity) || a.id.localeCompare(b.id);
     return (
-      b.lap * count + b.nextCheckpoint - (a.lap * count + a.nextCheckpoint) ||
+      b.lap * count + (b.nextCheckpoint || count) - (a.lap * count + (a.nextCheckpoint || count)) ||
       progress(b) - progress(a) ||
       a.id.localeCompare(b.id)
     );

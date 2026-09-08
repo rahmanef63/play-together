@@ -24,6 +24,8 @@ if (result.status !== 0) process.exit(result.status ?? 1);
 const source = resolve(gameRoot, "dist");
 const destination = resolve(root, "releases/game-cdn/games", id, config.game.version);
 const sourceManifest = await readFile(resolve(source, "manifest.json"));
+const { gameManifestSchema } = await import("@play-together/contracts");
+gameManifestSchema.parse(JSON.parse(sourceManifest.toString("utf8")));
 const manifestSha256 = createHash("sha256").update(sourceManifest).digest("hex");
 if (await exists(destination)) {
   const installedManifest = await readFile(resolve(destination, "manifest.json"));

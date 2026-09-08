@@ -46,6 +46,8 @@ jobs:
         run: pnpm test:embed
       - name: Bootstrap local production topology
         run: pnpm stack:bootstrap
+      - name: Verify console bounds and authoritative controller actions
+        run: pnpm test:gameplay-controls
       - name: Run browser multiplayer scenarios
         run: pnpm test:e2e
       - name: Collect container logs

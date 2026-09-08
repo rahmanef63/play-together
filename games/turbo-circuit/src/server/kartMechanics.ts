@@ -1,10 +1,7 @@
 import { carById, clamp, trackById } from "../shared/catalog.js";
-import {
-  featurePoses,
-  gridPose,
-  nearestTrackPoint,
-  trackCorridorInfo,
-} from "../shared/trackMath.js";
+import { BOOST_PAD, boostPadsFor, onBoostPad } from "../shared/trackFeatures.js";
+import { gridPose, nearestTrackPoint, trackCorridorInfo } from "../shared/trackMath.js";
+import { updateDrift, wantsDrift, wantsRecovery } from "./drivingControls.js";
 import type { Racer, RaceState } from "./raceModel.js";
 
 export function updateHumanDriver(racer: Racer, state: RaceState, dt: number) {
@@ -12,6 +9,7 @@ export function updateHumanDriver(racer: Racer, state: RaceState, dt: number) {
     car = carById(racer.carId),
     input = racer.input;
   tickTimers(racer, dt);
+  if (wantsRecovery(racer, dt)) rescueRacer(racer, state);
   racer.scraping = false;
   if (racer.spinTimer > 0) {
     racer.heading += 9.5 * dt;
@@ -30,7 +28,10 @@ export function updateHumanDriver(racer: Racer, state: RaceState, dt: number) {
     boosted = racer.boostTimer > 0 && throttle > 0 && input.brake === 0,
     drag = onTrack ? 1.2 + racer.speed * 0.032 : 5.4 + racer.speed * 0.09;
   const accel =
-      throttle * car.accel + (boosted ? car.boostPower : 0) - input.brake * car.braking - drag,
+      throttle * car.accel +
+      (boosted ? car.boostPower : 0) -
+      input.brake * car.braking * (wantsDrift(racer) ? 0.2 : 1) -
+      drag,
     top = (car.topSpeed + (boosted ? 10 : 0)) * coinFactor;
   racer.speed = clamp(racer.speed + accel * dt, 0, top);
   updateDrift(racer, dt);
@@ -62,28 +63,13 @@ export function rescueRacer(racer: Racer, state: RaceState) {
   racer.wrongWay = false;
   racer.wrongWayTimer = 0;
   racer.rescueCooldown = 2.5;
+  racer.recoveryHold = 0;
 }
 function tickTimers(r: Racer, dt: number) {
   r.boostTimer = Math.max(0, r.boostTimer - dt);
   r.spinTimer = Math.max(0, r.spinTimer - dt);
   r.invulnerableTimer = Math.max(0, r.invulnerableTimer - dt);
   r.rescueCooldown = Math.max(0, r.rescueCooldown - dt);
-}
-function updateDrift(r: Racer, dt: number) {
-  const wants = r.input.drift && Math.abs(r.steering) > 0.18 && r.speed > 13;
-  if (wants) {
-    r.drifting = true;
-    r.driftTime += dt;
-    r.driftTier = r.driftTime > 1.3 ? 2 : r.driftTime > 0.58 ? 1 : 0;
-    return;
-  }
-  if (r.drifting) {
-    if (r.driftTier === 2) r.boostTimer = Math.max(r.boostTimer, 2.1);
-    else if (r.driftTier === 1) r.boostTimer = Math.max(r.boostTimer, 1.05);
-  }
-  r.drifting = false;
-  r.driftTime = 0;
-  r.driftTier = 0;
 }
 function updateDrafting(r: Racer, state: RaceState, dt: number) {
   const fx = Math.sin(r.heading),
@@ -112,9 +98,9 @@ function updateDrafting(r: Racer, state: RaceState, dt: number) {
 }
 function applyBoostPad(r: Racer, state: RaceState) {
   const track = trackById(state.trackId);
-  for (const pad of featurePoses(track, track.features.boostPads, [0]))
-    if (Math.hypot(r.x - pad.x, r.z - pad.z) < 4.2) {
-      r.boostTimer = Math.max(r.boostTimer, 1.35);
+  for (const pad of boostPadsFor(track))
+    if (onBoostPad(pad, r)) {
+      r.boostTimer = Math.max(r.boostTimer, BOOST_PAD.duration);
       break;
     }
 }
@@ -133,7 +119,7 @@ function enforceTrack(r: Racer, state: RaceState, dt: number) {
     align = Math.min(0.35, dt * 5.5),
     retention = 0.74 + 0.24 * Math.abs(Math.cos(diff));
   r.heading += diff * align;
-  r.speed = Math.max(0, r.speed * retention);
+  r.speed = Math.max(0, r.speed * retention ** (dt / 0.05));
   r.scraping = true;
 }
 function updateWrongWay(r: Racer, state: RaceState, dt: number) {
@@ -172,6 +158,7 @@ export function resetRacerToGrid(r: Racer, state: RaceState, slot: number) {
     spinTimer: 0,
     invulnerableTimer: 0,
     rescueCooldown: 0,
+    recoveryHold: 0,
     scraping: false,
     wrongWay: false,
     wrongWayTimer: 0,

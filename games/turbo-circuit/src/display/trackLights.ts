@@ -27,7 +27,7 @@ function addStartBulbs(group: THREE.Group, track: TrackSpec, material: THREE.Mes
     width = Math.min(track.width, 17);
   for (let index = 0; index < 13; index++) {
     const x = -width / 2 + (width * index) / 12;
-    for (const y of [6.05, 8.65]) {
+    for (const y of [8.9, 10.5]) {
       const bulb = new THREE.Mesh(geo, material);
       bulb.position.set(x, y, 0.36);
       bulbs.add(bulb);

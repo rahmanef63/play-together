@@ -47,6 +47,7 @@ export interface Racer {
   spinTimer: number;
   invulnerableTimer: number;
   rescueCooldown: number;
+  recoveryHold?: number;
   scraping: boolean;
   wrongWay: boolean;
   wrongWayTimer: number;

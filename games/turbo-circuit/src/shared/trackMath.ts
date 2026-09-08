@@ -38,13 +38,13 @@ export function nearestTrackPoint(track: TrackSpec, x: number, z: number) {
   let best = pointAt(sampleTrack(track), 0),
     distance = Infinity;
   for (const point of sampleTrack(track)) {
-    const d = Math.hypot(x - point.x, z - point.z);
+    const d = (x - point.x) ** 2 + (z - point.z) ** 2;
     if (d < distance) {
       best = point;
       distance = d;
     }
   }
-  return { ...best, distance };
+  return { ...best, distance: Math.sqrt(distance) };
 }
 export function trackCorridorInfo(track: TrackSpec, x: number, z: number) {
   const near = nearestTrackPoint(track, x, z),

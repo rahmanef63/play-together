@@ -25,7 +25,7 @@ export function updateGarageHud(state: TurboState, me: Racer, hud: TurboHud) {
     `GRIP  ${stat(car.handling, 0.82, 1.18)}`,
     `BOOST ${stat(car.boostPower, 13, 19)}`,
   ].join("\n");
-  hud.setupMode.textContent = `${humans.length <= 2 ? "COUPLE KART" : "MULTI KART"} · ${bots.length} CPU · MANUAL THROTTLE`;
+  hud.setupMode.textContent = `${humans.length <= 2 ? "COUPLE KART" : "MULTI KART"} · ${bots.length} CPU · TAP A TO CRUISE`;
   hud.setupReady.textContent = me.ready
     ? `${me.name} READY · ${ready}/${humans.length} READY`
     : `${me.name} SELECTING · ${ready}/${humans.length} READY`;
@@ -36,8 +36,8 @@ export function updateGarageHud(state: TurboState, me: Racer, hud: TurboHud) {
   hud.setupCta.dataset.ready = me.ready ? "true" : "false";
   hud.setupHelp.textContent =
     humans[0]?.id === me.id
-      ? "STICK ← → CAR · STICK ↑ ↓ TRACK · A GAS · B BRAKE · X ITEM · Y REAR · START READY / PAUSE"
-      : "STICK ← → CAR · P1 SELECTS TRACK · A GAS · B BRAKE · X ITEM · Y REAR · START READY / PAUSE";
+      ? "STICK ← → CAR · STICK ↑ ↓ TRACK · A CRUISE · B + STEER DRIFT · HOLD B STOPPED RESCUE · X ITEM · Y REAR · START READY / PAUSE"
+      : "STICK ← → CAR · P1 SELECTS TRACK · A CRUISE · B + STEER DRIFT · HOLD B STOPPED RESCUE · X ITEM · Y REAR · START READY / PAUSE";
 }
 function stat(value: number, min: number, max: number) {
   const score = Math.round(1 + clamp((value - min) / Math.max(0.001, max - min), 0, 1) * 4);

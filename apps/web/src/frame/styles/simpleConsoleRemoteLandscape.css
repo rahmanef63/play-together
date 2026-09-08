@@ -83,7 +83,7 @@
     border-radius: 50%;
   }
 
-  .builtin-controller__zone--bottom[data-system-actions="true"] {
+  .console-shell--remote .builtin-controller__zone--bottom[data-system-actions="true"] {
     min-width: 210px;
     max-width: 100%;
     min-height: 40px;

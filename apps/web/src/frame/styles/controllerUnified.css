@@ -43,6 +43,7 @@
 }
 
 .console-control--button[data-canonical-face="true"] {
+  position: relative;
   width: clamp(58px, 13vmin, 84px);
   padding: 0;
   gap: 2px;
@@ -59,7 +60,8 @@
   position: absolute;
   top: calc(100% - 5px);
   left: 50%;
-  width: 110px;
+  width: 100%;
+  max-width: 110px;
   transform: translateX(-50%);
   color: #e8edf2;
   text-shadow: 0 2px 3px #000;

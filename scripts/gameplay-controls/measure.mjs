@@ -51,7 +51,9 @@ export function measureControls() {
     })
     .map((element) => {
       const rect = element.getBoundingClientRect();
+      const hit = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
       return {
+        accessible: hit === element || element.contains(hit),
         label: element.getAttribute("aria-label"),
         x: rect.x,
         y: rect.y,
@@ -63,6 +65,7 @@ export function measureControls() {
   if (!labels.includes("How to play")) issues.push("missing:how-to");
   if (!labels.includes("Open game menu")) issues.push("missing:menu");
   for (const item of system) {
+    if (!item.accessible) issues.push("obscured:system:" + item.label);
     if (item.width < 43 || item.height < 29) issues.push(`undersized:system:${item.label}`);
     if (
       item.x < -1 ||

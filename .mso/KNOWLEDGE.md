@@ -41,3 +41,8 @@
 ## Release policy
 - Every published game version is immutable. New gameplay or asset changes mint new versions; old rooms stay pinned to their existing manifest digest.
 - The user primarily tests public production, so verified main-branch deployment and production browser checks are required before calling a gameplay release complete.
+
+## User manual gameplay feedback — 2026-09-08
+- User-reported Turbo Circuit and mobile landscape failures outrank previous passing smoke checks.
+- Prioritize useful environment, authoritative game logic, console integration, usable screen area and performance. Do not spend releases on decorative tire animation.
+- Test actual game-container bounds, setup reachability, HUD overlap and the full console-to-server action path; a non-empty canvas and in-bounds buttons alone are insufficient.
