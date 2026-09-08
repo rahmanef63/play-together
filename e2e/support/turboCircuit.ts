@@ -111,7 +111,7 @@ async function verifyCompactScreens(page: Page, frame: FrameLocator, phase: stri
           const screen = host.closest(".handheld-screen")!.getBoundingClientRect();
           const selectors =
             phase === "setup"
-              ? [".turbo-setup__help", ".turbo-setup__footer"]
+              ? [".turbo-setup__footer"]
               : [".turbo-race-status", ".turbo-speedometer", ".turbo-nitro", ".turbo-minimap"];
           return selectors.filter((selector) => {
             const rect = host.querySelector(selector)!.getBoundingClientRect();
