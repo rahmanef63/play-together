@@ -143,7 +143,7 @@ try {
     `${JSON.stringify({ results, errors }, null, 2)}\n`,
   );
   const failureSummary = `${failures.length} responsive layouts failed: ${failures.map((result) => `${result.name} (${result.issues.join(", ")})`).join("; ")}`;
-  if (failures.length && process.env.GITHUB_ACTIONS === "true") {
+  if (failures.length) {
     const annotation = failureSummary
       .replaceAll("%", "%25")
       .replaceAll("\r", "%0D")

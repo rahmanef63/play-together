@@ -37,23 +37,38 @@ export function measureDisplay() {
   const turbo = document.querySelector(".turbo-circuit");
   if (turbo) {
     if (!inside(rect(turbo), screen)) issues.push("turbo-root-outside-screen");
-    const selectors =
-      turbo.dataset.phase === "setup"
-        ? [".turbo-setup__panel", ".turbo-setup__footer", ".turbo-setup__help"]
-        : [
-            ".turbo-race-status",
-            ".turbo-speedometer",
-            ".turbo-nitro",
-            ".turbo-camera",
-            ".turbo-minimap",
-            ".turbo-sound",
-          ];
+    const setup = turbo.dataset.phase === "setup";
+    const panel = setup ? turbo.querySelector(".turbo-setup__panel") : null;
+    const panelBounds = panel ? rect(panel) : null;
+    const panelCanScroll = panel && panel.scrollHeight > panel.clientHeight + 1;
+    const reachableInPanel = (node, bounds) => {
+      if (!panel || !panelBounds || !panelCanScroll || node === panel || !panel.contains(node))
+        return false;
+      const contentTop = bounds.y - panelBounds.y + panel.scrollTop;
+      const contentBottom = contentTop + bounds.height;
+      return (
+        bounds.x >= panelBounds.x - 2 &&
+        bounds.right <= panelBounds.right + 2 &&
+        contentTop >= -2 &&
+        contentBottom <= panel.scrollHeight + 2
+      );
+    };
+    const selectors = setup
+      ? [".turbo-setup__panel", ".turbo-setup__footer", ".turbo-setup__help"]
+      : [
+          ".turbo-race-status",
+          ".turbo-speedometer",
+          ".turbo-nitro",
+          ".turbo-camera",
+          ".turbo-minimap",
+          ".turbo-sound",
+        ];
     const visible = [];
     for (const selector of selectors) {
       const node = turbo.querySelector(selector);
       if (!node || getComputedStyle(node).display === "none") continue;
       const b = rect(node);
-      if (!inside(b, screen)) issues.push("clipped-hud:" + selector);
+      if (!inside(b, screen) && !reachableInPanel(node, b)) issues.push("clipped-hud:" + selector);
       if (!selector.includes("panel")) visible.push({ selector, ...b });
     }
     for (let i = 0; i < visible.length; i++)
