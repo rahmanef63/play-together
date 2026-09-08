@@ -16,8 +16,8 @@ test("active catalog exposes six games and each game has one compact platform me
   browser,
 }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
-  const page = await context.newPage();
+  let context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  let page = await context.newPage();
   const games = [
     {
       key: clashArena,
@@ -72,7 +72,15 @@ test("active catalog exposes six games and each game has one compact platform me
       ),
     ).toBe(true);
 
-    for (const game of games) {
+    for (const [index, game] of games.entries()) {
+      // Room creation is intentionally rate-limited per account. Rotate the QA account
+      // halfway through the six-cartridge sweep instead of weakening production limits.
+      if (index === 3) {
+        await closeContext(context);
+        context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+        page = await context.newPage();
+        await signUp(page, `Catalog QA B ${runId}`, `catalog-b-${runId}@example.test`);
+      }
       const code = await createRoom(page, {
         name: `${game.title} ${runId}`,
         gameKey: game.key,
