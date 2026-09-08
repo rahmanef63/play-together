@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.24.0] - 2026-09-08
+
+- Turbo Circuit now updates standings between checkpoints using bounded segment progress, with recorded finish times taking priority.
+- Flight Trainer adds gate progress and heading-relative turn guidance, followed by runway return guidance after all gates.
+- Sky Strike adds nearest-opponent bearing, range and altitude guidance, retaining a valid missile lock and excluding respawning opponents.
+- Ridge Rush adds trail-edge recovery directions, upcoming drop/jump warnings, stamina recovery and clean-landing coaching.
+- Clash Arena adds range, lane alignment, wind-up and recovery coaching from the same move definitions used by authoritative combat.
+- Flight and Sky HUDs fit compact handheld displays and avoid replacing unchanged instrument/reticle markup every animation frame.
+- New cartridges: Turbo Circuit 0.11.3, Flight Trainer 0.4.3, Sky Strike 0.4.3, Ridge Rush 0.5.11, Clash Arena 0.4.3. Historical releases remain immutable.
+
+- Review and improve portal UI/UX/DX/AX: compact desktop filters, metadata-derived party sizes/modes, clipboard fallback, native sharing, explicit protected-room admission, selected-game links and missing-cover recovery.
+- Regenerate all five landscape covers and motion previews from authoritative gameplay through declarative per-game preview scenarios. Serve MP4 with bounded byte-range support.
+- Refresh model detail and world dressing across all five games; separate long scene/model/effects modules by ownership.
+- Share Flight Trainer course geometry with scoring; correct Ridge Rush camera banking around the local view axis; keep foreground pillars out of the Clash Arena fighting view.
+- Build game publication dependencies through the workspace task graph so clean clones and container builds do not rely on an existing SDK build.
+- Preserve GLB linear material colors and dispose owned graphics resources on aircraft/projectile/fighter removal and stale asynchronous loads.
+
 ## [0.23.2] - 2026-09-08
 
 - Move production ownership to the existing Dokploy Compose service while keeping Convex Cloud, managed Redis, and private Vercel Blob as external dependencies.

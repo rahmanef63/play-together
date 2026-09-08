@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "ridge-rush",
+    "version": "0.5.10",
+    "title": "Ridge Rush",
+    "description": "Extreme 3D mountain-bike descent with cliffside terrain, gravity, lane-aware suspension, sprint, powerslides, bunny hops, air-style combos, close-range rider contact and deterministic rivals.",
+    "minPlayers": 1,
+    "maxPlayers": 4,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "runtimeDependencies": {
+    "three": "0.185.1+pt3"
+  },
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "landscape",
+    "console": {
+      "renderer": "builtin",
+      "layout": "racing",
+      "initialState": {
+        "steer": 0,
+        "body": 0,
+        "pedal": false,
+        "brake": false,
+        "jump": false,
+        "attack": false
+      },
+      "controls": [
+        {
+          "id": "steer",
+          "kind": "stick",
+          "ariaLabel": "Steer and shift body weight",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "steer": "$x",
+              "body": "$y"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "steer": 0,
+              "body": 0
+            }
+          },
+          "keys": {
+            "up": [
+              "ArrowUp",
+              "KeyW"
+            ],
+            "down": [
+              "ArrowDown",
+              "KeyS"
+            ],
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ]
+          }
+        },
+        {
+          "id": "pedal",
+          "kind": "button",
+          "label": "A",
+          "displayLabel": "PEDAL / SPRINT",
+          "ariaLabel": "Pedal; quick double-tap then hold to sprint",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "pedal": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "pedal": false
+            }
+          },
+          "keys": [
+            "Space"
+          ]
+        },
+        {
+          "id": "brake",
+          "kind": "button",
+          "label": "B",
+          "displayLabel": "BRAKE / SLIDE",
+          "ariaLabel": "Brake; hard steer slides, forward body weight front-brakes",
+          "face": "b",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "brake": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "brake": false
+            }
+          },
+          "keys": [
+            "ShiftLeft",
+            "ShiftRight"
+          ]
+        },
+        {
+          "id": "jump",
+          "kind": "button",
+          "label": "X",
+          "displayLabel": "HOP / TRICK",
+          "ariaLabel": "Hop or pump; release then press in air for a directional style",
+          "face": "x",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "jump": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "jump": false
+            }
+          },
+          "keys": [
+            "KeyX"
+          ]
+        },
+        {
+          "id": "attack-look",
+          "kind": "button",
+          "label": "Y",
+          "displayLabel": "ATTACK / LOOK",
+          "ariaLabel": "Attack a nearby rival on stick side; hold body back for rear view",
+          "face": "y",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "attack": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "attack": false
+            }
+          },
+          "keys": [
+            "KeyY"
+          ]
+        },
+        {
+          "id": "start",
+          "kind": "button",
+          "label": "START",
+          "displayLabel": "READY",
+          "ariaLabel": "Ready or request rematch",
+          "face": "start",
+          "zone": "bottom",
+          "press": {
+            "type": "send",
+            "payload": {
+              "action": "ready"
+            }
+          },
+          "keys": [
+            "Enter"
+          ]
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "90c78ca0a1cd337aa2dfa89d532e0929b4622d052c629a2d4a85eb1e4769ac1a"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "a857f1fe8b3ee709a03b332f6c55d7d3472b0d01eb66859bce1764c388282c6b"
+    }
+  }
+}

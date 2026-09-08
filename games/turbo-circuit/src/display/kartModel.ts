@@ -1,5 +1,8 @@
 import * as THREE from "three";
 import type { CarSpec } from "../shared/catalog.js";
+import { addKartDetail } from "./kartDetail.js";
+import { addDriftSparks, addDust, addExhaust } from "./kartEffects.js";
+import { mesh } from "./kartPrimitives.js";
 
 export interface KartVisual {
   root: THREE.Group;
@@ -46,6 +49,7 @@ export function createKartModel(car: CarSpec): KartVisual {
     dust = addDust(body, dimensions),
     driftSparks = addDriftSparks(body, dimensions);
   addDriver(body, car);
+  addKartDetail(body, dimensions.width, dimensions.length);
   body.position.y = 0.03;
   const steeringWheel = new THREE.Mesh(
     new THREE.TorusGeometry(0.34, 0.07, 8, 18),
@@ -88,29 +92,6 @@ function addSpoiler(
     group.add(post);
   }
 }
-function addExhaust(
-  group: THREE.Group,
-  d: { length: number },
-  material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial,
-) {
-  const flames: THREE.Mesh[] = [];
-  for (const x of [-0.5, 0.5]) {
-    const pipe = mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.78, 9), material);
-    pipe.rotation.x = Math.PI / 2;
-    pipe.position.set(x, 0.62, -d.length * 0.53);
-    group.add(pipe);
-    const flame = new THREE.Mesh(
-      new THREE.ConeGeometry(0.24, 0.88, 7),
-      new THREE.MeshBasicMaterial({ color: 0xff7a18, transparent: true, opacity: 0.9 }),
-    );
-    flame.rotation.x = -Math.PI / 2;
-    flame.position.set(x, 0.62, -d.length * 0.64);
-    flame.visible = false;
-    group.add(flame);
-    flames.push(flame);
-  }
-  return flames;
-}
 function addWheels(
   group: THREE.Group,
   d: { width: number; length: number },
@@ -139,34 +120,6 @@ function addWheels(
   }
   return { wheels, frontWheels };
 }
-function addDust(group: THREE.Group, d: { width: number; length: number }) {
-  const dust: THREE.Mesh[] = [];
-  for (const x of [-d.width * 0.52, d.width * 0.52]) {
-    const puff = new THREE.Mesh(
-      new THREE.SphereGeometry(0.36, 7, 5),
-      new THREE.MeshBasicMaterial({ color: 0xd8d1bb, transparent: true, opacity: 0.42 }),
-    );
-    puff.position.set(x, 0.3, -d.length * 0.46);
-    puff.visible = false;
-    group.add(puff);
-    dust.push(puff);
-  }
-  return dust;
-}
-function addDriftSparks(group: THREE.Group, d: { width: number; length: number }) {
-  const sparks: THREE.Mesh[] = [];
-  for (const x of [-d.width * 0.62, d.width * 0.62]) {
-    const spark = new THREE.Mesh(
-      new THREE.SphereGeometry(0.31, 6, 5),
-      new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.9 }),
-    );
-    spark.position.set(x, 0.38, -d.length * 0.35);
-    spark.visible = false;
-    group.add(spark);
-    sparks.push(spark);
-  }
-  return sparks;
-}
 function addDriver(group: THREE.Group, car: CarSpec) {
   const driver = new THREE.Group(),
     suit = mesh(
@@ -186,13 +139,4 @@ function addDriver(group: THREE.Group, car: CarSpec) {
   visor.position.set(0, 2.02, 0.34);
   driver.add(suit, helmet, visor);
   group.add(driver);
-}
-function mesh(
-  geometry: THREE.BufferGeometry,
-  material: THREE.MeshStandardMaterial | THREE.MeshBasicMaterial,
-) {
-  const object = new THREE.Mesh(geometry, material);
-  object.castShadow = true;
-  object.receiveShadow = true;
-  return object;
 }

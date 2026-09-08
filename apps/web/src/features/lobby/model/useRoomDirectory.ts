@@ -2,6 +2,7 @@ import { useAction, useMutation, useQuery } from "convex/react";
 import { type FormEvent, useEffect, useState } from "react";
 import { api } from "../../../shared/convexApi";
 import { errorMessage } from "../../../shared/errors";
+import { parseRoomCode } from "../../../shared/inviteLinks";
 import { navigate } from "../../../shared/navigation";
 import type { GameSummary, MyRoomSummary, RoomSummary } from "../../../shared/types";
 
@@ -58,7 +59,9 @@ export function useRoomDirectory(gameById: Map<string, GameSummary>) {
     setBusy(true);
     setError("");
     try {
-      const normalizedCode = code.trim().toUpperCase();
+      const normalizedCode = parseRoomCode(code, location.origin);
+      if (!normalizedCode)
+        throw new Error("Enter a room code or an invitation link from this site.");
       const result = await joinRoom(
         password ? { code: normalizedCode, password } : { code: normalizedCode },
       );
@@ -66,7 +69,7 @@ export function useRoomDirectory(gameById: Map<string, GameSummary>) {
       navigate(`/room/${result.code}`);
     } catch (reason) {
       setError(errorMessage(reason));
-      setJoinCode(code.toUpperCase());
+      setJoinCode(code);
     } finally {
       setBusy(false);
     }

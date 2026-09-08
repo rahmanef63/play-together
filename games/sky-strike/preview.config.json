@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "players": 1,
+  "warmupTicks": 20,
+  "events": [
+    {
+      "tick": 0,
+      "player": "all",
+      "input": {
+        "throttle": 0.55,
+        "gun": true
+      }
+    }
+  ],
+  "hide": ["#game-root>section>div"],
+  "readySelector": null
+}

@@ -77,6 +77,9 @@ test("Clash Arena selects a canonical fighter before entering deterministic Tier
       timeout: 8_000,
     });
 
+    const coaching = frame.locator(".clash-spacing-coach").first();
+    await expect(coaching).toBeVisible();
+    await expect(coaching).not.toBeEmpty();
     await useStick(page, frame, "move", -1, 0, 500);
     await frame
       .getByRole("button", {

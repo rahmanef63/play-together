@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "players": 1,
+  "warmupTicks": 85,
+  "events": [
+    {
+      "tick": 0,
+      "player": "all",
+      "input": {
+        "action": "ready"
+      }
+    },
+    {
+      "tick": 1,
+      "player": "all",
+      "input": {
+        "pedal": true,
+        "steer": 0,
+        "body": 0.1
+      }
+    }
+  ],
+  "hide": [".ridge-rush>div"],
+  "readySelector": null
+}

@@ -113,7 +113,8 @@
   .game-stage__caption h1 {
     min-width: 0;
     margin: 0;
-    font-size: 32px;
+    font-size: clamp(20px, 3.7vw, 32px);
+    padding-right: 52px;
   }
   .game-stage__caption p,
   .game-stage__caption .library-favorite {

@@ -11,10 +11,14 @@ const root = process.cwd();
 const gameRoot = resolve(root, "games", id);
 const config = JSON.parse(await readFile(resolve(gameRoot, "game.config.json"), "utf8"));
 if (config.game.id !== id) throw new Error("Game directory and config id differ");
-const result = spawnSync("pnpm", ["--filter", `@play-together/game-${id}`, "build"], {
-  cwd: root,
-  stdio: "inherit",
-});
+const result = spawnSync(
+  "pnpm",
+  ["turbo", "run", "build", "--filter", `@play-together/game-${id}`],
+  {
+    cwd: root,
+    stdio: "inherit",
+  },
+);
 if (result.status !== 0) process.exit(result.status ?? 1);
 
 const source = resolve(gameRoot, "dist");

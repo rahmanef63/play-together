@@ -140,6 +140,25 @@ for (const game of cases) {
         await start.click();
         await expect(turbo).toHaveAttribute("data-paused", "false");
       } else {
+        const guide = frame.locator(
+          game.title === "Flight Trainer" ? ".flight-navigation" : ".sky-target-guide",
+        );
+        await expect(guide).toBeVisible();
+        await expect(guide).toContainText(
+          game.title === "Flight Trainer" ? /GATE|RUNWAY/ : /TARGET|LOCK/,
+        );
+        const bounds = await guide.evaluate((el) => {
+          const rect = el.getBoundingClientRect();
+          const screen = el.closest(".handheld-screen")?.getBoundingClientRect();
+          return {
+            top: rect.top,
+            bottom: rect.bottom,
+            screenTop: screen?.top ?? 0,
+            screenBottom: screen?.bottom ?? innerHeight,
+          };
+        });
+        expect(bounds.top).toBeGreaterThanOrEqual(bounds.screenTop - 1);
+        expect(bounds.bottom).toBeLessThanOrEqual(bounds.screenBottom + 1);
         const control = frame.getByRole("button", { name: game.control });
         await expect(control).toBeVisible({ timeout: 20_000 });
         await control.click({ delay: game.title === "Sky Strike" ? 160 : 50 });

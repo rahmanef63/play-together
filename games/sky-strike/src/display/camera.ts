@@ -2,6 +2,7 @@ import * as THREE from "three";
 import type { PlanePose, SkyState } from "./model.js";
 import { smoothing } from "./model.js";
 import type { SkyScene } from "./scene.js";
+import { targetGuide } from "./targetGuide.js";
 import { incomingThreat } from "./threat.js";
 
 export function updateSkyCameraAndHud(
@@ -57,9 +58,19 @@ export function updateSkyCameraAndHud(
   const threat = incomingThreat(state, me);
   if (threat) view.top.textContent = threat;
   view.top.dataset.threat = String(Boolean(threat));
-  view.center.innerHTML = lock
-    ? `<div style="width:58px;height:58px;border:3px solid #ff4747;border-radius:50%;display:grid;place-items:center">LOCK</div>`
-    : `<div style="width:42px;height:42px;border:2px solid #fff8;border-radius:50%"></div>`;
-  view.bottom.innerHTML = `<strong>${Math.round(me.speed * 3.6)} km/h</strong><strong>${me.afterburnerActive ? "BOOST" : "FUEL"} ${Math.round(me.afterburnerFuel * 100)}% · ${me.missileCd > 0 ? `MISSILE ${(me.missileCd / 1000).toFixed(1)}s` : "MISSILE READY"}</strong><strong>ALT ${Math.round(me.y)} m</strong>`;
+  view.guide.textContent = targetGuide(state, me);
+  const reticle =
+    lock && state.phase === "dogfight" && me.respawnMs <= 0
+      ? `<div style="width:58px;height:58px;border:3px solid #ff4747;border-radius:50%;display:grid;place-items:center">LOCK</div>`
+      : `<div style="width:42px;height:42px;border:2px solid #fff8;border-radius:50%"></div>`;
+  if (view.center.dataset.reticle !== reticle) {
+    view.center.innerHTML = reticle;
+    view.center.dataset.reticle = reticle;
+  }
+  const instruments = `<strong>${Math.round(me.speed * 3.6)} km/h</strong><strong>${me.afterburnerActive ? "BOOST" : "FUEL"} ${Math.round(me.afterburnerFuel * 100)}% · ${me.missileCd > 0 ? `MISSILE ${(me.missileCd / 1000).toFixed(1)}s` : "MISSILE READY"}</strong><strong>ALT ${Math.round(me.y)} m</strong>`;
+  if (view.bottom.dataset.reading !== instruments) {
+    view.bottom.innerHTML = instruments;
+    view.bottom.dataset.reading = instruments;
+  }
   return ready;
 }

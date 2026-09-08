@@ -3,6 +3,7 @@ export function LibraryTools({
   players,
   onlyFavorites,
   count,
+  playerCounts,
   onQuery,
   onPlayers,
   onFavorites,
@@ -12,6 +13,7 @@ export function LibraryTools({
   players: number;
   onlyFavorites: boolean;
   count: number;
+  playerCounts: number[];
   onQuery: (value: string) => void;
   onPlayers: (value: number) => void;
   onFavorites: () => void;
@@ -32,7 +34,7 @@ export function LibraryTools({
         onChange={(e) => onPlayers(Number(e.target.value))}
       >
         <option value={0}>Any party size</option>
-        {[1, 2, 3, 4].map((n) => (
+        {playerCounts.map((n) => (
           <option key={n} value={n}>
             {n} player{n > 1 ? "s" : ""}
           </option>

@@ -2,7 +2,11 @@
 
 ## Current source catalogue
 
-The source catalogue targets Turbo Circuit 0.11.1, Flight Trainer 0.4.1, Sky Strike 0.4.1, Ridge Rush 0.5.9 and Clash Arena 0.4.1. Published cartridge bytes are immutable; source versions do not prove production promotion, and existing rooms remain pinned to their exact manifest digest.
+The source catalogue targets Turbo Circuit 0.11.3, Flight Trainer 0.4.3, Sky Strike 0.4.3, Ridge Rush 0.5.11 and Clash Arena 0.4.3. Published cartridge bytes are immutable; source versions do not prove production promotion, and existing rooms remain pinned to their exact manifest digest.
+
+## Gameplay feedback in 0.24.0
+
+The five active games now provide contextual guidance: race position between checkpoints, checkpoint turn bearings, opponent bearing/range/altitude, trail hazards and recovery, and fighting range/recovery. Directions use each game's actual camera/input convention. Guidance does not drive the vehicle or choose attacks for the player. See the 0.24.0 changelog for release versions.
 
 ## Controller tiers
 
@@ -84,3 +88,11 @@ A cooperative rescue route could reuse aircraft presentation expertise while giv
 - Downhill Domination (PS2) control reference: https://gamefaqs.gamespot.com/ps2/914603-downhill-domination/faqs/24810
 - Downhill Domination PAL control/trick reference: https://psxdatacenter.com/psx2/games2/SLES-52202.html
 - Bandai Namco, TEKKEN 8 introductory guide (four basic limb attacks as a design reference, not licensed assets): https://en.bandainamcoent.eu/tekken/news/tekken-8-the-guide-start-playing
+
+## Runtime-derived portal previews
+
+`pnpm game:previews` discovers every cartridge, builds its draft runtime and records a 960×540 cover and short silent MP4. Set `CHROME_PATH` when Chromium is installed outside Playwright, and install FFmpeg for encoding. `PREVIEW_GAME_ID=<id>` recaptures one game and updates its media index record. The generator runs an isolated local harness without creating production users or rooms.
+
+Each `games/<id>/preview.config.json` owns player count, warm-up ticks, input events, optional asset-readiness selector and HUD selectors hidden for the cover. Input events run against the actual authoritative server; the mounted display and `loadAsset` use the same source models as gameplay. No game identities or control mappings belong in the capture orchestrator. `apps/web/public/game-previews/index.json` records game version, dimensions and cover digest. Re-run capture after visual changes and inspect the resulting pixels before committing.
+
+Preview rendering does not replace multiplayer E2E. Native sharing, clipboard denial, media fallback, actual video playback and room admission are covered by portal/browser tests. GPU disposal is a renderer-neutral SDK helper; call it only for subtrees that own their resources, never a clone sharing resources with another live model.

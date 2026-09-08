@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "players": 2,
+  "warmupTicks": 55,
+  "events": [
+    {
+      "tick": 0,
+      "player": "all",
+      "input": {
+        "a": true
+      }
+    },
+    {
+      "tick": 1,
+      "player": "all",
+      "input": {
+        "a": false
+      }
+    },
+    {
+      "tick": 70,
+      "player": 0,
+      "input": {
+        "b": true
+      }
+    },
+    {
+      "tick": 71,
+      "player": 0,
+      "input": {
+        "b": false
+      }
+    },
+    {
+      "tick": 90,
+      "player": 1,
+      "input": {
+        "a": true
+      }
+    },
+    {
+      "tick": 91,
+      "player": 1,
+      "input": {
+        "a": false
+      }
+    }
+  ],
+  "hide": [".clash-arena>*:not(canvas):not(style)"],
+  "readySelector": ".clash-arena[data-fighter-assets=\"2\"]"
+}

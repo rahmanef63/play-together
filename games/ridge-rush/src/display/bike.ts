@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { addBikeDetail } from "./bikeDetail.js";
 
 export function createBike(color: number): THREE.Group {
   const root = new THREE.Group();
@@ -71,6 +72,7 @@ export function createBike(color: number): THREE.Group {
     limb("right-arm", 0.23, 1.38, 0.18, 0.44, skin),
   );
   bike.add(rider);
+  addBikeDetail(root, bike, rider);
   root.traverse((object) => {
     if (object instanceof THREE.Mesh) object.castShadow = true;
   });

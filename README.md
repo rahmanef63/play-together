@@ -6,7 +6,7 @@
 
 A version-isolated multiplayer platform for phone remotes, handheld play, and shared browser/TV displays. Each game ships as an independent cartridge; the platform owns discovery, rooms, pairing, realtime transport, device shells, and immutable release verification.
 
-The source catalog targets five active 3D cartridges: **Turbo Circuit 0.11.1**, **Flight Trainer 0.4.1**, **Sky Strike 0.4.1**, the extreme downhill-bike racer **Ridge Rush 0.5.9**, and the original 1v1 fighter **Clash Arena 0.4.1**. Source versions do not imply that production or an already-open room has upgraded. Historical releases for removed games stay byte-immutable but are retired from new-room selection.
+The source catalog targets five active 3D cartridges: **Turbo Circuit 0.11.3**, **Flight Trainer 0.4.3**, **Sky Strike 0.4.3**, the extreme downhill-bike racer **Ridge Rush 0.5.11**, and the original 1v1 fighter **Clash Arena 0.4.3**. Source versions do not imply that production or an already-open room has upgraded. Historical releases for removed games stay byte-immutable but are retired from new-room selection.
 
 [![CI](https://github.com/rahmanef63/play-together/actions/workflows/ci.yml/badge.svg)](https://github.com/rahmanef63/play-together/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -37,17 +37,21 @@ Playable visuals are not concept-art placeholders. 3D player characters/vehicles
 
 ## Gameplay and controls
 
-The default Play Together controller is deliberately **Tier 0: one left stick + ABXY + Menu/Start**. L1/L2/R1/R2 are not recommended by default and only belong in a game when playtesting proves the extra inputs are genuinely necessary. Ridge Rush 0.5.9 and Clash Arena 0.4.1 both ship with Tier 0 mobile controls; Clash Arena uses them for character select as well as match play. Menu and How To are platform actions placed beside Start in landscape and above Start in portrait; hold controls suppress text selection/callouts. Advanced shoulders remain hidden by default. Touch, keyboard and standard-mapped physical gamepads share input ownership and focus-loss cleanup. Read the [gameplay development guide](docs/gameplay-development.md) for the controller-tier contract and per-game mappings.
+The default Play Together controller is deliberately **Tier 0: one left stick + ABXY + Menu/Start**. L1/L2/R1/R2 are not recommended by default and only belong in a game when playtesting proves the extra inputs are genuinely necessary. Ridge Rush 0.5.11 and Clash Arena 0.4.3 both ship with Tier 0 mobile controls; Clash Arena uses them for character select as well as match play. Menu and How To are platform actions placed beside Start in landscape and above Start in portrait; hold controls suppress text selection/callouts. Advanced shoulders remain hidden by default. Touch, keyboard and standard-mapped physical gamepads share input ownership and focus-loss cleanup. Read the [gameplay development guide](docs/gameplay-development.md) for the controller-tier contract and per-game mappings.
 
-## 0.23.0 playability update (source candidate)
+## Portal and gameplay quality update (0.24.0)
 
 The library adds device-local favorites, title search, party-size filtering and a random pick that respects those filters. Active play requests a screen wake lock where supported. How To derives keyboard aliases directly from cartridge control metadata.
 
 Turbo Circuit starts cruise on a gas tap; brake cancels it and rescue/reset clears it. Flight Trainer adds checkpoint and landing coaching, Sky Strike shows targeted incoming-missile distance, Ridge Rush shows next-checkpoint/finish distance, and Clash Arena exposes active juggle, guard, stun and Surge readiness. See [release verification](docs/upgrade-0.23.0.md) for actual delivery status and limits.
 
+The portal supports native sharing and copy-link recovery, same-site pasted invitations, game recommendation links and missing-cover fallback. Covers and short motion previews are captured from real gameplay with per-game scenarios. Player counts and supported modes come from catalog metadata. See [portal quality review](docs/portal-quality-review.md).
+
+All five games have refreshed model details and world dressing. Flight Trainer shares course geometry between visuals and scoring; Ridge Rush preserves a level camera horizon; Clash Arena uses corrected GLB colors and an unobstructed arena. Removed aircraft, projectiles and fighters release their owned GPU resources.
+
 ## Product flow
 
-1. A host creates a room from the generated game registry.
+1. A host creates a room from the current active Convex catalog.
 2. **Remote** mode shows a pre-game lobby and QR invite. Phones scan the exact room URL and join as controllers.
 3. **Handheld** mode mounts the pinned game display and controls on the same device.
 4. The host starts the room. Only then are realtime tickets, game workers, and game frames created.

@@ -1,5 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useEffect, useState } from "react";
+import { navigate } from "../../shared/navigation";
 import type { CurrentUser } from "../../shared/types";
 
 import { CreateRoomPanel } from "./components/CreateRoomPanel";
@@ -41,6 +42,7 @@ export function LobbyPage({
         <button
           type="button"
           className={panel === "play" ? "active" : ""}
+          aria-pressed={panel === "play"}
           onClick={() => setPanel("play")}
         >
           Play
@@ -48,6 +50,7 @@ export function LobbyPage({
         <button
           type="button"
           className={panel === "rooms" ? "active" : ""}
+          aria-pressed={panel === "rooms"}
           onClick={() => setPanel("rooms")}
         >
           Rooms
@@ -83,7 +86,8 @@ export function LobbyPage({
           onTabChange={directory.setRoomTab}
           onJoin={(room) => {
             directory.setJoinCode(room.code);
-            if (!room.requiresPassword) void directory.onJoin(room.code, "");
+            if (room.requiresPassword) navigate(`/room/${room.code}`);
+            else void directory.onJoin(room.code, "");
           }}
           onEdit={directory.setEditingCode}
           onCancelEdit={() => directory.setEditingCode(null)}

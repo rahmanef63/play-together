@@ -46,10 +46,13 @@ export function useRoomSession(code: string, user: CurrentUser) {
       .finally(() => setBusy(false));
   }, [code, joinIntent, joinRoom, room, user.id]);
 
-  const copyInvite = async () => {
-    await navigator.clipboard.writeText(`${location.origin}/room/${code}\nRoom code: ${code}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1_500);
+  const copyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+    } catch {
+      setError("Clipboard unavailable. Select the room code or use Copy invite below.");
+    }
   };
 
   const exitRoom = async () => {
@@ -85,7 +88,7 @@ export function useRoomSession(code: string, user: CurrentUser) {
     busy,
     closeRoom,
     copied,
-    copyInvite,
+    copyCode,
     error,
     exitRoom,
     isMember,

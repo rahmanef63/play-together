@@ -8,6 +8,7 @@ import { updateGarageHud } from "./garagePresenter.js";
 import type { TurboHud } from "./hud.js";
 import { clamp } from "./math.js";
 import type { Racer, RacerPose, TurboState } from "./model.js";
+import { raceOrder } from "./raceOrder.js";
 
 export type { CameraState } from "./cameraViews.js";
 export function updateCameraAndHud(
@@ -54,8 +55,7 @@ function updateHud(state: TurboState, me: Racer, hud: TurboHud) {
   hud.pause.style.opacity = state.paused ? "1" : "0";
   hud.results.style.display = state.phase === "finished" ? "block" : "none";
   if (state.phase === "finished")
-    hud.resultsBody.textContent = [...state.racers]
-      .sort((a, b) => (a.finishMs ?? Infinity) - (b.finishMs ?? Infinity))
+    hud.resultsBody.textContent = raceOrder(state.racers, state.track)
       .slice(0, 7)
       .map(
         (r, i) => `${i + 1}. ${r.name} · ${r.finishMs === null ? "DNF" : formatTime(r.finishMs)}`,
@@ -81,10 +81,7 @@ function updateHud(state: TurboState, me: Racer, hud: TurboHud) {
             ? "BOOST"
             : "";
   hud.nitro.textContent = `${me.item ?? "NO ITEM"} · COIN ${me.coins}${drift ? ` · ${drift}` : ""}`;
-  const cpCount = Math.max(1, state.track.checkpoints.length),
-    order = [...state.racers].sort(
-      (a, b) => b.lap * cpCount + b.nextCheckpoint - (a.lap * cpCount + a.nextCheckpoint),
-    ),
+  const order = raceOrder(state.racers, state.track),
     position = Math.max(1, order.findIndex((r) => r.id === me.id) + 1);
   hud.top.textContent =
     state.phase === "setup"

@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import { GameCover } from "../../../shared/GameCover";
 import { navigate } from "../../../shared/navigation";
 import { ScrollArea } from "../../../shared/ScrollArea";
 import type { RoomDetails } from "../../../shared/types";
@@ -33,6 +34,13 @@ export function RoomInviteView({
       <ScrollArea className="room-page-scroll" ariaLabel="Room invitation">
         <div className="room-invite-scroll-content">
           <section className="panel invite-card">
+            <GameCover
+              gameId={room.gameId}
+              version={room.gameVersion}
+              title={room.gameTitle}
+              className="invite-game-cover"
+              eager
+            />
             <p className="eyebrow">ROOM INVITATION</p>
             <h1>{room.name}</h1>
             <p>
@@ -58,8 +66,20 @@ export function RoomInviteView({
                   />
                 )}
                 {error && <FormMessage>{error}</FormMessage>}
-                <Button type="submit" fullWidth busy={busy}>
-                  {busy ? "Joining…" : "Join room"}
+                <p className="invite-next-step">
+                  Join first, then choose: use your phone as a controller or play on this screen.
+                </p>
+                <Button
+                  type="submit"
+                  fullWidth
+                  busy={busy}
+                  disabled={room.activeMembers.length >= room.maxPlayers}
+                >
+                  {room.activeMembers.length >= room.maxPlayers
+                    ? "Room full"
+                    : busy
+                      ? "Joining…"
+                      : "Join room"}
                 </Button>
               </form>
             ) : (

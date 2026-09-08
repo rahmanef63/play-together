@@ -1,6 +1,6 @@
 {
   "name": "@play-together/game-ridge-rush",
-  "version": "0.5.9",
+  "version": "0.5.11",
   "private": true,
   "type": "module",
   "scripts": {

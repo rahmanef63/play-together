@@ -97,11 +97,8 @@ export function updateCamera(
   if (!ready) view.camera.position.copy(desired);
   else view.camera.position.lerp(desired, smoothing(mode === "handheld" ? 11 : 7, dt));
   view.camera.lookAt(target);
-  view.camera.rotation.z = THREE.MathUtils.lerp(
-    view.camera.rotation.z,
-    -focus.lean * 0.04,
-    smoothing(6, dt),
-  );
+  // Bank around the camera local axis; rewriting Euler Z after lookAt flips some headings.
+  view.camera.rotateZ(-pose.lean * 0.04);
   view.camera.fov =
     (mode === "handheld" ? 54 : 64) + Math.min(12, speed * 0.22) + Math.min(4, steep * 5);
   view.camera.updateProjectionMatrix();

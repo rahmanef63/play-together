@@ -1,6 +1,7 @@
 import { courseSurface, gradeDegrees, progressRatio } from "../shared/course.js";
 import { checkpointGuide } from "./checkpoint.js";
 import type { RiderView, RidgeViewState } from "./model.js";
+import { ridingCoach } from "./ridingCoach.js";
 export interface RidgeHud {
   host: HTMLElement;
   title: HTMLElement;
@@ -10,6 +11,7 @@ export interface RidgeHud {
   meta: HTMLElement;
   progress: HTMLElement;
   stamina: HTMLElement;
+  coach: HTMLElement;
   center: HTMLElement;
   results: HTMLElement;
 }
@@ -35,12 +37,15 @@ export function createHud(root: HTMLElement): RidgeHud {
     staminaTrack = meter("stamina");
   const progress = progressTrack.querySelector("i") as HTMLElement,
     stamina = staminaTrack.querySelector("i") as HTMLElement;
-  meters.append(progressTrack, staminaTrack);
+  const coach = div("ridge-hud__coach");
+  coach.style.cssText =
+    "font:750 9px/1.4 system-ui;color:#fff;background:#091015d9;padding:5px 7px;border-left:2px solid #f7b955";
+  meters.append(progressTrack, staminaTrack, coach);
   const center = div("ridge-hud__center"),
     results = div("ridge-hud__results");
   host.append(style, top, speedCard, meters, center, results);
   root.replaceChildren(host);
-  return { host, title, speed, unit, place, meta, progress, stamina, center, results };
+  return { host, title, speed, unit, place, meta, progress, stamina, coach, center, results };
 }
 export function updateHud(h: RidgeHud, state: RidgeViewState, me: RiderView | undefined) {
   const place = me ? state.riders.findIndex((r) => r.id === me.id) + 1 : 0,
@@ -54,6 +59,9 @@ export function updateHud(h: RidgeHud, state: RidgeViewState, me: RiderView | un
   h.progress.style.width = `${Math.round(progressRatio(me?.progress ?? 0) * 100)}%`;
   h.stamina.style.width = `${Math.round(me?.stamina ?? 0)}%`;
   h.center.textContent = centerMessage(state, me);
+  const guidance = ridingCoach(state, me);
+  h.coach.textContent = guidance;
+  h.coach.hidden = !guidance;
   const finished = state.phase === "finished";
   h.results.hidden = !finished;
   const resultKey = finished
@@ -63,10 +71,10 @@ export function updateHud(h: RidgeHud, state: RidgeViewState, me: RiderView | un
   h.results.dataset.resultKey = resultKey;
 }
 function centerMessage(state: RidgeViewState, me?: RiderView) {
-  if (me?.currentTrick && me.trickFeedbackMs > 0)
-    return `${me.currentTrick} · ${me.pendingStyle} PTS${me.combo > 1 ? ` · x${me.combo}` : ""}`;
   if (me?.crashed && me.crashed > 0) return "RECOVERING";
   if (me?.finishedAt != null) return "FINISH";
+  if (me?.currentTrick && me.trickFeedbackMs > 0)
+    return `${me.currentTrick} · ${me.pendingStyle} PTS${me.combo > 1 ? ` · x${me.combo}` : ""}`;
   if (me && !me.grounded && me.airTimeMs > 140) return `AIR ${(me.airTimeMs / 1000).toFixed(1)}s`;
   if (me?.hitFeedback && me.hitFeedback > 0) return "CONTACT";
   if (me?.powerslide) return "POWER SLIDE";

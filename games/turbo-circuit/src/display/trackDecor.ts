@@ -3,12 +3,14 @@ import type { TrackSpec } from "../shared/catalog.js";
 import { featurePoses, sampleTrack } from "../shared/trackMath.js";
 import { canvasTexture } from "./proceduralTextures.js";
 import { addTrackLights } from "./trackLights.js";
+import { addTrackSigns } from "./trackSigns.js";
 
 export function addTrackDecor(group: THREE.Group, track: TrackSpec) {
   addGuardrails(group, track);
   addFinishLine(group, track);
   addStartMarquee(group, track);
   addTrackLights(group, track);
+  addTrackSigns(group, track);
   return addBoostPads(group, track);
 }
 function addGuardrails(group: THREE.Group, track: TrackSpec) {

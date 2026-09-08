@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { addArenaDetail } from "./arenaDetail.js";
 export function createArena() {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x050713);
@@ -47,6 +48,7 @@ export function createArena() {
     scene.add(ring);
   }
   for (let i = 0; i < 12; i++) {
+    if (Math.sin((i * Math.PI) / 6) > 0.2) continue;
     const a = (i * Math.PI) / 6,
       p = new THREE.Mesh(
         new THREE.BoxGeometry(0.28, 3.6, 0.28),
@@ -60,5 +62,6 @@ export function createArena() {
     p.castShadow = true;
     scene.add(p);
   }
+  addArenaDetail(scene);
   return { scene, camera, renderer };
 }

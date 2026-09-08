@@ -1,0 +1,12 @@
+.game-cover-fallback {
+  display: grid;
+  place-items: center;
+  min-height: 54px;
+  background: var(--stage-bg);
+  color: var(--stage-text);
+  text-align: center;
+  padding: var(--space-6);
+}
+.game-cover-fallback span {
+  font: 600 1em / 1.2 var(--font-display);
+}

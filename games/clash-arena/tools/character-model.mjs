@@ -1,4 +1,5 @@
 import { fighterAnimations } from "./character-animations.mjs";
+import { addFighterDetail } from "./character-detail.mjs";
 import {
   attach,
   box,
@@ -40,6 +41,7 @@ export function buildFighter(spec) {
   attach(head, sphere(0.23 * spec.headScale, skin), [0, 0.12, 0]);
   addHair(head, hair, spec);
   addFaceGuard(head, accent, spec);
+  addFighterDetail(head, chest, hips, spec, dark, accent, skin);
   addArm(chest, "L", -1, spec, skin, suit, accent);
   addArm(chest, "R", 1, spec, skin, suit, accent);
   addLeg(hips, "L", -1, spec, dark, accent);

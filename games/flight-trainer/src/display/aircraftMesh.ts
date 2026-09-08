@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { addAircraftDetail } from "./aircraftDetail.js";
 
 const material = (color: number, metalness = 0.15) =>
   new THREE.MeshStandardMaterial({ color, roughness: 0.42, metalness });
@@ -111,6 +112,7 @@ export function createPlaneMesh(color: number) {
   }
   const lamp = part(group, "navLight", new THREE.SphereGeometry(0.08, 6, 4), glow, 3.62, 0, -0.1);
   lamp.name = "navLight";
+  addAircraftDetail(group);
   group.userData.parts = { propeller, leftAileron, rightAileron, elevator, rudder, gear, glow };
   return group;
 }

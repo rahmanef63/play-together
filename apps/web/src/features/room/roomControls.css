@@ -11,8 +11,8 @@
 
 .launch-card {
   border: 1px solid var(--line);
-  background: rgba(2, 10, 6, 0.42);
-  color: #fff;
+  background: var(--color-surface);
+  color: var(--color-text-strong);
   border-radius: 20px;
   padding: 18px;
   text-align: left;

@@ -1,6 +1,10 @@
-# Play Together 0.23.0 source candidate
+# Play Together 0.23.0 delivery history
 
 ## Delivery status
+
+**Resolved:** the changes below shipped in 0.23.2, commit `4d5834fe7a5308e6b451bbdd593f6f0f87e1783c`. Dokploy and all CI stages, including production browser verification, passed in [run 34172797194](https://github.com/rahmanef63/play-together/actions/runs/34172797194). The candidate notes below record the earlier blocked attempt, not current deployment status.
+
+### Original candidate status
 
 Implemented in an isolated worktree based on production commit `4197b5f`. This is not a deployed release. The original dirty checkout remains untouched.
 

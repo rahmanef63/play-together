@@ -4,10 +4,9 @@ import type {
   ServerGameContext,
   ServerPlayer,
 } from "@play-together/game-sdk";
-
 import { resolveGroundContact } from "./server/landing.js";
-
 import { type Aircraft, createAircraft, type InputState } from "./server/model.js";
+import { CHECKPOINTS as CPS, RUNWAY } from "./shared/course.js";
 
 interface State {
   kind: "flight-trainer";
@@ -15,21 +14,13 @@ interface State {
   checkpoints: Array<{ x: number; y: number; z: number; label: string }>;
   aircraft: Aircraft[];
 }
-const CPS = [
-  { x: 0, y: 24, z: -25, label: "TAKEOFF" },
-  { x: 78, y: 45, z: 35, label: "TURN 1" },
-  { x: 25, y: 68, z: 125, label: "CLIMB" },
-  { x: -92, y: 56, z: 82, label: "TURN 2" },
-  { x: -72, y: 38, z: -18, label: "DESCEND" },
-  { x: 0, y: 16, z: -78, label: "FINAL" },
-];
 const clamp = (n: number, a: number, b: number) => Math.max(a, Math.min(b, n));
 const d3 = (a: { x: number; y: number; z: number }, b: { x: number; y: number; z: number }) =>
   Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 class FlightTrainer implements ServerGame {
   readonly #s: State = {
     kind: "flight-trainer",
-    runway: { x: 0, zMin: -175, zMax: -45, width: 22 },
+    runway: RUNWAY,
     checkpoints: CPS,
     aircraft: [],
   };

@@ -1,5 +1,6 @@
 import { combatReadout } from "./combatReadout.js";
 import type { ArenaState, ViewFighter } from "./model.js";
+import { spacingCoach } from "./spacingCoach.js";
 
 interface FighterHud {
   host: HTMLElement;
@@ -8,6 +9,7 @@ interface FighterHud {
   meter: HTMLElement;
   rounds: HTMLElement;
   status: HTMLElement;
+  coach: HTMLElement;
 }
 export interface ArenaHud {
   host: HTMLElement;
@@ -37,6 +39,8 @@ export function hud(h: ArenaHud, state: ArenaState) {
   const [left, right] = state.fighters;
   updateFighter(h.left, left);
   updateFighter(h.right, right);
+  h.left.coach.textContent = state.phase === "fight" && left ? spacingCoach(left, right) : "";
+  h.right.coach.textContent = state.phase === "fight" && right ? spacingCoach(right, left) : "";
   h.center.textContent =
     state.phase === "fight"
       ? `${Math.max(0, Math.ceil(state.timerMs / 1000))}`
@@ -59,8 +63,11 @@ function fighterHud(side: "left" | "right"): FighterHud {
   rounds.className = "clash-fighter-hud__rounds";
   const status = document.createElement("small");
   status.className = "clash-fighter-status";
-  host.append(name, hpTrack, meterTrack, rounds, status);
-  return { host, name, hp, meter, rounds, status };
+  const coach = document.createElement("small");
+  coach.className = "clash-spacing-coach";
+  coach.style.cssText = "color:#a9dfff;font:750 9px/1.3 system-ui;min-height:12px";
+  host.append(name, hpTrack, meterTrack, rounds, status, coach);
+  return { host, name, hp, meter, rounds, status, coach };
 }
 
 function updateFighter(h: FighterHud, fighter: ViewFighter | undefined) {

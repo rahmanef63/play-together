@@ -22,8 +22,8 @@ export function LaunchPanel({ code, room }: { code: string; room: RoomDetails })
             <span className="launch-icon">▣ + ◉</span>
             <strong>Remote</strong>
             <p>
-              TV or laptop becomes the display; phones become controllers automatically. Connected
-              remotes are discovered live and the game chooses shared or split screen.
+              Show the game on this screen. Friends scan the QR code to use their phones as
+              controllers.
             </p>
           </button>
         )}

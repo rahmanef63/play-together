@@ -1,6 +1,7 @@
-import type { DisplayGameModule } from "@play-together/game-sdk";
+import { type DisplayGameModule, disposeSceneResources } from "@play-together/game-sdk";
 import * as THREE from "three";
 import { updateSkyCameraAndHud } from "./display/camera.js";
+import { createJet } from "./display/jet.js";
 import {
   isSkyState,
   type PlanePose,
@@ -9,7 +10,7 @@ import {
   smoothing,
 } from "./display/model.js";
 import { createProjectile, updateShots } from "./display/projectiles.js";
-import { createJet, createSkyScene } from "./display/scene.js";
+import { createSkyScene } from "./display/scene.js";
 
 export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
   root.replaceChildren();
@@ -44,6 +45,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
     for (const [id, mesh] of planes)
       if (!state.planes.some((plane) => plane.id === id)) {
         view.scene.remove(mesh);
+        disposeSceneResources(mesh);
         planes.delete(id);
         poses.delete(id);
       }
@@ -57,6 +59,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
     for (const [id, mesh] of shots)
       if (!state.shots.some((shot) => shot.id === id)) {
         view.scene.remove(mesh);
+        disposeSceneResources(mesh);
         shots.delete(id);
         shotPoses.delete(id);
       }
@@ -115,13 +118,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, ctx) => {
     resizeObserver.disconnect();
     unsubscribe();
     view.renderer.dispose();
-    view.scene.traverse((object) => {
-      const mesh = object as THREE.Mesh;
-      mesh.geometry?.dispose?.();
-      const material = mesh.material;
-      if (Array.isArray(material)) for (const item of material) item.dispose();
-      else material?.dispose?.();
-    });
+    disposeSceneResources(view.scene);
     root.replaceChildren();
   };
 };

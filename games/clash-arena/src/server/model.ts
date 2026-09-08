@@ -1,6 +1,6 @@
 export type Button = "a" | "b" | "x" | "y";
 export type CharacterId = "nova-rin" | "kite-vale";
-export type Move = "jab" | "sweep" | "kick" | "launcher" | "throw" | "special" | null;
+export type Move = import("../shared/moves.js").MoveName | null;
 
 export const characters: readonly CharacterId[] = ["nova-rin", "kite-vale"];
 export const characterName = (character: CharacterId) =>

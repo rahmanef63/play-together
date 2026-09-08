@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { GameCover } from "../../../shared/GameCover";
+import { GamePreview } from "../../../shared/GamePreview";
+import { gameInviteUrl } from "../../../shared/inviteLinks";
+import { ShareLink } from "../../../shared/ShareLink";
 import {
   FAVORITES_KEY,
   filterGames,
@@ -53,6 +57,10 @@ export function GameLibrary({
         players={players}
         onlyFavorites={onlyFavorites}
         count={visibleGames.length}
+        playerCounts={Array.from(
+          { length: Math.max(0, ...games.map((game) => game.maxPlayers)) },
+          (_, i) => i + 1,
+        ).filter((n) => games.some((game) => n >= game.minPlayers && n <= game.maxPlayers))}
         onQuery={setQuery}
         onPlayers={setPlayers}
         onFavorites={() => setOnlyFavorites(!onlyFavorites)}
@@ -63,12 +71,7 @@ export function GameLibrary({
       />
       <figure className="game-stage">
         {selected && (
-          <img
-            className="game-stage__image"
-            src={`/game-previews/${selected.gameId}.png`}
-            alt={`${selected.title} in-game view`}
-            decoding="async"
-          />
+          <GamePreview gameId={selected.gameId} version={selected.version} title={selected.title} />
         )}
         <figcaption className="game-stage__caption">
           <h1>{selected?.title ?? (loadingGames ? "Loading games…" : "No games available")}</h1>
@@ -84,7 +87,7 @@ export function GameLibrary({
           )}
           <p>
             {selected
-              ? `${selected.minPlayers}–${selected.maxPlayers} players · Phone controllers · Shared screen`
+              ? `${selected.minPlayers}–${selected.maxPlayers} players · ${[selected.supportsRemote && "Phone remote", selected.supportsHandheld && "Handheld"].filter(Boolean).join(" · ")}`
               : "Your available games will appear here."}
           </p>
           <button
@@ -99,7 +102,19 @@ export function GameLibrary({
       </figure>
       <HorizontalSnap className="game-picker" ariaLabel="Gameplay previews">
         {visibleGames.length === 0 && !loadingGames && (
-          <p role="status">No matching games. Clear your search or filters.</p>
+          <div role="status">
+            No matching games.{" "}
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setPlayers(0);
+                setOnlyFavorites(false);
+              }}
+            >
+              Clear filters
+            </button>
+          </div>
         )}
         {visibleGames.map((game) => {
           const key = `${game.gameId}@${game.version}`;
@@ -111,12 +126,7 @@ export function GameLibrary({
               aria-pressed={key === effectiveGameKey}
               onClick={() => onGameChange(key)}
             >
-              <img
-                src={`/game-previews/${game.gameId}.png`}
-                alt={`${game.title} gameplay preview`}
-                loading="lazy"
-                decoding="async"
-              />
+              <GameCover gameId={game.gameId} version={game.version} title={game.title} />
               <span>
                 <strong>{game.title}</strong>
                 <small>
@@ -127,6 +137,16 @@ export function GameLibrary({
           );
         })}
       </HorizontalSnap>
+      {selected && (
+        <details className="library-share">
+          <summary>Share this game</summary>
+          <ShareLink
+            url={gameInviteUrl(location.origin, selected.gameId)}
+            title={selected.title}
+            label="Copy game link"
+          />
+        </details>
+      )}
       {selectedManifestError ? (
         <p role="alert">{selectedManifestError}</p>
       ) : (

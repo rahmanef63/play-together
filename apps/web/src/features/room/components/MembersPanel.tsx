@@ -1,3 +1,5 @@
+import { roomInviteUrl } from "../../../shared/inviteLinks";
+import { ShareLink } from "../../../shared/ShareLink";
 import type { RoomDetails } from "../../../shared/types";
 import { Button } from "../../../shared/ui/Button";
 import { ScrollablePanel } from "../../../shared/ui/ScrollablePanel";
@@ -5,12 +7,10 @@ import { ScrollablePanel } from "../../../shared/ui/ScrollablePanel";
 export function MembersPanel({
   room,
   isHost,
-  onCopy,
   onExit,
 }: {
   room: RoomDetails;
   isHost: boolean;
-  onCopy: () => void;
   onExit: () => void;
 }) {
   return (
@@ -33,9 +33,13 @@ export function MembersPanel({
         ))}
       </ul>
       <div className="room-actions">
-        <Button type="button" variant="secondary" fullWidth onClick={onCopy}>
-          Copy invite
-        </Button>
+        <ShareLink
+          url={roomInviteUrl(location.origin, room.code)}
+          title={`${room.gameTitle} · ${room.name}`}
+        />
+        <p className="muted">
+          Send this link to friends. They choose phone remote or handheld after joining.
+        </p>
         <Button type="button" variant="danger" fullWidth onClick={onExit}>
           {isHost ? "Close room" : "Leave room"}
         </Button>

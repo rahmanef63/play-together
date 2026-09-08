@@ -44,10 +44,14 @@ export function RoomMemberView({
               <small>{copied ? "Copied" : "Tap to copy"}</small>
             </button>
           </section>
-          {error && <p className="global-error">{error}</p>}
+          {error && (
+            <p className="global-error" role="alert">
+              {error}
+            </p>
+          )}
           <div className="room-layout">
             <LaunchPanel code={code} room={room} />
-            <MembersPanel room={room} isHost={isHost} onCopy={onCopy} onExit={onExit} />
+            <MembersPanel room={room} isHost={isHost} onExit={onExit} />
           </div>
         </div>
       </ScrollArea>

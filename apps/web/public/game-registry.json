@@ -3,7 +3,7 @@
   "games": [
     {
       "id": "clash-arena",
-      "version": "0.4.1",
+      "version": "0.4.3",
       "title": "Clash Arena",
       "description": "Original 1v1 arena fighter with character select, asset-backed 3D fighters, directional guard, meter, throw escape and deterministic combat.",
       "modes": ["shared-screen", "handheld"],
@@ -179,7 +179,7 @@
     },
     {
       "id": "flight-trainer",
-      "version": "0.4.1",
+      "version": "0.4.3",
       "title": "Flight Trainer",
       "description": "A 3D flight-training simulator with throttle, pitch, roll, yaw, flaps, landing gear, stall/crash physics, instruments and checkpoint navigation.",
       "modes": ["shared-screen", "handheld"],
@@ -425,7 +425,7 @@
     },
     {
       "id": "ridge-rush",
-      "version": "0.5.9",
+      "version": "0.5.11",
       "title": "Ridge Rush",
       "description": "Extreme 3D mountain-bike descent with cliffside terrain, gravity, lane-aware suspension, sprint, powerslides, bunny hops, air-style combos, close-range rider contact and deterministic rivals.",
       "modes": ["shared-screen", "handheld"],
@@ -594,7 +594,7 @@
     },
     {
       "id": "sky-strike",
-      "version": "0.4.1",
+      "version": "0.4.3",
       "title": "Sky Strike",
       "description": "A 3D arcade fighter dogfight with flight controls, cannon fire, homing missiles, lock-on, health, respawns and AI bandits.",
       "modes": ["shared-screen", "handheld"],
@@ -827,7 +827,7 @@
     },
     {
       "id": "turbo-circuit",
-      "version": "0.11.1",
+      "version": "0.11.3",
       "title": "Turbo Circuit",
       "description": "Server-authoritative multiplayer kart racing with procedural 3D tracks, dynamic game audio, drafting, boost pads, coins, items, hazards and simplified phone controls.",
       "modes": ["shared-screen", "handheld"],

@@ -17,7 +17,8 @@ export function useGameCatalog() {
   const [selectedGameKey, setSelectedGameKey] = useState("");
   const [selectedManifest, setSelectedManifest] = useState<GameManifest | null>(null);
   const [selectedManifestError, setSelectedManifestError] = useState("");
-  const defaultGame = games[0];
+  const requestedGame = new URLSearchParams(location.search).get("game");
+  const defaultGame = games.find((game) => game.gameId === requestedGame) ?? games[0];
   const gameById = useMemo(
     () => new Map(games.map((game) => [`${game.gameId}@${game.version}`, game])),
     [games],

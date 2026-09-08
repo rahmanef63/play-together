@@ -23,7 +23,7 @@ WORKDIR /app
 COPY --from=build --chown=node:node /workspace/apps/web/dist ./dist
 COPY --from=build --chown=node:node /workspace/package.json ./package.json
 COPY --from=build --chown=node:node /runtime/node_modules ./node_modules
-COPY --from=build --chown=node:node /workspace/apps/web/server.mjs /workspace/apps/web/embed-policy.mjs /workspace/apps/web/runtime-api.mjs /workspace/apps/web/template-download.mjs ./
+COPY --from=build --chown=node:node /workspace/apps/web/server.mjs /workspace/apps/web/embed-policy.mjs /workspace/apps/web/runtime-api.mjs /workspace/apps/web/template-download.mjs /workspace/apps/web/media-response.mjs ./
 USER node
 EXPOSE 8080
 CMD ["node", "server.mjs"]

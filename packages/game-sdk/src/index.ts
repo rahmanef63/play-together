@@ -40,3 +40,5 @@ export interface DisplayGameModule {
 export interface ControllerGameModule {
   mountController(root: HTMLElement, context: BrowserGameContext): undefined | (() => void);
 }
+
+export { disposeSceneResources } from "./sceneResources.js";

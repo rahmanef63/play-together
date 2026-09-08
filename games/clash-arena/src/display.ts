@@ -1,4 +1,4 @@
-import type { DisplayGameModule } from "@play-together/game-sdk";
+import { type DisplayGameModule, disposeSceneResources } from "@play-together/game-sdk";
 import * as THREE from "three";
 import { createArena } from "./display/arena.js";
 import { type FighterVisual, fighterAsset, pose } from "./display/fighters.js";
@@ -26,7 +26,10 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, context) =
 
   const removeFighter = (id: string) => {
     const model = meshes.get(id);
-    if (model) view.scene.remove(model);
+    if (model) {
+      view.scene.remove(model);
+      disposeSceneResources(model);
+    }
     meshes.delete(id);
     meshCharacters.delete(id);
     ui.host.dataset.fighterAssets = String(meshes.size);
@@ -41,10 +44,16 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, context) =
       .loadAsset(assetName(requested))
       .then(fighterAsset)
       .then((model) => {
-        if (pending.get(fighter.id) !== requested || disposed) return;
+        if (pending.get(fighter.id) !== requested || disposed) {
+          disposeSceneResources(model);
+          return;
+        }
         pending.delete(fighter.id);
         const latest = state?.fighters.find((candidate) => candidate.id === fighter.id);
-        if (!latest || latest.character !== requested) return;
+        if (!latest || latest.character !== requested) {
+          disposeSceneResources(model);
+          return;
+        }
         meshes.set(fighter.id, model);
         meshCharacters.set(fighter.id, requested);
         view.scene.add(model);
@@ -106,6 +115,7 @@ export const mountDisplay: DisplayGameModule["mountDisplay"] = (root, context) =
     observer.disconnect();
     off();
     for (const id of [...meshes.keys()]) removeFighter(id);
+    disposeSceneResources(view.scene);
     view.renderer.dispose();
     root.replaceChildren();
   };

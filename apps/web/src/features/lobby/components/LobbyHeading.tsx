@@ -31,10 +31,13 @@ export function LobbyHeading({
           <span>Room code</span>
           <input
             aria-label="Room code"
-            placeholder="Game invite"
+            placeholder="Code or invitation link"
+            autoCapitalize="characters"
+            autoComplete="off"
+            spellCheck={false}
             value={code}
-            onChange={(event) => onCodeChange(event.target.value.toUpperCase())}
-            maxLength={8}
+            onChange={(event) => onCodeChange(event.target.value)}
+            maxLength={512}
           />
         </label>
         <label>

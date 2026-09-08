@@ -1,14 +1,16 @@
 import { toDataURL } from "qrcode";
 import { useEffect, useState } from "react";
+import { roomInviteUrl } from "./inviteLinks";
 
 export function RoomInviteQr({ code, compact = false }: { code: string; compact?: boolean }) {
-  const inviteUrl = `${location.origin}/room/${code}?join=remote`;
+  const inviteUrl = roomInviteUrl(location.origin, code, true);
   const [src, setSrc] = useState("");
   const [generationFailed, setGenerationFailed] = useState(false);
 
   useEffect(() => {
     let disposed = false;
     setGenerationFailed(false);
+    setSrc("");
     void toDataURL(inviteUrl, {
       errorCorrectionLevel: "M",
       margin: 2,

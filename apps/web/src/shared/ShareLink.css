@@ -1,0 +1,31 @@
+.share-link {
+  min-width: 0;
+}
+.share-link__actions {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.share-link__actions button {
+  flex: 1 1 auto;
+  min-height: var(--touch-target);
+}
+.share-link__status {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+.share-link__status:empty {
+  display: none;
+}
+.share-link__manual {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  font-size: var(--text-xs);
+}
+.share-link__manual input {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--touch-target);
+}

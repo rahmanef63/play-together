@@ -39,6 +39,8 @@ Do not start by editing generated registry/release files or by searching for a c
 | room WebSocket lifecycle | `apps/realtime/src/features/rooms` | browser runtime/contracts |
 | template marketplace | `features/templates` | `convex/templates.ts` + `_shared/templates/*` |
 | ops/developer UI | matching `features/ops` / `features/developers` | generated docs/registry |
+| game/room share links | `shared/inviteLinks.ts` + `shared/ShareLink.tsx` | lobby/room slices + `e2e/portal-sharing.spec.ts` |
+| game covers and previews | `games/<id>/preview.config.json` + `scripts/game-previews` | `shared/GameCover.tsx` / `shared/GamePreview.tsx` |
 | one game mechanic/visual | `games/<id>` only | stable SDK/contracts |
 | game lifecycle tool | `scripts/game-admin/*` | `.mso/functions.json` / MCP server |
 
@@ -112,6 +114,8 @@ games/example/
 
 Never solve a game-specific problem by adding an identity switch to the host. `displayLabel`, layout, shell preset, presentation mode, assets, and controls are metadata/contract concerns. If several games share a large browser dependency, declare a supported `runtimeDependencies` ABI; if that ABI lacks an export, revise the engine vendor surface instead of silently expanding an immutable one.
 
+Game previews use authoritative server snapshots rendered by the actual game display. After visual changes, run `CHROME_PATH=/usr/bin/google-chrome pnpm game:previews`; commit generated covers, clips, and provenance index. Never substitute concept art for runtime screenshots. See `portal-quality-review.md` for the UI, UX, DX, and AX review and acceptance criteria.
+
 ## 8. CSS/WYSIWYG rules
 
 - Feature CSS stays next to the feature; frame CSS stays under `frame/styles`.
@@ -159,7 +163,7 @@ Always run the smallest relevant checks while editing, then the full gate before
 6. Recreate/verify the integration stack when browser/runtime behavior changed; run full E2E.
 7. Review `git diff` for generated secrets, stale files, or accidental historical release mutation.
 8. Commit the exact verified state, push/review/merge to `main`.
-9. Wait for CI verify/integration/deploy-managed.
+9. Wait for CI verify/integration/prepare-production, then deploy the exact revision through Dokploy.
 10. Independently verify production version, health, relevant assets/manifests, and browser scenario.
 
 Never declare completion based only on compilation or a local page render.

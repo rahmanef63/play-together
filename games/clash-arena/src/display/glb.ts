@@ -151,12 +151,9 @@ function meshesFor(
 function materialFrom(entry: NonNullable<GltfJson["materials"]>[number]) {
   const pbr = entry.pbrMetallicRoughness ?? {},
     base = pbr.baseColorFactor ?? [1, 1, 1, 1];
-  const color =
-    ((Math.round((base[0] ?? 1) * 255) << 16) |
-      (Math.round((base[1] ?? 1) * 255) << 8) |
-      Math.round((base[2] ?? 1) * 255)) >>>
-    0;
+  const color = new THREE.Color().setRGB(base[0] ?? 1, base[1] ?? 1, base[2] ?? 1);
   return new THREE.MeshStandardMaterial({
+    name: entry.name ?? "",
     color,
     roughness: pbr.roughnessFactor ?? 1,
     metalness: pbr.metallicFactor ?? 0,

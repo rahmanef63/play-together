@@ -1,0 +1,45 @@
+.game-preview {
+  position: absolute;
+  inset: 0;
+}
+.game-preview__video {
+  z-index: 0;
+}
+.game-preview__toggle {
+  position: absolute;
+  top: var(--space-6);
+  right: var(--space-6);
+  z-index: 3;
+  border: 1px solid #ffffff70;
+  border-radius: var(--radius-sm);
+  color: var(--stage-text);
+  background: var(--stage-bg);
+  min-height: var(--touch-target);
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+.game-preview__toggle:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 3px;
+}
+
+.game-preview__icon {
+  display: none;
+}
+@media (max-height: 580px) and (min-width: 620px) {
+  .game-preview__toggle {
+    top: auto;
+    bottom: 12px;
+    right: 148px;
+    width: var(--touch-target);
+    padding: 0;
+  }
+  .game-preview__label {
+    display: none;
+  }
+  .game-preview__icon {
+    display: inline;
+    font-size: var(--text-md);
+  }
+}

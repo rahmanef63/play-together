@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { extname, isAbsolute, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { embedContentSecurityPolicy, isEmbedPath } from "./embed-policy.mjs";
+import { sendMediaFile } from "./media-response.mjs";
 import { handleRuntimeApi } from "./runtime-api.mjs";
 
 const defaultShellCsp =
@@ -16,6 +17,7 @@ const types = {
   ".ico": "image/x-icon",
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".mp4": "video/mp4",
   ".map": "application/json; charset=utf-8",
   ".png": "image/png",
   ".svg": "image/svg+xml",
@@ -113,6 +115,7 @@ async function handleRequest(request, response, context) {
     shellCsp: context.shellCsp,
     isEmbed: isEmbedPath(decodedPath),
   });
+  if (extname(candidate) === ".mp4") return sendMediaFile(request, response, candidate);
   response.writeHead(200);
   if (request.method === "HEAD") {
     response.end();

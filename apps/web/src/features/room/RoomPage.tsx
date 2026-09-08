@@ -28,7 +28,7 @@ export function RoomPage({ code, user }: { code: string; user: CurrentUser }) {
       copied={session.copied}
       error={session.error}
       isHost={isHost}
-      onCopy={() => void session.copyInvite()}
+      onCopy={() => void session.copyCode()}
       onExit={() => void (isHost ? session.closeRoom() : session.exitRoom())}
     />
   );

@@ -2,7 +2,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { parseDeviceCode } from "@play-together/contracts";
 import { useAction, useQuery } from "convex/react";
 import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import { authErrorDetails, authErrorMessage } from "../../../shared/authErrors";
+import { authErrorDetails } from "../../../shared/authErrors";
 import { api } from "../../../shared/convexApi";
 import { isEmbedded, requestExternalGoogleSignIn } from "../../../shared/embedAuth";
 import { currentPath } from "../../../shared/navigation";

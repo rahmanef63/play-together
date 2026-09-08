@@ -1,6 +1,6 @@
 {
   "name": "play-together",
-  "version": "0.23.2",
+  "version": "0.24.0",
   "private": true,
   "description": "Version-isolated multiplayer game platform with mobile controllers and shared browser displays.",
   "packageManager": "pnpm@10.32.1",
@@ -39,7 +39,7 @@
     "game:publish:convex:one": "pnpm --filter @play-together/contracts build && node scripts/publish-to-convex.mjs",
     "stack:down": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin down --remove-orphans",
     "stack:config": "docker compose -f docker-compose.yml -f docker-compose.local.yml --profile admin config --quiet",
-    "game:previews": "node scripts/capture-game-previews.mjs",
+    "game:previews": "pnpm game:build && node scripts/capture-game-previews.mjs",
     "template:pack": "node scripts/package-game-template.mjs",
     "template:publish": "node scripts/publish-template.mjs",
     "game:registry": "node scripts/generate-game-registry.mjs",
