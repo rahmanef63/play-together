@@ -142,11 +142,17 @@ try {
     resolve(artifactDirectory, "results.json"),
     `${JSON.stringify({ results, errors }, null, 2)}\n`,
   );
-  assert.equal(
-    failures.length,
-    0,
-    `${failures.length} responsive layouts failed: ${failures.map((result) => `${result.name} (${result.issues.join(", ")})`).join("; ")}`,
-  );
+  const failureSummary = `${failures.length} responsive layouts failed: ${failures.map((result) => `${result.name} (${result.issues.join(", ")})`).join("; ")}`;
+  if (failures.length && process.env.GITHUB_ACTIONS === "true") {
+    const annotation = failureSummary
+      .replaceAll("%", "%25")
+      .replaceAll("\r", "%0D")
+      .replaceAll("\n", "%0A");
+    console.error(
+      `::error file=scripts/verify-gameplay-controls.mjs,title=Responsive console verification::${annotation}`,
+    );
+  }
+  assert.equal(failures.length, 0, failureSummary);
   console.log(`Verified ${results.length} browser cases, no runtime errors.`);
 } finally {
   await browser?.close();
