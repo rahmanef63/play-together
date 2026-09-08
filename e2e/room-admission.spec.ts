@@ -139,14 +139,24 @@ test("QR join, password rooms, shared display and mobile modes respect the pre-g
       .evaluate((element) => {
         const rect = element.getBoundingClientRect();
         return {
+          left: rect.left,
+          right: rect.right,
+          top: rect.top,
+          bottom: rect.bottom,
           width: rect.width,
           height: rect.height,
           viewportWidth: innerWidth,
           viewportHeight: innerHeight,
         };
       });
-    expect(portraitScreen.width).toBeCloseTo(portraitScreen.viewportWidth, 0);
-    expect(portraitScreen.height).toBeCloseTo(portraitScreen.viewportHeight, 0);
+    expect(portraitScreen.left).toBeGreaterThan(0);
+    expect(portraitScreen.right).toBeLessThan(portraitScreen.viewportWidth);
+    expect(portraitScreen.top).toBeGreaterThan(0);
+    expect(portraitScreen.bottom).toBeLessThan(portraitScreen.viewportHeight);
+    expect(portraitScreen.width).toBeGreaterThan(portraitScreen.viewportWidth * 0.85);
+    expect(portraitScreen.width).toBeLessThan(portraitScreen.viewportWidth * 0.96);
+    expect(portraitScreen.height).toBeGreaterThan(portraitScreen.viewportHeight * 0.5);
+    expect(portraitScreen.height).toBeLessThan(portraitScreen.viewportHeight * 0.65);
     await guest.screenshot({ path: testInfo.outputPath("handheld-portrait.png"), fullPage: true });
 
     await guest.setViewportSize({ width: 844, height: 390 });

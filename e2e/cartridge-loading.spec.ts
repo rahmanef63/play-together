@@ -4,6 +4,7 @@ import {
   closeContext,
   createRoom,
   flightTrainer,
+  ibuIbuTelurGulung,
   ridgeRush,
   signUp,
   skyStrike,
@@ -11,7 +12,7 @@ import {
   turboCircuit,
 } from "./support/multiplayer";
 
-test("active catalog exposes five games and each game has one compact platform menu", async ({
+test("active catalog exposes six games and each game has one compact platform menu", async ({
   browser,
 }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -43,19 +44,25 @@ test("active catalog exposes five games and each game has one compact platform m
       control: "Ready or request rematch",
       preset: "racing",
     },
+    {
+      key: ibuIbuTelurGulung,
+      title: "Ibu-Ibu Telur Gulung",
+      control: "Fire telur gulung launcher",
+      preset: "classic",
+    },
   ] as const;
   try {
     await signUp(page, `Catalog QA ${runId}`, `catalog-${runId}@example.test`);
     const setup = page.getByRole("button", { name: "Set up room", exact: true });
     await setup.click();
     const picker = page.locator('.create-panel select[name="game"] option');
-    await expect(picker).toHaveCount(5);
+    await expect(picker).toHaveCount(games.length);
     expect(await picker.allTextContents()).toEqual(
       games.map((game) => `${game.title} · ${game.key.split("@")[1]}`).sort(),
     );
     await page.getByRole("button", { name: "Back to library", exact: true }).click();
     const previews = page.locator(".game-picker img");
-    await expect(previews).toHaveCount(5);
+    await expect(previews).toHaveCount(games.length);
     expect(
       await previews.evaluateAll((images) =>
         images.every(
