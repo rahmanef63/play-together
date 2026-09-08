@@ -143,7 +143,7 @@ try {
   assert.equal(
     failures.length,
     0,
-    `${failures.length} responsive layouts failed; see .local/gameplay-controls-qa/results.json`,
+    `${failures.length} responsive layouts failed: ${failures.map((result) => `${result.name} (${result.issues.join(", ")})`).join("; ")}`,
   );
   console.log(`Verified ${results.length} browser cases, no runtime errors.`);
 } finally {
