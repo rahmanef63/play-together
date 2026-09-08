@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "ibu-ibu-telur-gulung",
+    "version": "0.1.1",
+    "title": "Ibu-Ibu Telur Gulung",
+    "description": "Original co-op street-food run-and-gun: roll eggs, collect sauce, build combos and crack the Sambal Sentry.",
+    "minPlayers": 1,
+    "maxPlayers": 2,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": ["shared-screen", "handheld"],
+  "presentation": { "remoteDisplay": { "mode": "shared", "maxViewports": 1 } },
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "landscape",
+    "console": {
+      "renderer": "builtin",
+      "layout": "gamepad",
+      "controls": [
+        {
+          "id": "move",
+          "kind": "stick",
+          "ariaLabel": "Move and aim stick",
+          "zone": "left",
+          "action": { "type": "patch", "values": { "move": "$x", "aim": "$x" } },
+          "release": { "type": "patch", "values": { "move": 0, "aim": 0 } },
+          "keys": { "left": ["ArrowLeft", "KeyA"], "right": ["ArrowRight", "KeyD"] }
+        },
+        {
+          "id": "jump",
+          "kind": "button",
+          "label": "A",
+          "displayLabel": "JUMP",
+          "ariaLabel": "Jump",
+          "face": "a",
+          "zone": "right",
+          "press": { "type": "patch", "values": { "jump": true } },
+          "release": { "type": "patch", "values": { "jump": false } },
+          "keys": ["Space"]
+        },
+        {
+          "id": "fire",
+          "kind": "button",
+          "label": "B",
+          "displayLabel": "ROLL",
+          "ariaLabel": "Fire telur gulung launcher",
+          "face": "b",
+          "zone": "right",
+          "press": { "type": "patch", "values": { "fire": true } },
+          "release": { "type": "patch", "values": { "fire": false } },
+          "keys": ["KeyJ"]
+        },
+        {
+          "id": "sauce",
+          "kind": "button",
+          "label": "X",
+          "displayLabel": "SAUCE",
+          "ariaLabel": "Sauce boost",
+          "face": "x",
+          "zone": "right",
+          "press": { "type": "patch", "values": { "special": true } },
+          "release": { "type": "patch", "values": { "special": false } },
+          "keys": ["KeyK"]
+        },
+        {
+          "id": "start",
+          "kind": "button",
+          "label": "START",
+          "ariaLabel": "Ready or pause",
+          "face": "start",
+          "zone": "bottom",
+          "press": { "type": "patch", "values": { "start": true } },
+          "release": { "type": "patch", "values": { "start": false } },
+          "keys": ["Enter"]
+        }
+      ],
+      "initialState": {
+        "move": 0,
+        "aim": 1,
+        "jump": false,
+        "fire": false,
+        "special": false,
+        "start": false
+      }
+    }
+  },
+  "capabilities": { "touch": true, "keyboard": true, "gamepad": true, "motion": false }
+}

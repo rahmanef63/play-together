@@ -69,6 +69,7 @@ try {
     "sky-strike",
     "ridge-rush",
     "clash-arena",
+    "ibu-ibu-telur-gulung",
   ]) {
     const config = JSON.parse(
       await readFile(resolve(root, "games", gameId, "game.config.json"), "utf8"),

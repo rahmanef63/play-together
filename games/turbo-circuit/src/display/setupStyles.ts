@@ -60,7 +60,7 @@ export const TURBO_SETUP_CSS = `
 @container turbo (max-height:250px) {
   .turbo-setup__map{display:none}
 }
-@container turbo (max-width:360px) and (min-height:351px) {
+@container turbo (max-width:290px) and (min-height:351px) {
   .turbo-setup__grid{grid-template-columns:1fr}
   .turbo-setup__map,.turbo-setup__car-preview{height:54px}
 }

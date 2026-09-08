@@ -22,6 +22,16 @@
       "height": 540
     },
     {
+      "gameId": "ibu-ibu-telur-gulung",
+      "version": "0.1.1",
+      "cover": "ibu-ibu-telur-gulung.webp",
+      "video": "ibu-ibu-telur-gulung.mp4",
+      "coverSha256": "b49f1ccd3dc94635c633c54cd757f703f1382903e30a1ce590a5e3c4d3427494",
+      "source": "authoritative-runtime",
+      "width": 960,
+      "height": 540
+    },
+    {
       "gameId": "ridge-rush",
       "version": "0.5.11",
       "cover": "ridge-rush.webp",
@@ -43,10 +53,10 @@
     },
     {
       "gameId": "turbo-circuit",
-      "version": "0.12.2",
+      "version": "0.12.4",
       "cover": "turbo-circuit.webp",
       "video": "turbo-circuit.mp4",
-      "coverSha256": "f9b29f44f310fd868c2ac66a73043676da985b8e321d82097d14afc1fdcce80b",
+      "coverSha256": "81cae5a016017680b1d8aa3c96966a8c5e38e0074ecdfbfb05421802f3bdf416",
       "source": "authoritative-runtime",
       "width": 960,
       "height": 540

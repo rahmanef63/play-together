@@ -15,6 +15,7 @@ describe("game slice registry", () => {
     expect(discovered.map((game) => game.id).sort()).toEqual([
       "clash-arena",
       "flight-trainer",
+      "ibu-ibu-telur-gulung",
       "ridge-rush",
       "sky-strike",
       "turbo-circuit",

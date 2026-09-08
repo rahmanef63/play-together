@@ -1,0 +1,131 @@
+/* Landscape handheld: compact thumb rails around a wide recessed game screen. */
+@media (orientation: landscape) {
+  .console-shell--handheld {
+    --handheld-rail: clamp(136px, 17vw, 154px);
+    --handheld-actions: 50px;
+    padding: max(3px, env(safe-area-inset-top)) max(4px, env(safe-area-inset-right))
+      max(3px, env(safe-area-inset-bottom)) max(4px, env(safe-area-inset-left));
+  }
+  .console-shell--handheld .console-shell__chassis {
+    display: block;
+    padding: 0;
+    border-radius: clamp(16px, 3vmin, 28px) clamp(16px, 3vmin, 28px) clamp(30px, 6vmin, 46px)
+      clamp(16px, 3vmin, 28px);
+  }
+  .console-shell--handheld .console-shell__screen {
+    position: absolute;
+    z-index: 1;
+    inset: 6px calc(var(--handheld-rail) + 3px) var(--handheld-actions);
+    width: auto;
+    height: auto;
+    border-width: clamp(3px, 0.8vmin, 7px);
+    border-radius: 8px;
+  }
+  .console-shell--handheld .console-shell__controls {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+  }
+  .console-shell--handheld .builtin-controller,
+  .console-shell--handheld .builtin-controller--racing,
+  .console-shell--handheld .builtin-controller--flight {
+    width: 100%;
+    height: 100%;
+    padding: 4px;
+    grid-template-columns: var(--handheld-rail) minmax(0, 1fr) var(--handheld-rail);
+    grid-template-rows: auto minmax(0, 1fr) 44px;
+    grid-template-areas:
+      "top-left center top-right"
+      "left center right"
+      "bottom-left bottom bottom-right";
+    gap: 3px 0;
+  }
+  .console-shell--handheld .builtin-controller__zone--center {
+    display: none;
+  }
+  .console-shell--handheld .builtin-controller__zone--left,
+  .console-shell--handheld .builtin-controller__zone--right {
+    justify-content: center;
+  }
+  .console-shell--handheld .console-control--stick,
+  .console-shell--handheld .console-control--dpad {
+    width: min(32dvh, 112px);
+    max-width: 100%;
+  }
+  .console-shell--handheld
+    .builtin-controller__zone--right:not(.builtin-controller__zone--face-cluster) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(44px, 58px));
+    align-content: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .console-shell--handheld
+    .builtin-controller__zone--right:not(.builtin-controller__zone--face-cluster)
+    .console-control--button {
+    width: 100%;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .console-shell--handheld .builtin-controller__zone--right.builtin-controller__zone--face-cluster {
+    display: grid;
+    width: 132px;
+    height: 132px;
+    align-self: center;
+    justify-self: center;
+    grid-template: repeat(3, 44px) / repeat(3, 44px);
+    gap: 0;
+  }
+  .console-shell--handheld
+    .builtin-controller__zone--face-cluster
+    .console-control--button[data-canonical-face="true"] {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    aspect-ratio: 1;
+  }
+  .console-shell--handheld .builtin-controller__zone--face-cluster [data-face="a"] {
+    grid-area: 3 / 2;
+  }
+  .console-shell--handheld .builtin-controller__zone--face-cluster [data-face="b"] {
+    grid-area: 2 / 3;
+  }
+  .console-shell--handheld .builtin-controller__zone--face-cluster [data-face="c"],
+  .console-shell--handheld .builtin-controller__zone--face-cluster [data-face="x"] {
+    grid-area: 2 / 1;
+  }
+  .console-shell--handheld .builtin-controller__zone--face-cluster [data-face="d"],
+  .console-shell--handheld .builtin-controller__zone--face-cluster [data-face="y"] {
+    grid-area: 1 / 2;
+  }
+  .console-shell--handheld .console-control__action-label {
+    display: none;
+  }
+  .console-shell--handheld .builtin-controller__zone--bottom[data-system-actions="true"] {
+    min-width: 0;
+    height: 44px;
+    align-self: end;
+  }
+  .console-shell--handheld
+    .builtin-controller
+    .builtin-controller__zone--bottom
+    .console-control--button,
+  .console-shell--handheld .console-system-button {
+    width: auto;
+    min-width: 52px;
+    min-height: 44px;
+    height: 44px;
+    aspect-ratio: auto;
+    padding-inline: 9px;
+  }
+}
+
+@media (max-width: 720px) and (orientation: landscape) {
+  .console-shell--handheld {
+    --handheld-rail: 136px;
+  }
+  .console-shell--handheld .console-shell__screen {
+    inset-inline: calc(var(--handheld-rail) + 3px);
+  }
+}

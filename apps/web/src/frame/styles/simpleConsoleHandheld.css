@@ -1,160 +1,49 @@
-/* Handheld portrait: game-first screen with minimal overlay controls. */
-@media (orientation: portrait) {
-  .console-shell--handheld {
-    padding: 0;
-    background: #000;
-  }
-  .console-shell--handheld .console-shell__chassis {
-    position: relative;
-    display: block;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: #000;
-    box-shadow: none;
-  }
-  .console-shell--handheld .console-shell__screen {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-  }
-  .console-shell--handheld .console-shell__controls {
-    position: absolute;
-    z-index: 3;
-    inset: 0;
-    pointer-events: none;
-    overflow: visible;
-    background: linear-gradient(
-      to bottom,
-      transparent 48%,
-      rgba(0, 0, 0, 0.18) 72%,
-      rgba(0, 0, 0, 0.52)
-    );
-  }
-  .console-shell--handheld .builtin-controller {
-    width: 100%;
-    height: 100%;
-    padding: max(8px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right))
-      max(12px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    grid-template-areas:
-      "top-left top-right"
-      "left right"
-      "bottom bottom";
-    align-items: end;
-  }
-  .console-shell--handheld .builtin-controller__zone {
-    pointer-events: auto;
-  }
-  .console-shell--handheld .builtin-controller__zone--left,
-  .console-shell--handheld .builtin-controller__zone--right {
-    align-items: end;
-    padding-bottom: 12px;
-  }
-  .console-shell--handheld .console-control--stick,
-  .console-shell--handheld .console-control--dpad {
-    width: min(30vw, 118px);
-    opacity: 0.82;
-  }
-  .console-shell--handheld .console-control--button {
-    width: min(15vw, 58px);
-    opacity: 0.88;
-  }
+/* Shared handheld hardware. Orientation-specific composition lives in sibling files. */
+.console-shell--handheld {
+  display: grid;
+  place-items: stretch;
+  padding: max(5px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+    max(5px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+  background:
+    radial-gradient(circle at 18% 8%, rgba(255, 255, 255, 0.12), transparent 28%),
+    linear-gradient(145deg, #302b3a, #15141b 72%);
 }
-
-/* One shared geometry: bounded thumb rails and a separate system-action row. */
-@media (orientation: landscape) {
-  .console-shell--handheld {
-    --handheld-rail: clamp(134px, 17vw, 160px);
-    --handheld-actions: 50px;
-    padding: max(2px, env(safe-area-inset-top)) max(3px, env(safe-area-inset-right))
-      max(2px, env(safe-area-inset-bottom)) max(3px, env(safe-area-inset-left));
-    background: var(--console-surface, #090b0e);
-  }
-  .console-shell--handheld .console-shell__chassis {
-    display: block;
-    padding: 0;
-    border-radius: 18px;
-  }
-  .console-shell--handheld .console-shell__screen {
-    position: absolute;
-    z-index: 1;
-    inset: 3px calc(var(--handheld-rail) + 3px) var(--handheld-actions);
-    width: auto;
-    height: auto;
-    border: 1px solid #050608;
-    border-radius: 6px;
-  }
-  .console-shell--handheld .console-shell__controls {
-    position: absolute;
-    z-index: 3;
-    inset: 0;
-    pointer-events: none;
-    overflow: visible;
-  }
-  .console-shell--handheld .builtin-controller {
-    width: 100%;
-    height: 100%;
-    padding: 3px;
-    grid-template-columns: var(--handheld-rail) minmax(0, 1fr) var(--handheld-rail);
-    grid-template-rows: auto minmax(0, 1fr) 44px;
-    grid-template-areas:
-      "top-left center top-right"
-      "left center right"
-      "bottom-left bottom bottom-right";
-    gap: 3px 0;
-  }
-  .console-shell--handheld .builtin-controller__zone {
-    pointer-events: auto;
-  }
-  .console-shell--handheld .builtin-controller__zone--center {
-    display: none;
-  }
-  .console-shell--handheld .builtin-controller__zone--left {
-    justify-content: center;
-  }
-  .console-shell--handheld .console-control--stick,
-  .console-shell--handheld .console-control--dpad {
-    width: min(32dvh, 112px);
-  }
-  .console-shell--handheld .builtin-controller__zone--right.builtin-controller__zone--face-cluster {
-    display: grid;
-    width: 132px;
-    height: 132px;
-    align-self: center;
-    justify-self: center;
-    grid-template: repeat(3, 44px) / repeat(3, 44px);
-    gap: 0;
-  }
-  .console-shell--handheld .builtin-controller__zone--face-cluster .console-control--button {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
-    aspect-ratio: 1;
-    border-radius: 50%;
-  }
-  .console-shell--handheld .console-control__action-label {
-    display: none;
-  }
-  .console-shell--handheld .builtin-controller__zone--bottom[data-system-actions="true"] {
-    min-width: 0;
-    height: 44px;
-    align-self: end;
-  }
-  .console-shell--handheld .builtin-controller__zone--bottom .console-control--button,
-  .console-shell--handheld .console-system-button {
-    width: auto;
-    min-width: 52px;
-    min-height: 44px;
-    height: 44px;
-    aspect-ratio: auto;
-    padding-inline: 9px;
-  }
+.console-shell--handheld .console-shell__chassis {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  border-radius: clamp(22px, 4vmin, 34px) clamp(22px, 4vmin, 34px) clamp(42px, 8vmin, 58px)
+    clamp(22px, 4vmin, 34px);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.7), transparent 25%),
+    linear-gradient(180deg, #ddd9d0, #bdb7ad);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.42),
+    inset 0 2px rgba(255, 255, 255, 0.72),
+    inset 0 -5px 12px rgba(72, 68, 63, 0.22);
+}
+.console-shell--handheld .console-shell__screen {
+  z-index: 1;
+  overflow: hidden;
+  border: clamp(5px, 1.1vmin, 9px) solid #37383d;
+  border-radius: clamp(8px, 1.8vmin, 14px);
+  background: #151a23;
+  box-shadow:
+    inset 0 0 24px rgba(0, 0, 0, 0.72),
+    0 2px rgba(255, 255, 255, 0.48);
+}
+.console-shell--handheld .console-shell__controls {
+  z-index: 3;
+  pointer-events: none;
+  overflow: visible;
+}
+.console-shell--handheld .builtin-controller__zone {
+  pointer-events: auto;
+}
+.console-shell--handheld .console-control__action-label {
+  color: #302933;
+  text-shadow: none;
+  font-weight: 800;
 }

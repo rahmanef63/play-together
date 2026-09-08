@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "players": 2,
+  "warmupTicks": 55,
+  "events": [
+    {
+      "tick": 0,
+      "player": "all",
+      "input": {
+        "start": true,
+        "move": 0,
+        "fire": false,
+        "special": false
+      }
+    },
+    {
+      "tick": 1,
+      "player": 0,
+      "input": {
+        "start": false,
+        "move": 0.35,
+        "fire": true,
+        "special": false
+      }
+    },
+    {
+      "tick": 1,
+      "player": 1,
+      "input": {
+        "start": false,
+        "move": -0.12,
+        "fire": true,
+        "special": false
+      }
+    },
+    {
+      "tick": 28,
+      "player": 1,
+      "input": {
+        "start": false,
+        "move": -0.12,
+        "fire": true,
+        "special": true
+      }
+    },
+    {
+      "tick": 29,
+      "player": 1,
+      "input": {
+        "start": false,
+        "move": 0.18,
+        "fire": true,
+        "special": false
+      }
+    }
+  ],
+  "hide": [],
+  "readySelector": null
+}

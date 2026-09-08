@@ -15,6 +15,7 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
     "sky-strike",
     "ridge-rush",
     "clash-arena",
+    "ibu-ibu-telur-gulung",
   ]) {
     const config = JSON.parse(
       await readFile(resolve(root, "games", gameId, "game.config.json"), "utf8"),
@@ -37,7 +38,7 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
       gameVersion: config.game.version,
       seed: 42,
     });
-    const playerCount = gameId === "clash-arena" ? 2 : 4;
+    const playerCount = Math.min(config.game.maxPlayers ?? 4, gameId === "clash-arena" ? 2 : 4);
     for (let index = 0; index < playerCount; index++) {
       const id = `qa-${index}`;
       await game.onJoin({ id, connectedAt: 0 });
@@ -63,7 +64,14 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
             ? { steer: 0.06, body: 0.18, pedal: true }
             : gameId === "clash-arena"
               ? { x: index === 0 ? -0.7 : 0.7, a: index === 0, b: index === 1 }
-              : { throttle: 0.7, gun: true };
+              : gameId === "ibu-ibu-telur-gulung"
+                ? {
+                    start: true,
+                    move: index === 0 ? 0.35 : -0.2,
+                    fire: true,
+                    special: index === 1,
+                  }
+                : { throttle: 0.7, gun: true };
       await game.onInput(id, input, gameId === "clash-arena" ? 3 : 2);
     }
     for (let tick = 0; tick < 160; tick++) {
@@ -129,7 +137,7 @@ export async function verifyGameDisplays(page, root, artifactDirectory, results)
       await page.screenshot({ path: resolve(artifactDirectory, `${name}.png`) });
       const geometry = await page.evaluate(measureDisplay);
       results.push({ name, canvases, ...geometry });
-      console.log(`PASS ${name}: authoritative players, mounted 3D display and controls`);
+      console.log(`PASS ${name}: authoritative players, mounted game display and controls`);
     }
     await page.evaluate(() => window.qa.dispose());
     await game.dispose?.();

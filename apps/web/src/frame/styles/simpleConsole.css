@@ -3,5 +3,7 @@
 @import "./consoleTelemetry.css";
 @import "./simpleConsolePortrait.css";
 @import "./simpleConsoleHandheld.css";
+@import "./simpleConsoleHandheldPortrait.css";
+@import "./simpleConsoleHandheldLandscape.css";
 @import "./complexController.css";
 @import "./simpleConsoleRemoteLandscape.css";

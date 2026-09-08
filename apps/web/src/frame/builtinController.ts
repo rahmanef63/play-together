@@ -42,11 +42,13 @@ export function mountBuiltinController(
     zones.set(zone, element);
     wrapper.append(element);
   }
-  const faceButtons = config.controls.filter(
-    (control) => control.kind === "button" && isFaceButton(control.face),
-  );
-  if (faceButtons.length === 4)
-    zones.get("right")?.classList.add("builtin-controller__zone--face-cluster");
+
+  const faceCount = faceButtonCount(config.controls);
+  if (faceCount > 0) {
+    const faceZone = zones.get("right");
+    faceZone?.classList.add("builtin-controller__zone--face-cluster");
+    if (faceZone) faceZone.dataset.faceCount = String(faceCount);
+  }
 
   const bindings: PhysicalBindings = new Map();
   const cleanups = config.controls.flatMap((control) => {
@@ -88,6 +90,11 @@ export function physicalZoneForControl(control: ConsoleControl): ConsoleZone {
   if (control.face === "start" || control.face === "select" || control.face === "pause")
     return "bottom";
   return control.zone;
+}
+
+export function faceButtonCount(controls: readonly ConsoleControl[]): number {
+  return controls.filter((control) => control.kind === "button" && isFaceButton(control.face))
+    .length;
 }
 
 function isFaceButton(face: Extract<ConsoleControl, { kind: "button" }>["face"]): boolean {

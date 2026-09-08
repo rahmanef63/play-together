@@ -1,4 +1,4 @@
-/* Final responsive console contract: controls first, no decorative controller silhouette. */
+/* Final responsive remote-console contract: retro handheld hardware, controls first. */
 .console-shell__status,
 .console-controller-svg {
   display: none;
@@ -10,13 +10,14 @@
   min-height: 0;
 }
 
-/* Remote landscape: one simple rectangular control surface. */
 .console-shell--remote {
   display: grid;
   place-items: stretch;
-  padding: max(4px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
-    max(4px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
-  background: #090b0e;
+  padding: max(5px, env(safe-area-inset-top)) max(7px, env(safe-area-inset-right))
+    max(5px, env(safe-area-inset-bottom)) max(7px, env(safe-area-inset-left));
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.12), transparent 28%),
+    linear-gradient(145deg, #302b3a, #15141b 72%);
 }
 .console-shell--remote .console-shell__chassis,
 .console-shell--remote.console-shell--classic .console-shell__chassis,
@@ -27,16 +28,22 @@
   height: 100%;
   max-height: none;
   margin: 0;
-  padding: clamp(7px, 1.6vmin, 14px);
+  padding: clamp(8px, 1.8vmin, 16px);
   display: grid;
   grid-template-rows: minmax(0, 1fr);
   overflow: hidden;
   align-self: stretch;
   justify-self: stretch;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: clamp(14px, 3vmin, 24px);
-  background: #15181d;
-  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  border-radius: clamp(22px, 4vmin, 34px) clamp(22px, 4vmin, 34px) clamp(38px, 7vmin, 54px)
+    clamp(22px, 4vmin, 34px);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.68), transparent 26%),
+    linear-gradient(180deg, #ddd9d0, #bdb7ad);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.42),
+    inset 0 2px rgba(255, 255, 255, 0.7),
+    inset 0 -5px 11px rgba(70, 65, 60, 0.22);
 }
 .console-shell--remote .console-shell__controls {
   width: 100%;
@@ -44,6 +51,12 @@
   min-width: 0;
   min-height: 0;
   overflow: visible;
+  padding: clamp(4px, 1vmin, 8px);
+  border-radius: clamp(16px, 3vmin, 24px);
+  background: linear-gradient(145deg, #d1cbc1, #aaa49b);
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.58),
+    inset 0 -2px rgba(80, 75, 70, 0.18);
 }
 .console-shell--remote .builtin-controller,
 .console-shell--remote .builtin-controller--racing,

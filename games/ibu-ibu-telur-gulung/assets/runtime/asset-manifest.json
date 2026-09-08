@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "assets": {
+    "hero.atlas": {
+      "file": "hero.png",
+      "contentType": "image/png",
+      "sha256": "0fae8025106c17ab1794ecf96973c5590220d7fcf193bb7ec8abd9e2cf1d2297"
+    },
+    "hero.meta": {
+      "file": "hero.json",
+      "contentType": "application/json",
+      "sha256": "dd435076bf1792c5805945fbb70a477e7294bb6a858891ae0426e06136ddde6f"
+    },
+    "enemy.atlas": {
+      "file": "enemy.png",
+      "contentType": "image/png",
+      "sha256": "f827ee018d07b654d6962fa39495922c015cf5dd1c32f9108a0bda1dad1f1297"
+    },
+    "enemy.meta": {
+      "file": "enemy.json",
+      "contentType": "application/json",
+      "sha256": "f0872287bd9016c9b5c099bfde9d4aacc96a9693a56909b5f230040ffcd78de4"
+    }
+  }
+}

@@ -5,6 +5,7 @@ import type { PhysicalBindings } from "./gamepad";
 import { runHeldAction } from "./heldActions";
 import { bindPress } from "./press";
 import { faceGraphic } from "./svg";
+import { canonicalFaceSymbol } from "./symbols";
 import type { Cleanup, MutableState } from "./types";
 
 type ButtonControl = Extract<ConsoleControl, { kind: "button" }>;
@@ -21,13 +22,11 @@ export function mountButton(
   button.className = "console-control console-control--button";
   button.dataset.controlId = control.id;
   if (control.face) button.dataset.face = control.face;
-  const faceGlyph = canonicalFaceGlyph(control.face);
+  const faceGlyph = canonicalFaceSymbol(control.face);
   const canonicalFace = faceGlyph !== null;
-  const visibleLabel = canonicalFace
-    ? faceGlyph
-    : (control.displayLabel ?? semanticButtonLabel(control));
+  const visibleLabel = control.displayLabel ?? semanticButtonLabel(control);
   if (canonicalFace) {
-    button.append(faceGraphic(visibleLabel));
+    button.append(faceGraphic(faceGlyph));
     const action = document.createElement("small");
     action.className = "console-control__action-label";
     action.textContent = control.displayLabel ?? semanticButtonLabel(control);
@@ -62,14 +61,6 @@ export function mountButton(
     input.dispose();
     bindings.delete(control.id);
   };
-}
-
-function canonicalFaceGlyph(face: ButtonControl["face"]): string | null {
-  if (face === "a") return "A";
-  if (face === "b") return "B";
-  if (face === "c" || face === "x") return "X";
-  if (face === "d" || face === "y") return "Y";
-  return null;
 }
 
 export function semanticButtonLabel(control: ButtonControl): string {

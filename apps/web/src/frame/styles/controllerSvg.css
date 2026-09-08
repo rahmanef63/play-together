@@ -135,3 +135,10 @@
   stroke-width: 3;
   transition: transform 55ms linear;
 }
+.console-face-svg__symbol {
+  fill: none;
+  stroke: #f8f5ed;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

@@ -14,28 +14,40 @@ export function controllerBackdrop(): SVGSVGElement {
   return svg;
 }
 
-export function faceGraphic(glyph: string): SVGSVGElement {
+export function faceGraphic(glyph: "cross" | "circle" | "square" | "triangle"): SVGSVGElement {
   const svg = rootSvg("0 0 64 64", "console-face-svg");
-  const outer = element("circle", {
-    cx: "32",
-    cy: "32",
-    r: "29",
-    class: "console-face-svg__outer",
-  });
-  const inner = element("circle", {
-    cx: "32",
-    cy: "32",
-    r: "23",
-    class: "console-face-svg__inner",
-  });
-  const text = element("text", {
-    x: "32",
-    y: "39",
-    "text-anchor": "middle",
-    class: "console-face-svg__glyph",
-  });
-  text.textContent = glyph;
-  svg.append(outer, inner, text);
+  svg.setAttribute("aria-hidden", "true");
+  svg.append(
+    element("circle", { cx: "32", cy: "32", r: "29", class: "console-face-svg__outer" }),
+    element("circle", { cx: "32", cy: "32", r: "23", class: "console-face-svg__inner" }),
+  );
+  const shape =
+    glyph === "cross"
+      ? element("path", {
+          d: "M21 21L43 43M43 21L21 43",
+          class: "console-face-svg__glyph console-face-svg__symbol",
+        })
+      : glyph === "circle"
+        ? element("circle", {
+            cx: "32",
+            cy: "32",
+            r: "11",
+            class: "console-face-svg__glyph console-face-svg__symbol",
+          })
+        : glyph === "square"
+          ? element("rect", {
+              x: "21",
+              y: "21",
+              width: "22",
+              height: "22",
+              rx: "1",
+              class: "console-face-svg__glyph console-face-svg__symbol",
+            })
+          : element("path", {
+              d: "M32 18L46 43H18Z",
+              class: "console-face-svg__glyph console-face-svg__symbol",
+            });
+  svg.append(shape);
   return svg;
 }
 

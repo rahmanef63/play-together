@@ -18,3 +18,7 @@
 .console-dpad__button > * {
   pointer-events: none;
 }
+.builtin-controller {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+}

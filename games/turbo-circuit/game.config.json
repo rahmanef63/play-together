@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "turbo-circuit",
-    "version": "0.12.3",
+    "version": "0.12.4",
     "title": "Turbo Circuit",
     "description": "Server-authoritative multiplayer kart racing with procedural 3D tracks, dynamic game audio, drafting, boost pads, coins, items, hazards and simplified phone controls.",
     "minPlayers": 1,

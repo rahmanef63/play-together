@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "dimension": "2d",
+  "generator": "tools/generate-sprites.mjs",
+  "playableAssets": [
+    {
+      "id": "ibu-vendor",
+      "kind": "character",
+      "format": "spritesheet",
+      "runtimeAsset": "hero.atlas",
+      "metadataAsset": "hero.meta",
+      "requiredAnimations": ["idle", "run", "jump", "fire", "hurt"]
+    },
+    {
+      "id": "sambal-scout",
+      "kind": "enemy",
+      "format": "spritesheet",
+      "runtimeAsset": "enemy.atlas",
+      "metadataAsset": "enemy.meta",
+      "requiredAnimations": ["idle", "walk", "hit"]
+    }
+  ]
+}

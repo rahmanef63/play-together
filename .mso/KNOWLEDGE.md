@@ -7,11 +7,14 @@
 
 ## Controller contract
 - Default controller tier is always **Tier 0: left stick + ABXY + Menu/Start**.
+- ABXY remain the stable internal/gamepad semantics, but the shared builtin controller must render the face positions as non-selectable universal symbols: **A/bottom = ×, B/right = ○, X/left = □, Y/top = △**. C/D aliases map to □/△. Never expose the face letters as the primary visible glyph.
+- Render only the face actions requested by the game manifest: one, two or three-action games must not gain empty/unused face buttons merely to complete a four-button cluster.
 - L1/L2/R1/R2 are **not recommended by default** and must not appear on the default mobile controller merely because the platform supports them.
 - Advanced shoulder inputs are optional per-game shortcuts only when playtesting proves they add real value; the core action must remain reachable without them when practical.
 - Tier 1 may add a right stick; Tier 2 may add L1/R1; Tier 3 may add L1/R1/L2/R2. Games should request the lowest tier that supports their core loop.
 - Platform-owned **How To** and **Menu** actions belong in the controller surface with Start: beside Start in landscape, above Start in portrait. Do not float duplicate system buttons over gameplay on a controller/handheld screen.
 - Hold controls are interaction surfaces, not selectable text: disable text selection, native drag/callout/context-menu artifacts, and preserve press ownership until pointer/key release or focus loss.
+- The neutral warm-gray retro handheld shell is the default shared mobile/handheld visual shell; individual games provide control manifests and gameplay styling, not private copies of the shell.
 
 ## Playable asset contract
 - Do not use concept art as a substitute for runtime gameplay assets.
@@ -35,8 +38,9 @@
 - Ridge Rush should feel like an extreme mountain descent: steep cliffside sections, large vertical drops, visible valleys, strong gravity/airtime/landing physics, route choice, switchbacks, rock chutes and camera composition that sells height. Avoid a flat road with fake speed bonuses.
 - Clash Arena should begin as an original 1v1 deterministic 2.5D/3D fighter with two original fighters, one arena, best-of-three rounds, spacing/timing/counterplay, stick + ABXY baseline, and no shoulder buttons by default.
 - Clash Arena's current fighter identities are **Nova Rin** and **Kite Vale**; their runtime model assets, not generated concept images, are the canonical visual implementation.
+- **Ibu-Ibu Telur Gulung** is an original 2D street-food run-and-gun slice: pink-hijab vendor hero, drill-like telur-gulung launcher, egg/sauce pickups, combo waves and original enemies/bosses. Its spritesheet atlas + JSON metadata are canonical runtime visuals; do not substitute the photo/concept poster as gameplay art.
 - Each active 3D game should maintain readable game-specific models, camera framing, lighting/depth cues, and state-driven animation/effects; do not leave functional gameplay represented by static placeholder-like geometry when a lightweight procedural animation can communicate it.
-- Do not copy licensed Downhill Domination/Tekken/Street Fighter characters, names, assets, moves, sounds or arenas; use only original designs and mechanics.
+- Do not copy licensed Downhill Domination/Tekken/Street Fighter/Metal Slug characters, names, assets, moves, sounds, UI, typography or arenas/stages; use only original designs and mechanics.
 
 ## Release policy
 - Every published game version is immutable. New gameplay or asset changes mint new versions; old rooms stay pinned to their existing manifest digest.

@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "protocolVersion": 1,
+  "game": {
+    "id": "ibu-ibu-telur-gulung",
+    "version": "0.1.1",
+    "title": "Ibu-Ibu Telur Gulung",
+    "description": "Original co-op street-food run-and-gun: roll eggs, collect sauce, build combos and crack the Sambal Sentry.",
+    "minPlayers": 1,
+    "maxPlayers": 2,
+    "tickRate": 60,
+    "snapshotRate": 20
+  },
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
+  "controller": {
+    "supportsRemote": true,
+    "supportsHandheld": true,
+    "preferredOrientation": "landscape",
+    "console": {
+      "renderer": "builtin",
+      "layout": "gamepad",
+      "controls": [
+        {
+          "id": "move",
+          "kind": "stick",
+          "ariaLabel": "Move and aim stick",
+          "zone": "left",
+          "action": {
+            "type": "patch",
+            "values": {
+              "move": "$x",
+              "aim": "$x"
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "move": 0,
+              "aim": 0
+            }
+          },
+          "keys": {
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ]
+          }
+        },
+        {
+          "id": "jump",
+          "kind": "button",
+          "label": "A",
+          "displayLabel": "JUMP",
+          "ariaLabel": "Jump",
+          "face": "a",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "jump": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "jump": false
+            }
+          },
+          "keys": [
+            "Space"
+          ]
+        },
+        {
+          "id": "fire",
+          "kind": "button",
+          "label": "B",
+          "displayLabel": "ROLL",
+          "ariaLabel": "Fire telur gulung launcher",
+          "face": "b",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "fire": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "fire": false
+            }
+          },
+          "keys": [
+            "KeyJ"
+          ]
+        },
+        {
+          "id": "sauce",
+          "kind": "button",
+          "label": "X",
+          "displayLabel": "SAUCE",
+          "ariaLabel": "Sauce boost",
+          "face": "x",
+          "zone": "right",
+          "press": {
+            "type": "patch",
+            "values": {
+              "special": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "special": false
+            }
+          },
+          "keys": [
+            "KeyK"
+          ]
+        },
+        {
+          "id": "start",
+          "kind": "button",
+          "label": "START",
+          "ariaLabel": "Ready or pause",
+          "face": "start",
+          "zone": "bottom",
+          "press": {
+            "type": "patch",
+            "values": {
+              "start": true
+            }
+          },
+          "release": {
+            "type": "patch",
+            "values": {
+              "start": false
+            }
+          },
+          "keys": [
+            "Enter"
+          ]
+        }
+      ],
+      "initialState": {
+        "move": 0,
+        "aim": 1,
+        "jump": false,
+        "fire": false,
+        "special": false,
+        "start": false
+      }
+    }
+  },
+  "capabilities": {
+    "touch": true,
+    "keyboard": true,
+    "gamepad": true,
+    "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "aa805cb6c05a69e3a293003bc989a86ca308e83b214050eecd7b71618800b871"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "5876afb4a7259e3f46c0c3c0ed222d0adf21e73904986f586d08843ed690a7f1"
+    }
+  },
+  "assets": {
+    "hero.atlas": {
+      "url": "./assets/hero.png",
+      "sha256": "0fae8025106c17ab1794ecf96973c5590220d7fcf193bb7ec8abd9e2cf1d2297",
+      "contentType": "image/png",
+      "bytes": 549
+    },
+    "hero.meta": {
+      "url": "./assets/hero.json",
+      "sha256": "730dd9e4a4776c1350e7fe84a71b48cb934a8fed4622e96d5f9635623dd3fe7a",
+      "contentType": "application/json",
+      "bytes": 1032
+    },
+    "enemy.atlas": {
+      "url": "./assets/enemy.png",
+      "sha256": "f827ee018d07b654d6962fa39495922c015cf5dd1c32f9108a0bda1dad1f1297",
+      "contentType": "image/png",
+      "bytes": 291
+    },
+    "enemy.meta": {
+      "url": "./assets/enemy.json",
+      "sha256": "aa5b5544a8b04c40538cc7ea1891d752e776aadae8ca6c8bfde482ea2f4200aa",
+      "contentType": "application/json",
+      "bytes": 992
+    }
+  }
+}

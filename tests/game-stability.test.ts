@@ -17,6 +17,7 @@ describe("latest cartridge server stability", () => {
     expect(gameDirectories).toEqual([
       "clash-arena",
       "flight-trainer",
+      "ibu-ibu-telur-gulung",
       "ridge-rush",
       "sky-strike",
       "turbo-circuit",

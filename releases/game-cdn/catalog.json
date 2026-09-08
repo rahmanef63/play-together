@@ -315,6 +315,19 @@
       }
     },
     {
+      "gameId": "ibu-ibu-telur-gulung",
+      "version": "0.1.1",
+      "title": "Ibu-Ibu Telur Gulung",
+      "manifestPath": "/games/ibu-ibu-telur-gulung/0.1.1/manifest.json",
+      "manifestSha256": "5e9310b0a83937403f691f5ece2ca88bd014146247cceeedb8ff5910bf8ae803",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "shared",
+          "maxViewports": 1
+        }
+      }
+    },
+    {
       "gameId": "maze-run",
       "version": "0.1.0",
       "title": "Maze Run",
@@ -1299,6 +1312,19 @@
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.12.3/manifest.json",
       "manifestSha256": "eec7238bbbbb7538f1fa99a7d6d1c12612676b25e30aebbfe8091a6f42ac9ccb",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.12.4",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.12.4/manifest.json",
+      "manifestSha256": "7a377855d4cd62b34590acb0407a38ed466eae80a1954d4ea23e3f1e203333e9",
       "presentation": {
         "remoteDisplay": {
           "mode": "per-player",
