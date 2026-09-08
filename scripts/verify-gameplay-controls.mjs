@@ -8,6 +8,7 @@ import {
   verifyMobileTouchHold,
 } from "./gameplay-controls/lifecycle.mjs";
 import { measureControls } from "./gameplay-controls/measure.mjs";
+import { settleBrowserLayout } from "./gameplay-controls/mount.mjs";
 import { verifyGameDisplays } from "./gameplay-controls/render.mjs";
 
 const root = process.cwd();
@@ -117,7 +118,7 @@ try {
           },
           { config, mode },
         );
-        await page.waitForTimeout(80);
+        await settleBrowserLayout(page);
         const dimensions = await page.evaluate(measureControls);
         const name = `${gameId}-${mode}-${viewport.width}x${viewport.height}`;
         await page.screenshot({ path: resolve(artifactDirectory, `${name}.png`) });

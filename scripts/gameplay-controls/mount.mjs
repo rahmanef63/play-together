@@ -1,3 +1,10 @@
+export async function settleBrowserLayout(page) {
+  await page.evaluate(async () => {
+    if (document.fonts?.ready) await document.fonts.ready;
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  });
+}
+
 export async function mountGameDisplay(page, config, root, state) {
   await page.evaluate(
     async ({ config, root, state }) => {
@@ -61,4 +68,5 @@ export async function mountGameDisplay(page, config, root, state) {
     },
     { config, root, state },
   );
+  await settleBrowserLayout(page);
 }
