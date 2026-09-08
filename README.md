@@ -41,7 +41,7 @@ The default Play Together controller is deliberately **Tier 0: one left stick + 
 
 ## Turbo Circuit and landscape console update (0.25.0)
 
-Turbo Circuit 0.12.1 fixes finish-line progression, primary-control drift/recovery, boost-pad activation and stale track pickups. The shared landscape console gives every game bounded thumb rails and a separate system-action row; Turbo HUD/setup now use the actual game-container dimensions. Static scenery batching, a pixel budget and snapshot-owned scene updates reduce rendering work. See the [review and verification criteria](docs/turbo-console-review.md).
+Turbo Circuit 0.12.3 fixes finish-line progression, primary-control drift/recovery, boost-pad activation and stale track pickups. The shared landscape console gives every game bounded thumb rails and a separate system-action row; Turbo HUD/setup now use the actual game-container dimensions. Static scenery batching, a pixel budget and snapshot-owned scene updates reduce rendering work. See the [review and verification criteria](docs/turbo-console-review.md).
 
 ## Portal and gameplay quality update (0.24.0)
 

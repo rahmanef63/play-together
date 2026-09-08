@@ -1282,6 +1282,32 @@
     },
     {
       "gameId": "turbo-circuit",
+      "version": "0.12.2",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.12.2/manifest.json",
+      "manifestSha256": "d79f811f15314855f7f321e59f0bfd50fa7fdc304d259a7ffb4991799861e798",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
+    },
+    {
+      "gameId": "turbo-circuit",
+      "version": "0.12.3",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.12.3/manifest.json",
+      "manifestSha256": "eec7238bbbbb7538f1fa99a7d6d1c12612676b25e30aebbfe8091a6f42ac9ccb",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
+    },
+    {
+      "gameId": "turbo-circuit",
       "version": "0.2.0",
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.2.0/manifest.json",

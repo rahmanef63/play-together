@@ -47,7 +47,7 @@ export const TURBO_SETUP_CSS = `
   .turbo-setup__header{padding:6px 8px}
   .turbo-setup__header h2{font-size:18px}
   .turbo-setup__eyebrow,.turbo-setup__version,.turbo-setup__car-preview,
-  .turbo-setup__stats,.turbo-setup__roster{display:none}
+  .turbo-setup__stats,.turbo-setup__roster,.turbo-setup__help{display:none}
   .turbo-setup__map{height:42px;margin-top:4px}
   .turbo-setup__name{font-size:16px}
   .turbo-setup__kicker{margin-bottom:5px}

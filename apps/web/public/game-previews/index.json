@@ -16,7 +16,7 @@
       "version": "0.4.3",
       "cover": "flight-trainer.webp",
       "video": "flight-trainer.mp4",
-      "coverSha256": "fcab931ca8ef72aae7bd7036c9aeccd7287df380d5ae65067a02f6250f287a30",
+      "coverSha256": "cac7bc123d72bf85e2875d1354207793f02b618ff6852f6c21a7fbb8776e3f88",
       "source": "authoritative-runtime",
       "width": 960,
       "height": 540
@@ -26,7 +26,7 @@
       "version": "0.5.11",
       "cover": "ridge-rush.webp",
       "video": "ridge-rush.mp4",
-      "coverSha256": "5cc736c19aa4c6ab6d079bbc65d91870b2870e70af45118a3b9fd50b4882a61b",
+      "coverSha256": "b02629cf2ad6dc79cf657696a80af333192ac2c06a7b9ab1c1ea911f1d364fb4",
       "source": "authoritative-runtime",
       "width": 960,
       "height": 540
@@ -36,17 +36,17 @@
       "version": "0.4.3",
       "cover": "sky-strike.webp",
       "video": "sky-strike.mp4",
-      "coverSha256": "498ebcc1f02dc9033d3bb851fb81be9c958c22899cc8566098562f6bdd56a366",
+      "coverSha256": "d67f953d427142fd57ab458ad78a0e57bdbaceefc85e1f8b4a294f2e01782bad",
       "source": "authoritative-runtime",
       "width": 960,
       "height": 540
     },
     {
       "gameId": "turbo-circuit",
-      "version": "0.12.1",
+      "version": "0.12.2",
       "cover": "turbo-circuit.webp",
       "video": "turbo-circuit.mp4",
-      "coverSha256": "afec9835a8430324507f03432e74ac594969b00240fff51a8b22edaba0f04da4",
+      "coverSha256": "f9b29f44f310fd868c2ac66a73043676da985b8e321d82097d14afc1fdcce80b",
       "source": "authoritative-runtime",
       "width": 960,
       "height": 540

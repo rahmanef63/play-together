@@ -3,7 +3,7 @@
   "protocolVersion": 1,
   "game": {
     "id": "turbo-circuit",
-    "version": "0.12.3",
+    "version": "0.12.2",
     "title": "Turbo Circuit",
     "description": "Server-authoritative multiplayer kart racing with procedural 3D tracks, dynamic game audio, drafting, boost pads, coins, items, hazards and simplified phone controls.",
     "minPlayers": 1,
@@ -11,15 +11,12 @@
     "tickRate": 60,
     "snapshotRate": 20
   },
-  "modes": ["shared-screen", "handheld"],
+  "modes": [
+    "shared-screen",
+    "handheld"
+  ],
   "runtimeDependencies": {
     "three": "0.185.1+pt3"
-  },
-  "presentation": {
-    "remoteDisplay": {
-      "mode": "per-player",
-      "maxViewports": 4
-    }
   },
   "controller": {
     "supportsRemote": true,
@@ -49,10 +46,22 @@
             }
           },
           "keys": {
-            "left": ["ArrowLeft", "KeyA"],
-            "right": ["ArrowRight", "KeyD"],
-            "up": ["ArrowUp", "KeyW"],
-            "down": ["ArrowDown", "KeyS"]
+            "left": [
+              "ArrowLeft",
+              "KeyA"
+            ],
+            "right": [
+              "ArrowRight",
+              "KeyD"
+            ],
+            "up": [
+              "ArrowUp",
+              "KeyW"
+            ],
+            "down": [
+              "ArrowDown",
+              "KeyS"
+            ]
           }
         },
         {
@@ -75,7 +84,10 @@
               "throttle": 0
             }
           },
-          "keys": ["ArrowUp", "KeyW"]
+          "keys": [
+            "ArrowUp",
+            "KeyW"
+          ]
         },
         {
           "id": "brake",
@@ -97,7 +109,10 @@
               "brake": 0
             }
           },
-          "keys": ["ArrowDown", "KeyS"]
+          "keys": [
+            "ArrowDown",
+            "KeyS"
+          ]
         },
         {
           "id": "item",
@@ -114,7 +129,11 @@
               "direction": "forward"
             }
           },
-          "keys": ["Space", "Enter", "KeyF"]
+          "keys": [
+            "Space",
+            "Enter",
+            "KeyF"
+          ]
         },
         {
           "id": "rear-view",
@@ -136,7 +155,9 @@
               "rearView": false
             }
           },
-          "keys": ["KeyR"]
+          "keys": [
+            "KeyR"
+          ]
         },
         {
           "id": "start",
@@ -152,7 +173,11 @@
               "action": "start"
             }
           },
-          "keys": ["Escape", "KeyP", "KeyG"]
+          "keys": [
+            "Escape",
+            "KeyP",
+            "KeyG"
+          ]
         },
         {
           "id": "camera",
@@ -168,7 +193,9 @@
               "action": "camera"
             }
           },
-          "keys": ["KeyC"]
+          "keys": [
+            "KeyC"
+          ]
         },
         {
           "id": "drift",
@@ -190,7 +217,10 @@
               "drift": false
             }
           },
-          "keys": ["ShiftLeft", "ShiftRight"]
+          "keys": [
+            "ShiftLeft",
+            "ShiftRight"
+          ]
         },
         {
           "id": "rescue",
@@ -206,7 +236,9 @@
               "action": "rescue"
             }
           },
-          "keys": ["Backspace"]
+          "keys": [
+            "Backspace"
+          ]
         },
         {
           "id": "rear-item",
@@ -223,7 +255,9 @@
               "direction": "backward"
             }
           },
-          "keys": ["KeyV"]
+          "keys": [
+            "KeyV"
+          ]
         }
       ],
       "initialState": {
@@ -241,5 +275,15 @@
     "keyboard": true,
     "gamepad": true,
     "motion": false
+  },
+  "entries": {
+    "display": {
+      "url": "./display.js",
+      "sha256": "08c7fc176084f081080a6448b9f68b98d4fe487657bc43901a3268602322a007"
+    },
+    "server": {
+      "url": "./server.js",
+      "sha256": "b43567517e2286f9b3f9d998b9725d06a21ca64aafe9a20b97b01e9c2835abaa"
+    }
   }
 }

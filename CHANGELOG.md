@@ -3,7 +3,7 @@
 ## [0.25.0] - 2026-09-08
 
 - Fix mobile landscape across all five console presets: bounded thumb rails, a dedicated Start/How To/Menu row, and reachable 44px primary buttons.
-- Turbo Circuit 0.12.1 sizes its setup, HUD, map and results from the actual game container. Remove the forced 320px game height and overlapping duplicate item/speed effects.
+- Turbo Circuit 0.12.3 sizes its setup, HUD, map and results from the actual game container. Remove the forced 320px game height and overlapping duplicate item/speed effects.
 - Reach drift with B + steering, and rescue by holding B for one second while stopped. Keep full braking with a straight stick and preserve brake cancellation of cruise.
 - Complete laps only after ordered checkpoints and a forward crossing of the finish line; keep final-segment standings consistent.
 - Share boost-pad dimensions between track rendering and authoritative activation. Clear obsolete pickups when switching circuits.
