@@ -143,18 +143,22 @@ try {
     `${JSON.stringify({ results, errors }, null, 2)}\n`,
   );
   const failureSummary = `${failures.length} responsive layouts failed: ${failures.map((result) => `${result.name} (${result.issues.join(", ")})`).join("; ")}`;
-  if (failures.length) {
-    const annotation = failureSummary
-      .replaceAll("%", "%25")
-      .replaceAll("\r", "%0D")
-      .replaceAll("\n", "%0A");
-    console.error(
-      `::error file=scripts/verify-gameplay-controls.mjs,title=Responsive console verification::${annotation}`,
-    );
-  }
+  if (failures.length) annotateFailure("Responsive console verification", failureSummary);
   assert.equal(failures.length, 0, failureSummary);
   console.log(`Verified ${results.length} browser cases, no runtime errors.`);
+} catch (error) {
+  const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+  annotateFailure("Controller QA runtime failure", message);
+  throw error;
 } finally {
   await browser?.close();
   await server.close();
+}
+
+function annotateFailure(title, message) {
+  const escapedTitle = title.replaceAll("%", "%25").replaceAll("\r", "%0D").replaceAll("\n", "%0A");
+  const annotation = message.replaceAll("%", "%25").replaceAll("\r", "%0D").replaceAll("\n", "%0A");
+  console.error(
+    `::error file=scripts/verify-gameplay-controls.mjs,title=${escapedTitle}::${annotation}`,
+  );
 }
