@@ -56,7 +56,7 @@ for (const game of cases) {
         const controller = frame.locator('.builtin-controller[data-renderer="builtin"]');
         await expect(controller.locator(".console-control")).toHaveCount(10);
         for (const [id, face, action] of [
-          ["gas", "a", "GAS"],
+          ["gas", "a", "GO / CRUISE"],
           ["brake", "b", "BRAKE"],
           ["item", "x", "ITEM"],
           ["rear-view", "y", "REAR"],
@@ -65,13 +65,21 @@ for (const game of cases) {
           await expect(button).toHaveAttribute("data-face", face);
           await expect(button.locator(".console-control__action-label")).toHaveText(action);
         }
-        await expect(frame.getByRole("button", { name: "Accelerate" })).toBeVisible();
-        await expect(frame.getByRole("button", { name: "Brake" })).toBeVisible();
-        await expect(frame.getByRole("button", { name: "Use item ability" })).toBeVisible();
-        await expect(frame.getByRole("button", { name: "Hold rear view" })).toBeVisible();
-        await expect(frame.getByRole("button", { name: "Start ready or pause" })).toHaveText(
-          "START",
-        );
+        await expect(
+          frame.getByRole("button", {
+            name: "Tap gas once to cruise; brake cancels cruise; tap gas again to resume",
+          }),
+        ).toBeVisible();
+        await expect(frame.getByRole("button", { name: "Brake", exact: true })).toBeVisible();
+        await expect(
+          frame.getByRole("button", { name: "Use item ability", exact: true }),
+        ).toBeVisible();
+        await expect(
+          frame.getByRole("button", { name: "Hold rear view", exact: true }),
+        ).toBeVisible();
+        await expect(
+          frame.getByRole("button", { name: "Start ready or pause", exact: true }),
+        ).toHaveText("START");
         for (const removed of ["throttle", "item-back", "pause"])
           await expect(controller.locator(`[data-control-id="${removed}"]`)).toHaveCount(0);
         for (const [id, face] of [
@@ -106,7 +114,9 @@ for (const game of cases) {
         await start.click();
         await expect(frame.locator(".turbo-setup__cta")).toHaveText("READY ✓");
         await expect(turbo).toHaveAttribute("data-phase", "racing", { timeout: 6_000 });
-        const throttle = frame.getByRole("button", { name: "Accelerate" });
+        const throttle = frame.getByRole("button", {
+          name: "Tap gas once to cruise; brake cancels cruise; tap gas again to resume",
+        });
         // Hold-to-drive must be measured while the pointer is down. A completed
         // click releases gas before the assertion; tracing/remote latency can then
         // observe a stopped kart rather than the acceleration that already happened.
