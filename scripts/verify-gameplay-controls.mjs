@@ -20,7 +20,13 @@ const server = await createServer({
   configFile: false,
   root: resolve(root, "apps/web"),
   logLevel: "error",
-  server: { host: "127.0.0.1", port: 0, fs: { allow: [root] } },
+  server: {
+    host: "127.0.0.1",
+    port: 0,
+    hmr: false,
+    watch: { ignored: ["**/.local/**"] },
+    fs: { allow: [root] },
+  },
   plugins: [
     {
       name: "isolated-controller-harness",
@@ -147,7 +153,8 @@ try {
   assert.equal(failures.length, 0, failureSummary);
   console.log(`Verified ${results.length} browser cases, no runtime errors.`);
 } catch (error) {
-  const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+  const message =
+    error instanceof Error ? (error.stack ?? `${error.name}: ${error.message}`) : String(error);
   annotateFailure("Controller QA runtime failure", message);
   throw error;
 } finally {
