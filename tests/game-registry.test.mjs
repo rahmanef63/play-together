@@ -35,6 +35,22 @@ describe("game slice registry", () => {
       expect(game.config.controller.console?.controls.length).toBeGreaterThan(0);
       await expect(access(resolve(game.root, "src/controller.ts"))).rejects.toThrow();
     }
+
+    const turbo = discovered.find((game) => game.id === "turbo-circuit");
+    expect(turbo, "Turbo Circuit slice").toBeTruthy();
+    expect(turbo.config.controller.console.controls.map((control) => control.id)).toEqual([
+      "steer",
+      "gas",
+      "brake",
+      "item",
+      "rear-view",
+      "start",
+    ]);
+    expect(
+      turbo.config.controller.console.controls.some((control) =>
+        ["l1", "r1", "l2", "r2"].includes(control.face),
+      ),
+    ).toBe(false);
   });
 
   it("ignores artifact-only directories restored by workspace build caches", async () => {

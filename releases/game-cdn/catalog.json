@@ -1334,6 +1334,19 @@
     },
     {
       "gameId": "turbo-circuit",
+      "version": "0.12.5",
+      "title": "Turbo Circuit",
+      "manifestPath": "/games/turbo-circuit/0.12.5/manifest.json",
+      "manifestSha256": "ae3f9542e67a8308859b126fc6e6a3b913bba4114ebcfd29bc1caa5edb99c20c",
+      "presentation": {
+        "remoteDisplay": {
+          "mode": "per-player",
+          "maxViewports": 4
+        }
+      }
+    },
+    {
+      "gameId": "turbo-circuit",
       "version": "0.2.0",
       "title": "Turbo Circuit",
       "manifestPath": "/games/turbo-circuit/0.2.0/manifest.json",
