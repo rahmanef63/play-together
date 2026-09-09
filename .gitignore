@@ -30,3 +30,6 @@ apps/web/public/engine-vendors/
 .agent/
 
 .env.vps.production
+
+# Local MSO runtime state — never commit
+.mso/
