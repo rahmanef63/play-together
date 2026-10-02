@@ -9,6 +9,12 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "../../../shared/convexApi";
 import { resolveRuntimeImports } from "../../../shared/runtimeDependencies";
 import type { GameSummary } from "../../../shared/types";
+import {
+  FAVORITES_KEY,
+  filterGames,
+  readFavorites,
+  selectedLibraryGame,
+} from "./libraryPreferences";
 
 export function useGameCatalog() {
   const gamesResult = useQuery(api.games.listLatestPublished) as GameSummary[] | undefined;
@@ -17,16 +23,34 @@ export function useGameCatalog() {
   const [selectedGameKey, setSelectedGameKey] = useState("");
   const [selectedManifest, setSelectedManifest] = useState<GameManifest | null>(null);
   const [selectedManifestError, setSelectedManifestError] = useState("");
+  const [query, setQuery] = useState("");
+  const [players, setPlayers] = useState(0);
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const [favorites, setFavorites] = useState(readFavorites);
+  const visibleGames = filterGames(games, query, players, favorites, onlyFavorites);
   const requestedGame = new URLSearchParams(location.search).get("game");
-  const defaultGame = games.find((game) => game.gameId === requestedGame) ?? games[0];
   const gameById = useMemo(
     () => new Map(games.map((game) => [`${game.gameId}@${game.version}`, game])),
     [games],
   );
-  const effectiveGameKey =
-    (gameById.has(selectedGameKey) ? selectedGameKey : "") ||
-    (defaultGame ? `${defaultGame.gameId}@${defaultGame.version}` : "");
-  const selectedGame = gameById.get(effectiveGameKey) ?? defaultGame;
+  const selectedGame = selectedLibraryGame(visibleGames, selectedGameKey, requestedGame);
+  const effectiveGameKey = selectedGame ? `${selectedGame.gameId}@${selectedGame.version}` : "";
+  const clearFilters = () => {
+    setQuery("");
+    setPlayers(0);
+    setOnlyFavorites(false);
+  };
+  const toggleFavorite = (id: string) => {
+    const next = favorites.includes(id)
+      ? favorites.filter((value) => value !== id)
+      : [...favorites, id].slice(-100);
+    setFavorites(next);
+    try {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
+    } catch {
+      // Favorites remain usable for this session when storage is unavailable.
+    }
+  };
 
   useEffect(() => {
     let current = true;
@@ -59,9 +83,23 @@ export function useGameCatalog() {
     loadingGames,
     selectedGame,
     selectedGameKey,
-    selectedManifest,
+    selectedManifest:
+      selectedManifest?.game.id === selectedGame?.gameId &&
+      selectedManifest?.game.version === selectedGame?.version
+        ? selectedManifest
+        : null,
     selectedManifestError,
     setSelectedGameKey,
+    visibleGames,
+    query,
+    setQuery,
+    players,
+    setPlayers,
+    onlyFavorites,
+    setOnlyFavorites,
+    favorites,
+    toggleFavorite,
+    clearFilters,
   };
 }
 

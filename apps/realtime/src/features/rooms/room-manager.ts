@@ -85,14 +85,20 @@ export class RoomManager {
 
     const session = await this.#getOrStartSession(key, claims);
     this.#assertReleaseAllowed(claims);
-    const connectionId = await session.add(socket, claims);
-    return { session, connectionId };
+    try {
+      const connectionId = await session.add(socket, claims);
+      return { session, connectionId };
+    } catch (error) {
+      this.#scheduleClose(key);
+      throw error;
+    }
   }
 
   closeAll(): void {
     for (const timer of this.#idleTimers.values()) clearTimeout(timer);
     this.#idleTimers.clear();
-    for (const session of this.#sessions.values()) {
+    for (const [key, session] of this.#sessions) {
+      this.#sessions.delete(key);
       session.close();
       this.#metrics.sessionClosed();
     }
@@ -140,6 +146,7 @@ export class RoomManager {
         await handle.start();
       }
       this.#assertReleaseAllowed(claims);
+      if (session.closed) throw new Error("Room session closed during startup");
       this.#sessions.set(key, session);
       this.#metrics.sessionStarted();
       return session;
@@ -151,12 +158,21 @@ export class RoomManager {
 
   #scheduleClose(key: string): void {
     const session = this.#sessions.get(key);
-    if (!session || session.size > 0 || this.#idleTimers.has(key)) return;
+    if (!session || session.size > 0) return;
+    if (session.closed) {
+      const timer = this.#idleTimers.get(key);
+      if (timer) clearTimeout(timer);
+      this.#idleTimers.delete(key);
+      this.#sessions.delete(key);
+      this.#metrics.sessionClosed();
+      return;
+    }
+    if (this.#idleTimers.has(key)) return;
     const timer = setTimeout(() => {
       const current = this.#sessions.get(key);
       if (current && current.size === 0) {
-        current.close();
         this.#sessions.delete(key);
+        current.close();
         this.#metrics.sessionClosed();
       }
       this.#idleTimers.delete(key);

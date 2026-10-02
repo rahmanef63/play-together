@@ -12,45 +12,44 @@ import {
   turboCircuit,
 } from "./support/multiplayer";
 
-test("active catalog exposes six games and each game has one compact platform menu", async ({
-  browser,
-}) => {
+const games = [
+  {
+    key: clashArena,
+    title: "Clash Arena",
+    control: "Select fighter before match; jab during fight; press with B to escape a throw",
+    preset: "classic",
+  },
+  {
+    key: turboCircuit,
+    title: "Turbo Circuit",
+    control: "Start ready or pause",
+    preset: "racing",
+  },
+  { key: skyStrike, title: "Sky Strike", control: "Fire cannon", preset: "flight" },
+  {
+    key: flightTrainer,
+    title: "Flight Trainer",
+    control: "Toggle flaps",
+    preset: "flight",
+  },
+  {
+    key: ridgeRush,
+    title: "Ridge Rush",
+    control: "Ready or request rematch",
+    preset: "racing",
+  },
+  {
+    key: ibuIbuTelurGulung,
+    title: "Ibu-Ibu Telur Gulung",
+    control: "Fire telur gulung launcher",
+    preset: "classic",
+  },
+] as const;
+
+test("active catalog exposes all six releases and lazy previews", async ({ browser }) => {
   const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  let context = await browser.newContext({ viewport: { width: 390, height: 844 } });
-  let page = await context.newPage();
-  const games = [
-    {
-      key: clashArena,
-      title: "Clash Arena",
-      control: "Select fighter before match; jab during fight; press with B to escape a throw",
-      preset: "classic",
-    },
-    {
-      key: turboCircuit,
-      title: "Turbo Circuit",
-      control: "Start ready or pause",
-      preset: "racing",
-    },
-    { key: skyStrike, title: "Sky Strike", control: "Fire cannon", preset: "flight" },
-    {
-      key: flightTrainer,
-      title: "Flight Trainer",
-      control: "Toggle flaps",
-      preset: "flight",
-    },
-    {
-      key: ridgeRush,
-      title: "Ridge Rush",
-      control: "Ready or request rematch",
-      preset: "racing",
-    },
-    {
-      key: ibuIbuTelurGulung,
-      title: "Ibu-Ibu Telur Gulung",
-      control: "Fire telur gulung launcher",
-      preset: "classic",
-    },
-  ] as const;
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const page = await context.newPage();
   try {
     await signUp(page, `Catalog QA ${runId}`, `catalog-${runId}@example.test`);
     const setup = page.getByRole("button", { name: "Set up room", exact: true });
@@ -71,16 +70,18 @@ test("active catalog exposes six games and each game has one compact platform me
         ),
       ),
     ).toBe(true);
+  } finally {
+    await closeContext(context);
+  }
+});
 
-    for (const [index, game] of games.entries()) {
-      // Room creation is intentionally rate-limited per account. Rotate the QA account
-      // halfway through the six-cartridge sweep instead of weakening production limits.
-      if (index === 3) {
-        await closeContext(context);
-        context = await browser.newContext({ viewport: { width: 390, height: 844 } });
-        page = await context.newPage();
-        await signUp(page, `Catalog QA B ${runId}`, `catalog-b-${runId}@example.test`);
-      }
+for (const game of games) {
+  test(`${game.title} has one compact platform menu`, async ({ browser }) => {
+    const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await context.newPage();
+    try {
+      await signUp(page, `Menu QA ${runId}`, `menu-${runId}@example.test`);
       const code = await createRoom(page, {
         name: `${game.title} ${runId}`,
         gameKey: game.key,
@@ -152,8 +153,8 @@ test("active catalog exposes six games and each game has one compact platform me
       await expect(page).toHaveURL(new RegExp(`/room/${code}$`));
       await page.getByRole("button", { name: "Close room" }).click();
       await expect(page).toHaveURL("/");
+    } finally {
+      await closeContext(context);
     }
-  } finally {
-    await closeContext(context);
-  }
-});
+  });
+}

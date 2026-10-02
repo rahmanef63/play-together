@@ -1,7 +1,7 @@
 import { expect, type FrameLocator, type Page } from "@playwright/test";
 import { useStick } from "./multiplayer";
 
-export async function verifyTurboPlay(page: Page, frame: FrameLocator) {
+export async function verifyTurboGarage(page: Page, frame: FrameLocator) {
   const turbo = frame.locator(".turbo-circuit");
   const carName = frame.locator(".turbo-setup__card--car .turbo-setup__name");
   const trackName = frame.locator(".turbo-setup__card--circuit .turbo-setup__name");
@@ -14,7 +14,7 @@ export async function verifyTurboPlay(page: Page, frame: FrameLocator) {
   await expect(frame.locator(".turbo-setup__stats")).toContainText("BOOST");
   await verifyCompactScreens(page, frame, "setup");
   const controller = frame.locator('.builtin-controller[data-renderer="builtin"]');
-  await expect(controller.locator(".console-control")).toHaveCount(10);
+  await expect(controller.locator(".console-control")).toHaveCount(6);
   for (const [id, face, action] of [
     ["gas", "a", "GO / CRUISE"],
     ["brake", "b", "BRAKE / DRIFT"],
@@ -36,24 +36,26 @@ export async function verifyTurboPlay(page: Page, frame: FrameLocator) {
   await expect(frame.getByRole("button", { name: "Start ready or pause", exact: true })).toHaveText(
     "START",
   );
-  for (const removed of ["throttle", "item-back", "pause"])
+  for (const removed of [
+    "throttle",
+    "item-back",
+    "pause",
+    "camera",
+    "drift",
+    "rescue",
+    "rear-item",
+  ])
     await expect(controller.locator(`[data-control-id="${removed}"]`)).toHaveCount(0);
-  for (const [id, face] of [
-    ["camera", "l1"],
-    ["drift", "r1"],
-    ["rescue", "l2"],
-    ["rear-item", "r2"],
-  ]) {
-    const shoulder = controller.locator(`[data-control-id="${id}"]`);
-    await expect(shoulder).toHaveAttribute("data-face", face);
-    await expect(shoulder).toBeHidden();
-  }
   await useStick(page, frame, "steer", 0.9, 0, 120);
   await expect(turbo).toHaveAttribute("data-car", "comet-gt");
   await useStick(page, frame, "steer", 0, 0.9, 120);
   await expect(turbo).toHaveAttribute("data-track", "cosmic-loop");
   await expect(trackName).toContainText("Cosmic Loop");
   await expect(turbo).toHaveAttribute("data-camera", "chase");
+}
+
+export async function verifyTurboPlay(page: Page, frame: FrameLocator) {
+  const turbo = frame.locator(".turbo-circuit");
   const start = frame.getByRole("button", { name: "Start ready or pause" });
   await start.click();
   await expect(frame.locator(".turbo-setup__cta")).toHaveText("READY ✓");
@@ -70,6 +72,7 @@ export async function verifyTurboPlay(page: Page, frame: FrameLocator) {
   await expect(minimap).toHaveAttribute("data-expanded", "true");
   await minimap.press("Enter");
   await expect(minimap).toHaveAttribute("data-expanded", "false");
+  await expect(turbo).toHaveAttribute("data-paused", "false");
   const throttle = frame.getByRole("button", {
     name: "Tap gas once to cruise; brake cancels cruise; tap gas again to resume",
   });

@@ -23,6 +23,12 @@ services:
       ROOM_IDLE_TIMEOUT_MS: ${ROOM_IDLE_TIMEOUT_MS:-30000}
       MAX_PAYLOAD_BYTES: ${MAX_PAYLOAD_BYTES:-65536}
       MODULE_CACHE_DIR: ${MODULE_CACHE_DIR:-/tmp/play-together/game-modules}
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,uid=1000,gid=1000,mode=0700,noexec,nosuid
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:8787/healthz').then(r=>{if(!r.ok)process.exit(1)})"]
       interval: 5s
@@ -58,6 +64,12 @@ services:
       TEMPLATE_DOWNLOAD_SECRET: ${TEMPLATE_DOWNLOAD_SECRET:-}
       TEMPLATE_DOWNLOAD_SECRET_NEXT: ${TEMPLATE_DOWNLOAD_SECRET_NEXT:-}
       BLOB_READ_WRITE_TOKEN: ${BLOB_READ_WRITE_TOKEN:?Set BLOB_READ_WRITE_TOKEN in the VPS deployment environment}
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,noexec,nosuid
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
     volumes:
       - ${VPS_DEPLOY_STATE_FILE:-/home/rahman/.local/state/play-together/deployed-sha}:/run/play-together/deployed-sha:ro
     depends_on:

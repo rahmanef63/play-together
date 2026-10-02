@@ -20,6 +20,7 @@ export async function listPublicRooms(ctx: QueryCtx) {
   const rooms = await ctx.db
     .query("rooms")
     .withIndex("by_visibility_status", (q) => q.eq("visibility", "public").eq("status", "open"))
+    .order("desc")
     .take(100);
   const cutoff = Date.now() - PRESENCE_TTL_MS;
   const summaries = await Promise.all(
@@ -49,6 +50,7 @@ export async function listHostedRooms(ctx: QueryCtx) {
   const rooms = await ctx.db
     .query("rooms")
     .withIndex("by_host", (q) => q.eq("hostUserId", userId))
+    .order("desc")
     .take(100);
   const cutoff = Date.now() - PRESENCE_TTL_MS;
   const summaries = await Promise.all(

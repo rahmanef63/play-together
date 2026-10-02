@@ -77,6 +77,13 @@ VPS_ENV_FILE=/owner/private/path/vps-production.env pnpm vps:deploy
 
 The deploy command injects the exact Git SHA as `APP_REVISION`, builds the two images, starts them with Compose health checks, and reports success only after Docker marks the stack healthy. `/api/health` exposes the application version, `runtime: "vps-managed"`, and that exact revision so CI can distinguish a stale VPS from the commit being released.
 
+Both runtime containers use the same hardening as the local stack: a read-only root filesystem,
+all Linux capabilities dropped and no privilege escalation. Web has a bounded temporary
+directory; realtime has a 128 MiB temporary directory for its verified module cache. Keep
+`MODULE_CACHE_DIR` under `/tmp` unless an explicitly writable cache mount is configured. The
+deployment-ready revision file stays a read-only host mount. These restrictions apply to the
+running images, not the host-side release build or Convex deployment.
+
 ### CI-gated automatic VPS deploy
 
 The VPS watcher never deploys an arbitrary new `main` commit immediately. It queries the public GitHub Actions API and requires these jobs for the exact `origin/main` SHA to be successful first:
@@ -88,6 +95,12 @@ The VPS watcher never deploys an arbitrary new `main` commit immediately. It que
 `prepare-production` is a credential-free production-source validation gate; it does not mutate Convex or the VPS. Only after all three jobs are green may the VPS watcher reset its dedicated production checkout to that exact SHA. The watcher installs the locked workspace, deploys Convex functions from the VPS owner’s authenticated Convex CLI context, runs `pnpm vps:deploy`, then registers immutable manifests and reconciles release control using the owner-only VPS Redis connection. The `verify-production` CI job waits until both `/api/health.revision` and `/api/health.readyRevision` equal its own `GITHUB_SHA`. `revision` identifies the running image; `readyRevision` advances only after Convex deploy, healthy VPS containers, immutable release registration, and Redis release-control reconciliation all succeed. CI then verifies realtime and runs production browser scenarios.
 
 This design needs neither a broad SSH credential nor a Convex deploy key in GitHub Actions. A failing verify/integration/prepare gate cannot be auto-deployed, and a failed VPS-side Convex deploy prevents the container revision from advancing.
+
+When production remains behind `main`, inspect the CI run for that exact SHA before touching
+the watcher. Fix the failed contract and retain the gates. Controller scenarios must assert the
+published control tier: a six-control Tier 0 cartridge has no hidden shoulder controls. Verify
+the corrected scenario on an isolated local stack, then run the full integration suite. Do not
+make a stale control-count assertion pass by restoring controls the cartridge intentionally removed.
 
 ### Ticket verification boundary
 

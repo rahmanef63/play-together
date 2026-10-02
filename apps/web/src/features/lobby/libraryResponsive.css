@@ -54,6 +54,11 @@
     padding: 10px 6px 0;
     border: 0;
   }
+  .library-shell .session-setup input,
+  .library-shell .session-setup select {
+    min-height: var(--touch-target);
+    font-size: var(--text-md);
+  }
   .library-shell .session-setup .section-title {
     margin-bottom: 12px;
   }
@@ -74,7 +79,7 @@
 }
 @media (max-height: 580px) and (min-width: 620px) {
   .app-shell--lobby.library-shell {
-    grid-template-rows: 34px 38px 30px minmax(0, 1fr);
+    grid-template-rows: 44px 44px 44px minmax(0, 1fr);
     padding-top: 6px;
     gap: 6px;
   }

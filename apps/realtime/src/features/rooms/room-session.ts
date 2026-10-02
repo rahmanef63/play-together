@@ -65,6 +65,10 @@ export class RoomSession {
     return this.#clients.size;
   }
 
+  get closed(): boolean {
+    return this.#closed;
+  }
+
   attachCoordinator(coordinator: RoomCoordinatorHandle): void {
     this.#distribution.attach(coordinator);
   }
@@ -84,13 +88,23 @@ export class RoomSession {
   async add(socket: WebSocket, claims: TicketClaims): Promise<string> {
     await this.#worker.ready;
     if (this.#closed) throw new Error("Room session is closed");
+    if (socket.readyState !== socket.OPEN) throw new Error("Connection closed before joining room");
     const connection = this.#clients.add(socket, claims);
-    const distributed = await this.#distribution.register(connection.id, {
-      playerId: claims.sub,
-      role: claims.role,
-      mode: claims.mode,
-      connectedAt: connection.connectedAt,
-    });
+    const distributed = await this.#distribution
+      .register(connection.id, {
+        playerId: claims.sub,
+        role: claims.role,
+        mode: claims.mode,
+        connectedAt: connection.connectedAt,
+      })
+      .catch((error: unknown) => {
+        this.remove(connection.id);
+        throw error;
+      });
+    if (this.#closed || socket.readyState !== socket.OPEN) {
+      this.remove(connection.id);
+      throw new Error("Connection closed while joining room");
+    }
     if (
       !distributed &&
       claims.role === "controller" &&
@@ -144,6 +158,7 @@ export class RoomSession {
     const disconnected = this.#clients.closeAll(code, reason);
     this.#distribution.close();
     this.#worker.dispose();
+    this.#onEmpty();
     return disconnected;
   }
 

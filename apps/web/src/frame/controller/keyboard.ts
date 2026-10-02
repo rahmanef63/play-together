@@ -19,8 +19,10 @@ export function bindKeys(keys: string[], down: () => void, up: () => void): Clea
     }
   };
   const keydown = (event: KeyboardEvent) => {
+    const target = event.target as HTMLElement | null;
     if (
-      (event.defaultPrevented && (event.target as HTMLElement | null)?.tagName === "BUTTON") ||
+      (event.defaultPrevented &&
+        (target?.tagName === "BUTTON" || target?.getAttribute?.("role") === "button")) ||
       editable(event.target) ||
       document.querySelector(".console-how-to:not([hidden])") ||
       !(accepted.has(event.code) || accepted.has(event.key))

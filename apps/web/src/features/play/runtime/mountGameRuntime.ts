@@ -42,24 +42,29 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
   let disposeFrameBootstrap: (() => void) | null = null;
   let markFrameReady = () => {};
   let beginFrameRecovery = () => {};
+  let frameError = "";
+  let connectionError = "";
+  const reportError = (source: "frame" | "connection", message: string) => {
+    if (source === "frame") frameError = message;
+    else connectionError = message;
+    options.onError(frameError || connectionError);
+  };
   let gameTitle = options.roomTitle || "Game";
   let latestPresence: PresencePlayer[] = [];
   let currentPlayerId = "";
-  const presentationPolicy = options.presentationPolicy;
   const channel = secureChannelId();
   const frame = createGameFrame(options.role, options.mode, channel);
   const performanceSampler =
     options.role === "display" || options.mode === "handheld"
       ? new FramePerformanceSampler()
       : null;
-
   const pushPresentation = () => {
     if (options.role !== "display") return;
     const controllers = remoteControllers(latestPresence);
     const plan = createRemoteDisplayPlan({
       players: latestPresence,
       fallbackPlayerId: currentPlayerId,
-      policy: presentationPolicy,
+      policy: options.presentationPolicy,
     });
     options.onRemotePlan(controllers.length, plan.layout);
     options.onStatus(
@@ -78,7 +83,6 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
       "*",
     );
   };
-
   const onFrameMessage = (event: MessageEvent<unknown>) => {
     if (event.source !== frame.contentWindow || !isFrameMessage(event.data, channel)) return;
     const message = event.data;
@@ -88,6 +92,7 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
       if (options.role !== "display") options.onStatus(message.status);
     } else if (message.type === "ready") {
       markFrameReady();
+      if (frameError) reportError("frame", "");
       gameTitle = typeof message.title === "string" ? message.title : gameTitle;
       if (options.role === "display") pushPresentation();
       else
@@ -101,12 +106,12 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
         );
     } else if (message.type === "system-menu") options.onSystemMenu();
     else if (message.type === "error")
-      options.onError(
+      reportError(
+        "frame",
         typeof message.message === "string" ? message.message : "Game surface failed",
       );
   };
   window.addEventListener("message", onFrameMessage);
-
   void connect();
   return () => {
     disposed = true;
@@ -120,7 +125,6 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
     frame.remove();
     options.onConnection("idle");
   };
-
   async function connect() {
     try {
       options.onError("");
@@ -160,7 +164,7 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
         options.onConnection(status);
       });
       unsubscribeMessages = client.onMessage((message) => {
-        if (message.type === "error") options.onError(message.message);
+        if (message.type === "error") reportError("connection", message.message);
         else if (message.type === "presence") {
           latestPresence = message.players;
           pushPresentation();
@@ -168,6 +172,7 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
       });
       unsubscribeSnapshot = client.subscribe((snapshot) => {
         liveness.snapshot();
+        if (connectionError) reportError("connection", "");
         frame.contentWindow?.postMessage({ type: "snapshot", channel, snapshot }, "*");
       });
       const bootstrap = mountFrameBootstrap({
@@ -177,7 +182,7 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
         mode: options.mode,
         ticket: initial,
         onLoad: pushPresentation,
-        onStall: options.onError,
+        onStall: (message) => reportError("frame", message),
       });
       disposeFrameBootstrap = bootstrap.dispose;
       markFrameReady = bootstrap.ready;
@@ -186,7 +191,10 @@ export function mountGameRuntime(options: RuntimeOptions): () => void {
       client.start();
     } catch (reason) {
       if (!disposed)
-        options.onError(reason instanceof Error ? reason.message : "Game could not start");
+        reportError(
+          "connection",
+          reason instanceof Error ? reason.message : "Game could not start",
+        );
     }
   }
 }

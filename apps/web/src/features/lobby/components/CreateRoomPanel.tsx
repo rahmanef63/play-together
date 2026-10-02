@@ -1,48 +1,36 @@
-import type { GameManifest } from "@play-together/contracts";
 import { type FormEvent, useState } from "react";
 import { PreviewCardSkeleton, SkeletonBlock } from "../../../shared/Skeleton";
-import type { CurrentUser, GameSummary } from "../../../shared/types";
+import type { CurrentUser } from "../../../shared/types";
 import { Button } from "../../../shared/ui/Button";
 import { EmptyState } from "../../../shared/ui/EmptyState";
 import { FormField } from "../../../shared/ui/FormField";
 import { ScrollablePanel } from "../../../shared/ui/ScrollablePanel";
+import type { useGameCatalog } from "../model/useGameCatalog";
 import { GameLibrary } from "./GameLibrary";
 
 export function CreateRoomPanel({
   user,
-  games,
-  loadingGames,
-  selectedGame,
-  selectedManifest,
-  selectedManifestError,
-  effectiveGameKey,
+  catalog,
   busy,
-  onGameChange,
   onSubmit,
 }: {
   user: CurrentUser;
-  games: GameSummary[];
-  loadingGames: boolean;
-  selectedGame: GameSummary | undefined;
-  selectedManifest: GameManifest | null;
-  selectedManifestError: string;
-  effectiveGameKey: string;
+  catalog: ReturnType<typeof useGameCatalog>;
   busy: boolean;
-  onGameChange: (key: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
   const [setup, setSetup] = useState(false);
+  const {
+    games,
+    loadingGames,
+    selectedGame,
+    selectedManifest,
+    selectedManifestError,
+    effectiveGameKey,
+  } = catalog;
   return (
     <section className="create-panel" data-setup={setup} aria-label="Start a session">
-      <GameLibrary
-        games={games}
-        loadingGames={loadingGames}
-        effectiveGameKey={effectiveGameKey}
-        onGameChange={onGameChange}
-        selectedManifest={selectedManifest}
-        selectedManifestError={selectedManifestError}
-        onSetup={() => setSetup(true)}
-      />
+      <GameLibrary catalog={catalog} onSetup={() => setSetup(true)} />
       <ScrollablePanel className="session-setup" title="New room" ariaLabel="Create room settings">
         <button type="button" className="setup-back" onClick={() => setSetup(false)}>
           Back to library
@@ -67,7 +55,10 @@ export function CreateRoomPanel({
                 <select
                   name="game"
                   value={effectiveGameKey}
-                  onChange={(event) => onGameChange(event.target.value)}
+                  onChange={(event) => {
+                    catalog.clearFilters();
+                    catalog.setSelectedGameKey(event.target.value);
+                  }}
                 >
                   {games.map((game) => {
                     const key = `${game.gameId}@${game.version}`;
@@ -129,8 +120,12 @@ export function CreateRoomPanel({
           </div>
         ) : (
           <EmptyState
-            title="No published game yet"
-            body="Publish a signed game manifest from the operations workflow first."
+            title={games.length ? "No matching games" : "No games available"}
+            body={
+              games.length
+                ? "Clear the library filters to choose a game."
+                : "Check back soon for a new game."
+            }
           />
         )}
       </ScrollablePanel>

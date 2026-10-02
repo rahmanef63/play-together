@@ -21,6 +21,18 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 describe("keyboard ownership", () => {
+  it.each(["BUTTON", "DIV"])("respects consumed Enter on a focused %s button", (tagName) => {
+    const down = vi.fn();
+    cleanups.push(bindKeys(["Enter"], down, vi.fn()));
+    const event = new Event("keydown", { cancelable: true });
+    Object.assign(event, { code: "Enter", key: "Enter" });
+    Object.defineProperty(event, "target", {
+      value: { tagName, getAttribute: () => (tagName === "DIV" ? "button" : null) },
+    });
+    event.preventDefault();
+    win.dispatchEvent(event);
+    expect(down).not.toHaveBeenCalled();
+  });
   it("does not send gameplay shortcuts while How To is open", () => {
     const down = vi.fn();
     Object.assign(doc, { querySelector: () => ({}) });

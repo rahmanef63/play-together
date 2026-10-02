@@ -19,6 +19,7 @@ parentPort.on("message", (message) => {
   if (message.type === "join") players.set(message.playerId, players.get(message.playerId) ?? 0);
   else if (message.type === "leave") players.delete(message.playerId);
   else if (message.type === "input") {
+    if (message.payload?.crash) process.exit(1);
     const steer = Number(message.payload?.steer ?? 0);
     players.set(message.playerId, (players.get(message.playerId) ?? 0) + steer);
   } else if (message.type === "dispose") {

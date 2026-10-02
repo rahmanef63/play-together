@@ -1,55 +1,38 @@
-import { useState } from "react";
 import { GameCover } from "../../../shared/GameCover";
 import { GamePreview } from "../../../shared/GamePreview";
 import { gameInviteUrl } from "../../../shared/inviteLinks";
 import { ShareLink } from "../../../shared/ShareLink";
-import {
-  FAVORITES_KEY,
-  filterGames,
-  randomGameKey,
-  readFavorites,
-} from "../model/libraryPreferences";
+import { randomGameKey } from "../model/libraryPreferences";
 import { LibraryTools } from "./LibraryTools";
 import "../libraryTools.css";
-import type { GameManifest } from "@play-together/contracts";
-import type { GameSummary } from "../../../shared/types";
 import { HorizontalSnap } from "../../../shared/ui/HorizontalSnap";
-import { consoleControlLabels } from "../model/useGameCatalog";
+import { consoleControlLabels, type useGameCatalog } from "../model/useGameCatalog";
 export function GameLibrary({
-  games,
-  loadingGames,
-  effectiveGameKey,
-  onGameChange,
-  selectedManifest,
-  selectedManifestError,
+  catalog,
   onSetup,
 }: {
-  games: GameSummary[];
-  loadingGames: boolean;
-  effectiveGameKey: string;
-  onGameChange: (key: string) => void;
-  selectedManifest: GameManifest | null;
-  selectedManifestError: string;
+  catalog: ReturnType<typeof useGameCatalog>;
   onSetup: () => void;
 }) {
-  const [query, setQuery] = useState("");
-  const [players, setPlayers] = useState(0);
-  const [onlyFavorites, setOnlyFavorites] = useState(false);
-  const [favorites, setFavorites] = useState(readFavorites);
-  const visibleGames = filterGames(games, query, players, favorites, onlyFavorites);
-  const toggleFavorite = (id: string) => {
-    const next = favorites.includes(id)
-      ? favorites.filter((value) => value !== id)
-      : [...favorites, id].slice(-100);
-    setFavorites(next);
-    try {
-      localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
-    } catch {
-      /* Session-only when storage is unavailable. */
-    }
-  };
-  const selected =
-    games.find((game) => `${game.gameId}@${game.version}` === effectiveGameKey) ?? games[0];
+  const {
+    games,
+    loadingGames,
+    effectiveGameKey,
+    selectedManifest,
+    selectedManifestError,
+    query,
+    setQuery,
+    players,
+    setPlayers,
+    onlyFavorites,
+    setOnlyFavorites,
+    favorites,
+    visibleGames,
+    toggleFavorite,
+    clearFilters,
+    selectedGame: selected,
+    setSelectedGameKey: onGameChange,
+  } = catalog;
   return (
     <section className="console-library" aria-label="Game library">
       <LibraryTools
@@ -74,7 +57,14 @@ export function GameLibrary({
           <GamePreview gameId={selected.gameId} version={selected.version} title={selected.title} />
         )}
         <figcaption className="game-stage__caption">
-          <h1>{selected?.title ?? (loadingGames ? "Loading games…" : "No games available")}</h1>
+          <h1>
+            {selected?.title ??
+              (loadingGames
+                ? "Loading games…"
+                : games.length
+                  ? "No matching games"
+                  : "No games available")}
+          </h1>
           {selected && (
             <button
               className="library-favorite"
@@ -88,7 +78,9 @@ export function GameLibrary({
           <p>
             {selected
               ? `${selected.minPlayers}–${selected.maxPlayers} players · ${[selected.supportsRemote && "Phone remote", selected.supportsHandheld && "Handheld"].filter(Boolean).join(" · ")}`
-              : "Your available games will appear here."}
+              : games.length
+                ? "Try another title, party size, or clear your filters."
+                : "Your available games will appear here."}
           </p>
           <button
             type="button"
@@ -104,14 +96,7 @@ export function GameLibrary({
         {visibleGames.length === 0 && !loadingGames && (
           <div role="status">
             No matching games.{" "}
-            <button
-              type="button"
-              onClick={() => {
-                setQuery("");
-                setPlayers(0);
-                setOnlyFavorites(false);
-              }}
-            >
+            <button type="button" onClick={clearFilters}>
               Clear filters
             </button>
           </div>
@@ -153,7 +138,9 @@ export function GameLibrary({
         <p className="library-controls">
           {selectedManifest
             ? consoleControlLabels(selectedManifest).slice(0, 5).join(" · ")
-            : "Loading game controls…"}
+            : selected
+              ? "Loading game controls…"
+              : ""}
         </p>
       )}
     </section>

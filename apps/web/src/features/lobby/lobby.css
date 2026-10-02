@@ -120,7 +120,7 @@
 @media (max-width: 900px) {
   .app-shell--lobby.library-shell {
     padding: max(10px, var(--safe-top)) 14px calc(76px + var(--safe-bottom));
-    grid-template-rows: 40px 48px 36px minmax(0, 1fr);
+    grid-template-rows: 44px 60px 44px minmax(0, 1fr);
     gap: 7px;
   }
   .library-shell .topbar {
@@ -136,6 +136,11 @@
   .library-shell .join-inline label {
     flex: 1;
     min-width: 0;
+  }
+  .library-shell .join-inline input,
+  .library-shell .join-inline .ds-button {
+    min-height: var(--touch-target);
+    font-size: var(--text-md);
   }
   .library-shell .console-panel-tabs {
     gap: 24px;

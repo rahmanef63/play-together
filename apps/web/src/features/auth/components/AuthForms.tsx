@@ -38,10 +38,12 @@ export function AuthForms({
   return (
     <section className="auth-card panel">
       {accountMode && (
-        <div className="segmented" role="tablist" aria-label="Account mode">
+        <fieldset className="segmented" aria-label="Account mode">
           <button
             type="button"
             className={mode === "signUp" ? "active" : ""}
+            aria-pressed={mode === "signUp"}
+            disabled={busy}
             onClick={() => onModeChange("signUp")}
           >
             Create account
@@ -49,11 +51,13 @@ export function AuthForms({
           <button
             type="button"
             className={mode === "signIn" ? "active" : ""}
+            aria-pressed={mode === "signIn"}
+            disabled={busy}
             onClick={() => onModeChange("signIn")}
           >
             Sign in
           </button>
-        </div>
+        </fieldset>
       )}
       {accountMode && (
         <>
@@ -96,7 +100,7 @@ export function AuthForms({
               required
             />
             {error && (
-              <p className="auth-inline-error" id="auth-field-error">
+              <p className="auth-inline-error" id="auth-field-error" role="alert">
                 {error}
               </p>
             )}

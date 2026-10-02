@@ -35,7 +35,7 @@
 .library-favorite {
   position: relative;
   margin: 0 0 10px;
-  min-height: 36px;
+  min-height: var(--touch-target);
   padding: 6px 10px;
   background: var(--stage-bg);
   color: var(--stage-text);
@@ -52,6 +52,10 @@
   }
   .library-tools input {
     flex-basis: 100px;
+  }
+  .library-tools input,
+  .library-tools select {
+    font-size: var(--text-md);
   }
 }
 @media (max-height: 580px) and (min-width: 620px) {
@@ -70,7 +74,7 @@
 }
 .library-share summary {
   cursor: pointer;
-  min-height: 28px;
+  min-height: var(--touch-target);
   display: list-item;
   align-content: center;
 }

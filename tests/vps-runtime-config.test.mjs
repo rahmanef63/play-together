@@ -43,6 +43,17 @@ describe("VPS production runtime configuration", () => {
     expect(profile).not.toMatch(/^TEMPLATE_DOWNLOAD_SECRET=/m);
   });
 
+  it("keeps each production service read-only with bounded temporary storage and no capabilities", async () => {
+    const compose = await readFile("infra/vps/docker-compose.production.yml", "utf8");
+    for (const name of ["realtime", "web"]) {
+      const service = compose.split(`\n  ${name}:\n`)[1].split(/\n(?:  \w+:|networks:)/)[0];
+      expect(service).toContain("read_only: true");
+      expect(service).toContain("cap_drop: [ALL]");
+      expect(service).toContain("no-new-privileges:true");
+      expect(service).toMatch(/\/tmp:size=\d+m.*noexec,nosuid/);
+    }
+  });
+
   it("uses one platform-neutral production artifact path for VPS images", async () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8"));
     const webDockerfile = await readFile("apps/web/Dockerfile", "utf8");

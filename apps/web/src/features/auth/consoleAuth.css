@@ -126,6 +126,9 @@
   background: transparent;
 }
 .console-auth .segmented {
+  min-width: 0;
+  border: 0;
+  margin-inline: 0;
   background: var(--color-surface-deep);
   border-radius: 6px;
   padding: 3px;

@@ -64,14 +64,8 @@ export function LobbyPage({
       <div className="lobby-grid">
         <CreateRoomPanel
           user={user}
-          games={catalog.games}
-          loadingGames={catalog.loadingGames}
-          selectedGame={catalog.selectedGame}
-          selectedManifest={catalog.selectedManifest}
-          selectedManifestError={catalog.selectedManifestError}
-          effectiveGameKey={catalog.effectiveGameKey}
+          catalog={catalog}
           busy={directory.busy}
-          onGameChange={catalog.setSelectedGameKey}
           onSubmit={(event) => void directory.onCreate(event)}
         />
         <RoomDirectory

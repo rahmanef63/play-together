@@ -41,3 +41,15 @@ export function randomGameKey(
   const game = pool[Math.min(pool.length - 1, Math.floor(random() * pool.length))];
   return game ? `${game.gameId}@${game.version}` : null;
 }
+
+export function selectedLibraryGame(
+  games: GameSummary[],
+  selectedKey: string,
+  requestedId: string | null,
+) {
+  return (
+    games.find((game) => `${game.gameId}@${game.version}` === selectedKey) ??
+    games.find((game) => game.gameId === requestedId) ??
+    games[0]
+  );
+}

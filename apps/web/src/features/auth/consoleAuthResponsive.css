@@ -44,6 +44,13 @@
   .console-auth .auth-entry-tabs button {
     padding-bottom: 12px;
   }
+  .console-auth input {
+    font-size: var(--text-md);
+  }
+  .console-auth .segmented button,
+  .auth-tv-help {
+    min-height: var(--touch-target);
+  }
 }
 @media (orientation: landscape) and (max-height: 560px) {
   .auth-page.console-auth {

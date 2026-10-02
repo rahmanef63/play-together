@@ -1,6 +1,6 @@
 {
   "name": "play-together",
-  "version": "0.25.0",
+  "version": "0.25.1",
   "private": true,
   "description": "Version-isolated multiplayer game platform with mobile controllers and shared browser displays.",
   "packageManager": "pnpm@10.32.1",
@@ -81,6 +81,9 @@
     "ws": "8.21.3"
   },
   "pnpm": {
+    "overrides": {
+      "@vercel/blob>undici": "6.28.1"
+    },
     "onlyBuiltDependencies": [
       "esbuild"
     ]

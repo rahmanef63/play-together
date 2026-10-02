@@ -8,16 +8,17 @@ import {
   startGame,
   turboCircuit,
 } from "./support/multiplayer";
-import { verifyTurboPlay } from "./support/turboCircuit";
+import { verifyTurboGarage, verifyTurboPlay } from "./support/turboCircuit";
 
 const cases = [
+  { key: turboCircuit, title: "Turbo Circuit", control: "Start ready or pause", garage: true },
   { key: turboCircuit, title: "Turbo Circuit", control: "Start ready or pause" },
   { key: skyStrike, title: "Sky Strike", control: "Fire cannon" },
   { key: flightTrainer, title: "Flight Trainer", control: "Throttle up" },
 ] as const;
 
 for (const game of cases) {
-  test(`${game.title} exposes distinct shared-console controls and live WebGL gameplay`, async ({
+  test(`${game.title} ${"garage" in game ? "selects a car and track in the compact garage" : "exposes distinct shared-console controls and live WebGL gameplay"}`, async ({
     browser,
   }) => {
     const runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -43,7 +44,8 @@ for (const game of cases) {
       await expect(frame.locator('.builtin-controller[data-renderer="builtin"]')).toBeVisible();
 
       if (game.title === "Turbo Circuit") {
-        await verifyTurboPlay(page, frame);
+        if ("garage" in game) await verifyTurboGarage(page, frame);
+        else await verifyTurboPlay(page, frame);
       } else {
         const guide = frame.locator(
           game.title === "Flight Trainer" ? ".flight-navigation" : ".sky-target-guide",

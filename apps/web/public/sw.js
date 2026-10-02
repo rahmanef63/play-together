@@ -1,4 +1,4 @@
-const VERSION = "0.25.0";
+const VERSION = "0.25.1";
 const SHELL_CACHE = `play-together-shell-${VERSION}`;
 const RUNTIME_CACHE = `play-together-runtime-${VERSION}`;
 const OWNED_PREFIX = "play-together-";
@@ -79,12 +79,18 @@ async function networkFirstNavigation(request) {
   try {
     const response = await fetch(request);
     if (response.ok) {
-      const cache = await caches.open(SHELL_CACHE);
-      await cache.put(request, response.clone());
+      await caches
+        .open(SHELL_CACHE)
+        .then((cache) => cache.put(request, response.clone()))
+        .catch(() => undefined);
     }
     return response;
   } catch {
-    return (await caches.match(request)) || (await caches.match("/")) || Response.error();
+    return (
+      (await caches.match(request).catch(() => undefined)) ||
+      (await caches.match("/").catch(() => undefined)) ||
+      Response.error()
+    );
   }
 }
 
@@ -92,22 +98,26 @@ async function networkFirstStatic(request) {
   try {
     const response = await fetch(request, { cache: "no-store" });
     if (response.ok) {
-      const cache = await caches.open(SHELL_CACHE);
-      await cache.put(request, response.clone());
+      await caches
+        .open(SHELL_CACHE)
+        .then((cache) => cache.put(request, response.clone()))
+        .catch(() => undefined);
     }
     return response;
   } catch {
-    return (await caches.match(request)) || Response.error();
+    return (await caches.match(request).catch(() => undefined)) || Response.error();
   }
 }
 
 async function cacheFirstRuntime(request) {
-  const cached = await caches.match(request);
+  const cached = await caches.match(request).catch(() => undefined);
   if (cached) return cached;
   const response = await fetch(request);
   if (response.ok && response.type === "basic") {
-    const cache = await caches.open(RUNTIME_CACHE);
-    await cache.put(request, response.clone());
+    await caches
+      .open(RUNTIME_CACHE)
+      .then((cache) => cache.put(request, response.clone()))
+      .catch(() => undefined);
   }
   return response;
 }

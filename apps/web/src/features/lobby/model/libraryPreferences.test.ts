@@ -1,6 +1,11 @@
 import { expect, it, vi } from "vitest";
 import type { GameSummary } from "../../../shared/types";
-import { filterGames, randomGameKey, readFavorites } from "./libraryPreferences";
+import {
+  filterGames,
+  randomGameKey,
+  readFavorites,
+  selectedLibraryGame,
+} from "./libraryPreferences";
 
 const games = [
   { gameId: "one", title: "One", version: "1.0.0", minPlayers: 1, maxPlayers: 2 },
@@ -24,4 +29,12 @@ it("tolerates unavailable and malformed browser storage", () => {
   });
   expect(readFavorites()).toEqual([]);
   vi.unstubAllGlobals();
+});
+
+it("keeps the selected game inside current filters and clears empty selections", () => {
+  const matches = filterGames(games, "Two", 0, [], false);
+  expect(selectedLibraryGame(matches, "one@1.0.0", "one")).toBe(games[1]);
+  expect(selectedLibraryGame([], "one@1.0.0", "one")).toBeUndefined();
+  expect(selectedLibraryGame(games, "two@1.0.0", "one")).toBe(games[1]);
+  expect(selectedLibraryGame(games, "missing@1.0.0", "two")).toBe(games[1]);
 });

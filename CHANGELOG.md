@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.25.1] - 2026-10-02
+
+- Keep library search, party size, favorites, preview and room setup synchronized; show a recoverable empty state when filters match no game.
+- Restore keyboard focus from the mobile account menu, expose account-mode selection, and retain readable mobile inputs and touch targets.
+- Evict closed realtime sessions after a worker crash so reconnect can start a fresh game worker.
+- Clear recovered connection warnings when live snapshots resume, while retaining independent renderer failures until the frame is ready.
+- Respect Enter already handled by an accessible game control, so toggling the minimap cannot also pause the race.
+- Query the newest public and hosted rooms before applying the existing 100-room limit.
+- Keep network responses usable when browser cache storage is unavailable or full.
+- Restore the release pipeline's Turbo Circuit check to the cartridge's six-control Tier 0 contract.
+- Give catalog cartridges and Turbo garage/racing scenarios independent browser cases without changing assertions or timeout limits.
+- Apply existing container hardening to production and patch the transitive Undici dependency to 6.28.1.
+
 ## [0.25.0] - 2026-09-08
 
 - Fix mobile landscape across all five console presets: bounded thumb rails, a dedicated Start/How To/Menu row, and reachable 44px primary buttons.
