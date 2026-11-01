@@ -15,7 +15,7 @@
     "test": "vitest run src --exclude 'dist/**'"
   },
   "dependencies": {
-    "zod": "4.5.2"
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "typescript": "5.9.3",
